@@ -4,10 +4,11 @@
   "package": "io.github.stuff_stuffs.turnbasedcombat.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "MixinEntity",
     "MixinServerPlayerEntity"
   ],
   "client": [
-    "MixinMouse"
+    "MixinClientPlayerInteractionManager"
   ],
   "injectors": {
     "defaultRequire": 1

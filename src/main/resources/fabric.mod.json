@@ -15,6 +15,9 @@
     ],
     "main": [
       "io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment"
+    ],
+    "cardinal-components": [
+      "io.github.stuff_stuffs.turnbasedcombat.common.component.ComponentRegistry"
     ]
   },
   "mixins": [
@@ -23,6 +26,13 @@
   "depends": {
     "fabricloader": ">=0.11.2",
     "fabric": "*",
-    "minecraft": "1.17-alpha.21.8.b"
+    "minecraft": "1.17-alpha.21.10.a"
+  },
+  "custom": {
+    "cardinal-components": [
+      "turn_based_combat:battle_player",
+      "turn_based_combat:battle_world",
+      "turn_based_combat:battle_entity"
+    ]
   }
 }
