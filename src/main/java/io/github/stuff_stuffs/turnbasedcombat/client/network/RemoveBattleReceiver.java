@@ -10,11 +10,8 @@ import net.minecraft.network.PacketByteBuf;
 
 public final class RemoveBattleReceiver {
     public static void receive(final MinecraftClient client, final ClientPlayNetworkHandler clientPlayNetworkHandler, final PacketByteBuf buf, final PacketSender packetSender) {
-        final BattleHandle handle = BattleHandle.fromBuf(buf);
-        if (client.world != null && client.world.getRegistryKey().equals(handle.getDimension())) {
-            final ClientBattleWorldComponent component = (ClientBattleWorldComponent) Components.BATTLE_WORLD_COMPONENT_KEY.get(client.world);
-            component.removeBattle(handle);
-        }
+        final ClientBattleWorldComponent battleWorld = (ClientBattleWorldComponent) Components.BATTLE_WORLD_COMPONENT_KEY.get(client.world);
+        battleWorld.removeBattle(BattleHandle.fromBuf(buf));
     }
 
     private RemoveBattleReceiver() {

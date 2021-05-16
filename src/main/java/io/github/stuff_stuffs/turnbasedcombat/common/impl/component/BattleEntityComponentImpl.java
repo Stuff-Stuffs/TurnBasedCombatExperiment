@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.impl.component;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.api.Battle;
+import io.github.stuff_stuffs.turnbasedcombat.common.api.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.api.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.component.BattleEntityComponent;
 import io.github.stuff_stuffs.turnbasedcombat.common.component.BattleWorldComponent;
@@ -24,17 +25,28 @@ public class BattleEntityComponentImpl implements BattleEntityComponent {
     }
 
     public void setBattleHandle(final BattleHandle battleHandle) {
-        this.battleHandle = battleHandle;
+        if (entity instanceof BattleEntity) {
+            this.battleHandle = battleHandle;
+        } else {
+            throw new RuntimeException();
+        }
     }
 
     @Override
     public boolean isInBattle() {
+        if (!(entity instanceof BattleEntity)) {
+            return false;
+        }
         final World world = entity.world;
         if (battleHandle != null && world != null) {
             final BattleWorldComponent battleWorld = Components.BATTLE_WORLD_COMPONENT_KEY.get(world);
             final Battle battle = battleWorld.fromHandle(battleHandle);
-            if (battle != null) {
-                return battle.isActive();
+            if (battle != null && battle.isActive()) {
+                if (battle.contains((BattleEntity) entity)) {
+                    return true;
+                } else {
+                    battleHandle = null;
+                }
             }
         }
         return false;
@@ -42,30 +54,36 @@ public class BattleEntityComponentImpl implements BattleEntityComponent {
 
     @Override
     public void tick() {
-        if (battleHandle != null) {
-            final Battle battle = Components.BATTLE_WORLD_COMPONENT_KEY.get(entity.world).fromHandle(battleHandle);
-            if (battle != null && !battle.isActive()) {
-                battleHandle = null;
+        if (entity instanceof BattleEntity) {
+            if (battleHandle != null) {
+                final Battle battle = Components.BATTLE_WORLD_COMPONENT_KEY.get(entity.world).fromHandle(battleHandle);
+                if (battle != null && !battle.isActive()) {
+                    battleHandle = null;
+                }
             }
         }
     }
 
     @Override
     public void readFromNbt(final CompoundTag tag) {
-        if (tag.contains("battleHandle")) {
-            final BattleHandle tmp = BattleHandle.fromTag(tag.getCompound("battleHandle"));
-            if (battleHandle != null && !battleHandle.equals(tmp)) {
-                throw new RuntimeException();
+        if (entity instanceof BattleEntity) {
+            if (tag.contains("battleHandle")) {
+                final BattleHandle tmp = BattleHandle.fromTag(tag.getCompound("battleHandle"));
+                if (battleHandle != null && !battleHandle.equals(tmp)) {
+                    throw new RuntimeException();
+                }
+                battleHandle = tmp;
             }
-            battleHandle = tmp;
         }
 
     }
 
     @Override
     public void writeToNbt(final CompoundTag tag) {
-        if (battleHandle != null) {
-            tag.put("battleHandle", battleHandle.toNbt());
+        if (entity instanceof BattleEntity) {
+            if (battleHandle != null) {
+                tag.put("battleHandle", battleHandle.toNbt());
+            }
         }
     }
 }

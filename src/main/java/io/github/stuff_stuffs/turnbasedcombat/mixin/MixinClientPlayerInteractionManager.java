@@ -27,7 +27,7 @@ public class MixinClientPlayerInteractionManager {
     @Final
     private MinecraftClient client;
 
-    @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;attack(Lnet/minecraft/entity/Entity;)V"), cancellable = true)
+    @Inject(method = "attackEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"), cancellable = true)
     private void hook(final PlayerEntity player, final Entity target, final CallbackInfo ci) {
         final BattlePlayerComponent battlePlayer = Components.BATTLE_PLAYER_COMPONENT_KEY.get(player);
         if (battlePlayer.isInBattle()) {
@@ -35,11 +35,11 @@ public class MixinClientPlayerInteractionManager {
         }
     }
 
-    @Inject(method = "interactEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;interact(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"), cancellable = true)
+    @Inject(method = "interactEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"), cancellable = true)
     private void hook(final PlayerEntity player, final Entity entity, final Hand hand, final CallbackInfoReturnable<ActionResult> cir) {
         final BattlePlayerComponent battlePlayer = Components.BATTLE_PLAYER_COMPONENT_KEY.get(player);
         if (battlePlayer.isInBattle()) {
-            cir.setReturnValue(ActionResult.FAIL);
+            cir.setReturnValue(ActionResult.PASS);
         }
     }
 
@@ -47,7 +47,7 @@ public class MixinClientPlayerInteractionManager {
     private void hook(final ClientPlayerEntity player, final ClientWorld world, final Hand hand, final BlockHitResult hitResult, final CallbackInfoReturnable<ActionResult> cir) {
         final BattlePlayerComponent battlePlayer = Components.BATTLE_PLAYER_COMPONENT_KEY.get(player);
         if (battlePlayer.isInBattle()) {
-            cir.setReturnValue(ActionResult.FAIL);
+            cir.setReturnValue(ActionResult.PASS);
         }
     }
 
@@ -55,11 +55,11 @@ public class MixinClientPlayerInteractionManager {
     private void hook(final PlayerEntity player, final World world, final Hand hand, final CallbackInfoReturnable<ActionResult> cir) {
         final BattlePlayerComponent battlePlayer = Components.BATTLE_PLAYER_COMPONENT_KEY.get(player);
         if (battlePlayer.isInBattle()) {
-            cir.setReturnValue(ActionResult.FAIL);
+            cir.setReturnValue(ActionResult.PASS);
         }
     }
 
-    @Inject(method = "interactEntityAtLocation", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;interactAt(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"), cancellable = true)
+    @Inject(method = "interactEntityAtLocation", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"), cancellable = true)
     private void hook(final PlayerEntity player, final Entity entity, final EntityHitResult hitResult, final Hand hand, final CallbackInfoReturnable<ActionResult> cir) {
         final BattlePlayerComponent battlePlayer = Components.BATTLE_PLAYER_COMPONENT_KEY.get(player);
         if (battlePlayer.isInBattle()) {

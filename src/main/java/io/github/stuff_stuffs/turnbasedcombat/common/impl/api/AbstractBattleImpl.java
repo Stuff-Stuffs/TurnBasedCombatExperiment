@@ -1,13 +1,11 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.impl.api;
 
-import io.github.stuff_stuffs.turnbasedcombat.common.api.Battle;
-import io.github.stuff_stuffs.turnbasedcombat.common.api.BattleEntity;
-import io.github.stuff_stuffs.turnbasedcombat.common.api.BattleHandle;
-import io.github.stuff_stuffs.turnbasedcombat.common.api.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.api.*;
+import io.github.stuff_stuffs.turnbasedcombat.common.component.BattleEntityComponent;
+import io.github.stuff_stuffs.turnbasedcombat.common.component.Components;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -15,22 +13,22 @@ import java.util.Set;
 
 public abstract class AbstractBattleImpl implements Battle {
     protected final BattleHandle handle;
-    protected final PlayerEntity playerEntity;
+    private final BattleBounds bounds;
+    protected final BattleLog log;
     protected final Set<BattleEntity> participants;
+    protected final Set<BattleEntity> activeParticipants;
     protected final Map<Team, Set<BattleEntity>> teamMap;
     private boolean active;
     private @Nullable EndingReason endingReason;
 
-    protected AbstractBattleImpl(final BattleHandle handle, final PlayerEntity playerEntity, final Set<BattleEntity> participants, final boolean active) {
+    protected AbstractBattleImpl(final BattleHandle handle, final BattleBounds bounds, final BattleLog log, final boolean active) {
         this.handle = handle;
-        this.playerEntity = playerEntity;
-        this.participants = participants;
+        this.bounds = bounds;
+        this.log = log;
+        participants = new ReferenceOpenHashSet<>();
+        activeParticipants = new ReferenceOpenHashSet<>();
         teamMap = new Object2ReferenceOpenHashMap<>();
         this.active = active;
-        addParticipant((BattleEntity) playerEntity);
-        for (final BattleEntity participant : participants) {
-            teamMap.computeIfAbsent(participant.getTeam(), i -> new ReferenceOpenHashSet<>()).add(participant);
-        }
     }
 
     @Override
@@ -45,8 +43,8 @@ public abstract class AbstractBattleImpl implements Battle {
             if (teamEntities.size() == 0) {
                 teamMap.remove(team);
             }
-            if (battleEntity == playerEntity) {
-                end(Battle.EndingReason.PLAYER_LEFT);
+            if (activeParticipants.size() == 0) {
+                end(Battle.EndingReason.NO_ACTIVE_PARTICIPANTS);
             }
             return true;
         }
@@ -89,6 +87,15 @@ public abstract class AbstractBattleImpl implements Battle {
     @Override
     public void addParticipant(final BattleEntity battleEntity) {
         participants.add(battleEntity);
+        final BattleEntityComponent be = Components.BATTLE_ENTITY_COMPONENT_KEY.get(battleEntity);
+        if (be.isInBattle() && !handle.equals(be.getBattleHandle())) {
+            throw new RuntimeException();
+        } else {
+            be.setBattleHandle(handle);
+        }
+        if (battleEntity.isActiveEntity()) {
+            activeParticipants.add(battleEntity);
+        }
         teamMap.computeIfAbsent(battleEntity.getTeam(), i -> new ReferenceOpenHashSet<>()).add(battleEntity);
     }
 
@@ -98,14 +105,12 @@ public abstract class AbstractBattleImpl implements Battle {
     }
 
     @Override
-    public PlayerEntity getPlayer() {
-        return playerEntity;
-    }
-
-    @Override
     public void end(final Battle.EndingReason reason) {
-        if (endingReason != null) {
-            throw new RuntimeException();
+        if (active) {
+            for (final BattleEntity participant : participants) {
+                final BattleEntityComponent battleEntity = Components.BATTLE_ENTITY_COMPONENT_KEY.get(participant);
+                battleEntity.setBattleHandle(null);
+            }
         }
         active = false;
         endingReason = reason;
@@ -114,12 +119,37 @@ public abstract class AbstractBattleImpl implements Battle {
     @Override
     public Battle.EndingReason getEndingReason() {
         if (active) {
-            throw new RuntimeException();
+            LOGGER.error("Trying to get EndingReason for a battle that is active");
         }
         return endingReason;
     }
 
-    public boolean isEnded() {
-        return !active || teamMap.size() < 2;
+    @Override
+    public Set<BattleEntity> getActiveBattleEntities() {
+        return new ReferenceOpenHashSet<>(activeParticipants);
+    }
+
+    public boolean shouldEnd() {
+        return teamMap.size() < 2;
+    }
+
+    @Override
+    public BattleHandle getHandle() {
+        return handle;
+    }
+
+    @Override
+    public BattleBounds getBounds() {
+        return bounds;
+    }
+
+    @Override
+    public BattleLog getLog() {
+        return log;
+    }
+
+    @Override
+    public Set<BattleEntity> getBattleEntities() {
+        return participants;
     }
 }

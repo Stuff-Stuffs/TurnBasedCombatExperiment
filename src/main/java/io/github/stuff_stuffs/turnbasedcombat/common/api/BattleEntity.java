@@ -5,4 +5,5 @@ package io.github.stuff_stuffs.turnbasedcombat.common.api;
  */
 public interface BattleEntity {
     Team getTeam();
+    boolean isActiveEntity();
 }

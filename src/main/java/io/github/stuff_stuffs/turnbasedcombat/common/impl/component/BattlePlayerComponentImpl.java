@@ -7,6 +7,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.turnbasedcombat.common.api.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.api.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.api.BattleHandle;
+import io.github.stuff_stuffs.turnbasedcombat.common.api.TurnBasedCombatAbilities;
 import io.github.stuff_stuffs.turnbasedcombat.common.component.BattleEntityComponent;
 import io.github.stuff_stuffs.turnbasedcombat.common.component.BattlePlayerComponent;
 import io.github.stuff_stuffs.turnbasedcombat.common.component.BattleWorldComponent;
@@ -16,6 +17,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Lazy;
+import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 
 public class BattlePlayerComponentImpl implements BattlePlayerComponent {
@@ -46,7 +48,7 @@ public class BattlePlayerComponentImpl implements BattlePlayerComponent {
                 battle.remove((BattleEntity) playerEntity);
             }
         }
-        ((BattleEntityComponentImpl) delegate.get()).setBattleHandle(battleHandle);
+        delegate.get().setBattleHandle(battleHandle);
     }
 
     @Override
@@ -67,14 +69,13 @@ public class BattlePlayerComponentImpl implements BattlePlayerComponent {
     public void tick() {
         if (!playerEntity.world.isClient()) {
             if (isPlayerInWorld() && isInBattle()) {
-                Pal.grantAbility(playerEntity, VanillaAbilities.ALLOW_FLYING, ABILITY_SOURCE);
-                Pal.grantAbility(playerEntity, VanillaAbilities.FLYING, ABILITY_SOURCE);
+                ((ServerPlayerEntity) playerEntity).changeGameMode(GameMode.SURVIVAL);
+                Pal.grantAbility(playerEntity, TurnBasedCombatAbilities.DISABLED_MOVEMENT, ABILITY_SOURCE);
                 Pal.grantAbility(playerEntity, VanillaAbilities.LIMIT_WORLD_MODIFICATIONS, ABILITY_SOURCE);
                 Pal.grantAbility(playerEntity, VanillaAbilities.INVULNERABLE, ABILITY_SOURCE);
             } else {
-                Pal.revokeAbility(playerEntity, VanillaAbilities.ALLOW_FLYING, ABILITY_SOURCE);
-                Pal.revokeAbility(playerEntity, VanillaAbilities.FLYING, ABILITY_SOURCE);
                 Pal.revokeAbility(playerEntity, VanillaAbilities.LIMIT_WORLD_MODIFICATIONS, ABILITY_SOURCE);
+                Pal.revokeAbility(playerEntity, TurnBasedCombatAbilities.DISABLED_MOVEMENT, ABILITY_SOURCE);
                 Pal.revokeAbility(playerEntity, VanillaAbilities.INVULNERABLE, ABILITY_SOURCE);
             }
         }

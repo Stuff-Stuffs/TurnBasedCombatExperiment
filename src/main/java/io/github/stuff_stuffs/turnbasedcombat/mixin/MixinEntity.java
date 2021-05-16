@@ -12,4 +12,9 @@ public class MixinEntity implements BattleEntity {
     public Team getTeam() {
         return new Team(123456789);
     }
+
+    @Override
+    public boolean isActiveEntity() {
+        return true;
+    }
 }

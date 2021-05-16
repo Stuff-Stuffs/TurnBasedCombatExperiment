@@ -9,5 +9,7 @@ import org.jetbrains.annotations.Nullable;
 public interface BattleEntityComponent extends ComponentV3, AutoSyncedComponent, CommonTickingComponent {
     @Nullable BattleHandle getBattleHandle();
 
+    void setBattleHandle(BattleHandle handle);
+
     boolean isInBattle();
 }
