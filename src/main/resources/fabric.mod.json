@@ -15,18 +15,15 @@
     ],
     "main": [
       "io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment"
-    ],
-    "cardinal-components": [
-      "io.github.stuff_stuffs.turnbasedcombat.common.component.ComponentRegistry"
     ]
   },
   "mixins": [
     "TurnBasedCombatExperiment.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.11.2",
+    "fabricloader": ">=0.11.3",
     "fabric": "*",
-    "minecraft": "1.17-alpha.21.10.a"
+    "minecraft": "1.17-alpha.21.19.a"
   },
   "custom": {
     "cardinal-components": [

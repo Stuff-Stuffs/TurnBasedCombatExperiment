@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.util;
 
-import io.github.stuff_stuffs.turnbasedcombat.common.api.BattleBounds;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;

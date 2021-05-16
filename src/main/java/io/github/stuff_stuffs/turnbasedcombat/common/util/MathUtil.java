@@ -28,20 +28,11 @@ public final class MathUtil {
     public static HitResult rayCastBlock(final Vec3d start, final Vec3d end, final World world, final RaycastContext.ShapeType shapeType) {
         return rayCast(start, end, pos -> {
             final BlockState state = world.getBlockState(pos);
-            final VoxelShape shape;
-            switch (shapeType) {
-                case VISUAL:
-                    shape = state.getVisualShape(world, pos, ShapeContext.absent());
-                    break;
-                case OUTLINE:
-                    shape = state.getOutlineShape(world, pos);
-                    break;
-                case COLLIDER:
-                    shape = state.getCollisionShape(world, pos);
-                    break;
-                default:
-                    throw new NullPointerException();
-            }
+            final VoxelShape shape = switch (shapeType) {
+                case VISUAL -> state.getCameraCollisionShape(world, pos, ShapeContext.absent());
+                case OUTLINE -> state.getOutlineShape(world, pos);
+                case COLLIDER -> state.getCollisionShape(world, pos);
+            };
             return shape.raycast(start, end, pos);
         });
     }
