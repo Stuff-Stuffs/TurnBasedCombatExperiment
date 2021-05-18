@@ -1,6 +1,8 @@
 package io.github.stuff_stuffs.turnbasedcombat.common;
 
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooserTypeRegistry;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.EntityTypes;
+import io.github.stuff_stuffs.turnbasedcombat.common.network.Network;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 
@@ -14,5 +16,7 @@ public class TurnBasedCombatExperiment implements ModInitializer {
     @Override
     public void onInitialize() {
         EntityTypes.init();
+        TurnChooserTypeRegistry.init();
+        Network.init();
     }
 }
