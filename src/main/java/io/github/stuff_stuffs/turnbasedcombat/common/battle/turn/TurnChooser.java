@@ -10,5 +10,7 @@ public interface TurnChooser {
 
     BattleParticipantView getCurrent(Collection<? extends BattleParticipantView> participants, BattleStateView state);
 
+    void reset();
+
     TurnChooserTypeRegistry.Type getType();
 }

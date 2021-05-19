@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
@@ -16,13 +15,15 @@ public final class BattleState implements BattleStateView {
     private final Int2ReferenceMap<BattleParticipant> participants;
     private final Object2ReferenceMap<Team, Set<BattleParticipant>> teams;
     private final Random random;
+    private final Battle battle;
     private boolean ended;
 
-    public BattleState(final int battleId) {
+    public BattleState(final int battleId, final Battle battle) {
         this.battleId = battleId;
         participants = new Int2ReferenceOpenHashMap<>();
         teams = new Object2ReferenceOpenHashMap<>();
         random = new Random(battleId);
+        this.battle = battle;
         ended = false;
     }
 
@@ -68,14 +69,18 @@ public final class BattleState implements BattleStateView {
     }
 
     //TODO throws not enough participants exception?
-    public BattleParticipant advanceTurn(final TurnChooser chooser) {
-        return (BattleParticipant) chooser.choose(participants.values(), this);
+    public BattleParticipant advanceTurn(final BattleParticipantHandle handle) {
+        if (handle.getBattleId() == battleId && handle.getParticipantId() == getCurrentTurn().getId()) {
+            return (BattleParticipant) battle.getTurnChooser().choose(participants.values(), this);
+        } else {
+            throw new RuntimeException();
+        }
     }
 
     //TODO throws not enough participants exception?
     @Override
-    public BattleParticipant getCurrentTurn(final TurnChooser chooser) {
-        return (BattleParticipant) chooser.getCurrent(participants.values(), this);
+    public BattleParticipant getCurrentTurn() {
+        return (BattleParticipant) battle.getTurnChooser().getCurrent(participants.values(), this);
     }
 
     @Override

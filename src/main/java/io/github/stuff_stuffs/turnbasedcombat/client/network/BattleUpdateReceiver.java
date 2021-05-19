@@ -4,6 +4,8 @@ import io.github.stuff_stuffs.turnbasedcombat.client.battle.data.ClientBattleWor
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooserTypeRegistry;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.BattleUpdateSender;
 import io.netty.buffer.ByteBufInputStream;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -35,6 +37,9 @@ public final class BattleUpdateReceiver {
             if (delta != 0) {
                 final List<BattleAction> actions = new ReferenceArrayList<>(delta);
                 final DataInput input = new ByteBufInputStream(buf);
+                final TurnChooser chooser = TurnChooserTypeRegistry.CODEC.parse(NbtOps.INSTANCE, read(input, 0, NbtTagSizeTracker.EMPTY)).getOrThrow(false, s -> {
+                    throw new RuntimeException(s);
+                });
                 for (int i = 0; i < delta; i++) {
                     actions.add(BattleAction.deserialize(read(input, 0, NbtTagSizeTracker.EMPTY), NbtOps.INSTANCE));
                 }
@@ -42,7 +47,7 @@ public final class BattleUpdateReceiver {
                     final BattleHandle handle = new BattleHandle(handleId);
                     Battle battle = ClientBattleWorld.get(client.world).getBattle(handle);
                     if (battle == null) {
-                        battle = ClientBattleWorld.get(client.world).create(handle);
+                        battle = ClientBattleWorld.get(client.world).create(handle, chooser);
                     }
                     battle.trimToSize(timelineSizeBefore);
                     for (final BattleAction action : actions) {

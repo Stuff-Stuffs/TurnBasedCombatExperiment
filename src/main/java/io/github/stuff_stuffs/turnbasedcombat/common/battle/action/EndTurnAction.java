@@ -6,18 +6,18 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 
-public final class EndBattleAction extends BattleAction {
-    public static final Codec<EndBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+public final class EndTurnAction extends BattleAction {
+    public static final Codec<EndTurnAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleParticipantHandle.CODEC.fieldOf("handle").forGetter(action -> action.handle)
-    ).apply(instance, EndBattleAction::new));
+    ).apply(instance, EndTurnAction::new));
 
-    private EndBattleAction(final BattleParticipantHandle handle) {
+    public EndTurnAction(final BattleParticipantHandle handle) {
         super(handle);
     }
 
     @Override
     public void applyToState(final BattleState state) {
-        state.endBattle();
+        state.advanceTurn(handle);
     }
 
     @Override
@@ -27,7 +27,7 @@ public final class EndBattleAction extends BattleAction {
         });
     }
 
-    public static <T> EndBattleAction decode(final T o, final DynamicOps<T> ops) {
+    public static <T> EndTurnAction decode(final T o, final DynamicOps<T> ops) {
         return CODEC.parse(ops, o).getOrThrow(false, s -> {
             throw new RuntimeException(s);
         });
@@ -35,8 +35,8 @@ public final class EndBattleAction extends BattleAction {
 
     static {
         try {
-            register(EndBattleAction.class);
-        } catch (final NoSuchMethodException | IllegalAccessException e) {
+            register(EndTurnAction.class);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

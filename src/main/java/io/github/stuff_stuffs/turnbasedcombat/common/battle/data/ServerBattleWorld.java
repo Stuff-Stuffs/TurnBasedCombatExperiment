@@ -35,7 +35,7 @@ public final class ServerBattleWorld implements BattleWorld {
     public void updateClient(final ServerPlayerEntity entity, final BattleHandle handle, final int timelineSize) {
         final Battle battle = battles.get(handle.id);
         if (battle != null) {
-            BattleUpdateSender.send(entity, handle, timelineSize, battle.getTimeline());
+            BattleUpdateSender.send(entity, handle, battle.getTurnChooser(), timelineSize, battle.getTimeline());
         }
     }
 

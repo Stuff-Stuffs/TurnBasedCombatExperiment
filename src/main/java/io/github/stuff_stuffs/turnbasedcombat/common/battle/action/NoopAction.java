@@ -2,30 +2,19 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.action;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 
-public final class LeaveBattleAction extends BattleAction {
-    public static final Codec<LeaveBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BattleParticipantHandle.CODEC.fieldOf("handle").forGetter(action -> action.handle),
-            BattleParticipantHandle.CODEC.fieldOf("target").forGetter(action -> action.target)
-    ).apply(instance, LeaveBattleAction::new));
-    private final BattleParticipantHandle target;
+public final class NoopAction extends BattleAction {
+    public static final Codec<NoopAction> CODEC = BattleParticipantHandle.CODEC.xmap(NoopAction::new, action -> action.handle);
 
-    public LeaveBattleAction(final BattleParticipantHandle handle, final BattleParticipantHandle target) {
+    private NoopAction(final BattleParticipantHandle handle) {
         super(handle);
-        this.target = target;
     }
 
     @Override
     public void applyToState(final BattleState state) {
-        if (!state.removeParticipant(target)) {
-            throw new RuntimeException();
-        }
-        if (state.getTeamCount() < 2) {
-            state.endBattle();
-        }
+
     }
 
     @Override
@@ -43,7 +32,7 @@ public final class LeaveBattleAction extends BattleAction {
 
     static {
         try {
-            BattleAction.register(LeaveBattleAction.class);
+            register(NoopAction.class);
         } catch (final NoSuchMethodException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

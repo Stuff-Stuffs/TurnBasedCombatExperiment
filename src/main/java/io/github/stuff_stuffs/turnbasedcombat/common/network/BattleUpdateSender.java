@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.turnbasedcombat.common.network;
 import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleTimelineView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.handler.codec.EncoderException;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -19,14 +20,18 @@ import java.io.IOException;
 public final class BattleUpdateSender {
     public static final Identifier IDENTIFIER = TurnBasedCombatExperiment.createId("battle_update");
 
-    public static void send(final ServerPlayerEntity player, final BattleHandle handle, final int timelineSizeBefore, final BattleTimelineView view) {
+    public static void send(final ServerPlayerEntity player, final BattleHandle handle, final TurnChooser chooser, final int timelineSizeBefore, final BattleTimelineView view) {
         if (timelineSizeBefore != view.size()) {
             try {
                 final PacketByteBuf buf = PacketByteBufs.create();
                 buf.writeVarInt(handle.id);
+
                 buf.writeVarInt(timelineSizeBefore);
                 buf.writeVarInt(view.size() - timelineSizeBefore);
                 final DataOutput output = new ByteBufOutputStream(buf);
+                write(chooser.getType().CODEC.encodeStart(NbtOps.INSTANCE, chooser).getOrThrow(false, s -> {
+                    throw new RuntimeException(s);
+                }), output);
                 for (int i = timelineSizeBefore; i < view.size(); i++) {
                     write(view.get(i).serialize(NbtOps.INSTANCE), output);
                 }

@@ -17,7 +17,7 @@ public final class SimpleTurnChooser implements TurnChooser {
         currentId = -1;
     }
 
-    public SimpleTurnChooser(final int state) {
+    private SimpleTurnChooser(final int state) {
         currentId = state;
     }
 
@@ -72,6 +72,11 @@ public final class SimpleTurnChooser implements TurnChooser {
             return biggestView;
         }
         return biggestLessThanView;
+    }
+
+    @Override
+    public void reset() {
+        currentId = -1;
     }
 
     @Override

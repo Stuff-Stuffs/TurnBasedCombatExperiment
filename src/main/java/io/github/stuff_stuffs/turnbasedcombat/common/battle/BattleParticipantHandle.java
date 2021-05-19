@@ -3,7 +3,10 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import java.util.function.IntFunction;
+
 public final class BattleParticipantHandle {
+    public static final IntFunction<BattleParticipantHandle> UNIVERSAL = i -> new BattleParticipantHandle(i, -1);
     public static final Codec<BattleParticipantHandle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("battleId").forGetter(BattleParticipantHandle::getBattleId),
             Codec.INT.fieldOf("participantId").forGetter(BattleParticipantHandle::getParticipantId)).
@@ -23,6 +26,10 @@ public final class BattleParticipantHandle {
 
     public int getParticipantId() {
         return participantId;
+    }
+
+    public boolean isUniversal() {
+        return participantId==-1;
     }
 
     @Override

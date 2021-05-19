@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -32,8 +33,14 @@ public abstract class BattleAction {
     };
     private static final Map<String, Class<? extends BattleAction>> BATTLE_ACTION_CLASSES;
     private static final Map<Class<? extends BattleAction>, Method> DECODERS;
+    protected final BattleParticipantHandle handle;
 
-    protected BattleAction() {
+    protected BattleAction(final BattleParticipantHandle handle) {
+        this.handle = handle;
+    }
+
+    public BattleParticipantHandle getHandle() {
+        return handle;
     }
 
     public abstract void applyToState(BattleState state);

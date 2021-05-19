@@ -5,6 +5,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleTimeline;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.data.BattleWorld;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.mixin.api.ClientBattleWorldProvider;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -18,11 +19,11 @@ public class ClientBattleWorld implements BattleWorld {
         battles = new Int2ReferenceOpenHashMap<>();
     }
 
-    public Battle create(final BattleHandle handle) {
+    public Battle create(final BattleHandle handle, final TurnChooser chooser) {
         if (battles.get(handle.id) != null) {
             throw new RuntimeException();
         }
-        final Battle battle = new Battle(handle.id, new BattleTimeline());
+        final Battle battle = new Battle(handle.id, chooser, new BattleTimeline());
         battles.put(handle.id, battle);
         return battle;
     }
