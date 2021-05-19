@@ -31,7 +31,7 @@ public class ClientBattleWorld implements BattleWorld {
     @Override
     public @Nullable Battle getBattle(final BattleHandle handle) {
         final Battle battle = battles.get(handle.id);
-        RequestBattleUpdateSender.send(handle, battle != null ? battle.getTimeline().size() : 0);
+        RequestBattleUpdateSender.send(handle, battle != null ? battle.getTimeline().size() : 0, battle == null);
         return battle;
     }
 
