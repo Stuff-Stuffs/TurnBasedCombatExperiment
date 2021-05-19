@@ -6,7 +6,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooserTypeRegistry;
 
-public class Battle {
+public final class Battle {
     public static final Codec<Battle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("battleId").forGetter(battle -> battle.battleId),
             TurnChooserTypeRegistry.CODEC.fieldOf("turnChooser").forGetter(battle -> battle.turnChooser),

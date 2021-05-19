@@ -8,7 +8,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 public final class NoopAction extends BattleAction {
     public static final Codec<NoopAction> CODEC = BattleParticipantHandle.CODEC.xmap(NoopAction::new, action -> action.handle);
 
-    private NoopAction(final BattleParticipantHandle handle) {
+    public NoopAction(final BattleParticipantHandle handle) {
         super(handle);
     }
 

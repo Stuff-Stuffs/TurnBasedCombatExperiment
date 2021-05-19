@@ -17,7 +17,11 @@ public final class EndBattleAction extends BattleAction {
 
     @Override
     public void applyToState(final BattleState state) {
-        state.endBattle();
+        if (handle.isUniversal()) {
+            state.endBattle();
+        } else {
+            throw new RuntimeException();
+        }
     }
 
     @Override
