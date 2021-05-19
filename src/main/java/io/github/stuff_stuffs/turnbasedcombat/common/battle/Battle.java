@@ -20,6 +20,7 @@ public final class Battle {
     public Battle(final int battleId, final TurnChooser turnChooser, final BattleTimeline timeline) {
         this.battleId = battleId;
         this.turnChooser = turnChooser;
+        this.turnChooser.reset();
         this.timeline = timeline;
         state = new BattleState(battleId, this);
         for (final BattleAction action : this.timeline) {
