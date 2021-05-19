@@ -20,7 +20,7 @@ import java.io.IOException;
 public final class BattleUpdateSender {
     public static final Identifier IDENTIFIER = TurnBasedCombatExperiment.createId("battle_update");
 
-    public static void send(final ServerPlayerEntity player, final BattleHandle handle, final TurnChooser chooser, final int timelineSizeBefore, final BattleTimelineView view) {
+    public static void send(final ServerPlayerEntity player, final BattleHandle handle, final TurnChooser chooser, final int timelineSizeBefore, final BattleTimelineView view, final boolean fresh) {
         if (timelineSizeBefore != view.size()) {
             try {
                 final PacketByteBuf buf = PacketByteBufs.create();
@@ -28,10 +28,13 @@ public final class BattleUpdateSender {
 
                 buf.writeVarInt(timelineSizeBefore);
                 buf.writeVarInt(view.size() - timelineSizeBefore);
+                buf.writeBoolean(fresh);
                 final DataOutput output = new ByteBufOutputStream(buf);
-                write(chooser.getType().CODEC.encodeStart(NbtOps.INSTANCE, chooser).getOrThrow(false, s -> {
-                    throw new RuntimeException(s);
-                }), output);
+                if (fresh) {
+                    write(chooser.getType().CODEC.encodeStart(NbtOps.INSTANCE, chooser).getOrThrow(false, s -> {
+                        throw new RuntimeException(s);
+                    }), output);
+                }
                 for (int i = timelineSizeBefore; i < view.size(); i++) {
                     write(view.get(i).serialize(NbtOps.INSTANCE), output);
                 }

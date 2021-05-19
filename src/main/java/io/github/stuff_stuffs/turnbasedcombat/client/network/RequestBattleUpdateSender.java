@@ -10,10 +10,11 @@ import net.minecraft.util.Identifier;
 public final class RequestBattleUpdateSender {
     public static final Identifier IDENTIFIER = TurnBasedCombatExperiment.createId("request_battle_update");
 
-    public static void send(final BattleHandle handle, final int timelineSize) {
+    public static void send(final BattleHandle handle, final int timelineSize, boolean fresh) {
         final PacketByteBuf buf = PacketByteBufs.create();
         buf.writeVarInt(handle.id);
         buf.writeVarInt(timelineSize);
+        buf.writeBoolean(fresh);
         ClientPlayNetworking.send(IDENTIFIER, buf);
     }
 

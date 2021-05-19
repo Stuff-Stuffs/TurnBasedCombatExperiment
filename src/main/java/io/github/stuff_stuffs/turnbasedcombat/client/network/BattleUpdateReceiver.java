@@ -34,26 +34,40 @@ public final class BattleUpdateReceiver {
             final int handleId = buf.readVarInt();
             final int timelineSizeBefore = buf.readVarInt();
             final int delta = buf.readVarInt();
+            final boolean fresh = buf.readBoolean();
             if (delta != 0) {
                 final List<BattleAction> actions = new ReferenceArrayList<>(delta);
                 final DataInput input = new ByteBufInputStream(buf);
-                final TurnChooser chooser = TurnChooserTypeRegistry.CODEC.parse(NbtOps.INSTANCE, read(input, 0, NbtTagSizeTracker.EMPTY)).getOrThrow(false, s -> {
-                    throw new RuntimeException(s);
-                });
-                for (int i = 0; i < delta; i++) {
-                    actions.add(BattleAction.deserialize(read(input, 0, NbtTagSizeTracker.EMPTY), NbtOps.INSTANCE));
+                if (fresh) {
+                    final TurnChooser chooser = TurnChooserTypeRegistry.CODEC.parse(NbtOps.INSTANCE, read(input, 0, NbtTagSizeTracker.EMPTY)).getOrThrow(false, s -> {
+                        throw new RuntimeException(s);
+                    });
+                    for (int i = 0; i < delta; i++) {
+                        actions.add(BattleAction.deserialize(read(input, 0, NbtTagSizeTracker.EMPTY), NbtOps.INSTANCE));
+                    }
+                    client.execute(() -> {
+                        final BattleHandle handle = new BattleHandle(handleId);
+                        final Battle battle = ClientBattleWorld.get(client.world).create(handle, chooser);
+                        for (final BattleAction action : actions) {
+                            battle.push(action);
+                        }
+                    });
+                } else {
+                    for (int i = 0; i < delta; i++) {
+                        actions.add(BattleAction.deserialize(read(input, 0, NbtTagSizeTracker.EMPTY), NbtOps.INSTANCE));
+                    }
+                    client.execute(() -> {
+                        final BattleHandle handle = new BattleHandle(handleId);
+                        final Battle battle = ClientBattleWorld.get(client.world).getBattle(handle);
+                        if (battle == null) {
+                            throw new RuntimeException();
+                        }
+                        battle.trimToSize(timelineSizeBefore);
+                        for (final BattleAction action : actions) {
+                            battle.push(action);
+                        }
+                    });
                 }
-                client.execute(() -> {
-                    final BattleHandle handle = new BattleHandle(handleId);
-                    Battle battle = ClientBattleWorld.get(client.world).getBattle(handle);
-                    if (battle == null) {
-                        battle = ClientBattleWorld.get(client.world).create(handle, chooser);
-                    }
-                    battle.trimToSize(timelineSizeBefore);
-                    for (final BattleAction action : actions) {
-                        battle.push(action);
-                    }
-                });
             }
         } catch (final IOException e) {
             throw new RuntimeException(e);
