@@ -11,9 +11,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Map;
 
 public abstract class BattleAction {
@@ -32,7 +29,7 @@ public abstract class BattleAction {
         }
     };
     private static final Map<String, Class<? extends BattleAction>> BATTLE_ACTION_CLASSES;
-    private static final Map<Class<? extends BattleAction>, Method> DECODERS;
+    private static final Map<Class<? extends BattleAction>, Decoder<?>> DECODERS;
     protected final BattleParticipantHandle handle;
 
     protected BattleAction(final BattleParticipantHandle handle) {
@@ -66,22 +63,18 @@ public abstract class BattleAction {
             throw new RuntimeException(s);
         });
         final T data = mapLike.get("data");
-        try {
-            return (BattleAction) DECODERS.get(BATTLE_ACTION_CLASSES.get(name)).invoke(null, data, ops);
-        } catch (final IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+        return DECODERS.get(BATTLE_ACTION_CLASSES.get(name)).decode(data, ops);
+    }
+
+    public static <T extends BattleAction> void register(final Class<T> action, final Decoder<T> decoder) {
+        if (!BATTLE_ACTION_CLASSES.containsValue(action)) {
+            BATTLE_ACTION_CLASSES.put(action.getSimpleName(), action);
+            DECODERS.put(action, decoder);
         }
     }
 
-    public static void register(final Class<? extends BattleAction> action) throws NoSuchMethodException, IllegalAccessException {
-        if (!BATTLE_ACTION_CLASSES.containsValue(action)) {
-            BATTLE_ACTION_CLASSES.put(action.getSimpleName(), action);
-            final Method decode = action.getMethod("decode", Object.class, DynamicOps.class);
-            if (!Modifier.isStatic(decode.getModifiers())) {
-                throw new RuntimeException();
-            }
-            DECODERS.put(action, decode);
-        }
+    public interface Decoder<Type extends BattleAction> {
+        <T> Type decode(T o, DynamicOps<T> ops);
     }
 
     static {

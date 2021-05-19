@@ -39,12 +39,4 @@ public final class JoinBattleAction extends BattleAction {
             throw new RuntimeException(s);
         });
     }
-
-    static {
-        try {
-            BattleAction.register(JoinBattleAction.class);
-        } catch (final NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

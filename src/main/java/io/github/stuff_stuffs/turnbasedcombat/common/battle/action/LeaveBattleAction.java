@@ -35,17 +35,9 @@ public final class LeaveBattleAction extends BattleAction {
         });
     }
 
-    public static <T> BattleAction decode(final T o, final DynamicOps<T> ops) {
+    public static <T> LeaveBattleAction decode(final T o, final DynamicOps<T> ops) {
         return CODEC.parse(ops, o).getOrThrow(false, s -> {
             throw new RuntimeException(s);
         });
-    }
-
-    static {
-        try {
-            BattleAction.register(LeaveBattleAction.class);
-        } catch (final NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

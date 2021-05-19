@@ -32,12 +32,4 @@ public final class EndTurnAction extends BattleAction {
             throw new RuntimeException(s);
         });
     }
-
-    static {
-        try {
-            register(EndTurnAction.class);
-        } catch (NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

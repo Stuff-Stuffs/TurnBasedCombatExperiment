@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common;
 
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleActions;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooserTypeRegistry;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.EntityTypes;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.Network;
@@ -18,5 +19,6 @@ public class TurnBasedCombatExperiment implements ModInitializer {
         EntityTypes.init();
         TurnChooserTypeRegistry.init();
         Network.init();
+        BattleActions.init();
     }
 }

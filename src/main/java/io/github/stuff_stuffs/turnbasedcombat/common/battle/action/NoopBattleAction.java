@@ -5,10 +5,10 @@ import com.mojang.serialization.DynamicOps;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 
-public final class NoopAction extends BattleAction {
-    public static final Codec<NoopAction> CODEC = BattleParticipantHandle.CODEC.xmap(NoopAction::new, action -> action.handle);
+public final class NoopBattleAction extends BattleAction {
+    public static final Codec<NoopBattleAction> CODEC = BattleParticipantHandle.CODEC.xmap(NoopBattleAction::new, action -> action.handle);
 
-    public NoopAction(final BattleParticipantHandle handle) {
+    public NoopBattleAction(final BattleParticipantHandle handle) {
         super(handle);
     }
 
@@ -24,17 +24,9 @@ public final class NoopAction extends BattleAction {
         });
     }
 
-    public static <T> BattleAction decode(final T o, final DynamicOps<T> ops) {
+    public static <T> NoopBattleAction decode(final T o, final DynamicOps<T> ops) {
         return CODEC.parse(ops, o).getOrThrow(false, s -> {
             throw new RuntimeException(s);
         });
-    }
-
-    static {
-        try {
-            register(NoopAction.class);
-        } catch (final NoSuchMethodException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
