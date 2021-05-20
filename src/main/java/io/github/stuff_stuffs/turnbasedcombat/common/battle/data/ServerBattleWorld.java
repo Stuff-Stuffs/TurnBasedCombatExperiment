@@ -2,6 +2,8 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.data;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipant;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.BattleUpdateSender;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -10,20 +12,24 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
 
 public final class ServerBattleWorld implements BattleWorld {
     private final MutableInt nextBattleId;
+    private final MutableInt nextParticipantId;
     private final Int2ReferenceMap<Battle> battles;
 
-    private ServerBattleWorld(final int nextBattleId, final Int2ReferenceMap<Battle> battles) {
+    private ServerBattleWorld(final int nextBattleId, final int nextParticipantId, final Int2ReferenceMap<Battle> battles) {
         this.nextBattleId = new MutableInt(nextBattleId);
+        this.nextParticipantId = new MutableInt(nextParticipantId);
         this.battles = battles;
     }
 
     public ServerBattleWorld() {
         nextBattleId = new MutableInt();
+        nextParticipantId = new MutableInt();
         battles = new Int2ReferenceOpenHashMap<>();
     }
 
@@ -32,7 +38,12 @@ public final class ServerBattleWorld implements BattleWorld {
         return battles.get(handle.id);
     }
 
-    public void updateClient(final ServerPlayerEntity entity, final BattleHandle handle, final int timelineSize, boolean fresh) {
+    @Override
+    public BattleParticipant create(final Text name, final Team team) {
+        return new BattleParticipant(name, nextParticipantId.getAndIncrement(), team);
+    }
+
+    public void updateClient(final ServerPlayerEntity entity, final BattleHandle handle, final int timelineSize, final boolean fresh) {
         final Battle battle = battles.get(handle.id);
         if (battle != null) {
             BattleUpdateSender.send(entity, handle, battle.getTurnChooser(), timelineSize, battle.getTimeline(), fresh);
@@ -48,6 +59,7 @@ public final class ServerBattleWorld implements BattleWorld {
         }
         nbt.put("battles", battles);
         nbt.putInt("nextBattleId", nextBattleId.getValue());
+        nbt.putInt("nextParticipantId", nextParticipantId.getValue());
         return null;
     }
 
@@ -55,6 +67,7 @@ public final class ServerBattleWorld implements BattleWorld {
         if (nbt.contains("battles")) {
             try {
                 final int nextBattleId = nbt.getInt("nextBattleId");
+                final int nextParticipantId = nbt.getInt("nextParticipantId");
                 final NbtList battles = nbt.getList("battles", 10);
                 final Int2ReferenceMap<Battle> battlesDecoded = new Int2ReferenceOpenHashMap<>(battles.size());
                 for (final NbtElement element : battles) {
@@ -63,7 +76,7 @@ public final class ServerBattleWorld implements BattleWorld {
                     }).getFirst();
                     battlesDecoded.put(battle.getBattleId(), battle);
                 }
-                return new ServerBattleWorld(nextBattleId, battlesDecoded);
+                return new ServerBattleWorld(nextBattleId, nextParticipantId, battlesDecoded);
             } catch (final Exception e) {
                 return new ServerBattleWorld();
             }
