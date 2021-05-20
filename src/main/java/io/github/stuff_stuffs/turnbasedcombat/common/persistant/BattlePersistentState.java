@@ -20,8 +20,15 @@ public final class BattlePersistentState extends PersistentState {
         return data;
     }
 
+
+    //hacky
+    @Override
+    public boolean isDirty() {
+        return true;
+    }
+
     public static BattlePersistentState get(final PersistentStateManager manager) {
-        return manager.getOrCreate(BattlePersistentState::fromNbt, BattlePersistentState::new, "battles");
+        return manager.getOrCreate(BattlePersistentState::fromNbt, BattlePersistentState::new, "tbcex_battles");
     }
 
     private static BattlePersistentState fromNbt(final NbtCompound compound) {
