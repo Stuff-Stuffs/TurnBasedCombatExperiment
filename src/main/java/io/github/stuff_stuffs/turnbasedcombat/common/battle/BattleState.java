@@ -16,6 +16,7 @@ public final class BattleState implements BattleStateView {
     private final Object2ReferenceMap<Team, Set<BattleParticipant>> teams;
     private final Random random;
     private final Battle battle;
+    private int turnCount = 0;
     private boolean ended;
 
     public BattleState(final int battleId, final Battle battle) {
@@ -71,6 +72,7 @@ public final class BattleState implements BattleStateView {
     //TODO throws not enough participants exception?
     public BattleParticipant advanceTurn(final BattleParticipantHandle handle) {
         if (handle.getBattleId() == battleId && handle.getParticipantId() == getCurrentTurn().getId()) {
+            turnCount++;
             return (BattleParticipant) battle.getTurnChooser().choose(participants.values(), this);
         } else {
             throw new RuntimeException();

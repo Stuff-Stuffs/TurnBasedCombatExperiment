@@ -37,8 +37,15 @@ public final class Battle {
     }
 
     public void push(final BattleAction action) {
-        action.applyToState(state);
-        timeline.push(action);
+        if (action.getHandle().getBattleId() != battleId) {
+            throw new RuntimeException();
+        }
+        if (action.getHandle().isUniversal() || action.getHandle().getParticipantId() == state.getCurrentTurn().getId()) {
+            action.applyToState(state);
+            timeline.push(action);
+        } else {
+            throw new RuntimeException();
+        }
     }
 
     public void trimToSize(final int size) {
