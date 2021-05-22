@@ -1,8 +1,12 @@
 package io.github.stuff_stuffs.turnbasedcombat.client.battle.data;
 
 import io.github.stuff_stuffs.turnbasedcombat.client.network.RequestBattleUpdateSender;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.*;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipant;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleTimeline;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.data.BattleWorld;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.mixin.api.ClientBattleWorldProvider;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -10,7 +14,6 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 public class ClientBattleWorld implements BattleWorld {
@@ -41,7 +44,7 @@ public class ClientBattleWorld implements BattleWorld {
     }
 
     @Override
-    public BattleParticipant create(final Text name, final Team team) {
+    public BattleParticipant create(final BattleEntity entity) {
         throw new UnsupportedOperationException("Should not be creating participants on the client!");
     }
 

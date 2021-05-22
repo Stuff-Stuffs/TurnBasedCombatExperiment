@@ -12,7 +12,7 @@ public final class CodecUtil {
     public static final Codec<Text> TEXT_CODEC = new Codec<>() {
         @Override
         public <T> DataResult<Pair<Text, T>> decode(final DynamicOps<T> ops, final T input) {
-            final JsonElement jsonElement = ops.convertTo(JsonOps.COMPRESSED, input);
+            final JsonElement jsonElement = ops.convertTo(JsonOps.INSTANCE, input);
             try {
                 return DataResult.success(Pair.of(Text.Serializer.fromJson(jsonElement), ops.empty()));
             } catch (final Exception e) {
@@ -26,7 +26,7 @@ public final class CodecUtil {
                 throw new IllegalArgumentException();
             }
             final JsonElement element = Text.Serializer.toJsonTree(input);
-            return DataResult.success(JsonOps.COMPRESSED.convertTo(ops, element));
+            return DataResult.success(JsonOps.INSTANCE.convertTo(ops, element));
         }
     };
 

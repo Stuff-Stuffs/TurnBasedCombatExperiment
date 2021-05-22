@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.function.IntFunction;
 
 public final class BattleParticipantHandle {
-    public static final IntFunction<BattleParticipantHandle> UNIVERSAL = i -> new BattleParticipantHandle(i, -1);
+    public static final IntFunction<BattleParticipantHandle> UNIVERSAL = battleId -> new BattleParticipantHandle(battleId, -1);
     public static final Codec<BattleParticipantHandle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("battleId").forGetter(BattleParticipantHandle::getBattleId),
             Codec.INT.fieldOf("participantId").forGetter(BattleParticipantHandle::getParticipantId)).

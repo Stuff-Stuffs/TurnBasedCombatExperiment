@@ -11,7 +11,7 @@ public final class EndBattleAction extends BattleAction {
             BattleParticipantHandle.CODEC.fieldOf("handle").forGetter(action -> action.handle)
     ).apply(instance, EndBattleAction::new));
 
-    private EndBattleAction(final BattleParticipantHandle handle) {
+    public EndBattleAction(final BattleParticipantHandle handle) {
         super(handle);
     }
 

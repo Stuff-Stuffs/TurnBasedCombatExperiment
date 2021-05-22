@@ -13,4 +13,6 @@ public interface BattleStateView {
     int getParticipantCount();
 
     int getTeamCount();
+
+    int getTurnCount();
 }
