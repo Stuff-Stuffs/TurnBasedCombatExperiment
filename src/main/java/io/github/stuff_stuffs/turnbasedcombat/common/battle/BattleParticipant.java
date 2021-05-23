@@ -11,12 +11,12 @@ import java.util.UUID;
 public record BattleParticipant(Text name, UUID id,
                                 Team team,
                                 SkillInfo skillInfo) implements BattleParticipantView {
-    public static final Codec<BattleParticipant> CODEC = RecordCodecBuilder.create(battleParticipantInstance -> battleParticipantInstance.group(
+    public static final Codec<BattleParticipant> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             CodecUtil.TEXT_CODEC.fieldOf("name").forGetter(BattleParticipant::getName),
             CodecUtil.UUID_CODEC.fieldOf("id").forGetter(BattleParticipant::getId),
             Team.CODEC.fieldOf("team").forGetter(BattleParticipant::getTeam),
-            SkillInfo.CODEC.fieldOf("skillInfo").forGetter(BattleParticipant::getSkillInfo))
-            .apply(battleParticipantInstance, BattleParticipant::new));
+            SkillInfo.CODEC.fieldOf("skillInfo").forGetter(BattleParticipant::getSkillInfo)
+    ).apply(instance, BattleParticipant::new));
 
     @Override
     public Text getName() {
