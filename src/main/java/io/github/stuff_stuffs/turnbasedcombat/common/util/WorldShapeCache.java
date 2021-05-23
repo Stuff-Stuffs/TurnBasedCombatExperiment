@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.util;
 
+import com.google.common.base.Suppliers;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
@@ -13,11 +14,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.function.Supplier;
 
 public final class WorldShapeCache {
     private final BlockView world;
     private final @Nullable Entity entity;
-    private final Collection<Entity> entities;
+    private final Supplier<Collection<Entity>> entities;
     private final ShapeContext context;
     private final int size;
     private final BlockPos.Mutable mutable;
@@ -38,7 +40,7 @@ public final class WorldShapeCache {
         hashes = new long[size];
         states = new BlockState[size];
         shapes = new VoxelShape[size];
-        entities = world.getOtherEntities(entity, entitySearchBounds);
+        entities = Suppliers.memoize(() -> Collections.unmodifiableCollection(world.getOtherEntities(entity, entitySearchBounds)));
     }
 
     public @Nullable Entity getEntity() {
@@ -46,7 +48,7 @@ public final class WorldShapeCache {
     }
 
     public Collection<Entity> getEntities() {
-        return Collections.unmodifiableCollection(entities);
+        return entities.get();
     }
 
     public BlockState getState(final BlockPos pos) {

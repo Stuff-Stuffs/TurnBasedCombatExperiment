@@ -9,6 +9,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
 import java.util.Collection;
 import java.util.UUID;
 
+//TODO redo this mess
 public final class SimpleTurnChooser implements TurnChooser {
     public static final Codec<SimpleTurnChooser> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             CodecUtil.UUID_CODEC.fieldOf("state").forGetter(chooser -> chooser.currentId)
