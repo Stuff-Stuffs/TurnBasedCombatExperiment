@@ -24,7 +24,7 @@ public final class BattleUpdateSender {
         if (timelineSizeBefore != view.size()) {
             try {
                 final PacketByteBuf buf = PacketByteBufs.create();
-                buf.writeVarInt(handle.id);
+                buf.writeVarInt(handle.id());
 
                 buf.writeVarInt(timelineSizeBefore);
                 buf.writeVarInt(view.size() - timelineSizeBefore);

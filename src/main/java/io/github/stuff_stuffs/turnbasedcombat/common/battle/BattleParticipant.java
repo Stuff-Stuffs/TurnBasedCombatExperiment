@@ -6,24 +6,17 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.SkillInfo;
 import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
 import net.minecraft.text.Text;
 
-public final class BattleParticipant implements BattleParticipantView {
+import java.util.UUID;
+
+public record BattleParticipant(Text name, UUID id,
+                                Team team,
+                                SkillInfo skillInfo) implements BattleParticipantView {
     public static final Codec<BattleParticipant> CODEC = RecordCodecBuilder.create(battleParticipantInstance -> battleParticipantInstance.group(
             CodecUtil.TEXT_CODEC.fieldOf("name").forGetter(BattleParticipant::getName),
-            Codec.INT.fieldOf("id").forGetter(BattleParticipant::getId),
+            CodecUtil.UUID_CODEC.fieldOf("id").forGetter(BattleParticipant::getId),
             Team.CODEC.fieldOf("team").forGetter(BattleParticipant::getTeam),
             SkillInfo.CODEC.fieldOf("skillInfo").forGetter(BattleParticipant::getSkillInfo))
             .apply(battleParticipantInstance, BattleParticipant::new));
-    private final Text name;
-    private final int id;
-    private final Team team;
-    private final SkillInfo skillInfo;
-
-    public BattleParticipant(final Text name, final int id, final Team team, final SkillInfo skillInfo) {
-        this.name = name;
-        this.id = id;
-        this.team = team;
-        this.skillInfo = skillInfo;
-    }
 
     @Override
     public Text getName() {
@@ -31,7 +24,7 @@ public final class BattleParticipant implements BattleParticipantView {
     }
 
     @Override
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 

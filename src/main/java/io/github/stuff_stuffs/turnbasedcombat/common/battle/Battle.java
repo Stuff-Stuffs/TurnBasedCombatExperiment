@@ -52,7 +52,7 @@ public final class Battle {
         if (action.getHandle().getBattleId() != battleId) {
             throw new RuntimeException();
         }
-        if (action.getHandle().isUniversal() || action.getHandle().getParticipantId() == state.getCurrentTurn().getId()) {
+        if (action.getHandle().isUniversal() || action.getHandle().getParticipantId().equals(state.getCurrentTurn().getId())) {
             action.applyToState(state);
             timeline.push(action);
         } else {

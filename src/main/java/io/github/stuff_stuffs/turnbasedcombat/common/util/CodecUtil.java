@@ -6,7 +6,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.text.Text;
+
+import java.util.UUID;
 
 public final class CodecUtil {
     public static final Codec<Text> TEXT_CODEC = new Codec<>() {
@@ -29,6 +32,11 @@ public final class CodecUtil {
             return DataResult.success(JsonOps.INSTANCE.convertTo(ops, element));
         }
     };
+
+    public static final Codec<UUID> UUID_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.LONG.fieldOf("hi").forGetter(UUID::getMostSignificantBits),
+            Codec.LONG.fieldOf("lo").forGetter(UUID::getLeastSignificantBits)
+    ).apply(instance, UUID::new));
 
     private CodecUtil() {
     }

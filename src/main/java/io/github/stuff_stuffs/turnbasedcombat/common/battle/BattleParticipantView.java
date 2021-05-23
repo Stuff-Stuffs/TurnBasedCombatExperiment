@@ -2,10 +2,12 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 
 import net.minecraft.text.Text;
 
+import java.util.UUID;
+
 public interface BattleParticipantView {
     Text getName();
 
-    int getId();
+    UUID getId();
 
     Team getTeam();
 }

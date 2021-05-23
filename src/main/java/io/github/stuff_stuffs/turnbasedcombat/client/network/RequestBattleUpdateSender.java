@@ -12,7 +12,7 @@ public final class RequestBattleUpdateSender {
 
     public static void send(final BattleHandle handle, final int timelineSize, boolean fresh) {
         final PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeVarInt(handle.id);
+        buf.writeVarInt(handle.id());
         buf.writeVarInt(timelineSize);
         buf.writeBoolean(fresh);
         ClientPlayNetworking.send(IDENTIFIER, buf);

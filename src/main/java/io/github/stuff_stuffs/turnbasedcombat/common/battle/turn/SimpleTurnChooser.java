@@ -4,47 +4,60 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
 
 import java.util.Collection;
+import java.util.UUID;
 
 public final class SimpleTurnChooser implements TurnChooser {
     public static final Codec<SimpleTurnChooser> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("state").forGetter(chooser -> chooser.currentId)
+            CodecUtil.UUID_CODEC.fieldOf("state").forGetter(chooser -> chooser.currentId)
     ).apply(instance, SimpleTurnChooser::new));
-    private int currentId;
+    private static final UUID MIN = new UUID(Long.MIN_VALUE, Long.MIN_VALUE);
+    private UUID currentId;
 
     public SimpleTurnChooser() {
-        currentId = -1;
+        currentId = MIN;
     }
 
-    private SimpleTurnChooser(final int state) {
+    private SimpleTurnChooser(final UUID state) {
         currentId = state;
     }
 
     @Override
     public BattleParticipantView choose(final Collection<? extends BattleParticipantView> participants, final BattleStateView state) {
-        int maxId = -Integer.MAX_VALUE;
-        int minId = Integer.MAX_VALUE;
+        UUID maxId = new UUID(Long.MIN_VALUE, Long.MIN_VALUE);
+        UUID minId = new UUID(Long.MAX_VALUE, Long.MAX_VALUE);
         BattleParticipantView smallestView = null;
         for (final BattleParticipantView participant : participants) {
-            maxId = Math.max(maxId, participant.getId());
-            if (participant.getId() < minId) {
+            if (maxId.compareTo(participant.getId()) < 0) {
+                maxId = participant.getId();
+            }
+            if (minId.compareTo(participant.getId()) > 0) {
                 minId = participant.getId();
                 smallestView = participant;
             }
         }
-        if (currentId > maxId) {
-            currentId = minId - 1;
+        if (currentId.compareTo(maxId) < 0) {
+            currentId = minId;
         } else {
-            int smallestGreaterThan = -1;
+            UUID smallestGreaterThan = null;
             BattleParticipantView best = null;
             for (final BattleParticipantView participant : participants) {
-                if (participant.getId() > currentId && participant.getId() < smallestGreaterThan) {
+                if (participant.getId().compareTo(currentId) > 0 && (smallestGreaterThan == null || participant.getId().compareTo(smallestGreaterThan) < 0)) {
                     smallestGreaterThan = participant.getId();
                     best = participant;
                 }
             }
-            currentId = smallestGreaterThan + 1;
+            if(smallestGreaterThan==null) {
+                throw new RuntimeException();
+            }
+            long lo = smallestGreaterThan.getLeastSignificantBits() + 1;
+            long hi = smallestGreaterThan.getMostSignificantBits();
+            if(lo == Long.MIN_VALUE) {
+                hi = hi + 1;
+            }
+            currentId = new UUID(hi, lo);
             return best;
         }
         return smallestView;
@@ -52,18 +65,18 @@ public final class SimpleTurnChooser implements TurnChooser {
 
     @Override
     public BattleParticipantView getCurrent(final Collection<? extends BattleParticipantView> participants, final BattleStateView state) {
-        int biggestLessThan = -Integer.MAX_VALUE;
-        int biggest = -Integer.MAX_VALUE;
+        UUID biggestLessThan = MIN;
+        UUID biggest = MIN;
         BattleParticipantView biggestLessThanView = null;
         BattleParticipantView biggestView = null;
         for (final BattleParticipantView participant : participants) {
-            if (participant.getId() < currentId) {
-                if (participant.getId() > biggestLessThan) {
+            if (participant.getId().compareTo(currentId)<0) {
+                if (participant.getId().compareTo(biggestLessThan)>0) {
                     biggestLessThan = participant.getId();
                     biggestLessThanView = participant;
                 }
             }
-            if (participant.getId() > biggest) {
+            if (participant.getId().compareTo(biggest)>0) {
                 biggest = participant.getId();
                 biggestView = participant;
             }
@@ -76,7 +89,7 @@ public final class SimpleTurnChooser implements TurnChooser {
 
     @Override
     public void reset() {
-        currentId = -1;
+        currentId = MIN;
     }
 
     @Override

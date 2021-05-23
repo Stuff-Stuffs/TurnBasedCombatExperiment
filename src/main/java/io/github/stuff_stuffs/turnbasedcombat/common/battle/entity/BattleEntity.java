@@ -5,6 +5,8 @@ import net.minecraft.text.Text;
 
 public interface BattleEntity {
     SkillInfo getSkillInfo();
+
     Team getTeam();
+
     Text getBattleName();
 }

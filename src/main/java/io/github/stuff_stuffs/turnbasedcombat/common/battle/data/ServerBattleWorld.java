@@ -2,7 +2,6 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.data;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipant;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.BattleUpdateSender;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -46,16 +45,16 @@ public final class ServerBattleWorld implements BattleWorld {
 
     @Override
     public @Nullable Battle getBattle(final BattleHandle handle) {
-        final Battle battle = battles.get(handle.id);
+        final Battle battle = battles.get(handle.id());
         if (battle == null) {
-            return endedBattles.get(handle.id);
+            return endedBattles.get(handle.id());
         }
         return battle;
     }
 
     @Override
-    public BattleParticipant create(final BattleEntity entity) {
-        return new BattleParticipant(entity.getBattleName(), nextParticipantId.getAndIncrement(), entity.getTeam(), entity.getSkillInfo());
+    public void join(BattleEntity entity, BattleHandle handle) {
+        //TODO
     }
 
     public void updateClient(final ServerPlayerEntity entity, final BattleHandle handle, final int timelineSize, final boolean fresh) {
@@ -104,7 +103,6 @@ public final class ServerBattleWorld implements BattleWorld {
         return new ServerBattleWorld();
     }
 
-    //TODO only tick not ended battles
     public void tick() {
         for (final ObjectIterator<Battle> iterator = battles.values().iterator(); iterator.hasNext(); ) {
             final Battle battle = iterator.next();
