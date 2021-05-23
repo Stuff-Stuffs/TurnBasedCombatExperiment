@@ -49,10 +49,10 @@ public final class Battle {
         if (state.isBattleEnded()) {
             throw new RuntimeException();
         }
-        if (action.getHandle().getBattleId() != battleId) {
+        if (action.getHandle().battleId() != battleId) {
             throw new RuntimeException();
         }
-        if (action.getHandle().isUniversal() || action.getHandle().getParticipantId().equals(state.getCurrentTurn().getId())) {
+        if (action.getHandle().isUniversal() || action.getHandle().participantId().equals(state.getCurrentTurn().id())) {
             action.applyToState(state);
             timeline.push(action);
         } else {

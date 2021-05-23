@@ -37,14 +37,14 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         if (ended) {
             throw new RuntimeException();
         }
-        final BattleParticipantHandle handle = new BattleParticipantHandle(battleId, participant.getId());
+        final BattleParticipantHandle handle = new BattleParticipantHandle(battleId, participant.id());
         final BattleParticipant battleParticipant = participants.get(handle);
         if (battleParticipant != null) {
             return handle;
         }
         participants.put(handle, participant);
-        participantStates.put(handle, participant.getSkillInfo().createState());
-        teams.computeIfAbsent(participant.getTeam(), i -> new ReferenceOpenHashSet<>()).add(participant);
+        participantStates.put(handle, participant.skillInfo().createState());
+        teams.computeIfAbsent(participant.team(), i -> new ReferenceOpenHashSet<>()).add(participant);
         return handle;
     }
 
@@ -52,16 +52,16 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         if (ended) {
             throw new RuntimeException();
         }
-        if (battleId != handle.getBattleId()) {
+        if (battleId != handle.battleId()) {
             throw new RuntimeException();
         }
         final BattleParticipant removed = participants.remove(handle);
         if (removed != null) {
             participantStates.remove(handle);
-            final Set<BattleParticipant> team = teams.get(removed.getTeam());
+            final Set<BattleParticipant> team = teams.get(removed.team());
             team.remove(removed);
             if (team.size() == 0) {
-                teams.remove(removed.getTeam());
+                teams.remove(removed.team());
             }
             return true;
         }
@@ -79,9 +79,9 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
 
     //TODO throws not enough participants exception?
     public BattleParticipant advanceTurn(final BattleParticipantHandle handle) {
-        if (handle.getBattleId() == battleId && handle.getParticipantId().equals(getCurrentTurn().getId())) {
+        if (handle.battleId() == battleId && handle.participantId().equals(getCurrentTurn().id())) {
             turnCount++;
-            return (BattleParticipant) battle.getTurnChooser().choose(participants.values(), this);
+            return battle.getTurnChooser().choose(participants.values(), this);
         } else {
             throw new RuntimeException();
         }
@@ -90,19 +90,19 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     //TODO throws not enough participants exception?
     @Override
     public BattleParticipant getCurrentTurn() {
-        return (BattleParticipant) battle.getTurnChooser().getCurrent(participants.values(), this);
+        return battle.getTurnChooser().getCurrent(participants.values(), this);
     }
 
     @Override
     public @Nullable BattleParticipant getParticipant(final BattleParticipantHandle handle) {
-        if (battleId != handle.getBattleId()) {
+        if (battleId != handle.battleId()) {
             throw new RuntimeException();
         }
         return participants.get(handle);
     }
 
     public @Nullable EntityState getParticipantState(final BattleParticipantHandle handle) {
-        if (battleId != handle.getBattleId()) {
+        if (battleId != handle.battleId()) {
             throw new RuntimeException();
         }
         return participantStates.get(handle);

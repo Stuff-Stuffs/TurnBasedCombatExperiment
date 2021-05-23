@@ -2,7 +2,7 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.turn;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipant;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
 
@@ -26,16 +26,16 @@ public final class SimpleTurnChooser implements TurnChooser {
     }
 
     @Override
-    public BattleParticipantView choose(final Collection<? extends BattleParticipantView> participants, final BattleStateView state) {
+    public BattleParticipant choose(final Collection<BattleParticipant> participants, final BattleStateView state) {
         UUID maxId = new UUID(Long.MIN_VALUE, Long.MIN_VALUE);
         UUID minId = new UUID(Long.MAX_VALUE, Long.MAX_VALUE);
-        BattleParticipantView smallestView = null;
-        for (final BattleParticipantView participant : participants) {
-            if (maxId.compareTo(participant.getId()) < 0) {
-                maxId = participant.getId();
+        BattleParticipant smallestView = null;
+        for (final BattleParticipant participant : participants) {
+            if (maxId.compareTo(participant.id()) < 0) {
+                maxId = participant.id();
             }
-            if (minId.compareTo(participant.getId()) > 0) {
-                minId = participant.getId();
+            if (minId.compareTo(participant.id()) > 0) {
+                minId = participant.id();
                 smallestView = participant;
             }
         }
@@ -43,10 +43,10 @@ public final class SimpleTurnChooser implements TurnChooser {
             currentId = minId;
         } else {
             UUID smallestGreaterThan = null;
-            BattleParticipantView best = null;
-            for (final BattleParticipantView participant : participants) {
-                if (participant.getId().compareTo(currentId) > 0 && (smallestGreaterThan == null || participant.getId().compareTo(smallestGreaterThan) < 0)) {
-                    smallestGreaterThan = participant.getId();
+            BattleParticipant best = null;
+            for (final BattleParticipant participant : participants) {
+                if (participant.id().compareTo(currentId) > 0 && (smallestGreaterThan == null || participant.id().compareTo(smallestGreaterThan) < 0)) {
+                    smallestGreaterThan = participant.id();
                     best = participant;
                 }
             }
@@ -65,20 +65,20 @@ public final class SimpleTurnChooser implements TurnChooser {
     }
 
     @Override
-    public BattleParticipantView getCurrent(final Collection<? extends BattleParticipantView> participants, final BattleStateView state) {
+    public BattleParticipant getCurrent(final Collection<BattleParticipant> participants, final BattleStateView state) {
         UUID biggestLessThan = MIN;
         UUID biggest = MIN;
-        BattleParticipantView biggestLessThanView = null;
-        BattleParticipantView biggestView = null;
-        for (final BattleParticipantView participant : participants) {
-            if (participant.getId().compareTo(currentId)<0) {
-                if (participant.getId().compareTo(biggestLessThan)>0) {
-                    biggestLessThan = participant.getId();
+        BattleParticipant biggestLessThanView = null;
+        BattleParticipant biggestView = null;
+        for (final BattleParticipant participant : participants) {
+            if (participant.id().compareTo(currentId)<0) {
+                if (participant.id().compareTo(biggestLessThan)>0) {
+                    biggestLessThan = participant.id();
                     biggestLessThanView = participant;
                 }
             }
-            if (participant.getId().compareTo(biggest)>0) {
-                biggest = participant.getId();
+            if (participant.id().compareTo(biggest)>0) {
+                biggest = participant.id();
                 biggestView = participant;
             }
         }

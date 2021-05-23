@@ -8,7 +8,7 @@ public interface BattleStateView {
     //TODO throws not enough participants exception?
     BattleParticipant getCurrentTurn();
 
-    @Nullable BattleParticipantView getParticipant(BattleParticipantHandle handle);
+    @Nullable BattleParticipant getParticipant(BattleParticipantHandle handle);
 
     boolean isBattleEnded();
 
