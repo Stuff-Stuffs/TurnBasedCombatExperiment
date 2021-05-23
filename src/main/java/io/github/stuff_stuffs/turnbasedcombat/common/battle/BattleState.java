@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 public final class BattleState implements BattleStateView, Iterable<BattleParticipantHandle> {
     private final int battleId;
@@ -124,6 +125,16 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     @Override
     public int getTurnCount() {
         return turnCount;
+    }
+
+    @Override
+    public boolean contains(UUID id) {
+        for (BattleParticipant participant : participants.values()) {
+            if(participant.id().equals(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @NotNull

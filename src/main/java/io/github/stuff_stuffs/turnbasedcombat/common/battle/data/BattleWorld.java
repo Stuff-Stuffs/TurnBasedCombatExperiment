@@ -8,5 +8,7 @@ import org.jetbrains.annotations.Nullable;
 public interface BattleWorld {
     @Nullable Battle getBattle(BattleHandle handle);
 
+    @Nullable Battle getBattle(BattleEntity entity);
+
     void join(BattleEntity entity, BattleHandle handle);
 }

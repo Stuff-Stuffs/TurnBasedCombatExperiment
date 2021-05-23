@@ -1,12 +1,14 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.data;
 
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.*;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.JoinBattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.SimpleTurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.BattleUpdateSender;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -14,6 +16,8 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public final class ServerBattleWorld implements BattleWorld {
     private final MutableInt nextBattleId;
@@ -53,8 +57,31 @@ public final class ServerBattleWorld implements BattleWorld {
     }
 
     @Override
-    public void join(BattleEntity entity, BattleHandle handle) {
-        //TODO
+    public @Nullable Battle getBattle(final BattleEntity entity) {
+        final UUID id = ((Entity) entity).getUuid();
+        for (final Battle battle : battles.values()) {
+            if (battle.getStateView().contains(id)) {
+                return battle;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void join(final BattleEntity entity, final BattleHandle handle) {
+        if (getBattle(entity) != null) {
+            throw new RuntimeException("Entity already in battle");
+        } else {
+            final BattleParticipant participant = new BattleParticipant(entity.getBattleName(), ((Entity) entity).getUuid(), entity.getTeam(), entity.getSkillInfo());
+            Battle battle = getBattle(handle);
+            if (battle == null) {
+                battle = new Battle(nextBattleId.getAndIncrement(), new SimpleTurnChooser(), new BattleTimeline());
+                battles.put(battle.getBattleId(), battle);
+            } else if (battle.getStateView().isBattleEnded()) {
+                throw new RuntimeException();
+            }
+            battle.push(new JoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(battle.getBattleId()), participant));
+        }
     }
 
     public void updateClient(final ServerPlayerEntity entity, final BattleHandle handle, final int timelineSize, final boolean fresh) {
