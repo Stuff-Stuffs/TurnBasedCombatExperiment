@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -20,6 +21,7 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     private final Random random;
     private final Battle battle;
     private int turnCount = 0;
+    private int roundCount = 0;
     private boolean ended;
 
     public BattleState(final int battleId, final Battle battle) {
@@ -77,10 +79,19 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     public EntityState advanceTurn(final BattleParticipantHandle handle) {
         if (handle.battleId() == battleId && (handle.isUniversal() || handle.participantId().equals(getCurrentTurn().getId()))) {
             turnCount++;
-            return (EntityState) battle.getTurnChooser().choose(participants.values(), this);
+            final TurnChooser.TurnInfo turnInfo = battle.getTurnChooser().nextTurn(participants.values(), this);
+            if(roundCount!=turnInfo.roundNumber()) {
+                roundCount = turnInfo.roundNumber();
+                tick();
+            }
+            return (EntityState) turnInfo.participant();
         } else {
             throw new RuntimeException();
         }
+    }
+
+    private void tick() {
+
     }
 
     //TODO throws not enough participants exception?
@@ -114,6 +125,11 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     @Override
     public int getTurnCount() {
         return turnCount;
+    }
+
+    @Override
+    public int getRoundCount() {
+        return roundCount;
     }
 
     @Override

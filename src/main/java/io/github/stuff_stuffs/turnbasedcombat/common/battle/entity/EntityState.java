@@ -6,8 +6,14 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.effect.EntityEffect;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.effect.EntityEffectRegistry;
 import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 public final class EntityState implements EntityStateView {
@@ -27,6 +33,9 @@ public final class EntityState implements EntityStateView {
                     ).add(
                             "health",
                             ops.createInt(input.health)
+                    ).add(
+                            "effects",
+                            EntityEffectRegistry.LIST_CODEC.encodeStart(ops, new ArrayList<>(input.effects))
                     ).build(ops.empty());
         }
 
@@ -47,24 +56,30 @@ public final class EntityState implements EntityStateView {
             final int health = ops.getNumberValue(map.get("health")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }).intValue();
-            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health), ops.empty()));
+            final List<EntityEffect> entityEffects = EntityEffectRegistry.LIST_CODEC.decode(ops, map.get("effects")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            }).getFirst();
+            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects), ops.empty()));
         }
     };
     private final SkillInfo info;
     private final UUID uuid;
     private final Team team;
+    private final Collection<EntityEffect> effects;
     private int health;
 
-    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final int health) {
+    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final int health, final List<EntityEffect> effects) {
         this.info = info;
         this.health = health;
         this.uuid = uuid;
         this.team = team;
+        this.effects = new ReferenceOpenHashSet<>(effects);
     }
 
     public EntityState(final SkillInfo info, final UUID uuid, final Team team) {
         this.info = info;
         health = info.health();
+        effects = new ReferenceOpenHashSet<>();
         this.uuid = uuid;
         this.team = team;
     }

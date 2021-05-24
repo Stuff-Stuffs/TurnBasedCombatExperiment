@@ -6,11 +6,13 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.effect.EntityEffect;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
+import java.util.List;
 import java.util.Map;
 
 public final class TurnChooserTypeRegistry {
@@ -30,7 +32,7 @@ public final class TurnChooserTypeRegistry {
                 throw new RuntimeException();
             }
             final T data = map.get("data");
-            return type.CODEC.decode(ops, data);
+            return type.codec.decode(ops, data);
         }
 
         @Override
@@ -39,7 +41,7 @@ public final class TurnChooserTypeRegistry {
             map.put(ops.createString("id"), Identifier.CODEC.encode(REGISTRY.getId(input.getType()), ops, ops.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }));
-            map.put(ops.createString("data"), input.getType().CODEC.encode(input, ops, ops.empty()).getOrThrow(false, s -> {
+            map.put(ops.createString("data"), input.getType().codec.encode(input, ops, ops.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }));
             return DataResult.success(ops.createMap(map));
@@ -49,10 +51,10 @@ public final class TurnChooserTypeRegistry {
 
 
     public static class Type {
-        public final Codec<TurnChooser> CODEC;
+        public final Codec<TurnChooser> codec;
 
         public Type(final Codec<? extends TurnChooser> codec) {
-            CODEC = (Codec<TurnChooser>) codec;
+            this.codec = (Codec<TurnChooser>) codec;
         }
     }
 

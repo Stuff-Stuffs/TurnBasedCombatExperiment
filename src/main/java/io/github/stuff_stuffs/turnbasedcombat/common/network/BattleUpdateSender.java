@@ -31,7 +31,7 @@ public final class BattleUpdateSender {
                 buf.writeBoolean(fresh);
                 final DataOutput output = new ByteBufOutputStream(buf);
                 if (fresh) {
-                    write(chooser.getType().CODEC.encodeStart(NbtOps.INSTANCE, chooser).getOrThrow(false, s -> {
+                    write(chooser.getType().codec.encodeStart(NbtOps.INSTANCE, chooser).getOrThrow(false, s -> {
                         throw new RuntimeException(s);
                     }), output);
                 }

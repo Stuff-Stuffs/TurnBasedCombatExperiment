@@ -19,5 +19,7 @@ public interface BattleStateView {
 
     int getTurnCount();
 
+    int getRoundCount();
+
     boolean contains(UUID id);
 }

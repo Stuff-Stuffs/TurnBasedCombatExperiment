@@ -16,6 +16,7 @@ public final class SimpleTurnChooser implements TurnChooser {
     ).apply(instance, SimpleTurnChooser::new));
     private static final UUID MIN = new UUID(Long.MIN_VALUE, Long.MIN_VALUE);
     private UUID currentId;
+    private int roundNumber = 0;
 
     public SimpleTurnChooser() {
         currentId = MIN;
@@ -26,7 +27,7 @@ public final class SimpleTurnChooser implements TurnChooser {
     }
 
     @Override
-    public EntityStateView choose(final Collection<? extends EntityStateView> participants, final BattleStateView state) {
+    public TurnInfo nextTurn(final Collection<? extends EntityStateView> participants, final BattleStateView state) {
         UUID maxId = new UUID(Long.MIN_VALUE, Long.MIN_VALUE);
         UUID minId = new UUID(Long.MAX_VALUE, Long.MAX_VALUE);
         EntityStateView smallestView = null;
@@ -41,6 +42,7 @@ public final class SimpleTurnChooser implements TurnChooser {
         }
         if (currentId.compareTo(maxId) < 0) {
             currentId = minId;
+            roundNumber++;
         } else {
             UUID smallestGreaterThan = null;
             EntityStateView best = null;
@@ -59,9 +61,9 @@ public final class SimpleTurnChooser implements TurnChooser {
                 hi = hi + 1;
             }
             currentId = new UUID(hi, lo);
-            return best;
+            return new TurnInfo(best, roundNumber);
         }
-        return smallestView;
+        return new TurnInfo(smallestView, roundNumber);
     }
 
     @Override
