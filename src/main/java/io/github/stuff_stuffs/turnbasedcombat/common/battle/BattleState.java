@@ -15,9 +15,8 @@ import java.util.UUID;
 
 public final class BattleState implements BattleStateView, Iterable<BattleParticipantHandle> {
     private final int battleId;
-    private final Object2ReferenceMap<BattleParticipantHandle, BattleParticipant> participants;
-    private final Object2ReferenceMap<BattleParticipantHandle, EntityState> participantStates;
-    private final Object2ReferenceMap<Team, Set<BattleParticipant>> teams;
+    private final Object2ReferenceMap<BattleParticipantHandle, EntityState> participants;
+    private final Object2ReferenceMap<Team, Set<EntityState>> teams;
     private final Random random;
     private final Battle battle;
     private int turnCount = 0;
@@ -26,25 +25,23 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     public BattleState(final int battleId, final Battle battle) {
         this.battleId = battleId;
         participants = new Object2ReferenceOpenHashMap<>();
-        participantStates = new Object2ReferenceOpenHashMap<>();
         teams = new Object2ReferenceOpenHashMap<>();
         random = new Random(battleId);
         this.battle = battle;
         ended = false;
     }
 
-    public BattleParticipantHandle addParticipant(final BattleParticipant participant) {
+    public BattleParticipantHandle addParticipant(final EntityState participant) {
         if (ended) {
             throw new RuntimeException();
         }
-        final BattleParticipantHandle handle = new BattleParticipantHandle(battleId, participant.id());
-        final BattleParticipant battleParticipant = participants.get(handle);
+        final BattleParticipantHandle handle = new BattleParticipantHandle(battleId, participant.getId());
+        final EntityState battleParticipant = participants.get(handle);
         if (battleParticipant != null) {
             return handle;
         }
         participants.put(handle, participant);
-        participantStates.put(handle, participant.skillInfo().createState());
-        teams.computeIfAbsent(participant.team(), i -> new ReferenceOpenHashSet<>()).add(participant);
+        teams.computeIfAbsent(participant.getTeam(), i -> new ReferenceOpenHashSet<>()).add(participant);
         return handle;
     }
 
@@ -55,13 +52,12 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         if (battleId != handle.battleId()) {
             throw new RuntimeException();
         }
-        final BattleParticipant removed = participants.remove(handle);
+        final EntityState removed = participants.remove(handle);
         if (removed != null) {
-            participantStates.remove(handle);
-            final Set<BattleParticipant> team = teams.get(removed.team());
+            final Set<EntityState> team = teams.get(removed.getTeam());
             team.remove(removed);
             if (team.size() == 0) {
-                teams.remove(removed.team());
+                teams.remove(removed.getTeam());
             }
             return true;
         }
@@ -78,10 +74,10 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     }
 
     //TODO throws not enough participants exception?
-    public BattleParticipant advanceTurn(final BattleParticipantHandle handle) {
-        if (handle.battleId() == battleId && (handle.isUniversal() || handle.participantId().equals(getCurrentTurn().id()))) {
+    public EntityState advanceTurn(final BattleParticipantHandle handle) {
+        if (handle.battleId() == battleId && (handle.isUniversal() || handle.participantId().equals(getCurrentTurn().getId()))) {
             turnCount++;
-            return battle.getTurnChooser().choose(participants.values(), this);
+            return (EntityState) battle.getTurnChooser().choose(participants.values(), this);
         } else {
             throw new RuntimeException();
         }
@@ -89,23 +85,16 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
 
     //TODO throws not enough participants exception?
     @Override
-    public BattleParticipant getCurrentTurn() {
-        return battle.getTurnChooser().getCurrent(participants.values(), this);
+    public EntityState getCurrentTurn() {
+        return (EntityState) battle.getTurnChooser().getCurrent(participants.values(), this);
     }
 
     @Override
-    public @Nullable BattleParticipant getParticipant(final BattleParticipantHandle handle) {
+    public @Nullable EntityState getParticipant(final BattleParticipantHandle handle) {
         if (battleId != handle.battleId()) {
             throw new RuntimeException();
         }
         return participants.get(handle);
-    }
-
-    public @Nullable EntityState getParticipantState(final BattleParticipantHandle handle) {
-        if (battleId != handle.battleId()) {
-            throw new RuntimeException();
-        }
-        return participantStates.get(handle);
     }
 
     @Override
@@ -129,8 +118,8 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
 
     @Override
     public boolean contains(UUID id) {
-        for (BattleParticipant participant : participants.values()) {
-            if(participant.id().equals(id)) {
+        for (EntityState participant : participants.values()) {
+            if(participant.getId().equals(id)) {
                 return true;
             }
         }

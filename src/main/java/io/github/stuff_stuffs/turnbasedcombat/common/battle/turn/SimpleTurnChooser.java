@@ -2,8 +2,8 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.turn;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipant;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
 
 import java.util.Collection;
@@ -26,16 +26,16 @@ public final class SimpleTurnChooser implements TurnChooser {
     }
 
     @Override
-    public BattleParticipant choose(final Collection<BattleParticipant> participants, final BattleStateView state) {
+    public EntityStateView choose(final Collection<? extends EntityStateView> participants, final BattleStateView state) {
         UUID maxId = new UUID(Long.MIN_VALUE, Long.MIN_VALUE);
         UUID minId = new UUID(Long.MAX_VALUE, Long.MAX_VALUE);
-        BattleParticipant smallestView = null;
-        for (final BattleParticipant participant : participants) {
-            if (maxId.compareTo(participant.id()) < 0) {
-                maxId = participant.id();
+        EntityStateView smallestView = null;
+        for (final EntityStateView participant : participants) {
+            if (maxId.compareTo(participant.getId()) < 0) {
+                maxId = participant.getId();
             }
-            if (minId.compareTo(participant.id()) > 0) {
-                minId = participant.id();
+            if (minId.compareTo(participant.getId()) > 0) {
+                minId = participant.getId();
                 smallestView = participant;
             }
         }
@@ -43,19 +43,19 @@ public final class SimpleTurnChooser implements TurnChooser {
             currentId = minId;
         } else {
             UUID smallestGreaterThan = null;
-            BattleParticipant best = null;
-            for (final BattleParticipant participant : participants) {
-                if (participant.id().compareTo(currentId) > 0 && (smallestGreaterThan == null || participant.id().compareTo(smallestGreaterThan) < 0)) {
-                    smallestGreaterThan = participant.id();
+            EntityStateView best = null;
+            for (final EntityStateView participant : participants) {
+                if (participant.getId().compareTo(currentId) > 0 && (smallestGreaterThan == null || participant.getId().compareTo(smallestGreaterThan) < 0)) {
+                    smallestGreaterThan = participant.getId();
                     best = participant;
                 }
             }
-            if(smallestGreaterThan==null) {
+            if (smallestGreaterThan == null) {
                 throw new RuntimeException();
             }
-            long lo = smallestGreaterThan.getLeastSignificantBits() + 1;
+            final long lo = smallestGreaterThan.getLeastSignificantBits() + 1;
             long hi = smallestGreaterThan.getMostSignificantBits();
-            if(lo == Long.MIN_VALUE) {
+            if (lo == Long.MIN_VALUE) {
                 hi = hi + 1;
             }
             currentId = new UUID(hi, lo);
@@ -65,20 +65,20 @@ public final class SimpleTurnChooser implements TurnChooser {
     }
 
     @Override
-    public BattleParticipant getCurrent(final Collection<BattleParticipant> participants, final BattleStateView state) {
+    public EntityStateView getCurrent(final Collection<? extends EntityStateView> participants, final BattleStateView state) {
         UUID biggestLessThan = MIN;
         UUID biggest = MIN;
-        BattleParticipant biggestLessThanView = null;
-        BattleParticipant biggestView = null;
-        for (final BattleParticipant participant : participants) {
-            if (participant.id().compareTo(currentId)<0) {
-                if (participant.id().compareTo(biggestLessThan)>0) {
-                    biggestLessThan = participant.id();
+        EntityStateView biggestLessThanView = null;
+        EntityStateView biggestView = null;
+        for (final EntityStateView participant : participants) {
+            if (participant.getId().compareTo(currentId) < 0) {
+                if (participant.getId().compareTo(biggestLessThan) > 0) {
+                    biggestLessThan = participant.getId();
                     biggestLessThanView = participant;
                 }
             }
-            if (participant.id().compareTo(biggest)>0) {
-                biggest = participant.id();
+            if (participant.getId().compareTo(biggest) > 0) {
+                biggest = participant.getId();
                 biggestView = participant;
             }
         }

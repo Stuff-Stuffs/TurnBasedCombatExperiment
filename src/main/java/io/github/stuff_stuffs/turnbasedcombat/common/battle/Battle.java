@@ -52,7 +52,7 @@ public final class Battle {
         if (action.getHandle().battleId() != battleId) {
             throw new RuntimeException();
         }
-        if (action.getHandle().isUniversal() || action.getHandle().participantId().equals(state.getCurrentTurn().id())) {
+        if (action.getHandle().isUniversal() || action.getHandle().participantId().equals(state.getCurrentTurn().getId())) {
             action.applyToState(state);
             timeline.push(action);
         } else {
@@ -87,7 +87,7 @@ public final class Battle {
             if (lastTurn != state.getTurnCount()) {
                 lastTurn = state.getTurnCount();
                 for (final BattleParticipantHandle handle : state) {
-                    final EntityState entityState = state.getParticipantState(handle);
+                    final EntityState entityState = state.getParticipant(handle);
                     if (entityState == null) {
                         throw new RuntimeException();
                     }

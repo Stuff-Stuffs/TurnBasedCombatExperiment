@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.data;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.*;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.JoinBattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.SimpleTurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.BattleUpdateSender;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
@@ -65,11 +66,14 @@ public final class ServerBattleWorld implements BattleWorld {
     }
 
     @Override
-    public void join(final BattleEntity entity, final BattleHandle handle) {
-        if (getBattle(entity) != null) {
+    public void join(final BattleEntity battleEntity, final BattleHandle handle) {
+        if(!(battleEntity instanceof Entity entity)) {
+            throw new RuntimeException();
+        }
+        if (getBattle(battleEntity) != null) {
             throw new RuntimeException("Entity already in battle");
         } else {
-            final BattleParticipant participant = new BattleParticipant(entity.getBattleName(), ((Entity) entity).getUuid(), entity.getTeam(), entity.getSkillInfo());
+            final EntityState participant = new EntityState(battleEntity.getSkillInfo(), entity.getUuid(), battleEntity.getTeam());
             Battle battle = getBattle(handle);
             if (battle == null) {
                 battle = new Battle(nextBattleId.getAndIncrement(), new SimpleTurnChooser(), new BattleTimeline());

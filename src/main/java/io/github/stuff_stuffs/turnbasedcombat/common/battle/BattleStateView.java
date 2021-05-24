@@ -1,14 +1,15 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateView;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 public interface BattleStateView {
     //TODO throws not enough participants exception?
-    BattleParticipant getCurrentTurn();
+    EntityStateView getCurrentTurn();
 
-    @Nullable BattleParticipant getParticipant(BattleParticipantHandle handle);
+    @Nullable EntityStateView getParticipant(BattleParticipantHandle handle);
 
     boolean isBattleEnded();
 

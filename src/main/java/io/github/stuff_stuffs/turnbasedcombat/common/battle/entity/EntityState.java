@@ -1,16 +1,76 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.entity;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapLike;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
+
+import java.util.UUID;
+
 public final class EntityState implements EntityStateView {
+    public static final Codec<EntityState> CODEC = new Codec<>() {
+        @Override
+        public <T> DataResult<T> encode(final EntityState input, final DynamicOps<T> ops, final T prefix) {
+            return ops.mapBuilder()
+                    .add(
+                            "info",
+                            SkillInfo.CODEC.encodeStart(ops, input.info)
+                    ).add(
+                            "uuid",
+                            CodecUtil.UUID_CODEC.encodeStart(ops, input.uuid)
+                    ).add(
+                            "team",
+                            Team.CODEC.encodeStart(ops, input.team)
+                    ).add(
+                            "health",
+                            ops.createInt(input.health)
+                    ).build(ops.empty());
+        }
+
+        @Override
+        public <T> DataResult<Pair<EntityState, T>> decode(final DynamicOps<T> ops, final T input) {
+            final MapLike<T> map = ops.getMap(input).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final SkillInfo info = SkillInfo.CODEC.decode(ops, map.get("info")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            }).getFirst();
+            final UUID uuid = CodecUtil.UUID_CODEC.decode(ops, map.get("uuid")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            }).getFirst();
+            final Team team = Team.CODEC.decode(ops, map.get("team")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            }).getFirst();
+            final int health = ops.getNumberValue(map.get("health")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            }).intValue();
+            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health), ops.empty()));
+        }
+    };
     private final SkillInfo info;
+    private final UUID uuid;
+    private final Team team;
     private int health;
 
-    public EntityState(final SkillInfo info) {
+    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final int health) {
         this.info = info;
-        health = info.health;
+        this.health = health;
+        this.uuid = uuid;
+        this.team = team;
+    }
+
+    public EntityState(final SkillInfo info, final UUID uuid, final Team team) {
+        this.info = info;
+        health = info.health();
+        this.uuid = uuid;
+        this.team = team;
     }
 
     public void heal(final int amount) {
-        health = Math.min(health + amount, info.maxHealth);
+        health = Math.min(health + amount, getMaxHealth());
     }
 
     public void damage(final int amount) {
@@ -24,11 +84,21 @@ public final class EntityState implements EntityStateView {
 
     @Override
     public int getLevel() {
-        return info.level;
+        return info.level();
     }
 
     @Override
     public int getMaxHealth() {
-        return info.maxHealth;
+        return info.maxHealth();
+    }
+
+    @Override
+    public UUID getId() {
+        return uuid;
+    }
+
+    @Override
+    public Team getTeam() {
+        return team;
     }
 }

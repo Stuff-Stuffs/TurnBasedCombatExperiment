@@ -6,7 +6,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 
-public final class SkillInfo {
+public record SkillInfo(int maxHealth, int health, int level) {
     public static final Codec<SkillInfo> CODEC = new Codec<>() {
         @Override
         public <T> DataResult<Pair<SkillInfo, T>> decode(final DynamicOps<T> ops, final T input) {
@@ -23,27 +23,14 @@ public final class SkillInfo {
         public <T> DataResult<T> encode(final SkillInfo input, final DynamicOps<T> ops, final T prefix) {
             return ops.mapBuilder().add(
                     "maxHealth",
-                    ops.createInt(input.maxHealth)
+                    ops.createInt(input.maxHealth())
             ).add(
                     "health",
-                    ops.createInt(input.health)
+                    ops.createInt(input.health())
             ).add(
                     "level",
-                    ops.createInt(input.level)
+                    ops.createInt(input.level())
             ).build(ops.empty());
         }
     };
-    public final int maxHealth;
-    public final int health;
-    public final int level;
-
-    public SkillInfo(final int maxHealth, final int health, final int level) {
-        this.maxHealth = maxHealth;
-        this.health = health;
-        this.level = level;
-    }
-
-    public EntityState createState() {
-        return new EntityState(this);
-    }
 }

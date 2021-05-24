@@ -1,14 +1,14 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.turn;
 
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipant;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateView;
 
 import java.util.Collection;
 
 public interface TurnChooser {
-    BattleParticipant choose(Collection<BattleParticipant> participants, BattleStateView state);
+    EntityStateView choose(Collection<? extends EntityStateView> participants, BattleStateView state);
 
-    BattleParticipant getCurrent(Collection<BattleParticipant> participants, BattleStateView state);
+    EntityStateView getCurrent(Collection<? extends EntityStateView> participants, BattleStateView state);
 
     void reset();
 
