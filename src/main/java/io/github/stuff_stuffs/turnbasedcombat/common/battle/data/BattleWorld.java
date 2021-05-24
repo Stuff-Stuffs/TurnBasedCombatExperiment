@@ -11,4 +11,6 @@ public interface BattleWorld {
     @Nullable Battle getBattle(BattleEntity entity);
 
     void join(BattleEntity entity, BattleHandle handle);
+
+    BattleHandle create();
 }

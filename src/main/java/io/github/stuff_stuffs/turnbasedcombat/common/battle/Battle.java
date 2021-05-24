@@ -101,6 +101,7 @@ public final class Battle {
             } else if (turnTimer.shouldEndTurn()) {
                 push(new EndTurnAction(BattleParticipantHandle.UNIVERSAL.apply(battleId)));
             }
+            turnTimer.tick();
         }
     }
 }

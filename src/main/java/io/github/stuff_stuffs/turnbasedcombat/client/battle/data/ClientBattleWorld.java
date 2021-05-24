@@ -61,6 +61,11 @@ public class ClientBattleWorld implements BattleWorld {
         throw new UnsupportedOperationException("Should not join battle client side!");
     }
 
+    @Override
+    public BattleHandle create() {
+        throw new UnsupportedOperationException("Should not create battle client side!");
+    }
+
     public static ClientBattleWorld get(final ClientWorld world) {
         return ((ClientBattleWorldProvider) world).tbcex_getBattleWorld();
     }

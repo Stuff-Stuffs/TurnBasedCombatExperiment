@@ -25,7 +25,7 @@ public abstract class BattleAction {
             if (!ops.empty().equals(prefix) && prefix != null) {
                 throw new RuntimeException();
             }
-            return DataResult.success(input.encode(ops));
+            return DataResult.success(input.serialize(ops));
         }
     };
     private static final Map<String, Class<? extends BattleAction>> BATTLE_ACTION_CLASSES;

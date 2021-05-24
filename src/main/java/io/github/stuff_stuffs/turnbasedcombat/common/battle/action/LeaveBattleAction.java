@@ -23,9 +23,6 @@ public final class LeaveBattleAction extends BattleAction {
         if (!state.removeParticipant(target)) {
             throw new RuntimeException();
         }
-        if (state.getTeamCount() < 2) {
-            state.endBattle();
-        }
     }
 
     @Override

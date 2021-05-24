@@ -21,28 +21,25 @@ import java.util.UUID;
 
 public final class ServerBattleWorld implements BattleWorld {
     private final MutableInt nextBattleId;
-    private final MutableInt nextParticipantId;
     private final Int2ReferenceMap<Battle> battles;
     //TODO move to on disk storage
     private final Int2ReferenceMap<Battle> endedBattles;
 
-    private ServerBattleWorld(final int nextBattleId, final int nextParticipantId, final Int2ReferenceMap<Battle> battles) {
+    private ServerBattleWorld(final int nextBattleId, final Int2ReferenceMap<Battle> battles) {
         this.nextBattleId = new MutableInt(nextBattleId);
-        this.nextParticipantId = new MutableInt(nextParticipantId);
         this.battles = new Int2ReferenceOpenHashMap<>();
         endedBattles = new Int2ReferenceOpenHashMap<>();
         for (final Battle battle : battles.values()) {
             if (battle.getStateView().isBattleEnded()) {
                 endedBattles.put(battle.getBattleId(), battle);
             } else {
-                battles.put(battle.getBattleId(), battle);
+                this.battles.put(battle.getBattleId(), battle);
             }
         }
     }
 
     public ServerBattleWorld() {
         nextBattleId = new MutableInt();
-        nextParticipantId = new MutableInt();
         battles = new Int2ReferenceOpenHashMap<>();
         endedBattles = new Int2ReferenceOpenHashMap<>();
     }
@@ -84,6 +81,13 @@ public final class ServerBattleWorld implements BattleWorld {
         }
     }
 
+    @Override
+    public BattleHandle create() {
+        final Battle battle = new Battle(nextBattleId.getAndIncrement(), new SimpleTurnChooser(), new BattleTimeline());
+        battles.put(battle.getBattleId(), battle);
+        return new BattleHandle(battle.getBattleId());
+    }
+
     public void updateClient(final ServerPlayerEntity entity, final BattleHandle handle, final int timelineSize, final boolean fresh) {
         final Battle battle = getBattle(handle);
         if (battle != null) {
@@ -105,15 +109,13 @@ public final class ServerBattleWorld implements BattleWorld {
         }
         nbt.put("battles", battles);
         nbt.putInt("nextBattleId", nextBattleId.getValue());
-        nbt.putInt("nextParticipantId", nextParticipantId.getValue());
-        return null;
+        return nbt;
     }
 
     public static ServerBattleWorld fromNbt(final NbtCompound nbt) {
         if (nbt.contains("battles")) {
             try {
                 final int nextBattleId = nbt.getInt("nextBattleId");
-                final int nextParticipantId = nbt.getInt("nextParticipantId");
                 final NbtList battles = nbt.getList("battles", 10);
                 final Int2ReferenceMap<Battle> battlesDecoded = new Int2ReferenceOpenHashMap<>(battles.size());
                 for (final NbtElement element : battles) {
@@ -122,8 +124,9 @@ public final class ServerBattleWorld implements BattleWorld {
                     }).getFirst();
                     battlesDecoded.put(battle.getBattleId(), battle);
                 }
-                return new ServerBattleWorld(nextBattleId, nextParticipantId, battlesDecoded);
+                return new ServerBattleWorld(nextBattleId, battlesDecoded);
             } catch (final Exception e) {
+                e.printStackTrace();
                 return new ServerBattleWorld();
             }
         }

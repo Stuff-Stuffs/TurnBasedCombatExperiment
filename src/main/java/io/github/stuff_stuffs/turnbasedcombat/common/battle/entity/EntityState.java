@@ -6,6 +6,7 @@ public final class EntityState {
 
     public EntityState(final SkillInfo info) {
         this.info = info;
+        health = info.health;
     }
 
     public void heal(final int amount) {

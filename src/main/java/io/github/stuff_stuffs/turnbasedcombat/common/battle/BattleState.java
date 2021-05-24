@@ -79,7 +79,7 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
 
     //TODO throws not enough participants exception?
     public BattleParticipant advanceTurn(final BattleParticipantHandle handle) {
-        if (handle.battleId() == battleId && handle.participantId().equals(getCurrentTurn().id())) {
+        if (handle.battleId() == battleId && (handle.isUniversal() || handle.participantId().equals(getCurrentTurn().id()))) {
             turnCount++;
             return battle.getTurnChooser().choose(participants.values(), this);
         } else {
