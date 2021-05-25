@@ -13,9 +13,10 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.BinaryOperator;
 
 public class EntityEffectRegistry {
-    public static final Registry<Type> REGISTRY = FabricRegistryBuilder.createSimple(Type.class, TurnBasedCombatExperiment.createId("entity_effect")).buildAndRegister();
+    public static final Registry<Type<?>> REGISTRY = FabricRegistryBuilder.createSimple((Class<Type<?>>) (Object) Type.class, TurnBasedCombatExperiment.createId("entity_effect")).buildAndRegister();
     public static final Codec<EntityEffect> CODEC = new Codec<>() {
         @Override
         public <T> DataResult<Pair<EntityEffect, T>> decode(final DynamicOps<T> ops, final T input) {
@@ -25,7 +26,7 @@ public class EntityEffectRegistry {
             final Identifier id = Identifier.CODEC.decode(ops, map.get("id")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }).getFirst();
-            final Type type = REGISTRY.get(id);
+            final Type<?> type = REGISTRY.get(id);
             if (type == null) {
                 throw new RuntimeException();
             }
@@ -39,7 +40,7 @@ public class EntityEffectRegistry {
             map.put(ops.createString("id"), Identifier.CODEC.encode(REGISTRY.getId(input.getType()), ops, ops.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }));
-            map.put(ops.createString("data"), input.getType().codec.encode(input, ops, ops.empty()).getOrThrow(false, s -> {
+            map.put(ops.createString("data"), input.getType().codec.encodeStart(ops, input).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }));
             return DataResult.success(ops.createMap(map));
@@ -47,11 +48,13 @@ public class EntityEffectRegistry {
     };
     public static final Codec<List<EntityEffect>> LIST_CODEC = Codec.list(CODEC);
 
-    public static class Type {
-        public final Codec<EntityEffect> codec;
+    public static class Type<T extends EntityEffect> {
+        private final Codec<EntityEffect> codec;
+        public final BinaryOperator<EntityEffect> combiner;
 
-        public <T> Type(final Codec<T> codec, final Class<T> clazz) {
+        public Type(final Codec<T> codec, final BinaryOperator<EntityEffect> combiner) {
             this.codec = (Codec<EntityEffect>) codec;
+            this.combiner = combiner;
         }
     }
 }
