@@ -7,6 +7,7 @@
     "MixinPlayerEntity"
   ],
   "client": [
+    "MixinClientPlayerEntity",
     "MixinClientWorld"
   ],
   "injectors": {

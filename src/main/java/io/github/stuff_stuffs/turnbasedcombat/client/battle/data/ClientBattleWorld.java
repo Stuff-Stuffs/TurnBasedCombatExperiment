@@ -12,19 +12,23 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class ClientBattleWorld implements BattleWorld {
     private final Int2ReferenceMap<Battle> battles;
     private final IntSet requestedUpdates;
+    private final Set<UUID> entityRequestedUpdates;
 
     public ClientBattleWorld() {
         battles = new Int2ReferenceOpenHashMap<>();
         requestedUpdates = new IntOpenHashSet();
+        entityRequestedUpdates = new ObjectOpenHashSet<>();
     }
 
     public Battle create(final BattleHandle handle, final TurnChooser chooser) {
@@ -48,10 +52,17 @@ public class ClientBattleWorld implements BattleWorld {
     @Override
     public @Nullable Battle getBattle(final BattleEntity entity) {
         final UUID id = ((Entity) entity).getUuid();
-        for (final Battle battle : battles.values()) {
+        for (final Int2ReferenceMap.Entry<Battle> entry : battles.int2ReferenceEntrySet()) {
+            Battle battle = entry.getValue();
             if (battle.getStateView().contains(id)) {
+                if (requestedUpdates.add(entry.getIntKey())) {
+                    RequestBattleUpdateSender.send(new BattleHandle(entry.getIntKey()), battle.getTimeline().size(), false);
+                }
                 return battle;
             }
+        }
+        if(entityRequestedUpdates.add(id)) {
+            RequestBattleUpdateSender.sendEntity(id);
         }
         return null;
     }
@@ -72,5 +83,6 @@ public class ClientBattleWorld implements BattleWorld {
 
     public void tick() {
         requestedUpdates.clear();
+        entityRequestedUpdates.clear();
     }
 }

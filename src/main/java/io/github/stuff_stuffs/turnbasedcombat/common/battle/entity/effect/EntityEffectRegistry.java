@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BinaryOperator;
 
-public class EntityEffectRegistry {
+public final class EntityEffectRegistry {
     public static final Registry<Type<?>> REGISTRY = FabricRegistryBuilder.createSimple((Class<Type<?>>) (Object) Type.class, TurnBasedCombatExperiment.createId("entity_effect")).buildAndRegister();
     public static final Codec<EntityEffect> CODEC = new Codec<>() {
         @Override
@@ -46,7 +46,9 @@ public class EntityEffectRegistry {
             return DataResult.success(ops.createMap(map));
         }
     };
-    public static final Codec<List<EntityEffect>> LIST_CODEC = Codec.list(CODEC);
+
+    private EntityEffectRegistry() {
+    }
 
     public static class Type<T extends EntityEffect> {
         private final Codec<EntityEffect> codec;

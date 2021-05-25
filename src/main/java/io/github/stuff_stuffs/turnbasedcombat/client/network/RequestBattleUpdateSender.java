@@ -7,15 +7,24 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-public final class RequestBattleUpdateSender {
-    public static final Identifier IDENTIFIER = TurnBasedCombatExperiment.createId("request_battle_update");
+import java.util.UUID;
 
-    public static void send(final BattleHandle handle, final int timelineSize, boolean fresh) {
+public final class RequestBattleUpdateSender {
+    public static final Identifier BATTLE_UPDATE = TurnBasedCombatExperiment.createId("request_battle_update");
+    public static final Identifier ENTITY_BATTLE_UPDATE = TurnBasedCombatExperiment.createId("request_battle_update_entity");
+
+    public static void send(final BattleHandle handle, final int timelineSize, final boolean fresh) {
         final PacketByteBuf buf = PacketByteBufs.create();
         buf.writeVarInt(handle.id());
         buf.writeVarInt(timelineSize);
         buf.writeBoolean(fresh);
-        ClientPlayNetworking.send(IDENTIFIER, buf);
+        ClientPlayNetworking.send(BATTLE_UPDATE, buf);
+    }
+
+    public static void sendEntity(final UUID id) {
+        final PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeUuid(id);
+        ClientPlayNetworking.send(ENTITY_BATTLE_UPDATE, buf);
     }
 
     private RequestBattleUpdateSender() {

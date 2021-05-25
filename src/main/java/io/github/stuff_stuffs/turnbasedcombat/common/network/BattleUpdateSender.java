@@ -4,6 +4,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleTimelineView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooserTypeRegistry;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.handler.codec.EncoderException;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -31,7 +32,7 @@ public final class BattleUpdateSender {
                 buf.writeBoolean(fresh);
                 final DataOutput output = new ByteBufOutputStream(buf);
                 if (fresh) {
-                    write(chooser.getType().codec.encodeStart(NbtOps.INSTANCE, chooser).getOrThrow(false, s -> {
+                    write(TurnChooserTypeRegistry.CODEC.encodeStart(NbtOps.INSTANCE, chooser).getOrThrow(false, s -> {
                         throw new RuntimeException(s);
                     }), output);
                 }

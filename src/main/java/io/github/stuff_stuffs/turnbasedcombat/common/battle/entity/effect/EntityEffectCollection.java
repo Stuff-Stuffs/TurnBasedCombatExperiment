@@ -94,6 +94,12 @@ public final class EntityEffectCollection {
         }
     }
 
+    public void addAll(EntityEffectCollection other) {
+        for (EntityEffect effect : other.effects.values()) {
+            add(effect);
+        }
+    }
+
     public void clear(final EntityEffectRegistry.Type<?> type) {
         if (effects.remove(type) != null) {
             ids.removeInt(type);

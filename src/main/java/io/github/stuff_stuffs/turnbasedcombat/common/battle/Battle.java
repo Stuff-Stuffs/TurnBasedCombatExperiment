@@ -99,6 +99,7 @@ public final class Battle {
             if (state.getTeamCount() < 2 || lastTurn > TurnBasedCombatExperiment.getMaxTurnCount()) {
                 push(new EndBattleAction(BattleParticipantHandle.UNIVERSAL.apply(battleId)));
             } else if (turnTimer.shouldEndTurn()) {
+                turnTimer.reset();
                 push(new EndTurnAction(BattleParticipantHandle.UNIVERSAL.apply(battleId)));
             }
             turnTimer.tick();

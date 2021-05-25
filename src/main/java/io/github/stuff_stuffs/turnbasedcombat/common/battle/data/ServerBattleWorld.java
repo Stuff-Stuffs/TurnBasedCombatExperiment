@@ -57,8 +57,12 @@ public final class ServerBattleWorld implements BattleWorld {
     @Override
     public @Nullable Battle getBattle(final BattleEntity entity) {
         final UUID id = ((Entity) entity).getUuid();
+        return getBattle(id);
+    }
+
+    public @Nullable Battle getBattle(final UUID entity) {
         for (final Battle battle : battles.values()) {
-            if (battle.getStateView().contains(id)) {
+            if (battle.getStateView().contains(entity)) {
                 return battle;
             }
         }

@@ -6,11 +6,12 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public final class BattleTimeline implements BattleTimelineView {
-    public static final Codec<BattleTimeline> CODEC = Codec.list(BattleAction.CODEC).xmap(BattleTimeline::new, timeline -> timeline.actions);
+    public static final Codec<BattleTimeline> CODEC = Codec.list(BattleAction.CODEC).xmap(l -> new BattleTimeline(new ArrayList<>(l)), timeline -> timeline.actions);
     private final List<BattleAction> actions;
 
     private BattleTimeline(final List<BattleAction> actions) {
