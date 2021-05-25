@@ -7,8 +7,7 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.effect.EntityEffect;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.effect.EntityEffectCollection;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectCollection;
 import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
 
 import java.util.UUID;

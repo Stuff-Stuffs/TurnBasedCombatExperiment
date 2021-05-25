@@ -6,13 +6,11 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.effect.EntityEffect;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import java.util.List;
 import java.util.Map;
 
 public final class TurnChooserTypeRegistry {

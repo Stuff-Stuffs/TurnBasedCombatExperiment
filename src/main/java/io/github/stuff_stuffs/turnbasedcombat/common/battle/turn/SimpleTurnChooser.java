@@ -93,6 +93,7 @@ public final class SimpleTurnChooser implements TurnChooser {
     @Override
     public void reset() {
         currentId = MIN;
+        roundNumber = 0;
     }
 
     @Override

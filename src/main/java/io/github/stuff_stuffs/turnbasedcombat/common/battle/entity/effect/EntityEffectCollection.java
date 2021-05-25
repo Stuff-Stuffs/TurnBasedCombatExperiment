@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.turnbasedcombat.common.battle.effect;
+package io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
