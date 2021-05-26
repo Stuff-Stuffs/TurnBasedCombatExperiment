@@ -8,19 +8,26 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
 
-public final class AttackBattleAction extends BattleAction {
-    public static final Codec<AttackBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BattleParticipantHandle.CODEC.fieldOf("attacker").forGetter(action -> action.handle),
-            BattleParticipantHandle.CODEC.fieldOf("target").forGetter(action -> action.target),
-            AttackInfo.CODEC.fieldOf("attack").forGetter(action -> action.attack)
-    ).apply(instance, AttackBattleAction::new));
+import java.util.Collections;
+import java.util.List;
 
-    private final BattleParticipantHandle target;
+public final class BasicAttackBattleAction extends BattleAction {
+    public static final Codec<BasicAttackBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BattleParticipantHandle.CODEC.fieldOf("attacker").forGetter(action -> action.handle),
+            Codec.list(BattleParticipantHandle.CODEC).fieldOf("target").forGetter(action -> action.targets),
+            AttackInfo.CODEC.fieldOf("attack").forGetter(action -> action.attack)
+    ).apply(instance, BasicAttackBattleAction::new));
+
+    private final List<BattleParticipantHandle> targets;
     private final AttackInfo attack;
 
-    public AttackBattleAction(final BattleParticipantHandle attacker, final BattleParticipantHandle target, final AttackInfo attack) {
+    public BasicAttackBattleAction(final BattleParticipantHandle attacker, final BattleParticipantHandle target, final AttackInfo attack) {
+        this(attacker, Collections.singletonList(target), attack);
+    }
+
+    public BasicAttackBattleAction(final BattleParticipantHandle attacker, final List<BattleParticipantHandle> targets, final AttackInfo attack) {
         super(attacker);
-        this.target = target;
+        this.targets = targets;
         this.attack = attack;
     }
 
@@ -38,11 +45,13 @@ public final class AttackBattleAction extends BattleAction {
         } else {
             throw new RuntimeException("Invalid attacker");
         }
-        final EntityState target = state.getParticipant(this.target);
-        if (target == null) {
-            throw new RuntimeException();
+        for (final BattleParticipantHandle targetHandle : targets) {
+            final EntityState target = state.getParticipant(targetHandle);
+            if (target == null) {
+                throw new RuntimeException();
+            }
+            attack.applyTarget(attacker, target, state);
         }
-        attack.applyTarget(attacker, target, state);
     }
 
     @Override
@@ -52,7 +61,7 @@ public final class AttackBattleAction extends BattleAction {
         });
     }
 
-    public static <T> AttackBattleAction decode(final T o, final DynamicOps<T> ops) {
+    public static <T> BasicAttackBattleAction decode(final T o, final DynamicOps<T> ops) {
         return CODEC.parse(ops, o).getOrThrow(false, s -> {
             throw new RuntimeException(s);
         });

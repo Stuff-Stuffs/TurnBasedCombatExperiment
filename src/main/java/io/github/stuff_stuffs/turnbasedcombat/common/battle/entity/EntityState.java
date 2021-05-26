@@ -7,8 +7,15 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffect;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectCollection;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectRegistry;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipment;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentType;
 import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
+import net.minecraft.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -32,6 +39,9 @@ public final class EntityState implements EntityStateView {
                     ).add(
                             "effects",
                             EntityEffectCollection.CODEC.encodeStart(ops, input.effects)
+                    ).add(
+                            "equipment",
+                            BattleEquipmentState.CODEC.encodeStart(ops, input.equipmentState)
                     ).build(ops.empty());
         }
 
@@ -40,44 +50,50 @@ public final class EntityState implements EntityStateView {
             final MapLike<T> map = ops.getMap(input).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            final SkillInfo info = SkillInfo.CODEC.decode(ops, map.get("info")).getOrThrow(false, s -> {
+            final SkillInfo info = SkillInfo.CODEC.parse(ops, map.get("info")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
-            }).getFirst();
-            final UUID uuid = CodecUtil.UUID_CODEC.decode(ops, map.get("uuid")).getOrThrow(false, s -> {
+            });
+            final UUID uuid = CodecUtil.UUID_CODEC.parse(ops, map.get("uuid")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
-            }).getFirst();
-            final Team team = Team.CODEC.decode(ops, map.get("team")).getOrThrow(false, s -> {
+            });
+            final Team team = Team.CODEC.parse(ops, map.get("team")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
-            }).getFirst();
+            });
             final int health = ops.getNumberValue(map.get("health")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }).intValue();
-            final EntityEffectCollection entityEffects = EntityEffectCollection.CODEC.decode(ops, map.get("effects")).getOrThrow(false, s -> {
+            final EntityEffectCollection entityEffects = EntityEffectCollection.CODEC.parse(ops, map.get("effects")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
-            }).getFirst();
-            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects), ops.empty()));
+            });
+            final BattleEquipmentState equipmentState = BattleEquipmentState.CODEC.parse(ops, map.get("equipment")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects, equipmentState), ops.empty()));
         }
     };
     private final SkillInfo info;
     private final UUID uuid;
     private final Team team;
     private final EntityEffectCollection effects;
+    private final BattleEquipmentState equipmentState;
     private int health;
 
-    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final int health, final EntityEffectCollection effects) {
+    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final int health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState) {
         this.info = info;
         this.health = health;
         this.uuid = uuid;
         this.team = team;
         this.effects = effects;
+        this.equipmentState = equipmentState;
     }
 
-    public EntityState(final SkillInfo info, final UUID uuid, final Team team) {
-        this.info = info;
+    public EntityState(final BattleEntity entity) {
+        info = entity.getSkillInfo();
         health = info.health();
         effects = new EntityEffectCollection();
-        this.uuid = uuid;
-        this.team = team;
+        uuid = ((Entity) entity).getUuid();
+        team = entity.getTeam();
+        equipmentState = new BattleEquipmentState(entity, this);
     }
 
     public void heal(final int amount) {
@@ -111,6 +127,26 @@ public final class EntityState implements EntityStateView {
     @Override
     public Team getTeam() {
         return team;
+    }
+
+    public void addEffect(final EntityEffect entityEffect) {
+        effects.add(entityEffect);
+    }
+
+    public void clearEffect(final EntityEffectRegistry.Type<?> type) {
+        effects.clear(type);
+    }
+
+    public void equip(final BattleEquipment equipment) {
+        equipmentState.put(equipment, this);
+    }
+
+    public void unEquip(final BattleEquipmentType type) {
+        equipmentState.remove(type, this);
+    }
+
+    public @Nullable BattleEquipment getEquiped(final BattleEquipmentType type) {
+        return equipmentState.get(type);
     }
 
     public void tick(final BattleStateView battleState) {
