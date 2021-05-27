@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.action.attack;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -7,6 +8,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantHan
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectCollection;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,21 +16,25 @@ import java.util.List;
 public final class BasicAttackBattleAction extends BattleAction {
     public static final Codec<BasicAttackBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleParticipantHandle.CODEC.fieldOf("attacker").forGetter(action -> action.handle),
-            Codec.list(BattleParticipantHandle.CODEC).fieldOf("target").forGetter(action -> action.targets),
-            AttackInfo.CODEC.fieldOf("attack").forGetter(action -> action.attack)
+            Codec.list(Codec.pair(BattleParticipantHandle.CODEC, AttackInfo.CODEC)).fieldOf("attacks").forGetter(action -> action.attacks),
+            EntityEffectCollection.CODEC.fieldOf("attackerEffects").forGetter(action -> action.attackerEffects)
     ).apply(instance, BasicAttackBattleAction::new));
 
-    private final List<BattleParticipantHandle> targets;
-    private final AttackInfo attack;
+    private final List<Pair<BattleParticipantHandle, AttackInfo>> attacks;
+    private final EntityEffectCollection attackerEffects;
 
     public BasicAttackBattleAction(final BattleParticipantHandle attacker, final BattleParticipantHandle target, final AttackInfo attack) {
-        this(attacker, Collections.singletonList(target), attack);
+        this(attacker, Collections.singletonList(Pair.of(target,attack)), new EntityEffectCollection());
     }
 
-    public BasicAttackBattleAction(final BattleParticipantHandle attacker, final List<BattleParticipantHandle> targets, final AttackInfo attack) {
+    public BasicAttackBattleAction(final BattleParticipantHandle attacker, final BattleParticipantHandle target, final AttackInfo attack, EntityEffectCollection attackerEffects) {
+        this(attacker, Collections.singletonList(Pair.of(target,attack)), attackerEffects);
+    }
+
+    public BasicAttackBattleAction(final BattleParticipantHandle attacker, final List<Pair<BattleParticipantHandle, AttackInfo>> attacks, EntityEffectCollection attackerEffects) {
         super(attacker);
-        this.targets = targets;
-        this.attack = attack;
+        this.attacks = attacks;
+        this.attackerEffects = attackerEffects;
     }
 
     @Override
@@ -41,16 +47,17 @@ public final class BasicAttackBattleAction extends BattleAction {
             if (attacker == null) {
                 throw new RuntimeException();
             }
-            attack.applyAttacker(attacker, state);
+            attacker.addAllEffects(attackerEffects);
         } else {
             throw new RuntimeException("Invalid attacker");
         }
-        for (final BattleParticipantHandle targetHandle : targets) {
-            final EntityState target = state.getParticipant(targetHandle);
+        for (final Pair<BattleParticipantHandle, AttackInfo> attack : attacks) {
+            final EntityState target = state.getParticipant(attack.getFirst());
             if (target == null) {
                 throw new RuntimeException();
             }
-            attack.applyTarget(attacker, target, state);
+            final AttackInfo attackInfo = attack.getSecond();
+            attackInfo.applyTarget(attacker, target, state);
         }
     }
 

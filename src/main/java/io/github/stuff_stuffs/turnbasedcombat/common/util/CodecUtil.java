@@ -9,7 +9,7 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.text.Text;
 
-import java.util.UUID;
+import java.util.*;
 
 public final class CodecUtil {
     public static final Codec<Text> TEXT_CODEC = new Codec<>() {
@@ -37,6 +37,23 @@ public final class CodecUtil {
             Codec.LONG.fieldOf("hi").forGetter(UUID::getMostSignificantBits),
             Codec.LONG.fieldOf("lo").forGetter(UUID::getLeastSignificantBits)
     ).apply(instance, UUID::new));
+
+    public static <K, V> Codec<Map<K, V>> createLinkedMapCodec(final Codec<K> keyCodec, final Codec<V> valueCodec) {
+        final Codec<List<Pair<K, V>>> listCodec = Codec.list(Codec.pair(keyCodec, valueCodec));
+        return listCodec.xmap(list -> {
+            final LinkedHashMap<K, V> map = new LinkedHashMap<>();
+            for (final Pair<K, V> pair : list) {
+                map.put(pair.getFirst(), pair.getSecond());
+            }
+            return map;
+        }, map -> {
+            final List<Pair<K, V>> list = new ArrayList<>(map.size());
+            for (final Map.Entry<K, V> entry : map.entrySet()) {
+                list.add(Pair.of(entry.getKey(), entry.getValue()));
+            }
+            return list;
+        });
+    }
 
     private CodecUtil() {
     }

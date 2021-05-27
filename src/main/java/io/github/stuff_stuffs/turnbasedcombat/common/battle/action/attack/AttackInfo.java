@@ -7,6 +7,8 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.damage.DamagePacket;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectCollection;
 import org.jetbrains.annotations.Nullable;
 
 public final class AttackInfo {
@@ -16,10 +18,13 @@ public final class AttackInfo {
             final MapLike<T> map = ops.getMap(input).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            final int damage = ops.getNumberValue(map.get("damage")).getOrThrow(false, s -> {
+            final DamagePacket damage = DamagePacket.CODEC.parse(ops, map.get("damage")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
-            }).intValue();
-            return DataResult.success(Pair.of(new AttackInfo(damage), ops.empty()));
+            });
+            final EntityEffectCollection effects = EntityEffectCollection.CODEC.parse(ops, map.get("effects")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return DataResult.success(Pair.of(new AttackInfo(damage, effects), ops.empty()));
         }
 
         @Override
@@ -30,21 +35,27 @@ public final class AttackInfo {
             return ops.mapBuilder().
                     add(
                             "damage",
-                            ops.createInt(input.damage)
+                            DamagePacket.CODEC.encodeStart(ops, input.damage)
+                    ).add(
+                            "effects",
+                            EntityEffectCollection.CODEC.encodeStart(ops, input.effects)
                     ).build(ops.empty());
         }
     };
-    private final int damage;
+    private final DamagePacket damage;
+    private final EntityEffectCollection effects;
 
-    public AttackInfo(final int damage) {
+    public AttackInfo(final DamagePacket damage) {
+        this(damage, new EntityEffectCollection());
+    }
+
+    public AttackInfo(final DamagePacket damage, final EntityEffectCollection effects) {
         this.damage = damage;
+        this.effects = effects;
     }
 
-    public void applyAttacker(EntityState attacker, BattleState battleState) {
-
-    }
-
-    public void applyTarget(@Nullable EntityState attacker, EntityState target, BattleState battleState) {
+    public void applyTarget(@Nullable final EntityState attacker, final EntityState target, final BattleState battleState) {
+        target.addAllEffects(effects);
         target.damage(damage);
     }
 }

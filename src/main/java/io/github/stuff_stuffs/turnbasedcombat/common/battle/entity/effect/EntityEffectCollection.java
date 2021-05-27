@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -82,7 +83,8 @@ public final class EntityEffectCollection {
         effects = new Object2ObjectAVLTreeMap<>();
     }
 
-    public void add(final EntityEffect effect) {
+    public void add(EntityEffect effect) {
+        effect = effect.copy();
         final EntityEffect current = effects.get(effect.getType());
         if (current != null) {
             final EntityEffect combined = current.getType().combiner.apply(current, effect);
@@ -94,8 +96,8 @@ public final class EntityEffectCollection {
         }
     }
 
-    public void addAll(EntityEffectCollection other) {
-        for (EntityEffect effect : other.effects.values()) {
+    public void addAll(final EntityEffectCollection other) {
+        for (final EntityEffect effect : other.effects.values()) {
             add(effect);
         }
     }
@@ -111,13 +113,7 @@ public final class EntityEffectCollection {
     }
 
     public void tick(final EntityState entityState, final BattleStateView battleState) {
-        final SortedSet<Map.Entry<EntityEffectRegistry.Type<?>, EntityEffect>> effectSet = new ObjectAVLTreeSet<>((o1, o2) -> {
-            final int comp = Integer.compare(o1.getValue().getApplicationStage(), o2.getValue().getApplicationStage());
-            if (comp == 0) {
-                return Integer.compare(ids.getInt(o1.getValue().getType()), ids.getInt(o2.getValue().getType()));
-            }
-            return comp;
-        });
+        final SortedSet<Map.Entry<EntityEffectRegistry.Type<?>, EntityEffect>> effectSet = new ObjectAVLTreeSet<>(Comparator.comparingInt(o -> ids.getInt(o.getValue().getType())));
         effectSet.addAll(effects.entrySet());
         for (final Map.Entry<EntityEffectRegistry.Type<?>, EntityEffect> entry : effectSet) {
             entry.getValue().tick(entityState, battleState);

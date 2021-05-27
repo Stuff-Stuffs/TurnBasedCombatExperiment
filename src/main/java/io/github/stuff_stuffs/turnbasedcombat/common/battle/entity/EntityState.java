@@ -7,12 +7,15 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.damage.DamagePacket;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffect;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectCollection;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectRegistry;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentType;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStatType;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStats;
 import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
 import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +45,9 @@ public final class EntityState implements EntityStateView {
                     ).add(
                             "equipment",
                             BattleEquipmentState.CODEC.encodeStart(ops, input.equipmentState)
+                    ).add(
+                            "stats",
+                            EntityStats.CODEC.encodeStart(ops, input.stats)
                     ).build(ops.empty());
         }
 
@@ -68,7 +74,10 @@ public final class EntityState implements EntityStateView {
             final BattleEquipmentState equipmentState = BattleEquipmentState.CODEC.parse(ops, map.get("equipment")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects, equipmentState), ops.empty()));
+            EntityStats stats = EntityStats.CODEC.parse(ops, map.get("stats")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects, equipmentState, stats), ops.empty()));
         }
     };
     private final SkillInfo info;
@@ -76,15 +85,17 @@ public final class EntityState implements EntityStateView {
     private final Team team;
     private final EntityEffectCollection effects;
     private final BattleEquipmentState equipmentState;
+    private final EntityStats stats;
     private int health;
 
-    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final int health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState) {
+    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final int health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState, EntityStats stats) {
         this.info = info;
         this.health = health;
         this.uuid = uuid;
         this.team = team;
         this.effects = effects;
         this.equipmentState = equipmentState;
+        this.stats = stats;
     }
 
     public EntityState(final BattleEntity entity) {
@@ -93,6 +104,7 @@ public final class EntityState implements EntityStateView {
         effects = new EntityEffectCollection();
         uuid = ((Entity) entity).getUuid();
         team = entity.getTeam();
+        stats = new EntityStats();
         equipmentState = new BattleEquipmentState(entity, this);
     }
 
@@ -100,8 +112,9 @@ public final class EntityState implements EntityStateView {
         health = Math.min(health + amount, getMaxHealth());
     }
 
-    public void damage(final int amount) {
-        health = Math.max(health - amount, 0);
+    public void damage(final DamagePacket packet) {
+        final DamagePacket screenedDamage = packet.screen(stats.get(EntityStatType.RESISTANCES_STAT));
+        health = (int) Math.round(Math.max(health - screenedDamage.amount(), 0));
     }
 
     @Override
@@ -131,6 +144,10 @@ public final class EntityState implements EntityStateView {
 
     public void addEffect(final EntityEffect entityEffect) {
         effects.add(entityEffect);
+    }
+
+    public void addAllEffects(EntityEffectCollection effects) {
+        this.effects.addAll(effects);
     }
 
     public void clearEffect(final EntityEffectRegistry.Type<?> type) {

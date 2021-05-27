@@ -77,7 +77,7 @@ public final class ServerBattleWorld implements BattleWorld {
         if (getBattle(battleEntity) != null) {
             throw new RuntimeException("Entity already in battle");
         } else {
-            final EntityState participant = new EntityState(battleEntity.getSkillInfo(), entity.getUuid(), battleEntity.getTeam());
+            final EntityState participant = new EntityState(battleEntity);
             Battle battle = getBattle(handle);
             if (battle == null) {
                 battle = new Battle(nextBattleId.getAndIncrement(), new SimpleTurnChooser(), new BattleTimeline());
