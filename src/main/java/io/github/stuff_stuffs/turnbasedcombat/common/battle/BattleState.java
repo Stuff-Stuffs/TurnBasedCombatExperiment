@@ -91,7 +91,12 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     }
 
     private void tick() {
-
+        for (EntityState state : participants.values()) {
+            state.tick(this);
+        }
+        for (EntityState state : participants.values()) {
+            state.tickStats(this);
+        }
     }
 
     //TODO throws not enough participants exception?

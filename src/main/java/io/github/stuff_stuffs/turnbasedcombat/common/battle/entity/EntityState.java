@@ -38,7 +38,7 @@ public final class EntityState implements EntityStateView {
                             Team.CODEC.encodeStart(ops, input.team)
                     ).add(
                             "health",
-                            ops.createInt(input.health)
+                            ops.createDouble(input.health)
                     ).add(
                             "effects",
                             EntityEffectCollection.CODEC.encodeStart(ops, input.effects)
@@ -65,9 +65,9 @@ public final class EntityState implements EntityStateView {
             final Team team = Team.CODEC.parse(ops, map.get("team")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            final int health = ops.getNumberValue(map.get("health")).getOrThrow(false, s -> {
+            final double health = ops.getNumberValue(map.get("health")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
-            }).intValue();
+            }).doubleValue();
             final EntityEffectCollection entityEffects = EntityEffectCollection.CODEC.parse(ops, map.get("effects")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
@@ -86,9 +86,9 @@ public final class EntityState implements EntityStateView {
     private final EntityEffectCollection effects;
     private final BattleEquipmentState equipmentState;
     private final EntityStats stats;
-    private int health;
+    private double health;
 
-    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final int health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState, EntityStats stats) {
+    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final double health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState, EntityStats stats) {
         this.info = info;
         this.health = health;
         this.uuid = uuid;
@@ -118,7 +118,7 @@ public final class EntityState implements EntityStateView {
     }
 
     @Override
-    public int getHealth() {
+    public double getHealth() {
         return health;
     }
 
@@ -166,7 +166,11 @@ public final class EntityState implements EntityStateView {
         return equipmentState.get(type);
     }
 
-    public void tick(final BattleStateView battleState) {
-        effects.tick(this, battleState);
+    public void tick(final BattleStateView view) {
+        effects.tick(this, view);
+    }
+
+    public void tickStats(BattleStateView view) {
+        health = Math.min(health, stats.get(EntityStatType.MAX_HEALTH_STAT));
     }
 }
