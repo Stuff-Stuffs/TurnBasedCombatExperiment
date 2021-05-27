@@ -8,16 +8,16 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.damage.Damage
 public class BasicResistanceEntityStatModifier implements EntityStatModifier<DamageResistances> {
     public static final Codec<BasicResistanceEntityStatModifier> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("applicationStage").forGetter(modifier -> modifier.applicationStage),
-            Operation.CODEC.fieldOf("operation").forGetter(modifier -> modifier.operation),
+            DoubleOperation.CODEC.fieldOf("operation").forGetter(modifier -> modifier.doubleOperation),
             DamageResistances.CODEC.fieldOf("resistances").forGetter(modifier -> modifier.resistances)
     ).apply(instance, BasicResistanceEntityStatModifier::new));
     public final int applicationStage;
-    public final EntityStatModifier.Operation operation;
+    public final DoubleOperation doubleOperation;
     public final DamageResistances resistances;
 
-    public BasicResistanceEntityStatModifier(final int applicationStage, final EntityStatModifier.Operation operation, final DamageResistances resistances) {
+    public BasicResistanceEntityStatModifier(final int applicationStage, final DoubleOperation doubleOperation, final DamageResistances resistances) {
         this.applicationStage = applicationStage;
-        this.operation = operation;
+        this.doubleOperation = doubleOperation;
         this.resistances = resistances;
     }
 
@@ -25,7 +25,7 @@ public class BasicResistanceEntityStatModifier implements EntityStatModifier<Dam
     public DamageResistances modify(final DamageResistances input) {
         final DamageResistances.Builder builder = DamageResistances.builder();
         for (final DamageType damageType : DamageType.REGISTRY) {
-            builder.set(damageType, Math.min(operation.apply(input.get(damageType), resistances.get(damageType)), 1));
+            builder.set(damageType, Math.min(doubleOperation.apply(input.get(damageType), resistances.get(damageType)), 1));
         }
         return builder.build();
     }
@@ -37,6 +37,6 @@ public class BasicResistanceEntityStatModifier implements EntityStatModifier<Dam
 
     @Override
     public EntityStatModifierType getType() {
-        return null;
+        return EntityStatModifierType.BASIC_RESISTANCES_MODIFIER;
     }
 }

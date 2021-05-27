@@ -36,8 +36,9 @@ public class EntityStatModifierType {
             ).build(prefix);
         }
     };
-    public static final EntityStatModifierType DOUBLE_MODIFIER = new EntityStatModifierType(DoubleEntityStatModifier.CODEC.xmap(Function.identity(), modifier -> (DoubleEntityStatModifier) modifier));
+    public static final EntityStatModifierType BASIC_DOUBLE_MODIFIER = new EntityStatModifierType(BasicDoubleEntityStatModifier.CODEC.xmap(Function.identity(), modifier -> (BasicDoubleEntityStatModifier) modifier));
     public static final EntityStatModifierType BASIC_RESISTANCES_MODIFIER = new EntityStatModifierType(BasicResistanceEntityStatModifier.CODEC.xmap(Function.identity(), modifier -> (BasicResistanceEntityStatModifier) modifier));
+    public static final EntityStatModifierType BASIC_INT_MODIFIER = new EntityStatModifierType(BasicIntEntityStatModifier.CODEC.xmap(Function.identity(), modifier -> (BasicIntEntityStatModifier) modifier));
 
     private final Codec<EntityStatModifier<?>> codec;
 
@@ -46,6 +47,8 @@ public class EntityStatModifierType {
     }
 
     static {
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("double_modifier"), DOUBLE_MODIFIER);
+        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("basic_double_modifier"), BASIC_DOUBLE_MODIFIER);
+        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("basic_resistances_modifier"), BASIC_RESISTANCES_MODIFIER);
+        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("basic_int_modifier"), BASIC_INT_MODIFIER);
     }
 }

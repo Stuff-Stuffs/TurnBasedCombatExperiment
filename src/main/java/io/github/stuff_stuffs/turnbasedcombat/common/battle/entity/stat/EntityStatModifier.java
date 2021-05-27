@@ -14,7 +14,7 @@ public interface EntityStatModifier<T> {
 
     EntityStatModifierType getType();
 
-    enum Operation {
+    enum DoubleOperation {
         ADD {
             @Override
             public double apply(final double x, final double y) {
@@ -30,6 +30,25 @@ public interface EntityStatModifier<T> {
 
         public abstract double apply(double x, double y);
 
-        public static final Codec<Operation> CODEC = Codec.STRING.xmap(Operation::valueOf, Enum::name);
+        public static final Codec<DoubleOperation> CODEC = Codec.STRING.xmap(DoubleOperation::valueOf, Enum::name);
+    }
+
+    enum IntOperation {
+        ADD {
+            @Override
+            public int apply(final int x, final int y) {
+                return x + y;
+            }
+        },
+        MULTIPLY {
+            @Override
+            public int apply(final int x, final int y) {
+                return x * y;
+            }
+        };
+
+        public abstract int apply(int x, int y);
+
+        public static final Codec<IntOperation> CODEC = Codec.STRING.xmap(IntOperation::valueOf, Enum::name);
     }
 }
