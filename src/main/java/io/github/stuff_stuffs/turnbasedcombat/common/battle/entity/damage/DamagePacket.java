@@ -9,6 +9,14 @@ public record DamagePacket(BattleDamageSource source, double amount) {
             Codec.DOUBLE.fieldOf("amount").forGetter(DamagePacket::amount)
     ).apply(instance, DamagePacket::new));
 
+    public DamagePacket(BattleDamageSource source, double amount) {
+        this.source = source;
+        this.amount = amount;
+        if(amount<=0) {
+            throw new RuntimeException();
+        }
+    }
+
     public DamagePacket screen(final DamageResistances screen) {
         final DamageComposition.Builder builder = DamageComposition.builder();
         double a = 0;

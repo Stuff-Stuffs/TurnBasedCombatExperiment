@@ -8,6 +8,7 @@ import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -19,7 +20,7 @@ public record BattleEquipmentType(Text name,
                                   boolean canEquipMidBattle,
                                   Codec<BattleEquipment> codec,
                                   Function<BattleEntity, BattleEquipment> extractor) {
-    public static final Registry<BattleEquipmentType> REGISTRY = FabricRegistryBuilder.createSimple(BattleEquipmentType.class, TurnBasedCombatExperiment.createId("battle_equipment_type")).buildAndRegister();
+    public static final Registry<BattleEquipmentType> REGISTRY = FabricRegistryBuilder.createSimple(BattleEquipmentType.class, TurnBasedCombatExperiment.createId("battle_equipment_type")).attribute(RegistryAttribute.SYNCED).buildAndRegister();
     public static final Codec<BattleEquipment> CODEC = new Codec<>() {
         @Override
         public <T> DataResult<T> encode(final BattleEquipment input, final DynamicOps<T> ops, final T prefix) {

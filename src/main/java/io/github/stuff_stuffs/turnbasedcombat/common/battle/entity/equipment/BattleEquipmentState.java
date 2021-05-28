@@ -3,6 +3,10 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment;
 import com.mojang.serialization.Codec;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipment.PostEquipmentEquipEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipment.PostEquipmentUnEquipEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipment.PreEquipmentEquipEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipment.PreEquipmentUnEquipEvent;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,32 +31,56 @@ public final class BattleEquipmentState {
                 equipmentMap.put(type, equipment);
             }
         }
-        for (final BattleEquipment equipment : equipmentMap.values()) {
-            equipment.onEquip(state);
-        }
     }
 
     public @Nullable BattleEquipment get(final BattleEquipmentType type) {
         return equipmentMap.get(type);
     }
 
-    public void remove(final BattleEquipmentType type, final EntityState state) {
+    public boolean remove(final BattleEquipmentType type, final EntityState state) {
         if (!type.canEquipMidBattle()) {
             throw new RuntimeException();
         }
-        final BattleEquipment equipment = equipmentMap.remove(type);
+        final BattleEquipment equipment = equipmentMap.get(type);
         if (equipment != null) {
-            equipment.onUnEquip(state);
+            final boolean canceled = state.getEvent(PreEquipmentUnEquipEvent.class).invoker().onUnEquip(state, equipment);
+            if (!canceled) {
+                equipmentMap.remove(type);
+                equipment.deinitEvents();
+                state.getEvent(PostEquipmentUnEquipEvent.class).invoker().onUnEquip(state, equipment);
+                return true;
+            }
         }
+        return false;
     }
 
-    public void put(final BattleEquipment equipment, final EntityState state) {
+    public boolean put(final BattleEquipment equipment, final EntityState entityState) {
         if (!equipment.getType().canEquipMidBattle()) {
             throw new RuntimeException();
         }
-        final BattleEquipment old = equipmentMap.put(equipment.getType(), equipment);
+        final BattleEquipmentType type = equipment.getType();
+        final BattleEquipment old = equipmentMap.get(type);
+        boolean canContinue = false;
         if (old != null) {
-            old.onUnEquip(state);
+            final boolean canceled = entityState.getEvent(PreEquipmentUnEquipEvent.class).invoker().onUnEquip(entityState, old);
+            if (!canceled) {
+                canContinue = true;
+            }
+        } else {
+            canContinue = true;
         }
+        final boolean valid = canContinue && entityState.getEvent(PreEquipmentEquipEvent.class).invoker().onEquip(entityState, equipment);
+        if (valid) {
+            final BattleEquipment removed = equipmentMap.remove(type);
+            if (removed != null) {
+                removed.deinitEvents();
+                entityState.getEvent(PostEquipmentUnEquipEvent.class).invoker().onUnEquip(entityState, old);
+            }
+            equipmentMap.put(type, equipment);
+            equipment.initEvents(entityState);
+            entityState.getEvent(PostEquipmentEquipEvent.class).invoker().onEquip(entityState, equipment);
+            return true;
+        }
+        return false;
     }
 }

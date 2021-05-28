@@ -5,21 +5,31 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.damage.DamagePacket;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffect;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectCollection;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectRegistry;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectFactory;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectType;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentType;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStatType;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStats;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.PostEntityDamageEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.PreEntityDamageEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.effect.*;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipment.PostEquipmentEquipEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipment.PostEquipmentUnEquipEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipment.PreEquipmentEquipEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipment.PreEquipmentUnEquipEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public final class EntityState implements EntityStateView {
@@ -45,9 +55,6 @@ public final class EntityState implements EntityStateView {
                     ).add(
                             "equipment",
                             BattleEquipmentState.CODEC.encodeStart(ops, input.equipmentState)
-                    ).add(
-                            "stats",
-                            EntityStats.CODEC.encodeStart(ops, input.stats)
                     ).build(ops.empty());
         }
 
@@ -74,47 +81,144 @@ public final class EntityState implements EntityStateView {
             final BattleEquipmentState equipmentState = BattleEquipmentState.CODEC.parse(ops, map.get("equipment")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            EntityStats stats = EntityStats.CODEC.parse(ops, map.get("stats")).getOrThrow(false, s -> {
-                throw new RuntimeException(s);
-            });
-            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects, equipmentState, stats), ops.empty()));
+            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects, equipmentState), ops.empty()));
         }
     };
     private final SkillInfo info;
     private final UUID uuid;
     private final Team team;
-    private final EntityEffectCollection effects;
+    private final Map<Class<?>, EventHolder<?>> eventHolders;
     private final BattleEquipmentState equipmentState;
-    private final EntityStats stats;
+    private final EntityEffectCollection effects;
+    private BattleState battle;
     private double health;
 
-    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final double health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState, EntityStats stats) {
+    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final double health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState) {
         this.info = info;
-        this.health = health;
         this.uuid = uuid;
         this.team = team;
-        this.effects = effects;
+        eventHolders = new Reference2ObjectOpenHashMap<>();
         this.equipmentState = equipmentState;
-        this.stats = stats;
+        this.effects = effects;
+        this.health = health;
+        populateEventHolders();
     }
 
     public EntityState(final BattleEntity entity) {
         info = entity.getSkillInfo();
         health = info.health();
+        //TODO extract effects from BattleEntity
         effects = new EntityEffectCollection();
         uuid = ((Entity) entity).getUuid();
         team = entity.getTeam();
-        stats = new EntityStats();
+        eventHolders = new Reference2ObjectOpenHashMap<>();
         equipmentState = new BattleEquipmentState(entity, this);
+        populateEventHolders();
     }
 
-    public void heal(final int amount) {
-        health = Math.min(health + amount, getMaxHealth());
+    private void populateEventHolders() {
+        putEvent(PreEquipmentEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, equipment) -> {
+            boolean ret = false;
+            for (final PreEquipmentEquipEvent event : events) {
+                ret |= event.onEquip(state, equipment);
+            }
+            return ret;
+        }));
+        putEvent(PostEquipmentEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, equipment) -> {
+            for (final PostEquipmentEquipEvent event : events) {
+                event.onEquip(state, equipment);
+            }
+        }));
+        putEvent(PreEquipmentUnEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, equipment) -> {
+            boolean ret = false;
+            for (final PreEquipmentUnEquipEvent event : events) {
+                ret |= event.onUnEquip(state, equipment);
+            }
+            return ret;
+        }));
+        putEvent(PostEquipmentUnEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, equipment) -> {
+            for (final PostEquipmentUnEquipEvent event : events) {
+                event.onUnEquip(state, equipment);
+            }
+        }));
+        putEvent(PreEntityAddEffect.class, new EventHolder.BasicEventHolder<>(events -> (state, effect) -> {
+            boolean ret = false;
+            for (final PreEntityAddEffect event : events) {
+                ret |= event.onEntityAddEffect(state, effect);
+            }
+            return ret;
+        }));
+        putEvent(PostEntityAddEffect.class, new EventHolder.BasicEventHolder<>(events -> (state, effect) -> {
+            for (final PostEntityAddEffect event : events) {
+                event.onEntityAddEffect(state, effect);
+            }
+        }));
+        putEvent(PreEntityRemoveEffect.class, new EventHolder.BasicEventHolder<>(events -> (state, effect) -> {
+            boolean ret = false;
+            for (final PreEntityRemoveEffect event : events) {
+                ret |= event.onRemoveEffect(state, effect);
+            }
+            return ret;
+        }));
+        putEvent(PostEntityRemoveEffect.class, new EventHolder.BasicEventHolder<>(events -> (state, effect) -> {
+            for (final PostEntityRemoveEffect event : events) {
+                event.onRemoveEffect(state, effect);
+            }
+        }));
+        putEvent(PreEntityCombineEffect.class, new EventHolder.BasicEventHolder<>(events -> (state, first, second) -> {
+            boolean ret = false;
+            for (final PreEntityCombineEffect event : events) {
+                ret |= event.onCombineEffect(state, first, second);
+            }
+            return ret;
+        }));
+        putEvent(PostEntityCombineEffect.class, new EventHolder.BasicEventHolder<>(events -> (state, first, second, combined) -> {
+            for (final PostEntityCombineEffect event : events) {
+                event.onCombineEffect(state, first, second, combined);
+            }
+        }));
+        putEvent(PreEntityDamageEvent.class, new EventHolder.SortedEventHolder<>(events -> new PreEntityDamageEvent() {
+            @Override
+            public @Nullable DamagePacket onEntityDamage(final EntityState state, DamagePacket damagePacket) {
+                for (final PreEntityDamageEvent event : events) {
+                    damagePacket = event.onEntityDamage(state, damagePacket);
+                    if (damagePacket == null) {
+                        return null;
+                    }
+                }
+                return damagePacket;
+            }
+
+            @Override
+            public int getPriority() {
+                return 0;
+            }
+        }, Comparator.comparingInt(PreEntityDamageEvent::getPriority)));
+        putEvent(PostEntityDamageEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, damagePacket) -> {
+            for (final PostEntityDamageEvent event : events) {
+                event.onEntityDamage(state, damagePacket);
+            }
+        }));
     }
 
-    public void damage(final DamagePacket packet) {
-        final DamagePacket screenedDamage = packet.screen(stats.get(EntityStatType.RESISTANCES_STAT));
-        health = (int) Math.round(Math.max(health - screenedDamage.amount(), 0));
+    private <T> void putEvent(final Class<T> clazz, final EventHolder<T> eventHolder) {
+        eventHolders.put(clazz, eventHolder);
+    }
+
+    public <T> EventHolder<T> getEvent(final Class<T> clazz) {
+        return (EventHolder<T>) eventHolders.get(clazz);
+    }
+
+    @Override
+    public BattleState getBattle() {
+        return battle;
+    }
+
+    public void setBattle(final BattleState battle) {
+        if (this.battle != null) {
+            throw new RuntimeException();
+        }
+        this.battle = battle;
     }
 
     @Override
@@ -142,35 +246,45 @@ public final class EntityState implements EntityStateView {
         return team;
     }
 
-    public void addEffect(final EntityEffect entityEffect) {
-        effects.add(entityEffect);
+    public void damage(final DamagePacket damage) {
+        final DamagePacket packet = getEvent(PreEntityDamageEvent.class).invoker().onEntityDamage(this, damage);
+        if (packet != null) {
+            health = (health - packet.amount());
+            getEvent(PostEntityDamageEvent.class).invoker().onEntityDamage(this, packet);
+        }
     }
 
-    public void addAllEffects(EntityEffectCollection effects) {
-        this.effects.addAll(effects);
+
+    public boolean addEffect(final EntityEffectFactory factory) {
+        return effects.add(factory, this);
     }
 
-    public void clearEffect(final EntityEffectRegistry.Type<?> type) {
-        effects.clear(type);
+    public void addAllEffects(final List<EntityEffectFactory> effects) {
+        this.effects.addAll(effects, this);
     }
 
-    public void equip(final BattleEquipment equipment) {
-        equipmentState.put(equipment, this);
+    public boolean clearEffect(final EntityEffectType type) {
+        return effects.clear(type, this);
     }
 
-    public void unEquip(final BattleEquipmentType type) {
-        equipmentState.remove(type, this);
+    public boolean equip(final BattleEquipment equipment) {
+        return equipmentState.put(equipment, this);
+    }
+
+    public boolean unEquip(final BattleEquipmentType type) {
+        return equipmentState.remove(type, this);
     }
 
     public @Nullable BattleEquipment getEquiped(final BattleEquipmentType type) {
         return equipmentState.get(type);
     }
 
-    public void tick(final BattleStateView view) {
-        effects.tick(this, view);
-    }
-
-    public void tickStats(BattleStateView view) {
-        health = Math.min(health, stats.get(EntityStatType.MAX_HEALTH_STAT));
+    public void initEvents() {
+        for (final BattleEquipmentType type : BattleEquipmentType.REGISTRY) {
+            final BattleEquipment equipment = equipmentState.get(type);
+            if (equipment != null) {
+                equipment.initEvents(this);
+            }
+        }
     }
 }

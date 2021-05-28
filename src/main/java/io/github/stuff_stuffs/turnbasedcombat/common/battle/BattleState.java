@@ -1,18 +1,13 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.*;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public final class BattleState implements BattleStateView, Iterable<BattleParticipantHandle> {
     private final int battleId;
@@ -20,6 +15,7 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     private final Object2ReferenceMap<Team, Set<EntityState>> teams;
     private final Random random;
     private final Battle battle;
+    private final Map<Class<?>, EventHolder<?>> eventHolders;
     private int turnCount = 0;
     private int roundCount = 0;
     private boolean ended;
@@ -30,7 +26,36 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         teams = new Object2ReferenceOpenHashMap<>();
         random = new Random(battleId);
         this.battle = battle;
+        eventHolders = new Reference2ObjectOpenHashMap<>();
+        populateEvents();
         ended = false;
+        getEvent(EntityJoinEvent.class).register((battleState, entityState) -> entityState.initEvents());
+    }
+
+    private void populateEvents() {
+        putEvent(BattleEndedEvent.class, new EventHolder.BasicEventHolder<>(battleEndedEvents -> battleState -> {
+            for (final BattleEndedEvent event : battleEndedEvents) {
+                event.onBattleEnded(battleState);
+            }
+        }));
+        putEvent(EntityJoinEvent.class, new EventHolder.BasicEventHolder<>(events -> (battleState, entityState) -> {
+            for (final EntityJoinEvent event : events) {
+                event.onEntityJoin(battleState, entityState);
+            }
+        }));
+        putEvent(EntityLeaveEvent.class, new EventHolder.BasicEventHolder<>(events -> (battleState, entityState) -> {
+            for (EntityLeaveEvent event : events) {
+                event.onEntityLeave(battleState, entityState);
+            }
+        }));
+    }
+
+    private <T> void putEvent(final Class<T> clazz, final EventHolder<T> eventHolder) {
+        eventHolders.put(clazz, eventHolder);
+    }
+
+    public <T> EventHolder<T> getEvent(final Class<T> clazz) {
+        return (EventHolder<T>) eventHolders.get(clazz);
     }
 
     public BattleParticipantHandle addParticipant(final EntityState participant) {
@@ -42,8 +67,10 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         if (battleParticipant != null) {
             return handle;
         }
+        participant.setBattle(this);
         participants.put(handle, participant);
         teams.computeIfAbsent(participant.getTeam(), i -> new ReferenceOpenHashSet<>()).add(participant);
+        getEvent(EntityJoinEvent.class).invoker().onEntityJoin(this, participant);
         return handle;
     }
 
@@ -54,8 +81,10 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         if (battleId != handle.battleId()) {
             throw new RuntimeException();
         }
-        final EntityState removed = participants.remove(handle);
+        final EntityState removed = participants.get(handle);
         if (removed != null) {
+            getEvent(EntityLeaveEvent.class).invoker().onEntityLeave(this, removed);
+            participants.remove(handle);
             final Set<EntityState> team = teams.get(removed.getTeam());
             team.remove(removed);
             if (team.size() == 0) {
@@ -80,22 +109,14 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         if (handle.battleId() == battleId && (handle.isUniversal() || handle.participantId().equals(getCurrentTurn().getId()))) {
             turnCount++;
             final TurnChooser.TurnInfo turnInfo = battle.getTurnChooser().nextTurn(participants.values(), this);
-            if(roundCount!=turnInfo.roundNumber()) {
+            getEvent(AdvanceTurnEvent.class).invoker().onAdvanceTurn(this);
+            if (roundCount != turnInfo.roundNumber()) {
+                getEvent(AdvanceRoundEvent.class).invoker().onAdvanceRound(this);
                 roundCount = turnInfo.roundNumber();
-                tick();
             }
             return (EntityState) turnInfo.participant();
         } else {
             throw new RuntimeException();
-        }
-    }
-
-    private void tick() {
-        for (EntityState state : participants.values()) {
-            state.tick(this);
-        }
-        for (EntityState state : participants.values()) {
-            state.tickStats(this);
         }
     }
 
@@ -138,9 +159,9 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     }
 
     @Override
-    public boolean contains(UUID id) {
-        for (EntityState participant : participants.values()) {
-            if(participant.getId().equals(id)) {
+    public boolean contains(final UUID id) {
+        for (final EntityState participant : participants.values()) {
+            if (participant.getId().equals(id)) {
                 return true;
             }
         }

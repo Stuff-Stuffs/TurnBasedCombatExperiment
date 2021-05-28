@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.entity;
 
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 
 import java.util.UUID;
@@ -14,4 +15,6 @@ public interface EntityStateView {
     UUID getId();
 
     Team getTeam();
+
+    BattleStateView getBattle();
 }

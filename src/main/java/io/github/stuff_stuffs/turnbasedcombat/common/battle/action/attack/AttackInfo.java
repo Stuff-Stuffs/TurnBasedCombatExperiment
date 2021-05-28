@@ -9,9 +9,15 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.damage.DamagePacket;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectCollection;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectFactory;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectFactoryType;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 public final class AttackInfo {
+    private static final Codec<List<EntityEffectFactory>> LIST_CODEC = Codec.list(EntityEffectFactoryType.CODEC);
     public static final Codec<AttackInfo> CODEC = new Codec<>() {
         @Override
         public <T> DataResult<Pair<AttackInfo, T>> decode(final DynamicOps<T> ops, final T input) {
@@ -21,7 +27,7 @@ public final class AttackInfo {
             final DamagePacket damage = DamagePacket.CODEC.parse(ops, map.get("damage")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            final EntityEffectCollection effects = EntityEffectCollection.CODEC.parse(ops, map.get("effects")).getOrThrow(false, s -> {
+            final List<EntityEffectFactory> effects = LIST_CODEC.parse(ops, map.get("effects")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
             return DataResult.success(Pair.of(new AttackInfo(damage, effects), ops.empty()));
@@ -38,23 +44,23 @@ public final class AttackInfo {
                             DamagePacket.CODEC.encodeStart(ops, input.damage)
                     ).add(
                             "effects",
-                            EntityEffectCollection.CODEC.encodeStart(ops, input.effects)
+                            LIST_CODEC.encodeStart(ops, input.effects)
                     ).build(ops.empty());
         }
     };
     private final DamagePacket damage;
-    private final EntityEffectCollection effects;
+    private final List<EntityEffectFactory> effects;
 
     public AttackInfo(final DamagePacket damage) {
-        this(damage, new EntityEffectCollection());
+        this(damage, new ReferenceArrayList<>());
     }
 
-    public AttackInfo(final DamagePacket damage, final EntityEffectCollection effects) {
+    public AttackInfo(final DamagePacket damage, final List<EntityEffectFactory> effects) {
         this.damage = damage;
         this.effects = effects;
     }
 
-    public void applyTarget(@Nullable final EntityState attacker, final EntityState target, final BattleState battleState) {
+    public void applyTarget(final EntityState target) {
         target.addAllEffects(effects);
         target.damage(damage);
     }

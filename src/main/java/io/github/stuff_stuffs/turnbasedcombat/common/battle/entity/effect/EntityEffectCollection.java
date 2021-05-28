@@ -1,126 +1,83 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.*;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
+import com.google.common.collect.Iterators;
+import com.mojang.serialization.Codec;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
-import it.unimi.dsi.fastutil.objects.ObjectAVLTreeSet;
-import it.unimi.dsi.fastutil.objects.Reference2IntMap;
-import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
-import org.jetbrains.annotations.Nullable;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.effect.*;
+import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
 
-public final class EntityEffectCollection {
-    public static final Codec<EntityEffectCollection> CODEC = new Codec<>() {
-        @Override
-        public <T> DataResult<Pair<EntityEffectCollection, T>> decode(final DynamicOps<T> ops, final T input) {
-            final MapLike<T> map = ops.getMap(input).getOrThrow(false, s -> {
-                throw new RuntimeException(s);
-            });
-            final int nextId = ops.getNumberValue(map.get("nextId"), 0).intValue();
-            final Reference2IntMap<EntityEffectRegistry.Type<?>> ids = new Reference2IntOpenHashMap<>();
-            final SortedMap<EntityEffectRegistry.Type<?>, EntityEffect> effects = new Object2ObjectAVLTreeMap<>();
-            ops.getList(map.get("effects")).getOrThrow(false, s -> {
-                throw new RuntimeException(s);
-            }).accept(in -> {
-                final MapLike<T> entry = ops.getMap(in).getOrThrow(false, s -> {
-                    throw new RuntimeException(s);
-                });
-                final int id = ops.getNumberValue(entry.get("id")).getOrThrow(false, s -> {
-                    throw new RuntimeException(s);
-                }).intValue();
-                final EntityEffect effect = EntityEffectRegistry.CODEC.decode(ops, entry.get("data")).getOrThrow(false, s -> {
-                    throw new RuntimeException(s);
-                }).getFirst();
-                ids.put(effect.getType(), id);
-                effects.put(effect.getType(), effect);
+public final class EntityEffectCollection implements Iterable<EntityEffectType> {
+    public static final Codec<EntityEffectCollection> CODEC = CodecUtil.createLinkedMapCodec(EntityEffectType.REGISTRY, EntityEffectType.CODEC).xmap(EntityEffectCollection::new, effects -> effects.effects);
+    private final Map<EntityEffectType, EntityEffect> effects;
 
-            });
-            return DataResult.success(Pair.of(new EntityEffectCollection(ids, nextId, effects), ops.empty()));
-        }
-
-        @Override
-        public <T> DataResult<T> encode(final EntityEffectCollection input, final DynamicOps<T> ops, final T prefix) {
-            final ListBuilder<T> builder = ops.listBuilder();
-            for (final Map.Entry<EntityEffectRegistry.Type<?>, EntityEffect> entry : input.effects.entrySet()) {
-                builder.add(
-                        ops.mapBuilder().
-                                add(
-                                        "data",
-                                        EntityEffectRegistry.CODEC.encodeStart(ops, entry.getValue())
-                                ).add(
-                                        "id",
-                                        ops.createInt(input.ids.getInt(entry.getKey()))
-                                ).build(ops.empty())
-                );
-            }
-            return ops.mapBuilder().add(
-                    "effects",
-                    builder.build(ops.empty())
-            ).add(
-                    "nextId",
-                    ops.createInt(input.nextId)
-            ).build(ops.empty());
-        }
-    };
-    private final Reference2IntMap<EntityEffectRegistry.Type<?>> ids;
-    private int nextId;
-    private final SortedMap<EntityEffectRegistry.Type<?>, EntityEffect> effects;
-
-    private EntityEffectCollection(final Reference2IntMap<EntityEffectRegistry.Type<?>> ids, final int nextId, final SortedMap<EntityEffectRegistry.Type<?>, EntityEffect> effects) {
-        this.ids = ids;
-        this.nextId = nextId;
-        this.effects = effects;
+    private EntityEffectCollection(final Map<EntityEffectType, EntityEffect> map) {
+        effects = new Reference2ObjectLinkedOpenHashMap<>(map);
     }
 
     public EntityEffectCollection() {
-        ids = new Reference2IntOpenHashMap<>();
-        effects = new Object2ObjectAVLTreeMap<>();
+        effects = new Reference2ObjectLinkedOpenHashMap<>();
     }
 
-    public void add(EntityEffect effect) {
-        effect = effect.copy();
+    public boolean add(final EntityEffectFactory factory, final EntityState entityState) {
+        final EntityEffect effect = factory.create(entityState);
         final EntityEffect current = effects.get(effect.getType());
         if (current != null) {
-            final EntityEffect combined = current.getType().combiner.apply(current, effect);
-            effects.remove(current.getType());
-            effects.put(combined.getType(), combined);
+            if (!entityState.getEvent(PreEntityCombineEffect.class).invoker().onCombineEffect(entityState, effect, current)) {
+                final EntityEffect combined = effect.getType().combine(effect, current);
+                if (combined.getType() != effect.getType()) {
+                    throw new RuntimeException();
+                }
+                effects.put(combined.getType(), combined);
+                current.deinitEvents();
+                combined.initEvents(entityState);
+                entityState.getEvent(PostEntityCombineEffect.class).invoker().onCombineEffect(entityState, effect, current, combined);
+                return true;
+            }
         } else {
-            ids.put(effect.getType(), nextId++);
-            effects.put(effect.getType(), effect);
+            if (!entityState.getEvent(PreEntityAddEffect.class).invoker().onEntityAddEffect(entityState, effect)) {
+                effects.put(effect.getType(), effect);
+                effect.initEvents(entityState);
+                entityState.getEvent(PostEntityAddEffect.class).invoker().onEntityAddEffect(entityState, effect);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void addAll(final List<EntityEffectFactory> effects, final EntityState state) {
+        for (final EntityEffectFactory effect : effects) {
+            add(effect, state);
         }
     }
 
-    public void addAll(final EntityEffectCollection other) {
-        for (final EntityEffect effect : other.effects.values()) {
-            add(effect);
+    public boolean clear(final EntityEffectType type, final EntityState entityState) {
+        final EntityEffect effect = effects.get(type);
+        if (effect != null) {
+            if (!entityState.getEvent(PreEntityRemoveEffect.class).invoker().onRemoveEffect(entityState, effect)) {
+                effects.remove(type);
+                effect.deinitEvents();
+                entityState.getEvent(PostEntityRemoveEffect.class).invoker().onRemoveEffect(entityState, effect);
+                return true;
+            }
+            return false;
+        } else {
+            return true;
         }
     }
 
-    public void clear(final EntityEffectRegistry.Type<?> type) {
-        if (effects.remove(type) != null) {
-            ids.removeInt(type);
-        }
-    }
-
-    public @Nullable EntityEffect get(final EntityEffectRegistry.Type<?> type) {
+    public EntityEffect get(final EntityEffectType type) {
         return effects.get(type);
     }
 
-    public void tick(final EntityState entityState, final BattleStateView battleState) {
-        final SortedSet<Map.Entry<EntityEffectRegistry.Type<?>, EntityEffect>> effectSet = new ObjectAVLTreeSet<>(Comparator.comparingInt(o -> ids.getInt(o.getValue().getType())));
-        effectSet.addAll(effects.entrySet());
-        for (final Map.Entry<EntityEffectRegistry.Type<?>, EntityEffect> entry : effectSet) {
-            entry.getValue().tick(entityState, battleState);
-            if (entry.getValue().shouldRemove()) {
-                ids.removeInt(entry.getKey());
-                effects.remove(entry.getKey());
-            }
-        }
+    @NotNull
+    @Override
+    public Iterator<EntityEffectType> iterator() {
+        return Iterators.unmodifiableIterator(effects.keySet().iterator());
     }
 }
