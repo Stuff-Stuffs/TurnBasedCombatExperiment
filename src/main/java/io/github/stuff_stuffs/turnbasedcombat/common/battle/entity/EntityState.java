@@ -14,6 +14,9 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.Entity
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentType;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStatModifier;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStatType;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStats;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.PostEntityDamageEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.PreEntityDamageEvent;
@@ -90,6 +93,7 @@ public final class EntityState implements EntityStateView {
     private final Map<Class<?>, EventHolder<?>> eventHolders;
     private final BattleEquipmentState equipmentState;
     private final EntityEffectCollection effects;
+    private final EntityStats stats;
     private BattleState battle;
     private double health;
 
@@ -100,19 +104,21 @@ public final class EntityState implements EntityStateView {
         eventHolders = new Reference2ObjectOpenHashMap<>();
         this.equipmentState = equipmentState;
         this.effects = effects;
+        stats = new EntityStats();
         this.health = health;
         populateEventHolders();
     }
 
     public EntityState(final BattleEntity entity) {
         info = entity.getSkillInfo();
-        health = info.health();
         //TODO extract effects from BattleEntity
         effects = new EntityEffectCollection();
         uuid = ((Entity) entity).getUuid();
         team = entity.getTeam();
         eventHolders = new Reference2ObjectOpenHashMap<>();
         equipmentState = new BattleEquipmentState(entity, this);
+        stats = new EntityStats();
+        health = info.health();
         populateEventHolders();
     }
 
@@ -205,8 +211,17 @@ public final class EntityState implements EntityStateView {
         eventHolders.put(clazz, eventHolder);
     }
 
+    //TODO event holder view?
     public <T> EventHolder<T> getEvent(final Class<T> clazz) {
         return (EventHolder<T>) eventHolders.get(clazz);
+    }
+
+    public <T> T getStat(final EntityStatType<T> type) {
+        return stats.modify(type, type.getValueOrDefault(info, this), this);
+    }
+
+    public <T> EntityStats.Handle addStatModifier(final EntityStatType<T> type, final EntityStatModifier<T> modifier) {
+        return stats.addModifier(type, modifier);
     }
 
     @Override
