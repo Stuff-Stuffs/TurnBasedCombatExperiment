@@ -10,6 +10,7 @@ public final class BattleActions {
         BattleAction.register(LeaveBattleAction.class, LeaveBattleAction::decode);
         BattleAction.register(NoopBattleAction.class, NoopBattleAction::decode);
         BattleAction.register(BasicAttackBattleAction.class, BasicAttackBattleAction::decode);
+        BattleAction.register(AddEffectsBattleAction.class, AddEffectsBattleAction::decode);
     }
 
     private BattleActions() {
