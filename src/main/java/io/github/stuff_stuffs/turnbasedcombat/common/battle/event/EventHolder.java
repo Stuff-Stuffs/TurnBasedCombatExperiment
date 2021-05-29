@@ -83,6 +83,7 @@ public interface EventHolder<T> {
             if (handle.holder != this) {
                 throw new RuntimeException();
             }
+            handle.destroyed = true;
             events.remove(handle.id);
             sorted.clear();
             sorted.addAll(events.values());
