@@ -7,6 +7,7 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.Text;
 import net.minecraft.util.registry.Registry;
 
@@ -45,9 +46,9 @@ public final class EntityEffectType {
     private final Function<EntityEffect, Text> nameFunction;
     private final Codec<EntityEffect> codec;
     private final BinaryOperator<EntityEffect> combiner;
-    private final BiConsumer<EntityEffect, List<Text>> tooltipAppender;
+    private final BiConsumer<EntityEffect, List<TooltipComponent>> tooltipAppender;
 
-    public EntityEffectType(final Function<EntityEffect, Text> nameFunction, final Codec<EntityEffect> codec, final BinaryOperator<EntityEffect> combiner, final BiConsumer<EntityEffect, List<Text>> tooltipAppender) {
+    public EntityEffectType(final Function<EntityEffect, Text> nameFunction, final Codec<EntityEffect> codec, final BinaryOperator<EntityEffect> combiner, final BiConsumer<EntityEffect, List<TooltipComponent>> tooltipAppender) {
         this.nameFunction = nameFunction;
         this.codec = codec;
         this.combiner = combiner;
@@ -58,7 +59,7 @@ public final class EntityEffectType {
         return nameFunction.apply(entityEffect);
     }
 
-    public void appendTooltip(final EntityEffect entityEffect, final List<Text> texts) {
+    public void appendTooltip(final EntityEffect entityEffect, final List<TooltipComponent> texts) {
         tooltipAppender.accept(entityEffect, texts);
     }
 
