@@ -113,6 +113,7 @@ public interface EventHolder<T> {
         public void destroy() {
             if (!destroyed) {
                 holder.unregister(this);
+                destroyed = true;
             }
         }
     }

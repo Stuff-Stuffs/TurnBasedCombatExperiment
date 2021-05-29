@@ -29,7 +29,6 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         eventHolders = new Reference2ObjectOpenHashMap<>();
         populateEvents();
         ended = false;
-        getEvent(EntityJoinEvent.class).register((battleState, entityState) -> entityState.initEvents());
     }
 
     private void populateEvents() {
@@ -44,8 +43,23 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
             }
         }));
         putEvent(EntityLeaveEvent.class, new EventHolder.BasicEventHolder<>(events -> (battleState, entityState) -> {
-            for (EntityLeaveEvent event : events) {
+            for (final EntityLeaveEvent event : events) {
                 event.onEntityLeave(battleState, entityState);
+            }
+        }));
+        putEvent(AdvanceTurnEvent.class, new EventHolder.BasicEventHolder<>(events -> battleState -> {
+            for (final AdvanceTurnEvent event : events) {
+                event.onAdvanceTurn(battleState);
+            }
+        }));
+        putEvent(AdvanceRoundEvent.class, new EventHolder.BasicEventHolder<>(events -> battleState -> {
+            for (final AdvanceRoundEvent event : events) {
+                event.onAdvanceRound(battleState);
+            }
+        }));
+        putEvent(EntityDeathEvent.class, new EventHolder.BasicEventHolder<>(events -> entityState -> {
+            for (final EntityDeathEvent event : events) {
+                event.onDeath(entityState);
             }
         }));
     }
@@ -70,6 +84,7 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         participant.setBattle(this);
         participants.put(handle, participant);
         teams.computeIfAbsent(participant.getTeam(), i -> new ReferenceOpenHashSet<>()).add(participant);
+        participant.initEvents();
         getEvent(EntityJoinEvent.class).invoker().onEntityJoin(this, participant);
         return handle;
     }
