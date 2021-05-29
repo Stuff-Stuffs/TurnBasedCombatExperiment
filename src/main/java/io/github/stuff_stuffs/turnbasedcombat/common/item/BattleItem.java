@@ -1,12 +1,8 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.item;
 
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateView;
+import net.minecraft.item.ItemStack;
 
 public interface BattleItem {
-    boolean canUseBattleItem(EntityStateView entityState, BattleStateView battleState);
-
-    boolean useBattleItem(EntityState entityState, BattleState battleState);
+    //TODO fix this naming mess
+    io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.BattleItem getBattleItem(ItemStack stack);
 }

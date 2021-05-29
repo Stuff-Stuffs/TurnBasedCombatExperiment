@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.damage.DamagePacket;
@@ -14,6 +15,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.Entity
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentType;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.EntityInventory;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStatModifier;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStatType;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStats;
@@ -58,6 +60,9 @@ public final class EntityState implements EntityStateView {
                     ).add(
                             "equipment",
                             BattleEquipmentState.CODEC.encodeStart(ops, input.equipmentState)
+                    ).add(
+                            "inventory",
+                            EntityInventory.CODEC.encodeStart(ops, input.inventory)
                     ).build(ops.empty());
         }
 
@@ -84,7 +89,10 @@ public final class EntityState implements EntityStateView {
             final BattleEquipmentState equipmentState = BattleEquipmentState.CODEC.parse(ops, map.get("equipment")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects, equipmentState), ops.empty()));
+            final EntityInventory inventory = EntityInventory.CODEC.parse(ops, map.get("inventory")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects, equipmentState, inventory), ops.empty()));
         }
     };
     private final SkillInfo info;
@@ -94,10 +102,12 @@ public final class EntityState implements EntityStateView {
     private final BattleEquipmentState equipmentState;
     private final EntityEffectCollection effects;
     private final EntityStats stats;
+    private final EntityInventory inventory;
     private BattleState battle;
+    private BattleParticipantHandle handle;
     private double health;
 
-    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final double health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState) {
+    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final double health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState, final EntityInventory inventory) {
         this.info = info;
         this.uuid = uuid;
         this.team = team;
@@ -105,6 +115,7 @@ public final class EntityState implements EntityStateView {
         this.equipmentState = equipmentState;
         this.effects = effects;
         stats = new EntityStats();
+        this.inventory = inventory;
         this.health = health;
         populateEventHolders();
     }
@@ -118,6 +129,7 @@ public final class EntityState implements EntityStateView {
         eventHolders = new Reference2ObjectOpenHashMap<>();
         equipmentState = new BattleEquipmentState(entity, this);
         stats = new EntityStats();
+        inventory = entity.getBattleInventory();
         health = info.health();
         populateEventHolders();
     }
@@ -247,11 +259,6 @@ public final class EntityState implements EntityStateView {
     }
 
     @Override
-    public int getMaxHealth() {
-        return info.maxHealth();
-    }
-
-    @Override
     public UUID getId() {
         return uuid;
     }
@@ -259,6 +266,18 @@ public final class EntityState implements EntityStateView {
     @Override
     public Team getTeam() {
         return team;
+    }
+
+    @Override
+    public BattleParticipantHandle getHandle() {
+        return handle;
+    }
+
+    public void setHandle(final BattleParticipantHandle handle) {
+        if (this.handle != null) {
+            throw new RuntimeException();
+        }
+        this.handle = handle;
     }
 
     public void damage(final DamagePacket damage) {
@@ -269,6 +288,10 @@ public final class EntityState implements EntityStateView {
         }
     }
 
+    @Override
+    public EntityInventory getInventory() {
+        return inventory;
+    }
 
     public boolean addEffect(final EntityEffectFactory factory) {
         return effects.add(factory, this);

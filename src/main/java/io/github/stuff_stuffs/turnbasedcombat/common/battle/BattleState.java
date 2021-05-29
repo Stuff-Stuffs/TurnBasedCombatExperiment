@@ -82,6 +82,7 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
             return handle;
         }
         participant.setBattle(this);
+        participant.setHandle(handle);
         participants.put(handle, participant);
         teams.computeIfAbsent(participant.getTeam(), i -> new ReferenceOpenHashSet<>()).add(participant);
         participant.initEvents();

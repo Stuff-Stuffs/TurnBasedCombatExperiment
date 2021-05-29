@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.turnbasedcombat.common.entity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.SkillInfo;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.EntityInventory;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -15,7 +16,7 @@ import java.util.Collections;
 
 public class TestEntity extends LivingEntity implements BattleEntity {
     private static final Team TEAM = new Team("test_non-player");
-    private static final SkillInfo SKILL_INFO = new SkillInfo(20, 20, 1);
+    private static final SkillInfo SKILL_INFO = new SkillInfo(20, 20, 1, 1, 1, 1, 0);
 
     public TestEntity(EntityType<? extends LivingEntity> entityType, final World world) {
         super(entityType, world);
@@ -54,5 +55,10 @@ public class TestEntity extends LivingEntity implements BattleEntity {
     @Override
     public Text getBattleName() {
         return getName();
+    }
+
+    @Override
+    public EntityInventory getBattleInventory() {
+        return new EntityInventory();
     }
 }
