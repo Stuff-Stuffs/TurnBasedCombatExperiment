@@ -80,7 +80,7 @@ public final class DamageType implements Iterable<DamageType> {
         return new DamageType(name, Arrays.asList(parents));
     }
 
-    static {
+    public static void init() {
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("physical"), PHYSICAL);
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("slashing"), SLASHING);
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("piercing"), PIERCING);
