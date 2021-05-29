@@ -3,8 +3,10 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.entity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.action.EntityAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.EntityInventoryView;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public interface EntityStateView {
@@ -21,4 +23,6 @@ public interface EntityStateView {
     BattleParticipantHandle getHandle();
 
     EntityInventoryView getInventory();
+
+    Collection<EntityAction> getActions();
 }

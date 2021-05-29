@@ -10,7 +10,7 @@ import net.minecraft.text.Text;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class EquipEntityAction implements EntityAction {
+public class EquipEntityAction implements UsableBattleAction {
     private final BattleEquipment equipment;
     private final int slot;
     private final Supplier<Text> nameSupplier;
@@ -34,7 +34,7 @@ public class EquipEntityAction implements EntityAction {
     }
 
     @Override
-    public BattleAction getAction(final EntityStateView entityState) {
+    public BattleAction apply(final EntityStateView entityState) {
         return new EquipBattleAction(entityState.getHandle(), equipment, slot);
     }
 }

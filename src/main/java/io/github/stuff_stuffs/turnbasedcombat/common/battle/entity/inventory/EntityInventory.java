@@ -5,10 +5,11 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.Map;
 
 //TODO redo this
-public final class EntityInventory implements EntityInventoryView {
+public final class EntityInventory implements EntityInventoryView, Iterable<BattleItem> {
     public static final Codec<EntityInventory> CODEC = Codec.unboundedMap(Codec.INT, BattleItemType.CODEC).xmap(EntityInventory::new, inventory -> inventory.items);
     private final Int2ReferenceMap<BattleItem> items;
 
@@ -44,5 +45,10 @@ public final class EntityInventory implements EntityInventoryView {
     @Override
     public @Nullable BattleItem getSlot(final int slot) {
         return items.get(slot);
+    }
+
+    @Override
+    public Iterator<BattleItem> iterator() {
+        return items.values().iterator();
     }
 }

@@ -1,13 +1,13 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory;
 
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.action.EntityAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.action.EntityAction;
 import net.minecraft.item.ItemStack;
 
 public interface BattleItem {
-    EntityAction useAction(EntityStateView entityState);
-
     BattleItemType getType();
 
     ItemStack toItemStack();
+
+    EntityAction useAction(EntityStateView entityState);
 }

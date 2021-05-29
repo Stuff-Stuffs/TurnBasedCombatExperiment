@@ -8,6 +8,7 @@ import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.action.EntityAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.damage.DamagePacket;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectCollection;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectFactory;
@@ -15,6 +16,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.Entity
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentType;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.BattleItem;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.EntityInventory;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStatModifier;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.stat.EntityStatType;
@@ -29,13 +31,11 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipme
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipment.PreEquipmentUnEquipEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.util.CodecUtil;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public final class EntityState implements EntityStateView {
     public static final Codec<EntityState> CODEC = new Codec<>() {
@@ -291,6 +291,21 @@ public final class EntityState implements EntityStateView {
     @Override
     public EntityInventory getInventory() {
         return inventory;
+    }
+
+    @Override
+    public Collection<EntityAction> getActions() {
+        final Collection<EntityAction> actions = new ReferenceArrayList<>();
+        for (final BattleEquipmentType equipmentType : BattleEquipmentType.REGISTRY) {
+            final BattleEquipment battleEquipment = equipmentState.get(equipmentType);
+            if (battleEquipment != null) {
+                actions.addAll(battleEquipment.getActions(this));
+            }
+        }
+        for (final BattleItem battleItem : inventory) {
+            actions.add(battleItem.useAction(this));
+        }
+        return actions;
     }
 
     public boolean addEffect(final EntityEffectFactory factory) {
