@@ -34,7 +34,7 @@ public final class TurnChooserTypeRegistry {
         @Override
         public <T> DataResult<T> encode(final TurnChooser input, final DynamicOps<T> ops, final T prefix) {
             final Map<T, T> map = new Object2ObjectArrayMap<>();
-            map.put(ops.createString("id"), REGISTRY.encodeStart(ops, input.getType()).getOrThrow(false, s -> {
+            map.put(ops.createString("type"), REGISTRY.encodeStart(ops, input.getType()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }));
             map.put(ops.createString("data"), input.getType().codec.encode(input, ops, ops.empty()).getOrThrow(false, s -> {
