@@ -2,12 +2,12 @@ package io.github.stuff_stuffs.turnbasedcombat.common.util;
 
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.*;
 
@@ -37,6 +37,51 @@ public final class CodecUtil {
             Codec.LONG.fieldOf("hi").forGetter(UUID::getMostSignificantBits),
             Codec.LONG.fieldOf("lo").forGetter(UUID::getLeastSignificantBits)
     ).apply(instance, UUID::new));
+
+    public static final Codec<NbtElement> NBT_CODEC = new Codec<>() {
+        @Override
+        public <T> DataResult<Pair<NbtElement, T>> decode(final DynamicOps<T> ops, final T input) {
+            return DataResult.success(Pair.of(ops.convertTo(NbtOps.INSTANCE, input), ops.empty()));
+        }
+
+        @Override
+        public <T> DataResult<T> encode(final NbtElement input, final DynamicOps<T> ops, final T prefix) {
+            return DataResult.success(NbtOps.INSTANCE.convertTo(ops, input));
+        }
+    };
+
+    public static final Codec<Vec3d> VEC3D_CODEC = new Codec<>() {
+        @Override
+        public <T> DataResult<Pair<Vec3d, T>> decode(final DynamicOps<T> ops, final T input) {
+            final MapLike<T> map = ops.getMap(input).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final double x = ops.getNumberValue(map.get("x")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            }).doubleValue();
+            final double y = ops.getNumberValue(map.get("y")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            }).doubleValue();
+            final double z = ops.getNumberValue(map.get("z")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            }).doubleValue();
+            return DataResult.success(Pair.of(new Vec3d(x, y, z), ops.empty()));
+        }
+
+        @Override
+        public <T> DataResult<T> encode(final Vec3d input, final DynamicOps<T> ops, final T prefix) {
+            return ops.mapBuilder().add(
+                    "x",
+                    ops.createDouble(input.x)
+            ).add(
+                    "y",
+                    ops.createDouble(input.y)
+            ).add(
+                    "z",
+                    ops.createDouble(input.z)
+            ).build(prefix);
+        }
+    };
 
     public static <K, V> Codec<Map<K, V>> createLinkedMapCodec(final Codec<K> keyCodec, final Codec<V> valueCodec) {
         final Codec<List<Pair<K, V>>> listCodec = Codec.list(Codec.pair(keyCodec, valueCodec));

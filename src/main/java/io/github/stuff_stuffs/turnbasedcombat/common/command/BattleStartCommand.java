@@ -22,7 +22,7 @@ public final class BattleStartCommand {
         dispatcher.register(CommandManager.literal("battleCreate").then(CommandManager.argument("entities", EntityArgumentType.entities()).executes(context -> {
             final Collection<? extends Entity> entities = EntityArgumentType.getEntities(context, "entities");
             final ServerWorld world = context.getSource().getWorld();
-            final ServerBattleWorld battleWorld = BattlePersistentState.get(world.getPersistentStateManager()).getData();
+            final ServerBattleWorld battleWorld = BattlePersistentState.get(world.getPersistentStateManager(), world).getData();
             final BattleHandle handle = battleWorld.create();
             for (final Entity entity : entities) {
                 if (entity instanceof BattleEntity battleEntity) {

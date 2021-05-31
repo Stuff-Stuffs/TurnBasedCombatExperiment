@@ -64,6 +64,9 @@ public final class EntityState implements EntityStateView {
                     ).add(
                             "inventory",
                             EntityInventory.CODEC.encodeStart(ops, input.inventory)
+                    ).add(
+                            "worldEntityInfo",
+                            WorldEntityInfo.CODEC.encodeStart(ops, input.worldEntityInfo)
                     ).build(ops.empty());
         }
 
@@ -93,7 +96,10 @@ public final class EntityState implements EntityStateView {
             final EntityInventory inventory = EntityInventory.CODEC.parse(ops, map.get("inventory")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects, equipmentState, inventory), ops.empty()));
+            WorldEntityInfo worldEntityInfo = WorldEntityInfo.CODEC.parse(ops, map.get("worldEntityInfo")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return DataResult.success(Pair.of(new EntityState(info, uuid, team, health, entityEffects, equipmentState, inventory, worldEntityInfo), ops.empty()));
         }
     };
     private final SkillInfo info;
@@ -104,11 +110,12 @@ public final class EntityState implements EntityStateView {
     private final EntityEffectCollection effects;
     private final EntityStats stats;
     private final EntityInventory inventory;
+    private final WorldEntityInfo worldEntityInfo;
     private BattleState battle;
     private BattleParticipantHandle handle;
     private double health;
 
-    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final double health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState, final EntityInventory inventory) {
+    private EntityState(final SkillInfo info, final UUID uuid, final Team team, final double health, final EntityEffectCollection effects, final BattleEquipmentState equipmentState, final EntityInventory inventory, WorldEntityInfo worldEntityInfo) {
         this.info = info;
         this.uuid = uuid;
         this.team = team;
@@ -117,6 +124,7 @@ public final class EntityState implements EntityStateView {
         this.effects = effects;
         stats = new EntityStats();
         this.inventory = inventory;
+        this.worldEntityInfo = worldEntityInfo;
         this.health = health;
         populateEventHolders();
     }
@@ -131,6 +139,7 @@ public final class EntityState implements EntityStateView {
         equipmentState = new BattleEquipmentState(entity, this);
         stats = new EntityStats();
         inventory = entity.getBattleInventory();
+        worldEntityInfo = new WorldEntityInfo(entity);
         health = info.health();
         populateEventHolders();
     }
@@ -226,7 +235,11 @@ public final class EntityState implements EntityStateView {
 
     //TODO event holder view?
     public <T> EventHolder<T> getEvent(final Class<T> clazz) {
-        return (EventHolder<T>) eventHolders.get(clazz);
+        final EventHolder<T> holder = (EventHolder<T>) eventHolders.get(clazz);
+        if(holder==null) {
+            throw new RuntimeException("Unregistered event: " + clazz.getCanonicalName());
+        }
+        return holder;
     }
 
     public <T> T getStat(final EntityStatType<T> type) {
@@ -331,6 +344,11 @@ public final class EntityState implements EntityStateView {
 
     public @Nullable BattleEquipment getEquiped(final BattleEquipmentType type) {
         return equipmentState.get(type);
+    }
+
+    @Override
+    public WorldEntityInfo getWorldEntityInfo() {
+        return worldEntityInfo;
     }
 
     public void initEvents() {

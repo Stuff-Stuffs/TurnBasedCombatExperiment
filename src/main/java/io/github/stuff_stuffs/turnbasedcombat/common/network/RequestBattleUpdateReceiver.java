@@ -28,14 +28,14 @@ public final class RequestBattleUpdateReceiver {
         final int timelineSize = buf.readVarInt();
         final boolean fresh = buf.readBoolean();
         final ServerWorld world = entity.getServerWorld();
-        minecraftServer.execute(() -> BattlePersistentState.get(world.getPersistentStateManager()).getData().updateClient(entity, new BattleHandle(battleId), timelineSize, fresh));
+        minecraftServer.execute(() -> BattlePersistentState.get(world.getPersistentStateManager(), world).getData().updateClient(entity, new BattleHandle(battleId), timelineSize, fresh));
     }
 
     private static void receiverEntity(final MinecraftServer minecraftServer, final ServerPlayerEntity entity, final ServerPlayNetworkHandler serverPlayNetworkHandler, final PacketByteBuf buf, final PacketSender packetSender) {
         final UUID id = buf.readUuid();
         ServerWorld world = entity.getServerWorld();
         minecraftServer.execute(() -> {
-            final ServerBattleWorld data = BattlePersistentState.get(world.getPersistentStateManager()).getData();
+            final ServerBattleWorld data = BattlePersistentState.get(world.getPersistentStateManager(), world).getData();
             final Battle battle = data.getBattle(id);
             if(battle!=null) {
                 data.updateClient(entity, new BattleHandle(battle.getBattleId()), 0, true);

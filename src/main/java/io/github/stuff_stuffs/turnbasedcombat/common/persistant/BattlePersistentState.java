@@ -2,14 +2,15 @@ package io.github.stuff_stuffs.turnbasedcombat.common.persistant;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.data.ServerBattleWorld;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.PersistentStateManager;
 
 public final class BattlePersistentState extends PersistentState {
     private final ServerBattleWorld data;
 
-    private BattlePersistentState() {
-        this(new ServerBattleWorld());
+    private BattlePersistentState(ServerWorld world) {
+        this(new ServerBattleWorld(world));
     }
 
     private BattlePersistentState(final ServerBattleWorld data) {
@@ -27,12 +28,12 @@ public final class BattlePersistentState extends PersistentState {
         return true;
     }
 
-    public static BattlePersistentState get(final PersistentStateManager manager) {
-        return manager.getOrCreate(BattlePersistentState::fromNbt, BattlePersistentState::new, "tbcex_battles");
+    public static BattlePersistentState get(final PersistentStateManager manager, ServerWorld world) {
+        return manager.getOrCreate(nbt -> fromNbt(nbt, world), () -> new BattlePersistentState(world), "tbcex_battles");
     }
 
-    private static BattlePersistentState fromNbt(final NbtCompound compound) {
-        return new BattlePersistentState(ServerBattleWorld.fromNbt(compound));
+    private static BattlePersistentState fromNbt(final NbtCompound compound, ServerWorld world) {
+        return new BattlePersistentState(ServerBattleWorld.fromNbt(compound, world));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.turnbasedcombat.mixin.impl;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.SkillInfo;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.EntityInventory;
@@ -50,5 +51,10 @@ public abstract class MixinPlayerEntity implements BattleEntity {
             }
         }
         return inventory;
+    }
+
+    @Override
+    public void onLeaveBattle(EntityStateView entityState) {
+
     }
 }

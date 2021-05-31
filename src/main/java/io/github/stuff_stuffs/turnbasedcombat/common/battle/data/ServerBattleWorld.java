@@ -2,9 +2,10 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.data;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.*;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.JoinBattleAction;
-import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EntityLeaveEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.SimpleTurnChooser;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.BattleUpdateSender;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -15,6 +16,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,12 +24,14 @@ import java.util.UUID;
 
 public final class ServerBattleWorld implements BattleWorld {
     private final MutableInt nextBattleId;
+    private final ServerWorld world;
     private final Int2ReferenceMap<Battle> battles;
     //TODO move to on disk storage
     private final Int2ReferenceMap<Battle> endedBattles;
 
-    private ServerBattleWorld(final int nextBattleId, final Int2ReferenceMap<Battle> battles) {
+    private ServerBattleWorld(final int nextBattleId, final Int2ReferenceMap<Battle> battles, final ServerWorld world) {
         this.nextBattleId = new MutableInt(nextBattleId);
+        this.world = world;
         this.battles = new Int2ReferenceOpenHashMap<>();
         endedBattles = new Int2ReferenceOpenHashMap<>();
         for (final Battle battle : battles.values()) {
@@ -35,11 +39,13 @@ public final class ServerBattleWorld implements BattleWorld {
                 endedBattles.put(battle.getBattleId(), battle);
             } else {
                 this.battles.put(battle.getBattleId(), battle);
+                ((BattleState) battle.getStateView()).getEvent(EntityLeaveEvent.class).register((battleState, entityState) -> entityState.getWorldEntityInfo().spawnIntoWorld(world, entityState));
             }
         }
     }
 
-    public ServerBattleWorld() {
+    public ServerBattleWorld(final ServerWorld world) {
+        this.world = world;
         nextBattleId = new MutableInt();
         battles = new Int2ReferenceOpenHashMap<>();
         endedBattles = new Int2ReferenceOpenHashMap<>();
@@ -71,15 +77,15 @@ public final class ServerBattleWorld implements BattleWorld {
 
     @Override
     public void join(final BattleEntity battleEntity, final BattleHandle handle) {
-        if(!(battleEntity instanceof Entity entity)) {
+        if (!(battleEntity instanceof Entity)) {
             throw new RuntimeException();
         }
         if (getBattle(battleEntity) != null) {
             throw new RuntimeException("Entity already in battle");
         } else {
             final EntityState participant = new EntityState(battleEntity);
-            Battle battle = getBattle(handle);
-            if (battle==null || battle.getStateView().isBattleEnded()) {
+            final Battle battle = getBattle(handle);
+            if (battle == null || battle.getStateView().isBattleEnded()) {
                 throw new RuntimeException();
             }
             battle.push(new JoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(battle.getBattleId()), participant));
@@ -117,7 +123,7 @@ public final class ServerBattleWorld implements BattleWorld {
         return nbt;
     }
 
-    public static ServerBattleWorld fromNbt(final NbtCompound nbt) {
+    public static ServerBattleWorld fromNbt(final NbtCompound nbt, final ServerWorld world) {
         if (nbt.contains("battles")) {
             try {
                 final int nextBattleId = nbt.getInt("nextBattleId");
@@ -129,13 +135,13 @@ public final class ServerBattleWorld implements BattleWorld {
                     }).getFirst();
                     battlesDecoded.put(battle.getBattleId(), battle);
                 }
-                return new ServerBattleWorld(nextBattleId, battlesDecoded);
+                return new ServerBattleWorld(nextBattleId, battlesDecoded, world);
             } catch (final Exception e) {
                 e.printStackTrace();
-                return new ServerBattleWorld();
+                return new ServerBattleWorld(world);
             }
         }
-        return new ServerBattleWorld();
+        return new ServerBattleWorld(world);
     }
 
     public void tick() {

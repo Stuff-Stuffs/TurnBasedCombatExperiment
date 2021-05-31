@@ -25,4 +25,6 @@ public interface EntityStateView {
     EntityInventoryView getInventory();
 
     Collection<EntityAction> getActions();
+
+    WorldEntityInfo getWorldEntityInfo();
 }

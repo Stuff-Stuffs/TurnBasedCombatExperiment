@@ -69,7 +69,11 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     }
 
     public <T> EventHolder<T> getEvent(final Class<T> clazz) {
-        return (EventHolder<T>) eventHolders.get(clazz);
+        final EventHolder<T> holder = (EventHolder<T>) eventHolders.get(clazz);
+        if(holder==null) {
+            throw new RuntimeException("Unregistered event: " + clazz.getCanonicalName());
+        }
+        return holder;
     }
 
     public BattleParticipantHandle addParticipant(final EntityState participant) {

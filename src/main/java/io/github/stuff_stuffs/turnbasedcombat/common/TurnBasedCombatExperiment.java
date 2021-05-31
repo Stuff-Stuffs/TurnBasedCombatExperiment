@@ -33,7 +33,7 @@ public class TurnBasedCombatExperiment implements ModInitializer {
         TurnChooserTypeRegistry.init();
         Network.init();
         BattleActions.init();
-        ServerTickEvents.END_WORLD_TICK.register(world -> BattlePersistentState.get(world.getPersistentStateManager()).getData().tick());
+        ServerTickEvents.END_WORLD_TICK.register(world -> BattlePersistentState.get(world.getPersistentStateManager(), world).getData().tick());
         CommandRegistrationCallback.EVENT.register(new CommandRegistrationCallback() {
             @Override
             public void register(final CommandDispatcher<ServerCommandSource> dispatcher, final boolean dedicated) {
@@ -41,7 +41,7 @@ public class TurnBasedCombatExperiment implements ModInitializer {
             }
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
-            Battle battle = BattlePersistentState.get(handler.player.getServerWorld().getPersistentStateManager()).getData().getBattle((BattleEntity) handler.player);
+            Battle battle = BattlePersistentState.get(handler.player.getServerWorld().getPersistentStateManager(), handler.player.getServerWorld()).getData().getBattle((BattleEntity) handler.player);
             if(battle!=null) {
                 battle.push(new LeaveBattleAction(BattleParticipantHandle.UNIVERSAL.apply(battle.getBattleId()), new BattleParticipantHandle(battle.getBattleId(), handler.player.getUuid())));
             }

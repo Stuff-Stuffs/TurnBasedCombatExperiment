@@ -23,7 +23,7 @@ public final class BattleActionReceiver {
     }
 
     private static void receive(final MinecraftServer minecraftServer, final ServerPlayerEntity serverPlayerEntity, final ServerPlayNetworkHandler serverPlayNetworkHandler, final PacketByteBuf packetByteBuf, final PacketSender packetSender) {
-        final ServerBattleWorld battleWorld = BattlePersistentState.get(serverPlayerEntity.getServerWorld().getPersistentStateManager()).getData();
+        final ServerBattleWorld battleWorld = BattlePersistentState.get(serverPlayerEntity.getServerWorld().getPersistentStateManager(), serverPlayerEntity.getServerWorld()).getData();
         final Battle battle = battleWorld.getBattle((BattleEntity) serverPlayerEntity);
         if (battle != null) {
             battle.push(BattleAction.deserialize(packetByteBuf.readUnlimitedNbt(), NbtOps.INSTANCE));
