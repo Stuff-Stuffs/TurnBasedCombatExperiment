@@ -6,7 +6,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.minecraft.text.Text;

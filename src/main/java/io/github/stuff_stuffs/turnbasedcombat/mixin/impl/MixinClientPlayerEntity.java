@@ -3,7 +3,7 @@ package io.github.stuff_stuffs.turnbasedcombat.mixin.impl;
 import com.mojang.authlib.GameProfile;
 import io.github.stuff_stuffs.turnbasedcombat.client.battle.data.ClientBattleWorld;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;

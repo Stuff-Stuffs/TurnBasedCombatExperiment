@@ -2,7 +2,7 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.data;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.*;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.JoinBattleAction;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.SimpleTurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.BattleUpdateSender;
@@ -79,10 +79,7 @@ public final class ServerBattleWorld implements BattleWorld {
         } else {
             final EntityState participant = new EntityState(battleEntity);
             Battle battle = getBattle(handle);
-            if (battle == null) {
-                battle = new Battle(nextBattleId.getAndIncrement(), new SimpleTurnChooser(), new BattleTimeline());
-                battles.put(battle.getBattleId(), battle);
-            } else if (battle.getStateView().isBattleEnded()) {
+            if (battle==null || battle.getStateView().isBattleEnded()) {
                 throw new RuntimeException();
             }
             battle.push(new JoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(battle.getBattleId()), participant));

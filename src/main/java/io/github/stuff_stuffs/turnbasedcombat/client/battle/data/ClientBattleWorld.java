@@ -5,7 +5,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleTimeline;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.data.BattleWorld;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.mixin.api.ClientBattleWorldProvider;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;

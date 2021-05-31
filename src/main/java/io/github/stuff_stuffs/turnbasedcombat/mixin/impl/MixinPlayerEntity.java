@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.turnbasedcombat.mixin.impl;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.SkillInfo;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.EntityInventory;
 import io.github.stuff_stuffs.turnbasedcombat.common.item.BattleItem;

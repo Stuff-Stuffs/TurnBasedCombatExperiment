@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.entity;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.SkillInfo;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.EntityInventory;
 import net.minecraft.entity.EntityType;
@@ -60,5 +60,10 @@ public class TestEntity extends LivingEntity implements BattleEntity {
     @Override
     public EntityInventory getBattleInventory() {
         return new EntityInventory();
+    }
+
+    @Override
+    public void onLeaveBattle(EntityStateView entityState) {
+
     }
 }
