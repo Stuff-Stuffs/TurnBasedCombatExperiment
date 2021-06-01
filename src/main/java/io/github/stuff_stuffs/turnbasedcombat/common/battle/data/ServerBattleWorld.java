@@ -13,6 +13,8 @@ import io.github.stuff_stuffs.turnbasedcombat.common.network.BattleUpdateSender;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.CurrentTurnSender;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
@@ -24,20 +26,21 @@ import net.minecraft.server.world.ServerWorld;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.UUID;
 
 public final class ServerBattleWorld implements BattleWorld {
     private final MutableInt nextBattleId;
     private final ServerWorld world;
-    private final Int2ReferenceMap<Battle> battles;
+    private final Object2ReferenceMap<BattleHandle, Battle> battles;
     //TODO move to on disk storage
-    private final Int2ReferenceMap<Battle> endedBattles;
+    private final Object2ReferenceMap<BattleHandle, Battle> endedBattles;
 
-    private ServerBattleWorld(final int nextBattleId, final Int2ReferenceMap<Battle> battles, final ServerWorld world) {
+    private ServerBattleWorld(final int nextBattleId, final Object2ReferenceMap<BattleHandle, Battle> battles, final ServerWorld world) {
         this.nextBattleId = new MutableInt(nextBattleId);
         this.world = world;
-        this.battles = new Int2ReferenceOpenHashMap<>();
-        endedBattles = new Int2ReferenceOpenHashMap<>();
+        this.battles = new Object2ReferenceOpenHashMap<>();
+        endedBattles = new Object2ReferenceOpenHashMap<>();
         for (final Battle battle : battles.values()) {
             if (battle.getStateView().isBattleEnded()) {
                 endedBattles.put(battle.getBattleId(), battle);
@@ -80,8 +83,8 @@ public final class ServerBattleWorld implements BattleWorld {
     public ServerBattleWorld(final ServerWorld world) {
         this.world = world;
         nextBattleId = new MutableInt();
-        battles = new Int2ReferenceOpenHashMap<>();
-        endedBattles = new Int2ReferenceOpenHashMap<>();
+        battles = new Object2ReferenceOpenHashMap<>();
+        endedBattles = new Object2ReferenceOpenHashMap<>();
     }
 
     @Override
@@ -128,7 +131,7 @@ public final class ServerBattleWorld implements BattleWorld {
 
     @Override
     public BattleHandle create() {
-        final Battle battle = new Battle(nextBattleId.getAndIncrement(), new SimpleTurnChooser(), new BattleTimeline());
+        final Battle battle = new Battle(new BattleHandle(nextBattleId.getAndIncrement()), new SimpleTurnChooser(), new BattleTimeline());
         battles.put(battle.getBattleId(), battle);
         ((BattleState) battle.getStateView()).getEvent(EntityLeaveEvent.class).register((battleState, entityState) -> entityState.getWorldEntityInfo().spawnIntoWorld(world, entityState));
         ((BattleState) battle.getStateView()).getEvent(BattleEndedEvent.class).register(battleState -> {
@@ -155,7 +158,7 @@ public final class ServerBattleWorld implements BattleWorld {
                 }
             }
         });
-        return new BattleHandle(battle.getBattleId());
+        return battle.getBattleId();
     }
 
     public void updateClient(final ServerPlayerEntity entity, final BattleHandle handle, final int timelineSize, final boolean fresh) {
@@ -167,12 +170,12 @@ public final class ServerBattleWorld implements BattleWorld {
 
     public NbtCompound writeNbt(final NbtCompound nbt) {
         final NbtList battles = new NbtList();
-        for (final Int2ReferenceMap.Entry<Battle> entry : this.battles.int2ReferenceEntrySet()) {
+        for (final Map.Entry<BattleHandle, Battle> entry : this.battles.entrySet()) {
             battles.add(Battle.CODEC.encode(entry.getValue(), NbtOps.INSTANCE, NbtOps.INSTANCE.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }));
         }
-        for (final Int2ReferenceMap.Entry<Battle> entry : endedBattles.int2ReferenceEntrySet()) {
+        for (final Map.Entry<BattleHandle, Battle> entry : endedBattles.entrySet()) {
             battles.add(Battle.CODEC.encode(entry.getValue(), NbtOps.INSTANCE, NbtOps.INSTANCE.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             }));
@@ -187,7 +190,7 @@ public final class ServerBattleWorld implements BattleWorld {
             try {
                 final int nextBattleId = nbt.getInt("nextBattleId");
                 final NbtList battles = nbt.getList("battles", 10);
-                final Int2ReferenceMap<Battle> battlesDecoded = new Int2ReferenceOpenHashMap<>(battles.size());
+                final Object2ReferenceMap<BattleHandle, Battle> battlesDecoded = new Object2ReferenceOpenHashMap<>(battles.size());
                 for (final NbtElement element : battles) {
                     final Battle battle = Battle.CODEC.decode(NbtOps.INSTANCE, element).getOrThrow(false, s -> {
                         throw new RuntimeException(s);

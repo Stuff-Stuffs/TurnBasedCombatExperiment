@@ -38,7 +38,7 @@ public final class RequestBattleUpdateReceiver {
             final ServerBattleWorld data = BattlePersistentState.get(world.getPersistentStateManager(), world).getData();
             final Battle battle = data.getBattle(id);
             if(battle!=null) {
-                data.updateClient(entity, new BattleHandle(battle.getBattleId()), 0, true);
+                data.updateClient(entity, battle.getBattleId(), 0, true);
             }
         });
     }

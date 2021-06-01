@@ -32,7 +32,7 @@ public class ClientBattleWorld implements BattleWorld {
     }
 
     public Battle create(final BattleHandle handle, final TurnChooser chooser) {
-        final Battle battle = new Battle(handle.id(), chooser, new BattleTimeline());
+        final Battle battle = new Battle(handle, chooser, new BattleTimeline());
         battles.put(handle.id(), battle);
         return battle;
     }

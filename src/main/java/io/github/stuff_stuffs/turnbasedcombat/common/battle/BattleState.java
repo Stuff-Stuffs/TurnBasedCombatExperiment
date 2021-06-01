@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public final class BattleState implements BattleStateView, Iterable<BattleParticipantHandle> {
-    private final int battleId;
+    private final BattleHandle battleId;
     private final Object2ReferenceMap<BattleParticipantHandle, EntityState> participants;
     private final Object2ReferenceMap<Team, Set<EntityState>> teams;
     private final Random random;
@@ -21,11 +21,11 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     private int roundCount = 0;
     private boolean ended;
 
-    public BattleState(final int battleId, final Battle battle) {
+    public BattleState(final BattleHandle battleId, final Battle battle) {
         this.battleId = battleId;
         participants = new Object2ReferenceOpenHashMap<>();
         teams = new Object2ReferenceOpenHashMap<>();
-        random = new Random(battleId);
+        random = new Random(battleId.id());
         this.battle = battle;
         eventHolders = new Reference2ObjectOpenHashMap<>();
         populateEvents();
@@ -99,7 +99,7 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
         if (ended) {
             throw new RuntimeException();
         }
-        if (battleId != handle.battleId()) {
+        if (!battleId.equals(handle.battleId())) {
             throw new RuntimeException();
         }
         final EntityState removed = participants.get(handle);
@@ -130,7 +130,7 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
 
     //TODO throws not enough participants exception?
     public EntityState advanceTurn(final BattleParticipantHandle handle) {
-        if (handle.battleId() == battleId && (handle.isUniversal() || handle.participantId().equals(getCurrentTurn().getId()))) {
+        if (handle.battleId().equals(battleId) && (handle.isUniversal() || handle.participantId().equals(getCurrentTurn().getId()))) {
             turnCount++;
             BattleParticipantHandle prev = getCurrentTurn().getHandle();
             final TurnChooser.TurnInfo turnInfo = battle.getTurnChooser().nextTurn(participants.values(), this);
@@ -153,7 +153,7 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
 
     @Override
     public @Nullable EntityState getParticipant(final BattleParticipantHandle handle) {
-        if (battleId != handle.battleId()) {
+        if (!battleId.equals(handle.battleId())) {
             throw new RuntimeException();
         }
         return participants.get(handle);

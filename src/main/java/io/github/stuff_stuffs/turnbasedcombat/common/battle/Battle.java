@@ -14,18 +14,18 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnTimer;
 
 public final class Battle {
     public static final Codec<Battle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.INT.fieldOf("battleId").forGetter(battle -> battle.battleId),
+            BattleHandle.CODEC.fieldOf("battleId").forGetter(battle -> battle.battleId),
             TurnChooserTypeRegistry.CODEC.fieldOf("turnChooser").forGetter(battle -> battle.turnChooser),
             BattleTimeline.CODEC.fieldOf("timeline").forGetter(battle -> battle.timeline)
     ).apply(instance, Battle::new));
-    private final int battleId;
+    private final BattleHandle battleId;
     private final TurnChooser turnChooser;
     private final TurnTimer turnTimer;
     private BattleState state;
     private BattleTimeline timeline;
     private int lastTurn = -1;
 
-    public Battle(final int battleId, final TurnChooser turnChooser, final BattleTimeline timeline) {
+    public Battle(final BattleHandle battleId, final TurnChooser turnChooser, final BattleTimeline timeline) {
         this.battleId = battleId;
         this.turnChooser = turnChooser;
         turnTimer = new TurnTimer(TurnBasedCombatExperiment.getMaxTurnTime() * 20);
@@ -49,7 +49,7 @@ public final class Battle {
         if (state.isBattleEnded()) {
             throw new RuntimeException();
         }
-        if (action.getHandle().battleId() != battleId) {
+        if (!action.getHandle().battleId().equals(battleId)) {
             throw new RuntimeException();
         }
         if (action.getHandle().isUniversal() || action.getHandle().participantId().equals(state.getCurrentTurn().getId())) {
@@ -78,7 +78,7 @@ public final class Battle {
         return turnChooser;
     }
 
-    public int getBattleId() {
+    public BattleHandle getBattleId() {
         return battleId;
     }
 
