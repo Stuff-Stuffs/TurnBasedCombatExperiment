@@ -32,9 +32,6 @@ public class ClientBattleWorld implements BattleWorld {
     }
 
     public Battle create(final BattleHandle handle, final TurnChooser chooser) {
-        if (battles.get(handle.id()) != null) {
-            throw new RuntimeException();
-        }
         final Battle battle = new Battle(handle.id(), chooser, new BattleTimeline());
         battles.put(handle.id(), battle);
         return battle;

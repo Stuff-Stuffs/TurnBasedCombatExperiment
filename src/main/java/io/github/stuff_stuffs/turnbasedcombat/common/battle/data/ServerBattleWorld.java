@@ -3,6 +3,8 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.data;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.*;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.JoinBattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.BattleEndedEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EntityLeaveEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.SimpleTurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
@@ -40,6 +42,16 @@ public final class ServerBattleWorld implements BattleWorld {
             } else {
                 this.battles.put(battle.getBattleId(), battle);
                 ((BattleState) battle.getStateView()).getEvent(EntityLeaveEvent.class).register((battleState, entityState) -> entityState.getWorldEntityInfo().spawnIntoWorld(world, entityState));
+                ((BattleState) battle.getStateView()).getEvent(BattleEndedEvent.class).register(battleState -> {
+                    for (BattleParticipantHandle participant : battleState.getParticipants()) {
+                        final EntityStateView entityStateView = battleState.getParticipant(participant);
+                        if(entityStateView!=null) {
+                            entityStateView.getWorldEntityInfo().spawnIntoWorld(world, entityStateView);
+                        } else {
+                            throw new RuntimeException();
+                        }
+                    }
+                });
             }
         }
     }
@@ -77,7 +89,7 @@ public final class ServerBattleWorld implements BattleWorld {
 
     @Override
     public void join(final BattleEntity battleEntity, final BattleHandle handle) {
-        if (!(battleEntity instanceof Entity)) {
+        if (!(battleEntity instanceof Entity entity)) {
             throw new RuntimeException();
         }
         if (getBattle(battleEntity) != null) {
@@ -89,6 +101,7 @@ public final class ServerBattleWorld implements BattleWorld {
                 throw new RuntimeException();
             }
             battle.push(new JoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(battle.getBattleId()), participant));
+            entity.discard();
         }
     }
 
@@ -96,6 +109,17 @@ public final class ServerBattleWorld implements BattleWorld {
     public BattleHandle create() {
         final Battle battle = new Battle(nextBattleId.getAndIncrement(), new SimpleTurnChooser(), new BattleTimeline());
         battles.put(battle.getBattleId(), battle);
+        ((BattleState) battle.getStateView()).getEvent(EntityLeaveEvent.class).register((battleState, entityState) -> entityState.getWorldEntityInfo().spawnIntoWorld(world, entityState));
+        ((BattleState) battle.getStateView()).getEvent(BattleEndedEvent.class).register(battleState -> {
+            for (BattleParticipantHandle participant : battleState.getParticipants()) {
+                final EntityStateView entityStateView = battleState.getParticipant(participant);
+                if(entityStateView!=null) {
+                    entityStateView.getWorldEntityInfo().spawnIntoWorld(world, entityStateView);
+                } else {
+                    throw new RuntimeException();
+                }
+            }
+        });
         return new BattleHandle(battle.getBattleId());
     }
 

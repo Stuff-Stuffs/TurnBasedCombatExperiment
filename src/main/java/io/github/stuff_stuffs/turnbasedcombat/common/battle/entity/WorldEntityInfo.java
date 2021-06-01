@@ -53,6 +53,9 @@ public final class WorldEntityInfo {
             entity = world.getEntity(entityState.getHandle().participantId());
         }
         if (entity != null) {
+            if (!player) {
+                world.spawnEntity(entity);
+            }
             entity.setPosition(position);
             ((BattleEntity) entity).onLeaveBattle(entityState);
         }

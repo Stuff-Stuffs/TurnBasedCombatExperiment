@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 
+import com.google.common.collect.Iterables;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.*;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.TurnChooser;
@@ -121,6 +122,9 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     }
 
     public void endBattle() {
+        if(!ended) {
+            getEvent(BattleEndedEvent.class).invoker().onBattleEnded(this);
+        }
         ended = true;
     }
 
@@ -186,6 +190,11 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
             }
         }
         return false;
+    }
+
+    @Override
+    public Iterable<BattleParticipantHandle> getParticipants() {
+        return Iterables.unmodifiableIterable(participants.keySet());
     }
 
     @NotNull

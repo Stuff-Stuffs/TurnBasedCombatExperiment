@@ -22,4 +22,6 @@ public interface BattleStateView {
     int getRoundCount();
 
     boolean contains(UUID id);
+
+    Iterable<BattleParticipantHandle> getParticipants();
 }
