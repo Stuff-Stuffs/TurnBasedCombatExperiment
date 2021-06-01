@@ -48,9 +48,9 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
                 event.onEntityLeave(battleState, entityState);
             }
         }));
-        putEvent(AdvanceTurnEvent.class, new EventHolder.BasicEventHolder<>(events -> battleState -> {
+        putEvent(AdvanceTurnEvent.class, new EventHolder.BasicEventHolder<>(events -> (battleState, prev, current) -> {
             for (final AdvanceTurnEvent event : events) {
-                event.onAdvanceTurn(battleState);
+                event.onAdvanceTurn(battleState, prev, current);
             }
         }));
         putEvent(AdvanceRoundEvent.class, new EventHolder.BasicEventHolder<>(events -> battleState -> {
@@ -132,8 +132,9 @@ public final class BattleState implements BattleStateView, Iterable<BattlePartic
     public EntityState advanceTurn(final BattleParticipantHandle handle) {
         if (handle.battleId() == battleId && (handle.isUniversal() || handle.participantId().equals(getCurrentTurn().getId()))) {
             turnCount++;
+            BattleParticipantHandle prev = getCurrentTurn().getHandle();
             final TurnChooser.TurnInfo turnInfo = battle.getTurnChooser().nextTurn(participants.values(), this);
-            getEvent(AdvanceTurnEvent.class).invoker().onAdvanceTurn(this);
+            getEvent(AdvanceTurnEvent.class).invoker().onAdvanceTurn(this, prev, turnInfo.participant().getHandle());
             if (roundCount != turnInfo.roundNumber()) {
                 getEvent(AdvanceRoundEvent.class).invoker().onAdvanceRound(this);
                 roundCount = turnInfo.roundNumber();

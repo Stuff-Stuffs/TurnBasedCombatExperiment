@@ -4,11 +4,13 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.*;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.JoinBattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.AdvanceTurnEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.BattleEndedEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EntityLeaveEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.turn.SimpleTurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.BattleUpdateSender;
+import io.github.stuff_stuffs.turnbasedcombat.common.network.CurrentTurnSender;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
@@ -43,12 +45,31 @@ public final class ServerBattleWorld implements BattleWorld {
                 this.battles.put(battle.getBattleId(), battle);
                 ((BattleState) battle.getStateView()).getEvent(EntityLeaveEvent.class).register((battleState, entityState) -> entityState.getWorldEntityInfo().spawnIntoWorld(world, entityState));
                 ((BattleState) battle.getStateView()).getEvent(BattleEndedEvent.class).register(battleState -> {
-                    for (BattleParticipantHandle participant : battleState.getParticipants()) {
+                    for (final BattleParticipantHandle participant : battleState.getParticipants()) {
                         final EntityStateView entityStateView = battleState.getParticipant(participant);
-                        if(entityStateView!=null) {
+                        if (entityStateView != null) {
                             entityStateView.getWorldEntityInfo().spawnIntoWorld(world, entityStateView);
                         } else {
                             throw new RuntimeException();
+                        }
+                    }
+                });
+                final UUID uuid = battle.getStateView().getCurrentTurn().getHandle().participantId();
+                final Entity possiblePlayer = world.getEntity(uuid);
+                if (possiblePlayer instanceof ServerPlayerEntity playerEntity) {
+                    CurrentTurnSender.send(playerEntity, true);
+                }
+                ((BattleState) battle.getStateView()).getEvent(AdvanceTurnEvent.class).register((battleState, prev, current) -> {
+                    Entity entity = world.getEntity(prev.participantId());
+                    if (entity != null) {
+                        if (entity instanceof ServerPlayerEntity playerEntity) {
+                            CurrentTurnSender.send(playerEntity, false);
+                        }
+                    }
+                    entity = world.getEntity(current.participantId());
+                    if (entity != null) {
+                        if (entity instanceof ServerPlayerEntity playerEntity) {
+                            CurrentTurnSender.send(playerEntity, true);
                         }
                     }
                 });
@@ -111,12 +132,26 @@ public final class ServerBattleWorld implements BattleWorld {
         battles.put(battle.getBattleId(), battle);
         ((BattleState) battle.getStateView()).getEvent(EntityLeaveEvent.class).register((battleState, entityState) -> entityState.getWorldEntityInfo().spawnIntoWorld(world, entityState));
         ((BattleState) battle.getStateView()).getEvent(BattleEndedEvent.class).register(battleState -> {
-            for (BattleParticipantHandle participant : battleState.getParticipants()) {
+            for (final BattleParticipantHandle participant : battleState.getParticipants()) {
                 final EntityStateView entityStateView = battleState.getParticipant(participant);
-                if(entityStateView!=null) {
+                if (entityStateView != null) {
                     entityStateView.getWorldEntityInfo().spawnIntoWorld(world, entityStateView);
                 } else {
                     throw new RuntimeException();
+                }
+            }
+        });
+        ((BattleState) battle.getStateView()).getEvent(AdvanceTurnEvent.class).register((battleState, prev, current) -> {
+            Entity entity = world.getEntity(prev.participantId());
+            if (entity != null) {
+                if (entity instanceof ServerPlayerEntity playerEntity) {
+                    CurrentTurnSender.send(playerEntity, false);
+                }
+            }
+            entity = world.getEntity(current.participantId());
+            if (entity != null) {
+                if (entity instanceof ServerPlayerEntity playerEntity) {
+                    CurrentTurnSender.send(playerEntity, true);
                 }
             }
         });

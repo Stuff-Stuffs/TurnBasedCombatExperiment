@@ -4,6 +4,7 @@ public final class ClientNetwork {
 
     public static void init() {
         BattleUpdateReceiver.init();
+        CurrentTurnReceiver.init();
     }
 
     private ClientNetwork() {
