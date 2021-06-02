@@ -307,21 +307,6 @@ public final class EntityState implements EntityStateView {
         return inventory;
     }
 
-    @Override
-    public Collection<EntityAction> getActions() {
-        final Collection<EntityAction> actions = new ReferenceArrayList<>();
-        for (final BattleEquipmentType equipmentType : BattleEquipmentType.REGISTRY) {
-            final BattleEquipment battleEquipment = equipmentState.get(equipmentType);
-            if (battleEquipment != null) {
-                actions.addAll(battleEquipment.getActions(this));
-            }
-        }
-        for (final BattleItem battleItem : inventory) {
-            actions.add(battleItem.useAction(this));
-        }
-        return actions;
-    }
-
     public boolean addEffect(final EntityEffectFactory factory) {
         return effects.add(factory, this);
     }
