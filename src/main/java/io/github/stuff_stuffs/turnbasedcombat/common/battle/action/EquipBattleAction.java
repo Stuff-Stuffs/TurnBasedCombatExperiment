@@ -7,21 +7,25 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleParticipantHan
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipment;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentType;
 
 public final class EquipBattleAction extends BattleAction {
     public static final Codec<EquipBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleParticipantHandle.CODEC.fieldOf("handle").forGetter(action -> action.handle),
+            BattleEquipmentSlot.REGISTRY.fieldOf("slot").forGetter(action -> action.slot),
             BattleEquipmentType.CODEC.fieldOf("equipment").forGetter(action -> action.equipment),
-            Codec.INT.fieldOf("slot").forGetter(action -> action.slot)
+            Codec.INT.fieldOf("slot").forGetter(action -> action.inventorySlot)
     ).apply(instance, EquipBattleAction::new));
+    private final BattleEquipmentSlot slot;
     private final BattleEquipment equipment;
-    private final int slot;
+    private final int inventorySlot;
 
-    public EquipBattleAction(final BattleParticipantHandle handle, final BattleEquipment equipment, final int slot) {
+    public EquipBattleAction(final BattleParticipantHandle handle, BattleEquipmentSlot slot, final BattleEquipment equipment, final int inventorySlot) {
         super(handle);
-        this.equipment = equipment;
         this.slot = slot;
+        this.equipment = equipment;
+        this.inventorySlot = inventorySlot;
     }
 
     @Override
@@ -30,11 +34,11 @@ public final class EquipBattleAction extends BattleAction {
         if (participant == null) {
             throw new RuntimeException();
         }
-        final BattleEquipment old = participant.getEquiped(equipment.getType());
-        if (participant.equip(equipment)) {
-            participant.getInventory().setSlot(slot, null);
+        final BattleEquipment old = participant.getEquiped(slot);
+        if (participant.equip(slot, equipment)) {
+            participant.getInventory().setSlot(inventorySlot, null);
             if (old != null) {
-                participant.getInventory().setSlot(slot, old.toBattleItem());
+                participant.getInventory().setSlot(inventorySlot, old.toBattleItem());
             }
         }
     }

@@ -4,10 +4,12 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityStateVi
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.action.EntityAction;
 import net.minecraft.item.ItemStack;
 
+import java.util.Collection;
+
 public interface BattleItem {
     BattleItemType getType();
 
     ItemStack toItemStack();
 
-    EntityAction useAction(EntityStateView entityState);
+    Collection<EntityAction> useAction(EntityStateView entityState);
 }

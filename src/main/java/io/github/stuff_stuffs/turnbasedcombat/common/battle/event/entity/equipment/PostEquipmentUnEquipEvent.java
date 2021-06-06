@@ -2,7 +2,8 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.event.entity.equipm
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.EntityState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipment;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentSlot;
 
 public interface PostEquipmentUnEquipEvent {
-    void onUnEquip(EntityState state, BattleEquipment equipment);
+    void onUnEquip(EntityState state, BattleEquipmentSlot slot, BattleEquipment equipment);
 }

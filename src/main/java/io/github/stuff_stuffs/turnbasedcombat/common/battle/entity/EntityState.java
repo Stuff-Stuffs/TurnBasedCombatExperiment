@@ -14,6 +14,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.Entity
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectFactory;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.effect.EntityEffectType;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipment;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.equipment.BattleEquipmentType;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.entity.inventory.BattleItem;
@@ -145,28 +146,28 @@ public final class EntityState implements EntityStateView {
     }
 
     private void populateEventHolders() {
-        putEvent(PreEquipmentEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, equipment) -> {
+        putEvent(PreEquipmentEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, slot, equipment) -> {
             boolean ret = false;
             for (final PreEquipmentEquipEvent event : events) {
-                ret |= event.onEquip(state, equipment);
+                ret |= event.onEquip(state, slot, equipment);
             }
             return ret;
         }));
-        putEvent(PostEquipmentEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, equipment) -> {
+        putEvent(PostEquipmentEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, slot, equipment) -> {
             for (final PostEquipmentEquipEvent event : events) {
-                event.onEquip(state, equipment);
+                event.onEquip(state, slot, equipment);
             }
         }));
-        putEvent(PreEquipmentUnEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, equipment) -> {
+        putEvent(PreEquipmentUnEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, slot, equipment) -> {
             boolean ret = false;
             for (final PreEquipmentUnEquipEvent event : events) {
-                ret |= event.onUnEquip(state, equipment);
+                ret |= event.onUnEquip(state, slot, equipment);
             }
             return ret;
         }));
-        putEvent(PostEquipmentUnEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, equipment) -> {
+        putEvent(PostEquipmentUnEquipEvent.class, new EventHolder.BasicEventHolder<>(events -> (state, slot, equipment) -> {
             for (final PostEquipmentUnEquipEvent event : events) {
-                event.onUnEquip(state, equipment);
+                event.onUnEquip(state, slot, equipment);
             }
         }));
         putEvent(PreEntityAddEffect.class, new EventHolder.BasicEventHolder<>(events -> (state, effect) -> {
@@ -319,15 +320,15 @@ public final class EntityState implements EntityStateView {
         return effects.clear(type, this);
     }
 
-    public boolean equip(final BattleEquipment equipment) {
-        return equipmentState.put(equipment, this);
+    public boolean equip(BattleEquipmentSlot slot, final BattleEquipment equipment) {
+        return equipmentState.put(slot, equipment, this);
     }
 
-    public boolean unEquip(final BattleEquipmentType type) {
-        return equipmentState.remove(type, this);
+    public boolean unEquip(final BattleEquipmentSlot slot) {
+        return equipmentState.remove(slot, this);
     }
 
-    public @Nullable BattleEquipment getEquiped(final BattleEquipmentType type) {
+    public @Nullable BattleEquipment getEquiped(final BattleEquipmentSlot type) {
         return equipmentState.get(type);
     }
 
@@ -337,8 +338,8 @@ public final class EntityState implements EntityStateView {
     }
 
     public void initEvents() {
-        for (final BattleEquipmentType type : BattleEquipmentType.REGISTRY) {
-            final BattleEquipment equipment = equipmentState.get(type);
+        for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
+            final BattleEquipment equipment = equipmentState.get(slot);
             if (equipment != null) {
                 equipment.initEvents(this);
             }

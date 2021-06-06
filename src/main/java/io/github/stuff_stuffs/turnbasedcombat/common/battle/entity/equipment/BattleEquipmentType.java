@@ -18,8 +18,7 @@ import java.util.function.Function;
 
 public record BattleEquipmentType(Text name,
                                   boolean canEquipMidBattle,
-                                  Codec<BattleEquipment> codec,
-                                  Function<BattleEntity, BattleEquipment> extractor) {
+                                  Codec<BattleEquipment> codec) {
     public static final Registry<BattleEquipmentType> REGISTRY = FabricRegistryBuilder.createSimple(BattleEquipmentType.class, TurnBasedCombatExperiment.createId("battle_equipment_type")).attribute(RegistryAttribute.SYNCED).buildAndRegister();
     public static final Codec<BattleEquipment> CODEC = new Codec<>() {
         @Override
@@ -45,8 +44,4 @@ public record BattleEquipmentType(Text name,
             return type.codec().decode(ops, map.get("data"));
         }
     };
-
-    public @Nullable BattleEquipment applyExtractor(final BattleEntity entity) {
-        return extractor.apply(entity);
-    }
 }
