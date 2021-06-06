@@ -89,9 +89,9 @@ public final class ServerBattleWorld implements BattleWorld {
 
     @Override
     public @Nullable Battle getBattle(final BattleHandle handle) {
-        final Battle battle = battles.get(handle.id());
+        final Battle battle = battles.get(handle);
         if (battle == null) {
-            return endedBattles.get(handle.id());
+            return endedBattles.get(handle);
         }
         return battle;
     }
