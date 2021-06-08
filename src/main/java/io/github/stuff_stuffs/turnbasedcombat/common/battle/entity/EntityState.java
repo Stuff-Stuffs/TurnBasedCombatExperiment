@@ -328,6 +328,7 @@ public final class EntityState implements EntityStateView {
         return equipmentState.remove(slot, this);
     }
 
+    @Override
     public @Nullable BattleEquipment getEquiped(final BattleEquipmentSlot type) {
         return equipmentState.get(type);
     }
