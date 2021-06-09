@@ -7,13 +7,12 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public interface EventHolder<T> {
 
     Handle register(T listener);
-
-    void unregister(Handle handle);
 
     T invoker();
 
@@ -34,11 +33,10 @@ public interface EventHolder<T> {
             final int id = nextId++;
             events.put(id, listener);
             invoker = factory.apply(events.values());
-            return new Handle(this, id);
+            return new Handle(this, id, this::unregister);
         }
 
-        @Override
-        public void unregister(final Handle handle) {
+        private void unregister(final Handle handle) {
             if (handle.holder != this) {
                 throw new RuntimeException();
             }
@@ -75,11 +73,10 @@ public interface EventHolder<T> {
             sorted.sort(comparator);
             events.put(id, listener);
             invoker = factory.apply(sorted);
-            return new Handle(this, id);
+            return new Handle(this, id, this::unregister);
         }
 
-        @Override
-        public void unregister(final Handle handle) {
+        private void unregister(final Handle handle) {
             if (handle.holder != this) {
                 throw new RuntimeException();
             }
@@ -100,10 +97,12 @@ public interface EventHolder<T> {
     class Handle {
         private final EventHolder<?> holder;
         private final int id;
+        private final Consumer<Handle> destroyer;
         private boolean destroyed = false;
 
-        private Handle(final EventHolder<?> holder, final int id) {
+        private Handle(final EventHolder<?> holder, final int id, Consumer<Handle> destroyer) {
             this.holder = holder;
+            this.destroyer = destroyer;
             this.id = id;
         }
 
@@ -113,7 +112,7 @@ public interface EventHolder<T> {
 
         public void destroy() {
             if (!destroyed) {
-                holder.unregister(this);
+                destroyer.accept(this);
                 destroyed = true;
             }
         }

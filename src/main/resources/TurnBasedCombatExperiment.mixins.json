@@ -4,12 +4,8 @@
   "package": "io.github.stuff_stuffs.turnbasedcombat.mixin.impl",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "MixinMinecraftClient",
-    "MixinPlayerEntity"
   ],
   "client": [
-    "MixinClientPlayerEntity",
-    "MixinClientWorld"
   ],
   "injectors": {
     "defaultRequire": 1
