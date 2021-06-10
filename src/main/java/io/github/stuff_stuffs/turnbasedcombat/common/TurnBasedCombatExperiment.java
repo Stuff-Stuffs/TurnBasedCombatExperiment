@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common;
 
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.damage.BattleDamageType;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.EntityTypes;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.Network;
 import net.fabricmc.api.ModInitializer;
@@ -16,6 +17,7 @@ public class TurnBasedCombatExperiment implements ModInitializer {
     public void onInitialize() {
         EntityTypes.init();
         Network.init();
+        BattleDamageType.init();
     }
 
     public static int getMaxTurnTime() {
