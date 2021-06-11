@@ -21,17 +21,17 @@ public interface MutableEventHolder<T, V> extends EventHolder<T, V> {
         private int nextId = 0;
         private T invoker;
 
-        public BasicEventHolder(final Class<T> clazz, final Function<Collection<T>, T> factory) {
-            this.clazz = clazz;
+        public BasicEventHolder(final EventKey<T, V> key, final Function<Collection<T>, T> factory) {
+            clazz = key.type();
             this.factory = factory;
             viewConverter = null;
             events = new Int2ReferenceLinkedOpenHashMap<>();
             invoker = factory.apply(events.values());
         }
 
-        public BasicEventHolder(final Class<T> clazz, @Nullable final Function<V, T> viewConverter, final Function<Collection<T>, T> factory) {
+        public BasicEventHolder(final EventKey<T, V> key, @Nullable final Function<V, T> viewConverter, final Function<Collection<T>, T> factory) {
             this.viewConverter = viewConverter;
-            this.clazz = clazz;
+            clazz = key.type();
             events = new Int2ReferenceLinkedOpenHashMap<>();
             this.factory = factory;
             invoker = factory.apply(events.values());
@@ -80,13 +80,13 @@ public interface MutableEventHolder<T, V> extends EventHolder<T, V> {
         private int nextId = 0;
         private T invoker;
 
-        public SortedEventHolder(final Class<T> clazz, final Function<Collection<T>, T> factory, final Comparator<? super T> comparator) {
-            this(clazz, null, factory, comparator);
+        public SortedEventHolder(final EventKey<T, V> key, final Function<Collection<T>, T> factory, final Comparator<? super T> comparator) {
+            this(key, null, factory, comparator);
         }
 
-        public SortedEventHolder(final Class<T> clazz, @Nullable final Function<V, T> viewConverter, final Function<Collection<T>, T> factory, final Comparator<? super T> comparator) {
+        public SortedEventHolder(final EventKey<T, V> key, @Nullable final Function<V, T> viewConverter, final Function<Collection<T>, T> factory, final Comparator<? super T> comparator) {
             events = new Int2ReferenceLinkedOpenHashMap<>();
-            this.clazz = clazz;
+            clazz = key.type();
             this.viewConverter = viewConverter;
             this.comparator = comparator;
             sorted = new ReferenceArrayList<>();

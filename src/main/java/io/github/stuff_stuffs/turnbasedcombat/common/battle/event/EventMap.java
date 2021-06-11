@@ -25,14 +25,21 @@ public final class EventMap {
         }
     }
 
-    public <T, V> @Nullable MutableEventHolder<T, V> getMut(final EventKey<T, V> key) {
-        return (MutableEventHolder<T, V>) mutEventMap.get(key);
+    public <T, V> MutableEventHolder<T, V> getMut(final EventKey<T, V> key) {
+        final MutableEventHolder<T, V> holder = (MutableEventHolder<T, V>) mutEventMap.get(key);
+        if(holder==null) {
+            throw new RuntimeException("Unknown event key: " + key);
+        }
+        return holder;
     }
 
-    public <T, V> @Nullable EventHolder<T, V> get(final EventKey<T, V> key) {
+    public <T, V> EventHolder<T, V> get(final EventKey<T, V> key) {
         EventHolder<?, ?> holder = mutEventMap.get(key);
         if (holder == null) {
             holder = eventMap.get(key);
+        }
+        if(holder==null) {
+            throw new RuntimeException("Unknown event key: " + key);
         }
         return (EventHolder<T, V>) holder;
     }

@@ -29,7 +29,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     }
 
     private void registerEvents() {
-        eventMap.register(PRE_EQUIPMENT_CHANGE_EVENT, new MutableEventHolder.BasicEventHolder<>(PreEquipmentChangeEvent.Mut.class, view -> (state, slot, oldEquipment, newEquipment) -> {
+        eventMap.register(PRE_EQUIPMENT_CHANGE_EVENT, new MutableEventHolder.BasicEventHolder<>(PRE_EQUIPMENT_CHANGE_EVENT, view -> (state, slot, oldEquipment, newEquipment) -> {
             view.onEquipmentChange(state, slot, oldEquipment, newEquipment);
             return false;
         }, events -> (state, slot, oldEquipment, newEquipment) -> {
@@ -39,7 +39,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             }
             return canceled;
         }));
-        eventMap.register(POST_EQUIPMENT_CHANGE_EVENT, new MutableEventHolder.BasicEventHolder<>(PostEquipmentChangeEvent.Mut.class, view -> view::onEquipmentChange, events -> (state, slot, oldEquipment, newEquipment) -> {
+        eventMap.register(POST_EQUIPMENT_CHANGE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_EQUIPMENT_CHANGE_EVENT, view -> view::onEquipmentChange, events -> (state, slot, oldEquipment, newEquipment) -> {
             for (final PostEquipmentChangeEvent.Mut event : events) {
                 event.onEquipmentChange(state, slot, oldEquipment, newEquipment);
             }
