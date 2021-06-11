@@ -1,12 +1,22 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 
+import com.mojang.serialization.Codec;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
 
 import java.util.List;
 
 public final class Battle {
+    public static final Codec<Battle> CODEC = BattleTimeline.CODEC.xmap(Battle::new, battle -> battle.timeline);
     private BattleState state;
     private final BattleTimeline timeline;
+
+    private Battle(final BattleTimeline timeline) {
+        this.timeline = timeline;
+        state = new BattleState();
+        for (final BattleAction<?> action : timeline) {
+            action.applyToState(state);
+        }
+    }
 
     public Battle() {
         state = new BattleState();
