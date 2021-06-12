@@ -71,10 +71,12 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         return equipmentState.equip(this, slot, equipment);
     }
 
+    @Override
     public Team getTeam() {
         return team;
     }
 
+    @Override
     public BattleParticipantHandle getHandle() {
         return handle;
     }

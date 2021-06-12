@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventKey;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PostEquipmentChangeEvent;
@@ -13,4 +14,8 @@ public interface BattleParticipantStateView {
     BattleStateView getBattleState();
 
     <T, V> EventHolder<T, V> getEvent(EventKey<T, V> key);
+
+    Team getTeam();
+
+    BattleParticipantHandle getHandle();
 }
