@@ -5,6 +5,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventKey;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventMap;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.MutableEventHolder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PostParticipantJoinEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PostParticipantLeaveEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PreParticipantJoinEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PreParticipantLeaveEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantHandle;
@@ -55,6 +56,11 @@ public final class BattleState implements BattleStateView {
                 canceled |= event.onParticipantLeave(battleState, participantState);
             }
             return canceled;
+        }));
+        eventMap.register(POST_PARTICIPANT_LEAVE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_PARTICIPANT_LEAVE_EVENT, view -> view::onParticipantLeave, events -> (battleState, participantState) -> {
+            for (PostParticipantLeaveEvent.Mut event : events) {
+                event.onParticipantLeave(battleState, participantState);
+            }
         }));
     }
 
