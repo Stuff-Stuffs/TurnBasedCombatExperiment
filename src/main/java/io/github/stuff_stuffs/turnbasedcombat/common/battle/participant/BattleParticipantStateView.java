@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.Pr
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantItemStack;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStat;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -31,4 +32,6 @@ public interface BattleParticipantStateView {
     Iterator<Pair<BattleParticipantItemStack, BattleParticipantInventoryHandle>> getInventoryIterator();
 
     double getStat(BattleParticipantStat stat);
+
+    BlockPos getPos();
 }

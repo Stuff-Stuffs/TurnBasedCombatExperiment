@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PrePart
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PreParticipantLeaveEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.world.BattleBounds;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,10 +21,12 @@ public final class BattleState implements BattleStateView {
     private final Map<BattleParticipantHandle, BattleParticipantState> participants;
     private final BattleHandle handle;
     private final EventMap eventMap;
+    private final BattleBounds bounds;
     private boolean ended;
 
-    public BattleState(final BattleHandle handle) {
+    public BattleState(final BattleHandle handle, final BattleBounds bounds) {
         this.handle = handle;
+        this.bounds = bounds;
         participants = new Object2ObjectOpenHashMap<>();
         eventMap = new EventMap();
         ended = false;
@@ -58,7 +61,7 @@ public final class BattleState implements BattleStateView {
             return canceled;
         }));
         eventMap.register(POST_PARTICIPANT_LEAVE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_PARTICIPANT_LEAVE_EVENT, view -> view::onParticipantLeave, events -> (battleState, participantState) -> {
-            for (PostParticipantLeaveEvent.Mut event : events) {
+            for (final PostParticipantLeaveEvent.Mut event : events) {
                 event.onParticipantLeave(battleState, participantState);
             }
         }));
@@ -71,6 +74,7 @@ public final class BattleState implements BattleStateView {
 
     public boolean join(final Function<BattleHandle, BattleParticipantState> func) {
         final BattleParticipantState state = func.apply(handle);
+        state.setPos(bounds.getNearest(state.getPos()));
         if (participants.containsKey(state.getHandle())) {
             throw new RuntimeException("Duplicate handles attempted to join battle");
         }

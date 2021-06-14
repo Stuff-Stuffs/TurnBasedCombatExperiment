@@ -3,30 +3,35 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.world.BattleBounds;
 
 import java.util.List;
 
 public final class Battle {
     public static final Codec<Battle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleHandle.CODEC.fieldOf("handle").forGetter(battle -> battle.handle),
-            BattleTimeline.CODEC.fieldOf("timeline").forGetter(battle -> battle.timeline)
+            BattleTimeline.CODEC.fieldOf("timeline").forGetter(battle -> battle.timeline),
+            BattleBounds.CODEC.fieldOf("bounds").forGetter(battle -> battle.bounds)
     ).apply(instance, Battle::new));
     private BattleState state;
     private final BattleHandle handle;
     private final BattleTimeline timeline;
+    private final BattleBounds bounds;
 
-    private Battle(final BattleHandle handle, final BattleTimeline timeline) {
+    private Battle(final BattleHandle handle, final BattleTimeline timeline, final BattleBounds bounds) {
         this.timeline = timeline;
         this.handle = handle;
-        state = new BattleState(this.handle);
+        state = new BattleState(this.handle, bounds);
+        this.bounds = bounds;
         for (final BattleAction<?> action : timeline) {
             action.applyToState(state);
         }
     }
 
-    public Battle(final BattleHandle handle) {
+    public Battle(final BattleHandle handle, final BattleBounds bounds) {
         this.handle = handle;
-        state = new BattleState(this.handle);
+        state = new BattleState(this.handle, bounds);
+        this.bounds = bounds;
         timeline = new BattleTimeline();
     }
 
@@ -48,7 +53,7 @@ public final class Battle {
         for (final BattleAction<?> action : actions) {
             timeline.push(action);
         }
-        state = new BattleState(handle);
+        state = new BattleState(handle, bounds);
         for (final BattleAction<?> action : timeline) {
             action.applyToState(state);
         }

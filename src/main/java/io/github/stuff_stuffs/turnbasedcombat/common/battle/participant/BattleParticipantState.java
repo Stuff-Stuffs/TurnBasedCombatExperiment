@@ -22,6 +22,8 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.Ba
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStatModifiers;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStats;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -41,6 +43,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private final BattleEquipmentState equipmentState;
     private final BattleParticipantInventory inventory;
     private final BattleParticipantStats stats;
+    private BlockPos pos;
     private BattleState battleState;
 
     private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEquipmentState equipmentState, final BattleParticipantInventory inventory, final BattleParticipantStats stats) {
@@ -57,6 +60,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     public BattleParticipantState(final BattleParticipantHandle handle, final BattleEntity entity) {
         this.handle = handle;
+        pos = ((Entity) entity).getBlockPos();
         team = entity.getTeam();
         eventMap = new EventMap();
         registerEvents();
@@ -151,5 +155,14 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     @Override
     public double getStat(final BattleParticipantStat stat) {
         return stats.calculate(stat, battleState, this);
+    }
+
+    public void setPos(BlockPos pos) {
+        this.pos = pos;
+    }
+
+    @Override
+    public BlockPos getPos() {
+        return pos;
     }
 }
