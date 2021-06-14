@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventKey;
@@ -15,6 +16,11 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipmen
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventory;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantItemStack;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStat;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStatModifier;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStatModifiers;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStats;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -26,10 +32,10 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private final Team team;
     private final BattleEquipmentState equipmentState;
     private final BattleParticipantInventory inventory;
+    private final BattleParticipantStats stats;
     private BattleState battleState;
 
-
-    public BattleParticipantState(final BattleParticipantHandle handle, final Team team) {
+    public BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEntity entity) {
         this.handle = handle;
         this.team = team;
         eventMap = new EventMap();
@@ -37,6 +43,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         equipmentState = new BattleEquipmentState();
         //TODO initialize inventory
         inventory = new BattleParticipantInventory();
+        stats = new BattleParticipantStats(entity);
     }
 
     private void registerEvents() {
@@ -116,5 +123,13 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     @Override
     public Iterator<Pair<BattleParticipantItemStack, BattleParticipantInventoryHandle>> getInventoryIterator() {
         return StreamSupport.stream(inventory.spliterator(), false).map(entry -> Pair.of(entry.getValue(), new BattleParticipantInventoryHandle(handle, entry.getIntKey()))).iterator();
+    }
+
+    public BattleParticipantStatModifiers.Handle addStatModifier(final BattleParticipantStat stat, final BattleParticipantStatModifier modifier) {
+        return stats.modify(stat, modifier);
+    }
+
+    public double getStat(final BattleParticipantStat stat) {
+        return stats.calculate(stat, battleState, this);
     }
 }
