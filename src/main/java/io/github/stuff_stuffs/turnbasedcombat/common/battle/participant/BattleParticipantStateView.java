@@ -6,6 +6,9 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventKey;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PostEquipmentChangeEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PreEquipmentChangeEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventoryHandle;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public interface BattleParticipantStateView {
     EventKey<PreEquipmentChangeEvent.Mut, PreEquipmentChangeEvent> PRE_EQUIPMENT_CHANGE_EVENT = new EventKey<>(PreEquipmentChangeEvent.Mut.class, PreEquipmentChangeEvent.class);
@@ -18,4 +21,6 @@ public interface BattleParticipantStateView {
     Team getTeam();
 
     BattleParticipantHandle getHandle();
+
+    @Nullable BattleParticipantItemStack getItemStack(BattleParticipantInventoryHandle handle);
 }

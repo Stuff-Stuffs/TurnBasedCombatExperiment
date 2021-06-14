@@ -11,12 +11,17 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.Pr
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipmentState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventory;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventoryHandle;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public final class BattleParticipantState implements BattleParticipantStateView {
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
     private final Team team;
     private final BattleEquipmentState equipmentState;
+    private final BattleParticipantInventory inventory;
     private BattleState battleState;
 
 
@@ -26,6 +31,8 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         eventMap = new EventMap();
         registerEvents();
         equipmentState = new BattleEquipmentState();
+        //TODO initialize inventory
+        inventory = new BattleParticipantInventory();
     }
 
     private void registerEvents() {
@@ -79,5 +86,26 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     @Override
     public BattleParticipantHandle getHandle() {
         return handle;
+    }
+
+    @Override
+    public @Nullable BattleParticipantItemStack getItemStack(final BattleParticipantInventoryHandle handle) {
+        if (handle.handle().equals(this.handle)) {
+            return inventory.get(handle.id());
+        } else {
+            throw new RuntimeException();
+        }
+    }
+
+    public BattleParticipantInventoryHandle giveItems(final BattleParticipantItemStack stack) {
+        return new BattleParticipantInventoryHandle(handle, inventory.give(stack));
+    }
+
+    public int takeItems(final BattleParticipantInventoryHandle handle, final int amount) {
+        if (handle.handle().equals(this.handle)) {
+            return inventory.take(handle.id(), amount);
+        } else {
+            throw new RuntimeException();
+        }
     }
 }
