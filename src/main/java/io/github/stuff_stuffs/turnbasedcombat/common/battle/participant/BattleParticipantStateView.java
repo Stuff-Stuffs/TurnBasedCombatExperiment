@@ -9,6 +9,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.Po
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PreEquipmentChangeEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantItemStack;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStat;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -28,4 +29,6 @@ public interface BattleParticipantStateView {
     @Nullable BattleParticipantItemStack getItemStack(BattleParticipantInventoryHandle handle);
 
     Iterator<Pair<BattleParticipantItemStack, BattleParticipantInventoryHandle>> getInventoryIterator();
+
+    double getStat(BattleParticipantStat stat);
 }

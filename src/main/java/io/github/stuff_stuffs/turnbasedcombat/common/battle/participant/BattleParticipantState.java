@@ -1,8 +1,9 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventKey;
@@ -27,6 +28,13 @@ import java.util.Iterator;
 import java.util.stream.StreamSupport;
 
 public final class BattleParticipantState implements BattleParticipantStateView {
+    public static final Codec<BattleParticipantState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BattleParticipantHandle.CODEC.fieldOf("handle").forGetter(state -> state.handle),
+            Team.CODEC.fieldOf("team").forGetter(state -> state.team),
+            BattleEquipmentState.CODEC.fieldOf("equipment").forGetter(state -> state.equipmentState),
+            BattleParticipantInventory.CODEC.fieldOf("inventory").forGetter(state -> state.inventory),
+            BattleParticipantStats.CODEC.fieldOf("stats").forGetter(state -> state.stats)
+    ).apply(instance, BattleParticipantState::new));
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
     private final Team team;
@@ -35,14 +43,25 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private final BattleParticipantStats stats;
     private BattleState battleState;
 
-    public BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEntity entity) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEquipmentState equipmentState, final BattleParticipantInventory inventory, final BattleParticipantStats stats) {
         this.handle = handle;
         this.team = team;
         eventMap = new EventMap();
         registerEvents();
-        equipmentState = new BattleEquipmentState();
+        this.equipmentState = equipmentState;
         //TODO initialize inventory
-        inventory = new BattleParticipantInventory();
+        this.inventory = inventory;
+        this.stats = stats;
+    }
+
+
+    public BattleParticipantState(final BattleParticipantHandle handle, final BattleEntity entity) {
+        this.handle = handle;
+        team = entity.getTeam();
+        eventMap = new EventMap();
+        registerEvents();
+        equipmentState = new BattleEquipmentState();
+        inventory = new BattleParticipantInventory(entity);
         stats = new BattleParticipantStats(entity);
     }
 
@@ -129,6 +148,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         return stats.modify(stat, modifier);
     }
 
+    @Override
     public double getStat(final BattleParticipantStat stat) {
         return stats.calculate(stat, battleState, this);
     }

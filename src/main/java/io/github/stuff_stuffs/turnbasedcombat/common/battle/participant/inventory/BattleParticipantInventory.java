@@ -1,8 +1,11 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory;
 
 import com.mojang.serialization.Codec;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.item.BattleItem;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -17,8 +20,13 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         stacks = new Int2ReferenceOpenHashMap<>(map);
     }
 
-    public BattleParticipantInventory() {
+    public BattleParticipantInventory(final BattleEntity entity) {
         stacks = new Int2ReferenceOpenHashMap<>();
+        for (final ItemStack itemStack : entity.getBattleAccessibleInventory()) {
+            if (itemStack.getItem() instanceof BattleItem battleItem) {
+                give(battleItem.toBattleItem(itemStack));
+            }
+        }
     }
 
     public int give(final BattleParticipantItemStack stack) {
