@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
@@ -9,6 +10,8 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.Pr
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Iterator;
 
 public interface BattleParticipantStateView {
     EventKey<PreEquipmentChangeEvent.Mut, PreEquipmentChangeEvent> PRE_EQUIPMENT_CHANGE_EVENT = new EventKey<>(PreEquipmentChangeEvent.Mut.class, PreEquipmentChangeEvent.class);
@@ -23,4 +26,6 @@ public interface BattleParticipantStateView {
     BattleParticipantHandle getHandle();
 
     @Nullable BattleParticipantItemStack getItemStack(BattleParticipantInventoryHandle handle);
+
+    Iterator<Pair<BattleParticipantItemStack, BattleParticipantInventoryHandle>> getInventoryIterator();
 }

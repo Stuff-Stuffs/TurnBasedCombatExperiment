@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory;
 
-import com.google.common.collect.Iterators;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
@@ -8,8 +7,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Spliterator;
 
-public final class BattleParticipantInventory implements Iterable<BattleParticipantItemStack> {
+public final class BattleParticipantInventory implements Iterable<Int2ReferenceMap.Entry<BattleParticipantItemStack>> {
     public static final Codec<BattleParticipantInventory> CODEC = Codec.unboundedMap(Codec.INT, BattleParticipantItemStack.CODEC).xmap(BattleParticipantInventory::new, inventory -> inventory.stacks);
     private final Int2ReferenceMap<BattleParticipantItemStack> stacks;
 
@@ -61,7 +61,12 @@ public final class BattleParticipantInventory implements Iterable<BattleParticip
     }
 
     @Override
-    public Iterator<BattleParticipantItemStack> iterator() {
-        return Iterators.unmodifiableIterator(stacks.values().iterator());
+    public Iterator<Int2ReferenceMap.Entry<BattleParticipantItemStack>> iterator() {
+        return stacks.int2ReferenceEntrySet().iterator();
+    }
+
+    @Override
+    public Spliterator<Int2ReferenceMap.Entry<BattleParticipantItemStack>> spliterator() {
+        return stacks.int2ReferenceEntrySet().spliterator();
     }
 }

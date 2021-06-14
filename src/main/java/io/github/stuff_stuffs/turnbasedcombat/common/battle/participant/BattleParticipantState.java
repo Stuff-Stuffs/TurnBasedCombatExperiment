@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
@@ -15,6 +16,9 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventor
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Iterator;
+import java.util.stream.StreamSupport;
 
 public final class BattleParticipantState implements BattleParticipantStateView {
     private final EventMap eventMap;
@@ -107,5 +111,10 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         } else {
             throw new RuntimeException();
         }
+    }
+
+    @Override
+    public Iterator<Pair<BattleParticipantItemStack, BattleParticipantInventoryHandle>> getInventoryIterator() {
+        return StreamSupport.stream(inventory.spliterator(), false).map(entry -> Pair.of(entry.getValue(), new BattleParticipantInventoryHandle(handle, entry.getIntKey()))).iterator();
     }
 }
