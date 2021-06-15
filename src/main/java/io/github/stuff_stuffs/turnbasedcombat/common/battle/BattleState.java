@@ -118,4 +118,9 @@ public final class BattleState implements BattleStateView {
     public <T, V> MutableEventHolder<T, V> getEventMut(final EventKey<T, V> key) {
         return eventMap.getMut(key);
     }
+
+    @Override
+    public BattleBounds getBounds() {
+        return bounds;
+    }
 }

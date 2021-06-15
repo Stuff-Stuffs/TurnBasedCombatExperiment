@@ -8,6 +8,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PrePart
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PreParticipantLeaveEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.world.BattleBounds;
 import org.jetbrains.annotations.Nullable;
 
 public interface BattleStateView {
@@ -21,4 +22,6 @@ public interface BattleStateView {
     boolean isEnded();
 
     <T, V> EventHolder<T, V> getEvent(EventKey<T, V> key);
+
+    BattleBounds getBounds();
 }

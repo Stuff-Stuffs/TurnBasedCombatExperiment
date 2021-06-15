@@ -157,8 +157,8 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         return stats.calculate(stat, battleState, this);
     }
 
-    public void setPos(BlockPos pos) {
-        this.pos = pos;
+    public void setPos(final BlockPos pos) {
+        this.pos = battleState.getBounds().getNearest(pos);
     }
 
     @Override

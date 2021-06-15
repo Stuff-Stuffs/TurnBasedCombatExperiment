@@ -36,6 +36,7 @@ public final class BattleActionRegistry {
         }
     };
     public static final Type<ParticipantJoinBattleAction> PARTICIPANT_JOIN_BATTLE_ACTION = new Type<>(ParticipantJoinBattleAction.CODEC);
+    public static final Type<MoveBattleAction> MOVE_BATTLE_ACTION = new Type<>(MoveBattleAction.CODEC);
 
     public static final class Type<T extends BattleAction<T>> {
         public final Codec<T> codec;
@@ -47,6 +48,7 @@ public final class BattleActionRegistry {
 
     public static void init() {
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("join"), PARTICIPANT_JOIN_BATTLE_ACTION);
+        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("move"), MOVE_BATTLE_ACTION);
     }
 
     private BattleActionRegistry() {
