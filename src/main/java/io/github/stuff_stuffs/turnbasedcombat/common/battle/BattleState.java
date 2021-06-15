@@ -73,7 +73,13 @@ public final class BattleState implements BattleStateView {
     }
 
     public boolean join(final Function<BattleHandle, BattleParticipantState> func) {
-        final BattleParticipantState state = func.apply(handle);
+        return join(func.apply(handle));
+    }
+
+    public boolean join(final BattleParticipantState state) {
+        if (!state.getHandle().battleId().equals(handle)) {
+            throw new RuntimeException();
+        }
         state.setPos(bounds.getNearest(state.getPos()));
         if (participants.containsKey(state.getHandle())) {
             throw new RuntimeException("Duplicate handles attempted to join battle");

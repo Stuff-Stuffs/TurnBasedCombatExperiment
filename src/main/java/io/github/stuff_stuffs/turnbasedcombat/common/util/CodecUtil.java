@@ -100,6 +100,14 @@ public final class CodecUtil {
         });
     }
 
+    public static <U> U copy(final U val, final Codec<U> codec) {
+        return codec.parse(NbtOps.INSTANCE, codec.encodeStart(NbtOps.INSTANCE, val).getOrThrow(false, s -> {
+            throw new RuntimeException(s);
+        })).getOrThrow(false, s -> {
+            throw new RuntimeException(s);
+        });
+    }
+
     private CodecUtil() {
     }
 }
