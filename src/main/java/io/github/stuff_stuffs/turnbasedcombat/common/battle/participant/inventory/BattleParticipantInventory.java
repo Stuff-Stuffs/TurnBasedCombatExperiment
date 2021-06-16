@@ -22,7 +22,7 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
 
     public BattleParticipantInventory(final BattleEntity entity) {
         stacks = new Int2ReferenceOpenHashMap<>();
-        for (final ItemStack itemStack : entity.getBattleAccessibleInventory()) {
+        for (final ItemStack itemStack : entity.tbcex_getInventory()) {
             if (itemStack.getItem() instanceof BattleItem battleItem) {
                 give(battleItem.toBattleItem(itemStack));
             }

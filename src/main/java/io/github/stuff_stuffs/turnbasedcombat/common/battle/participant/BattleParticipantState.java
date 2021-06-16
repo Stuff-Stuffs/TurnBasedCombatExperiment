@@ -54,7 +54,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         eventMap = new EventMap();
         registerEvents();
         this.equipmentState = equipmentState;
-        //TODO initialize inventory
         this.inventory = inventory;
         this.stats = stats;
         this.health = health;

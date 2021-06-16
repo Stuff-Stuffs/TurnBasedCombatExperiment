@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 public interface BattleEntity {
     Team getTeam();
 
-    Iterable<ItemStack> getBattleAccessibleInventory();
+    Iterable<ItemStack> tbcex_getInventory();
 
     double tbcex_getMaxHealth();
 
