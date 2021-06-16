@@ -36,7 +36,8 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             BattleEquipmentState.CODEC.fieldOf("equipment").forGetter(state -> state.equipmentState),
             BattleParticipantInventory.CODEC.fieldOf("inventory").forGetter(state -> state.inventory),
             BattleParticipantStats.CODEC.fieldOf("stats").forGetter(state -> state.stats),
-            Codec.DOUBLE.fieldOf("health").forGetter(state -> state.health)
+            Codec.DOUBLE.fieldOf("health").forGetter(state -> state.health),
+            BlockPos.CODEC.fieldOf("pos").forGetter(state -> state.pos)
     ).apply(instance, BattleParticipantState::new));
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
@@ -48,7 +49,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private BlockPos pos;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEquipmentState equipmentState, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEquipmentState equipmentState, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health, BlockPos pos) {
         this.handle = handle;
         this.team = team;
         eventMap = new EventMap();
@@ -57,6 +58,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         this.inventory = inventory;
         this.stats = stats;
         this.health = health;
+        this.pos = pos;
     }
 
 
