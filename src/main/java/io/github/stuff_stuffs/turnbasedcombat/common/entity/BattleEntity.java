@@ -7,4 +7,16 @@ public interface BattleEntity {
     Team getTeam();
 
     Iterable<ItemStack> getBattleAccessibleInventory();
+
+    double tbcex_getMaxHealth();
+
+    double tbcex_getCurrentHealth();
+
+    double tbcex_getStrength();
+
+    double tbcex_getIntelligence();
+
+    double tbcex_getVitality();
+
+    double tbcex_getDexterity();
 }

@@ -35,7 +35,8 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             Team.CODEC.fieldOf("team").forGetter(state -> state.team),
             BattleEquipmentState.CODEC.fieldOf("equipment").forGetter(state -> state.equipmentState),
             BattleParticipantInventory.CODEC.fieldOf("inventory").forGetter(state -> state.inventory),
-            BattleParticipantStats.CODEC.fieldOf("stats").forGetter(state -> state.stats)
+            BattleParticipantStats.CODEC.fieldOf("stats").forGetter(state -> state.stats),
+            Codec.DOUBLE.fieldOf("health").forGetter(state -> state.health)
     ).apply(instance, BattleParticipantState::new));
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
@@ -43,10 +44,11 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private final BattleEquipmentState equipmentState;
     private final BattleParticipantInventory inventory;
     private final BattleParticipantStats stats;
+    private double health;
     private BlockPos pos;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEquipmentState equipmentState, final BattleParticipantInventory inventory, final BattleParticipantStats stats) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEquipmentState equipmentState, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health) {
         this.handle = handle;
         this.team = team;
         eventMap = new EventMap();
@@ -55,6 +57,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         //TODO initialize inventory
         this.inventory = inventory;
         this.stats = stats;
+        this.health = health;
     }
 
 
@@ -67,6 +70,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         equipmentState = new BattleEquipmentState();
         inventory = new BattleParticipantInventory(entity);
         stats = new BattleParticipantStats(entity);
+        health = entity.tbcex_getCurrentHealth();
     }
 
     private void registerEvents() {
@@ -149,7 +153,14 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     }
 
     public BattleParticipantStatModifiers.Handle addStatModifier(final BattleParticipantStat stat, final BattleParticipantStatModifier modifier) {
-        return stats.modify(stat, modifier);
+        final BattleParticipantStatModifiers.Handle handle = stats.modify(stat, modifier);
+        final double maxHealth = stats.calculate(BattleParticipantStat.MAX_HEALTH_STAT, battleState, this);
+        if (maxHealth < 0) {
+            health = 0;
+        } else {
+            health = Math.min(health, maxHealth);
+        }
+        return handle;
     }
 
     @Override
