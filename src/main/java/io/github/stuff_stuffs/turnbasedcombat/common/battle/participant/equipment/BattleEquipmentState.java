@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipme
 import com.mojang.serialization.Codec;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
@@ -17,8 +18,11 @@ public final class BattleEquipmentState {
         this.map = new Reference2ObjectOpenHashMap<>(map);
     }
 
-    public BattleEquipmentState() {
+    public BattleEquipmentState(final BattleEntity entity) {
         map = new Reference2ObjectOpenHashMap<>();
+        for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
+            map.put(slot, slot.extract(entity));
+        }
     }
 
     public boolean equip(final BattleParticipantState state, final BattleEquipmentSlot slot, @Nullable final BattleEquipment equipment) {

@@ -68,7 +68,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         team = entity.getTeam();
         eventMap = new EventMap();
         registerEvents();
-        equipmentState = new BattleEquipmentState();
+        equipmentState = new BattleEquipmentState(entity);
         inventory = new BattleParticipantInventory(entity);
         stats = new BattleParticipantStats(entity);
         health = entity.tbcex_getCurrentHealth();

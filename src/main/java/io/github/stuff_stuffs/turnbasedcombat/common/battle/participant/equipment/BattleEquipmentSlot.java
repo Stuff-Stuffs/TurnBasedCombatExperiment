@@ -16,7 +16,7 @@ public record BattleEquipmentSlot(
 ) {
     public static final Registry<BattleEquipmentSlot> REGISTRY = FabricRegistryBuilder.createSimple(BattleEquipmentSlot.class, TurnBasedCombatExperiment.createId("equipment_slots")).buildAndRegister();
 
-    public @Nullable BattleEquipment applyExtractor(final BattleEntity entity) {
+    public @Nullable BattleEquipment extract(final BattleEntity entity) {
         return extractor.apply(entity);
     }
 }
