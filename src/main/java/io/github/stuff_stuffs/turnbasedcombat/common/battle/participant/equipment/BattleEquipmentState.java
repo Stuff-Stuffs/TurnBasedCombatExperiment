@@ -21,13 +21,17 @@ public final class BattleEquipmentState {
     public BattleEquipmentState(final BattleEntity entity) {
         map = new Reference2ObjectOpenHashMap<>();
         for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
-            map.put(slot, slot.extract(entity));
+            final BattleEquipment extracted = slot.extract(entity);
+            if (extracted!=null && !extracted.canGoIntoSlot(slot)) {
+                throw new RuntimeException();
+            }
+            map.put(slot, extracted);
         }
     }
 
     public boolean equip(final BattleParticipantState state, final BattleEquipmentSlot slot, @Nullable final BattleEquipment equipment) {
         if (equipment != null) {
-            if (slot.type() != equipment.getType()) {
+            if (equipment.canGoIntoSlot(slot)) {
                 throw new IllegalArgumentException();
             }
         }

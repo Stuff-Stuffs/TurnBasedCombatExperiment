@@ -11,7 +11,6 @@ import java.util.function.Function;
 
 public record BattleEquipmentSlot(
         Text name,
-        BattleEquipmentType type,
         Function<BattleEntity, @Nullable BattleEquipment> extractor
 ) {
     public static final Registry<BattleEquipmentSlot> REGISTRY = FabricRegistryBuilder.createSimple(BattleEquipmentSlot.class, TurnBasedCombatExperiment.createId("equipment_slots")).buildAndRegister();
