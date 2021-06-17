@@ -97,6 +97,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             throw new RuntimeException("Tried to set battle of participant already in battle");
         }
         this.battleState = battleState;
+        equipmentState.initEvents(this);
     }
 
     @Override
