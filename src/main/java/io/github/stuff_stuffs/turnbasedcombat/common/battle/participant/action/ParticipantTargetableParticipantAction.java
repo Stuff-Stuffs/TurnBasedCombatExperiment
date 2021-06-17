@@ -5,7 +5,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattlePa
 
 import java.util.List;
 
-public interface TargetableParticipantAction extends ParticipantAction {
+public interface ParticipantTargetableParticipantAction extends ParticipantAction {
     //inclusive
     int getMinTargets();
 
