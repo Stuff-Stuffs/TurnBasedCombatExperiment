@@ -195,10 +195,16 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         final BattleDamagePacket processed = getEvent(PRE_DAMAGE_EVENT).invoker().onDamage(this, packet);
         if (processed.getTotalDamage() > 0.0001) {
             health -= processed.getTotalDamage();
+            health = Math.max(health, 0);
             getEvent(POST_DAMAGE_EVENT).invoker().onDamage(this, packet);
             return processed;
         }
         return null;
+    }
+
+    @Override
+    public double getHealth() {
+        return health;
     }
 
     @Override

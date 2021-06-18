@@ -37,5 +37,7 @@ public interface BattleParticipantStateView {
 
     double getStat(BattleParticipantStat stat);
 
+    double getHealth();
+
     BlockPos getPos();
 }
