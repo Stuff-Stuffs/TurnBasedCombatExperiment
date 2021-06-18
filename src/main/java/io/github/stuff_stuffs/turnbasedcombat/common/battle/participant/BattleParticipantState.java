@@ -5,11 +5,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.damage.BattleDamagePacket;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventKey;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventMap;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.MutableEventHolder;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PostDamageEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PostEquipmentChangeEvent;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PreDamageEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PreEquipmentChangeEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipmentSlot;
@@ -49,7 +52,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private BlockPos pos;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEquipmentState equipmentState, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health, BlockPos pos) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEquipmentState equipmentState, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health, final BlockPos pos) {
         this.handle = handle;
         this.team = team;
         eventMap = new EventMap();
@@ -88,6 +91,20 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         eventMap.register(POST_EQUIPMENT_CHANGE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_EQUIPMENT_CHANGE_EVENT, view -> view::onEquipmentChange, events -> (state, slot, oldEquipment, newEquipment) -> {
             for (final PostEquipmentChangeEvent.Mut event : events) {
                 event.onEquipmentChange(state, slot, oldEquipment, newEquipment);
+            }
+        }));
+        eventMap.register(PRE_DAMAGE_EVENT, new MutableEventHolder.BasicEventHolder<>(PRE_DAMAGE_EVENT, view -> (state, damagePacket) -> {
+            view.onDamage(state, damagePacket);
+            return damagePacket;
+        }, events -> (state, damagePacket) -> {
+            for (final PreDamageEvent.Mut event : events) {
+                damagePacket = event.onDamage(state, damagePacket);
+            }
+            return damagePacket;
+        }));
+        eventMap.register(POST_DAMAGE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_DAMAGE_EVENT, view -> view::onDamage, events -> (state, damagePacket) -> {
+            for (final PostDamageEvent.Mut event : events) {
+                event.onDamage(state, damagePacket);
             }
         }));
     }
@@ -172,6 +189,16 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     public void setPos(final BlockPos pos) {
         this.pos = battleState.getBounds().getNearest(pos);
+    }
+
+    public @Nullable BattleDamagePacket damage(final BattleDamagePacket packet) {
+        final BattleDamagePacket processed = getEvent(PRE_DAMAGE_EVENT).invoker().onDamage(this, packet);
+        if (processed.getTotalDamage() > 0.0001) {
+            health -= processed.getTotalDamage();
+            getEvent(POST_DAMAGE_EVENT).invoker().onDamage(this, packet);
+            return processed;
+        }
+        return null;
     }
 
     @Override
