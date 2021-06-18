@@ -22,7 +22,7 @@ public final class BattleEquipmentState {
         map = new Reference2ObjectOpenHashMap<>();
         for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
             final BattleEquipment extracted = slot.extract(entity);
-            if (extracted!=null && !extracted.canGoIntoSlot(slot)) {
+            if (extracted!=null && !extracted.validSlot(slot)) {
                 throw new RuntimeException();
             }
             map.put(slot, extracted);
@@ -31,7 +31,7 @@ public final class BattleEquipmentState {
 
     public boolean equip(final BattleParticipantState state, final BattleEquipmentSlot slot, @Nullable final BattleEquipment equipment) {
         if (equipment != null) {
-            if (equipment.canGoIntoSlot(slot)) {
+            if (equipment.validSlot(slot)) {
                 throw new IllegalArgumentException();
             }
         }

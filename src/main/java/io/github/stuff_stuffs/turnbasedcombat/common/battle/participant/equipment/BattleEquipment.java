@@ -15,7 +15,7 @@ public interface BattleEquipment {
         return Collections.emptyList();
     }
 
-    boolean canGoIntoSlot(BattleEquipmentSlot slot);
+    boolean validSlot(BattleEquipmentSlot slot);
 
     void initEvents(BattleParticipantState state);
 
