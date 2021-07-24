@@ -100,6 +100,7 @@ public final class BattleState implements BattleStateView {
         if (!getEvent(PRE_PARTICIPANT_LEAVE_EVENT).invoker().onParticipantLeave(this, state)) {
             participants.remove(handle);
             getEvent(POST_PARTICIPANT_LEAVE_EVENT).invoker().onParticipantLeave(this, state);
+            state.leave();
             return true;
         }
         return false;

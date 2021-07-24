@@ -19,7 +19,7 @@ public interface BattleEquipment {
 
     void initEvents(BattleParticipantState state);
 
-    void deinitEvents();
+    void uninitEvents();
 
     BattleEquipmentType getType();
 }

@@ -48,6 +48,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private final BattleEquipmentState equipmentState;
     private final BattleParticipantInventory inventory;
     private final BattleParticipantStats stats;
+    private boolean valid = true;
     private double health;
     private BlockPos pos;
     private BattleState battleState;
@@ -210,5 +211,10 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     @Override
     public BlockPos getPos() {
         return pos;
+    }
+
+    public void leave() {
+        valid = false;
+        equipmentState.uninitEvents();
     }
 }
