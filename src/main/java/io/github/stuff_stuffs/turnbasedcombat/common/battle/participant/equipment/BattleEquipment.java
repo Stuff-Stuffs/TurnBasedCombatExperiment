@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 public interface BattleEquipment {
-    default List<Either<PositionTargetableParticipantAction, ParticipantTargetableParticipantAction>> getActions(final BattleStateView stateView, final BattleParticipantStateView participantViSew) {
+    default List<Either<PositionTargetableParticipantAction, ParticipantTargetableParticipantAction>> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView) {
         return Collections.emptyList();
     }
 
