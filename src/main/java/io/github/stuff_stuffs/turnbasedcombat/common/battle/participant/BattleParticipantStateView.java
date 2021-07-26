@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant;
 
-import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.EventHolder;
@@ -33,7 +32,7 @@ public interface BattleParticipantStateView {
 
     @Nullable BattleParticipantItemStack getItemStack(BattleParticipantInventoryHandle handle);
 
-    Iterator<Pair<BattleParticipantItemStack, BattleParticipantInventoryHandle>> getInventoryIterator();
+    Iterator<BattleParticipantInventoryHandle> getInventoryIterator();
 
     double getStat(BattleParticipantStat stat);
 

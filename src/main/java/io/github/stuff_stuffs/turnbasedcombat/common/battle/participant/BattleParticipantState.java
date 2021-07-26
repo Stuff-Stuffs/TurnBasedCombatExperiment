@@ -168,8 +168,8 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     }
 
     @Override
-    public Iterator<Pair<BattleParticipantItemStack, BattleParticipantInventoryHandle>> getInventoryIterator() {
-        return StreamSupport.stream(inventory.spliterator(), false).map(entry -> Pair.of(entry.getValue(), new BattleParticipantInventoryHandle(handle, entry.getIntKey()))).iterator();
+    public Iterator<BattleParticipantInventoryHandle> getInventoryIterator() {
+        return StreamSupport.stream(inventory.spliterator(), false).map(entry -> new BattleParticipantInventoryHandle(handle, entry.getIntKey())).iterator();
     }
 
     public BattleParticipantStatModifiers.Handle addStatModifier(final BattleParticipantStat stat, final BattleParticipantStatModifier modifier) {
