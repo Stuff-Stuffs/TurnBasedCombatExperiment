@@ -120,34 +120,55 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public BattleState getBattleState() {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         return battleState;
     }
 
     public <T, V> MutableEventHolder<T, V> getEventMut(final EventKey<T, V> key) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         return eventMap.getMut(key);
     }
 
     @Override
     public <T, V> EventHolder<T, V> getEvent(final EventKey<T, V> key) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         return eventMap.get(key);
     }
 
     public boolean equip(final BattleEquipmentSlot slot, final BattleEquipment equipment) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         return equipmentState.equip(this, slot, equipment);
     }
 
     @Override
     public Team getTeam() {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         return team;
     }
 
     @Override
     public BattleParticipantHandle getHandle() {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         return handle;
     }
 
     @Override
     public @Nullable BattleParticipantItemStack getItemStack(final BattleParticipantInventoryHandle handle) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         if (handle.handle().equals(this.handle)) {
             return inventory.get(handle.id());
         } else {
@@ -156,10 +177,16 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     }
 
     public BattleParticipantInventoryHandle giveItems(final BattleParticipantItemStack stack) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         return new BattleParticipantInventoryHandle(handle, inventory.give(stack));
     }
 
     public int takeItems(final BattleParticipantInventoryHandle handle, final int amount) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         if (handle.handle().equals(this.handle)) {
             return inventory.take(handle.id(), amount);
         } else {
@@ -169,10 +196,16 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public Iterator<BattleParticipantInventoryHandle> getInventoryIterator() {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         return StreamSupport.stream(inventory.spliterator(), false).map(entry -> new BattleParticipantInventoryHandle(handle, entry.getIntKey())).iterator();
     }
 
     public BattleParticipantStatModifiers.Handle addStatModifier(final BattleParticipantStat stat, final BattleParticipantStatModifier modifier) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         final BattleParticipantStatModifiers.Handle handle = stats.modify(stat, modifier);
         final double maxHealth = stats.calculate(BattleParticipantStat.MAX_HEALTH_STAT, battleState, this);
         if (maxHealth < 0) {
@@ -185,14 +218,23 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public double getStat(final BattleParticipantStat stat) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         return stats.calculate(stat, battleState, this);
     }
 
     public void setPos(final BlockPos pos) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         this.pos = battleState.getBounds().getNearest(pos);
     }
 
     public @Nullable BattleDamagePacket damage(final BattleDamagePacket packet) {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         final BattleDamagePacket processed = getEvent(PRE_DAMAGE_EVENT).invoker().onDamage(this, packet);
         if (processed.getTotalDamage() > 0.0001) {
             health -= processed.getTotalDamage();
@@ -214,6 +256,9 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     }
 
     public void leave() {
+        if(!valid) {
+            throw new RuntimeException();
+        }
         valid = false;
         equipmentState.uninitEvents();
     }
