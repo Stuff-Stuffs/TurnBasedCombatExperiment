@@ -37,6 +37,11 @@ public final class BattleTimeline implements BattleTimelineView {
     }
 
     @Override
+    public int getSize() {
+        return actions.size();
+    }
+
+    @Override
     public Iterator<BattleAction<?>> iterator() {
         return Iterators.unmodifiableIterator(actions.iterator());
     }
