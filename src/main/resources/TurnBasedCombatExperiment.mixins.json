@@ -4,6 +4,10 @@
   "package": "io.github.stuff_stuffs.turnbasedcombat.mixin.impl",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "MixinClientWorld",
+    "MixinServerChunkManager",
+    "MixinServerWorld",
+    "MixinWorld"
   ],
   "client": [
   ],
