@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PrePart
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.battle.PreParticipantLeaveEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.turnchooser.TurnChooser;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.world.BattleBounds;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
@@ -22,11 +23,13 @@ public final class BattleState implements BattleStateView {
     private final BattleHandle handle;
     private final EventMap eventMap;
     private final BattleBounds bounds;
+    private final TurnChooser turnChooser;
     private boolean ended;
 
     public BattleState(final BattleHandle handle, final BattleBounds bounds) {
         this.handle = handle;
         this.bounds = bounds;
+        turnChooser = new TurnChooser(this);
         participants = new Object2ObjectOpenHashMap<>();
         eventMap = new EventMap();
         ended = false;
@@ -104,6 +107,17 @@ public final class BattleState implements BattleStateView {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public @Nullable BattleParticipantHandle getCurrentTurn() {
+        return turnChooser.valid() ? turnChooser.getCurrentTurn() : null;
+    }
+
+    public void advanceTurn() {
+        if (turnChooser.valid()) {
+            turnChooser.advance();
+        }
     }
 
     @Override

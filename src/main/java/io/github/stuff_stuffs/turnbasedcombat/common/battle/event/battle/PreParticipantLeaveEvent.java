@@ -7,7 +7,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattlePa
 
 //TODO reason
 public interface PreParticipantLeaveEvent {
-    void onParticipantLeave(BattleStateView battleState, BattleParticipantStateView participantState);
+    void onParticipantLeave(BattleStateView battleState, BattleParticipantStateView participantView);
 
     interface Mut {
         boolean onParticipantLeave(BattleState battleState, BattleParticipantState participantState);

@@ -19,6 +19,8 @@ public interface BattleStateView {
 
     @Nullable BattleParticipantStateView getParticipant(BattleParticipantHandle handle);
 
+    @Nullable BattleParticipantHandle getCurrentTurn();
+
     boolean isEnded();
 
     <T, V> EventHolder<T, V> getEvent(EventKey<T, V> key);

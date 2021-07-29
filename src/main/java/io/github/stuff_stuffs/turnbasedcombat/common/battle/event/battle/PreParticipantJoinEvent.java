@@ -9,6 +9,6 @@ public interface PreParticipantJoinEvent {
     void onParticipantJoin(BattleStateView battleStateView, BattleParticipantStateView participantView);
 
     interface Mut {
-        boolean onParticipantJoin(BattleState battleState, BattleParticipantState participant);
+        boolean onParticipantJoin(BattleState battleState, BattleParticipantState participantState);
     }
 }
