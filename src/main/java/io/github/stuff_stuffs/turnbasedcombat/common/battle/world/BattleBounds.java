@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.world;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
@@ -15,6 +16,7 @@ public final class BattleBounds {
     public final int maxX;
     public final int maxY;
     public final int maxZ;
+    private Box boxCache;
 
     private BattleBounds(final IntStream intStream) {
         final int[] arr = intStream.toArray();
@@ -82,6 +84,10 @@ public final class BattleBounds {
 
     public int getNearestZ(final int z) {
         return Math.max(Math.min(z, maxZ), minZ);
+    }
+
+    public Box getBox() {
+        return boxCache == null ? boxCache = new Box(minX, minY, minZ, maxX, maxY, maxZ) : boxCache;
     }
 
     public BlockPos getNearest(final BlockPos pos) {

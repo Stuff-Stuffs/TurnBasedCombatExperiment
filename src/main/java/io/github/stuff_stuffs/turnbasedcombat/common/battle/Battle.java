@@ -35,6 +35,10 @@ public final class Battle {
         timeline = new BattleTimeline();
     }
 
+    public BattleHandle getHandle() {
+        return handle;
+    }
+
     public BattleStateView getState() {
         return state;
     }

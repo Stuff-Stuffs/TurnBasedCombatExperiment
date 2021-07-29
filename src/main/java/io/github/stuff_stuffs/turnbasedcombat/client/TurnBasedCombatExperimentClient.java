@@ -9,18 +9,33 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.stuff_stuffs.turnbasedcombat.client.render.Render;
+import io.github.stuff_stuffs.turnbasedcombat.client.render.debug.DebugRender;
 import io.github.stuff_stuffs.turnbasedcombat.client.render.debug.DebugRenderers;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.turnbasedcombat.mixin.api.ClientBattleWorldSupplier;
+import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.Frustum;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Collection;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
 @Environment(EnvType.CLIENT)
@@ -35,6 +50,25 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
             return 0;
         }))));
         ClientTickEvents.START_WORLD_TICK.register(world -> ((ClientBattleWorldSupplier) world).tbcex_getBattleWorld().tick());
+        DebugRenderers.register("battle_bounds", context -> {
+            final VertexConsumerProvider consumers = context.consumers();
+            final MatrixStack matrices = context.matrixStack();
+            final ClientWorld world = context.world();
+            Frustum frustum = context.frustum();
+            final Vec3d pos = MinecraftClient.getInstance().getCameraEntity().getCameraPosVec(context.tickDelta());
+            Random random = new Random(0);
+            for (Battle battle : ((ClientBattleWorldSupplier) world).tbcex_getBattleWorld()) {
+                final BattleBounds bounds = battle.getState().getBounds();
+                Box box = bounds.getBox();
+                if(frustum.isVisible(box)) {
+                    matrices.push();
+                    matrices.translate(-pos.x, -pos.y, -pos.z);
+                    random.setSeed(HashCommon.murmurHash3(HashCommon.murmurHash3((long)battle.getHandle().id())));
+                    WorldRenderer.drawBox(matrices, consumers.getBuffer(RenderLayer.LINES), box, random.nextFloat(), random.nextFloat(), random.nextFloat(), 1);
+                    matrices.pop();
+                }
+            }
+        }, DebugRenderers.Stage.POST_ENTITY);
     }
 
     private static class DebugRendererArgument implements ArgumentType<String> {
