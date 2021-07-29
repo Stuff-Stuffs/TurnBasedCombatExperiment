@@ -42,9 +42,9 @@ public final class BattleUpdateSender {
             ServerPlayNetworking.send(playerEntity, IDENTIFIER, buf);
         } catch (final IOException e) {
             LOGGER.error("Could not write BattleUpdate packet: {}", e.getMessage());
+            buf.release();
         } catch (final EncoderException e) {
             LOGGER.error("Could not write BattleUpdate packet, encode error: {}", e.getMessage());
-        } finally {
             buf.release();
         }
     }
