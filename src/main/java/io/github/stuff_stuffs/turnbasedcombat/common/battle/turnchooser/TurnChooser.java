@@ -6,6 +6,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattlePa
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO variants
 public final class TurnChooser {
     private final List<BattleParticipantHandle> participants;
     private int index;

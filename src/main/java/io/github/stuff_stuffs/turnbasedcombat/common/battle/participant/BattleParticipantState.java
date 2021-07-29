@@ -47,7 +47,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private final BattleEquipmentState equipmentState;
     private final BattleParticipantInventory inventory;
     private final BattleParticipantStats stats;
-    private boolean valid = true;
+    private boolean valid = false;
     private double health;
     private BlockPos pos;
     private BattleState battleState;
@@ -115,6 +115,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         }
         this.battleState = battleState;
         equipmentState.initEvents(this);
+        valid = true;
     }
 
     @Override

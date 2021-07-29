@@ -21,7 +21,9 @@ public final class ParticipantJoinBattleAction extends BattleAction<ParticipantJ
 
     @Override
     public void applyToState(final BattleState state) {
-        if (!state.join(CodecUtil.copy(participantState, BattleParticipantState.CODEC))) {
+        final BattleParticipantState copy = CodecUtil.copy(participantState, BattleParticipantState.CODEC);
+        copy.setBattleState(state);
+        if (!state.join(copy)) {
             throw new RuntimeException();
         }
     }

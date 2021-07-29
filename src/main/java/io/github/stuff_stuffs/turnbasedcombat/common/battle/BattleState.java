@@ -27,14 +27,15 @@ public final class BattleState implements BattleStateView {
     private boolean ended;
 
     public BattleState(final BattleHandle handle, final BattleBounds bounds) {
+        eventMap = new EventMap();
+        registerEvents();
+
         this.handle = handle;
         this.bounds = bounds;
-        turnChooser = new TurnChooser(this);
         participants = new Object2ObjectOpenHashMap<>();
-        eventMap = new EventMap();
         ended = false;
 
-        registerEvents();
+        turnChooser = new TurnChooser(this);
     }
 
     private void registerEvents() {
@@ -73,10 +74,6 @@ public final class BattleState implements BattleStateView {
     @Override
     public @Nullable BattleParticipantState getParticipant(final BattleParticipantHandle handle) {
         return participants.get(handle);
-    }
-
-    public boolean join(final Function<BattleHandle, BattleParticipantState> func) {
-        return join(func.apply(handle));
     }
 
     public boolean join(final BattleParticipantState state) {

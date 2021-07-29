@@ -30,6 +30,7 @@ public final class ServerBattleWorld implements BattleWorld {
     private final Path directory;
     private final Map<BattleHandle, Battle> activeBattles;
     private final Object2LongMap<BattleHandle> lastAccess;
+    private int nextId = 0;
     private long tickCount = 0;
 
     public ServerBattleWorld(final Path directory) {
@@ -58,6 +59,14 @@ public final class ServerBattleWorld implements BattleWorld {
         return battle;
     }
 
+    public BattleHandle createBattle(final BattleBounds bounds) {
+        final BattleHandle handle = new BattleHandle(nextId++);
+        final Battle battle = new Battle(handle, bounds);
+        activeBattles.put(handle, battle);
+        lastAccess.put(handle, tickCount);
+        return handle;
+    }
+
     public void tick() {
         final Set<BattleHandle> toRemove = new ObjectOpenHashSet<>();
         for (final BattleHandle entry : activeBattles.keySet()) {
@@ -79,14 +88,18 @@ public final class ServerBattleWorld implements BattleWorld {
         }
     }
 
+    private static String handleToFile(BattleHandle handle) {
+        return "Battle" + Integer.toString(handle.id(), 16) + "tbcex_battle";
+    }
+
     private @Nullable Battle tryLoad(final BattleHandle handle) {
-        final Path path = directory.resolve("Battle" + Integer.toString(handle.id(), 16));
+        final Path path = directory.resolve(handleToFile(handle));
         if (Files.exists(path) && !Files.isDirectory(path)) {
             try (final InputStream stream = Files.newInputStream(path, StandardOpenOption.READ)) {
                 final int versionHeaderLength = stream.read();
                 final String version = new String(stream.readNBytes(versionHeaderLength));
                 if (!version.equals(VERSION)) {
-                    LOGGER.error("Error loading battle: " + Integer.toString(handle.id(), 16) + ", version mismatch");
+                    LOGGER.error("Error loading battle: " + handleToFile(handle) + ", version mismatch");
                     return null;
                 }
                 final Optional<Battle> result = Battle.CODEC.parse(NbtOps.INSTANCE, NbtIo.read(new DataInputStream(stream))).result();
@@ -96,21 +109,21 @@ public final class ServerBattleWorld implements BattleWorld {
                     lastAccess.put(handle, tickCount);
                     return battle;
                 } else {
-                    LOGGER.error("Error loading battle: " + Integer.toString(handle.id(), 16) + ", decoding error");
+                    LOGGER.error("Error loading battle: " + handleToFile(handle) + ", decoding error");
                     return null;
                 }
             } catch (final IOException e) {
-                LOGGER.error("Error loading battle: " + Integer.toString(handle.id(), 16) + ", IOException {}", e);
+                LOGGER.error("Error loading battle: " + handleToFile(handle) + ", IOException {}", e);
             }
         }
-        LOGGER.error("Error loading battle: " + Integer.toString(handle.id(), 16) + ", non-existent battle");
+        LOGGER.error("Error loading battle: " + handleToFile(handle) + ", non-existent battle");
         return null;
     }
 
     private void save(final BattleHandle handle) {
         final Battle battle = activeBattles.get(handle);
         if (battle != null) {
-            try (final OutputStream stream = Files.newOutputStream(directory.resolve("Battle" + Integer.toString(handle.id(), 16)), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            try (final OutputStream stream = Files.newOutputStream(directory.resolve(handleToFile(handle)), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
                 stream.write(VERSION.length());
                 stream.write(VERSION.getBytes(StandardCharsets.UTF_8));
                 final DataOutput output = new DataOutputStream(stream);
@@ -120,13 +133,13 @@ public final class ServerBattleWorld implements BattleWorld {
                     } catch (final IOException e) {
                         throw new RuntimeException("Cannot write battle file");
                     }
-                }, () -> LOGGER.error("Error saving battle: " + Integer.toString(handle.id(), 16)));
+                }, () -> LOGGER.error("Error saving battle: " + handleToFile(handle)));
                 stream.flush();
             } catch (final IOException e) {
-                LOGGER.error("Error saving battle: " + Integer.toString(handle.id(), 16));
+                LOGGER.error("Error saving battle: " + handleToFile(handle));
             }
         } else {
-            LOGGER.error("Error saving battle: " + Integer.toString(handle.id(), 16) + ", battle doesn't exist");
+            LOGGER.error("Error saving battle: " + handleToFile(handle));
         }
     }
 }

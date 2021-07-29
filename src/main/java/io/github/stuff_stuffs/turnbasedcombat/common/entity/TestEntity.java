@@ -10,7 +10,7 @@ import net.minecraft.world.World;
 
 import java.util.Collections;
 
-public class TestEntity extends LivingEntity {
+public class TestEntity extends LivingEntity implements BattleEntity {
     private static final Team TEAM = new Team("test_non-player");
 
     public TestEntity(final EntityType<? extends LivingEntity> entityType, final World world) {
@@ -35,5 +35,45 @@ public class TestEntity extends LivingEntity {
     @Override
     public Arm getMainArm() {
         return Arm.RIGHT;
+    }
+
+    @Override
+    public Team getTeam() {
+        return TEAM;
+    }
+
+    @Override
+    public Iterable<ItemStack> tbcex_getInventory() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public double tbcex_getMaxHealth() {
+        return 20;
+    }
+
+    @Override
+    public double tbcex_getCurrentHealth() {
+        return 20;
+    }
+
+    @Override
+    public double tbcex_getStrength() {
+        return 1;
+    }
+
+    @Override
+    public double tbcex_getIntelligence() {
+        return 1;
+    }
+
+    @Override
+    public double tbcex_getVitality() {
+        return 1;
+    }
+
+    @Override
+    public double tbcex_getDexterity() {
+        return 1;
     }
 }

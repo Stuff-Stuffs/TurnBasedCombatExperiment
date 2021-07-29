@@ -4,6 +4,7 @@
   "package": "io.github.stuff_stuffs.turnbasedcombat.mixin.impl",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "MixinPlayerEntity",
     "MixinServerChunkManager",
     "MixinServerWorld",
     "MixinWorld"
