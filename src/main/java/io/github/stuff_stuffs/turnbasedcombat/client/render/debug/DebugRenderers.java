@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public final class DebugRenderers {
+    private static final Map<String, Pair<DebugRender, Stage>> DEBUG_RENDERS_UNINIT = new Object2ReferenceOpenHashMap<>();
     private static final Map<String, Pair<DebugRender, Stage>> DEBUG_RENDERS = new Object2ReferenceOpenHashMap<>();
     private static final Object2BooleanMap<String> TOGGLES = new Object2BooleanOpenHashMap<>();
 
@@ -17,7 +18,11 @@ public final class DebugRenderers {
     }
 
     public static void init() {
-        for (final Map.Entry<String, Pair<DebugRender, Stage>> entry : DEBUG_RENDERS.entrySet()) {
+        for (final Map.Entry<String, Pair<DebugRender, Stage>> entry : DEBUG_RENDERS_UNINIT.entrySet()) {
+            if(DEBUG_RENDERS.put(entry.getKey(), entry.getValue())!=null) {
+                throw new RuntimeException("Duplicate debug renderers");
+            }
+            TOGGLES.put(entry.getKey(), false);
             final String name = entry.getKey();
             final DebugRender debugRender = entry.getValue().getFirst();
             switch (entry.getValue().getSecond()) {
@@ -38,20 +43,23 @@ public final class DebugRenderers {
                 });
             }
         }
+        DEBUG_RENDERS_UNINIT.clear();
     }
 
     public static void register(final String name, final DebugRender debugRender, final Stage stage) {
-        if (DEBUG_RENDERS.put(name, new Pair<>(debugRender, stage)) != null) {
+        if (DEBUG_RENDERS_UNINIT.put(name, new Pair<>(debugRender, stage)) != null || DEBUG_RENDERS.containsKey(name)) {
             throw new RuntimeException("Duplicate named debug renderers");
         }
-        TOGGLES.put(name, false);
     }
 
     public static boolean contains(final String s) {
-        return TOGGLES.containsKey(s);
+        return TOGGLES.containsKey(s) || DEBUG_RENDERS_UNINIT.containsKey(s);
     }
 
     public static void set(final String renderer, final boolean on) {
+        if(DEBUG_RENDERS_UNINIT.containsKey(renderer)) {
+            init();
+        }
         TOGGLES.put(renderer, on);
     }
 
@@ -64,8 +72,5 @@ public final class DebugRenderers {
         POST_ENTITY,
         POST_TRANSLUCENT,
         PRE_DEBUG
-    }
-
-    static {
     }
 }
