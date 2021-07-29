@@ -10,6 +10,10 @@ public abstract class BattleAction<SELF extends BattleAction<SELF>> {
         this.actor = actor;
     }
 
+    public BattleParticipantHandle getActor() {
+        return actor;
+    }
+
     public abstract void applyToState(BattleState state);
 
     public abstract BattleActionRegistry.Type<SELF> getType();

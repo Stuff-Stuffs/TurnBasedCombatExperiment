@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.world.BattleBounds;
 
 import java.util.List;
@@ -48,8 +49,14 @@ public final class Battle {
     }
 
     public void push(final BattleAction<?> action) {
-        action.applyToState(state);
-        timeline.push(action);
+        final BattleParticipantHandle currentTurn = state.getCurrentTurn();
+        if(action.getActor().isUniversal()||action.getActor().equals(currentTurn)) {
+            action.applyToState(state);
+            timeline.push(action);
+        } else {
+            //TODO log
+            throw new RuntimeException();
+        }
     }
 
     public void trimAndAppend(final int size, final List<BattleAction<?>> actions) {
