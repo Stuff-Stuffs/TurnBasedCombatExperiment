@@ -1,7 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.event;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -27,7 +26,7 @@ public final class EventMap {
 
     public <T, V> MutableEventHolder<T, V> getMut(final EventKey<T, V> key) {
         final MutableEventHolder<T, V> holder = (MutableEventHolder<T, V>) mutEventMap.get(key);
-        if(holder==null) {
+        if (holder == null) {
             throw new RuntimeException("Unknown event key: " + key);
         }
         return holder;
@@ -38,7 +37,7 @@ public final class EventMap {
         if (holder == null) {
             holder = eventMap.get(key);
         }
-        if(holder==null) {
+        if (holder == null) {
             throw new RuntimeException("Unknown event key: " + key);
         }
         return (EventHolder<T, V>) holder;

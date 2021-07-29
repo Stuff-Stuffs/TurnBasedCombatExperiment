@@ -14,6 +14,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public final class MathUtil {
+    private MathUtil() {
+    }
+
     public static Vec3d rightFromAngles(final double yaw) {
         return new Vec3d(Math.cos(Math.toRadians(yaw)), 0, -Math.sin(Math.toRadians(yaw)));
     }
@@ -126,8 +129,5 @@ public final class MathUtil {
             }
         }
         return null;
-    }
-
-    private MathUtil() {
     }
 }

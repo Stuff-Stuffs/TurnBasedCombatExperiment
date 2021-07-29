@@ -15,6 +15,14 @@ public class TurnBasedCombatExperiment implements ModInitializer {
         return new Identifier(MOD_ID, path);
     }
 
+    public static int getMaxTurnTime() {
+        return 5;
+    }
+
+    public static int getMaxTurnCount() {
+        return 100;
+    }
+
     @Override
     public void onInitialize() {
         EntityTypes.init();
@@ -22,13 +30,5 @@ public class TurnBasedCombatExperiment implements ModInitializer {
         BattleDamageType.init();
         BattleActionRegistry.init();
         BattleParticipantStat.init();
-    }
-
-    public static int getMaxTurnTime() {
-        return 5;
-    }
-
-    public static int getMaxTurnCount() {
-        return 100;
     }
 }

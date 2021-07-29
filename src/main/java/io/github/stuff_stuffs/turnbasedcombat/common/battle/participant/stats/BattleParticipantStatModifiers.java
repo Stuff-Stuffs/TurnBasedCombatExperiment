@@ -24,7 +24,7 @@ public final class BattleParticipantStatModifiers {
 
     public double calculate(BattleParticipantStat stat, double baseValue, BattleStateView battleState, BattleParticipantStateView entityState) {
         final StatModifierList modifierList = modifiers.get(stat);
-        if(modifierList==null) {
+        if (modifierList == null) {
             return baseValue;
         }
         return modifierList.calculate(baseValue, battleState, entityState);
@@ -32,7 +32,7 @@ public final class BattleParticipantStatModifiers {
 
     private static final class StatModifierList {
         private static final Comparator<BattleParticipantStatModifierFrozen> COMPARATOR = Comparator.<BattleParticipantStatModifierFrozen>
-                comparingInt(BattleParticipantStatModifier::getPhase).
+                        comparingInt(BattleParticipantStatModifier::getPhase).
                 thenComparing(BattleParticipantStatModifier::getStage, BattleParticipantStatModifier.Stage.COMPARATOR).
                 thenComparingInt(BattleParticipantStatModifierFrozen::getId);
         private final SortedSet<BattleParticipantStatModifierFrozen> modifiers;

@@ -83,6 +83,9 @@ public final class CodecUtil {
         }
     };
 
+    private CodecUtil() {
+    }
+
     public static <K, V> Codec<Map<K, V>> createLinkedMapCodec(final Codec<K> keyCodec, final Codec<V> valueCodec) {
         final Codec<List<Pair<K, V>>> listCodec = Codec.list(Codec.pair(keyCodec, valueCodec));
         return listCodec.xmap(list -> {
@@ -106,8 +109,5 @@ public final class CodecUtil {
         })).getOrThrow(false, s -> {
             throw new RuntimeException(s);
         });
-    }
-
-    private CodecUtil() {
     }
 }

@@ -13,32 +13,29 @@ public final class DebugRenderers {
     private static final Map<String, Pair<DebugRender, Stage>> DEBUG_RENDERS = new Object2ReferenceOpenHashMap<>();
     private static final Object2BooleanMap<String> TOGGLES = new Object2BooleanOpenHashMap<>();
 
+    private DebugRenderers() {
+    }
+
     public static void init() {
         for (final Map.Entry<String, Pair<DebugRender, Stage>> entry : DEBUG_RENDERS.entrySet()) {
             final String name = entry.getKey();
             final DebugRender debugRender = entry.getValue().getFirst();
             switch (entry.getValue().getSecond()) {
-                case POST_ENTITY:
-                    WorldRenderEvents.AFTER_ENTITIES.register(context -> {
-                        if (TOGGLES.getBoolean(name)) {
-                            debugRender.render(context);
-                        }
-                    });
-                    break;
-                case POST_TRANSLUCENT:
-                    WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
-                        if (TOGGLES.getBoolean(name)) {
-                            debugRender.render(context);
-                        }
-                    });
-                    break;
-                case PRE_DEBUG:
-                    WorldRenderEvents.BEFORE_DEBUG_RENDER.register(context -> {
-                        if (TOGGLES.getBoolean(name)) {
-                            debugRender.render(context);
-                        }
-                    });
-                    break;
+                case POST_ENTITY -> WorldRenderEvents.AFTER_ENTITIES.register(context -> {
+                    if (TOGGLES.getBoolean(name)) {
+                        debugRender.render(context);
+                    }
+                });
+                case POST_TRANSLUCENT -> WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
+                    if (TOGGLES.getBoolean(name)) {
+                        debugRender.render(context);
+                    }
+                });
+                case PRE_DEBUG -> WorldRenderEvents.BEFORE_DEBUG_RENDER.register(context -> {
+                    if (TOGGLES.getBoolean(name)) {
+                        debugRender.render(context);
+                    }
+                });
             }
         }
     }
@@ -48,9 +45,6 @@ public final class DebugRenderers {
             throw new RuntimeException("Duplicate named debug renderers");
         }
         TOGGLES.put(name, false);
-    }
-
-    private DebugRenderers() {
     }
 
     public static boolean contains(final String s) {

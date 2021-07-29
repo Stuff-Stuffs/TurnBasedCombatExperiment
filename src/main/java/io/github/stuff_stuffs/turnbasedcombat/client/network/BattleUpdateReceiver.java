@@ -26,6 +26,9 @@ import java.util.List;
 public final class BattleUpdateReceiver {
     private static final Logger LOGGER = LogManager.getLogger();
 
+    private BattleUpdateReceiver() {
+    }
+
     public static void init() {
         ClientPlayNetworking.registerGlobalReceiver(BattleUpdateSender.IDENTIFIER, BattleUpdateReceiver::receive);
     }
@@ -67,8 +70,5 @@ public final class BattleUpdateReceiver {
             input.readUTF();
             return NbtTypes.byId(b).read(input, depth, tracker);
         }
-    }
-
-    private BattleUpdateReceiver() {
     }
 }

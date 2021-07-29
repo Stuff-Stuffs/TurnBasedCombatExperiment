@@ -7,11 +7,11 @@ import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry;
 
 public final class Render {
 
+    private Render() {
+    }
+
     public static void init() {
         DebugRenderers.init();
         EntityRendererRegistry.INSTANCE.register(EntityTypes.TEST_ENTITY_TYPE, NoopRenderer::new);
-    }
-
-    private Render() {
     }
 }

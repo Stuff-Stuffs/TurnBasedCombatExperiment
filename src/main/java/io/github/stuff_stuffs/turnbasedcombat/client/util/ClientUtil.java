@@ -6,6 +6,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 
 public final class ClientUtil {
+    private ClientUtil() {
+    }
+
     public static Vec3d getMouseVector() {
         final MinecraftClient client = MinecraftClient.getInstance();
         final double fov = Math.toRadians(client.options.fov);
@@ -14,8 +17,5 @@ public final class ClientUtil {
         vec3f.rotate(rotation);
         vec3f.normalize();
         return new Vec3d(vec3f);
-    }
-
-    private ClientUtil() {
     }
 }

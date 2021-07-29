@@ -43,6 +43,10 @@ public final class WorldShapeCache {
         entities = Suppliers.memoize(() -> Collections.unmodifiableCollection(world.getOtherEntities(entity, entitySearchBounds)));
     }
 
+    private static long hash(final BlockPos pos) {
+        return HashCommon.mix(pos.asLong());
+    }
+
     public @Nullable Entity getEntity() {
         return entity;
     }
@@ -88,10 +92,5 @@ public final class WorldShapeCache {
             states[index] = state;
             shapes[index] = state.getCollisionShape(world, mutable, context);
         }
-    }
-
-
-    private static long hash(final BlockPos pos) {
-        return HashCommon.mix(pos.asLong());
     }
 }
