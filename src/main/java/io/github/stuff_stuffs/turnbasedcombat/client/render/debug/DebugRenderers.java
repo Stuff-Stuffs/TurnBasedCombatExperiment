@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -64,7 +65,9 @@ public final class DebugRenderers {
     }
 
     public static Collection<String> getKeys() {
-        return TOGGLES.keySet();
+        final ArrayList<String> keys = new ArrayList<>(TOGGLES.keySet());
+        keys.addAll(DEBUG_RENDERS_UNINIT.keySet());
+        return keys;
     }
 
 
