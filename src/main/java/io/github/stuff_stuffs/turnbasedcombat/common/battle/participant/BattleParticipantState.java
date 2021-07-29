@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleState;
@@ -120,14 +119,14 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public BattleState getBattleState() {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         return battleState;
     }
 
     public <T, V> MutableEventHolder<T, V> getEventMut(final EventKey<T, V> key) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         return eventMap.getMut(key);
@@ -135,14 +134,14 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public <T, V> EventHolder<T, V> getEvent(final EventKey<T, V> key) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         return eventMap.get(key);
     }
 
     public boolean equip(final BattleEquipmentSlot slot, final BattleEquipment equipment) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         return equipmentState.equip(this, slot, equipment);
@@ -150,7 +149,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public Team getTeam() {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         return team;
@@ -158,7 +157,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public BattleParticipantHandle getHandle() {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         return handle;
@@ -166,7 +165,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public @Nullable BattleParticipantItemStack getItemStack(final BattleParticipantInventoryHandle handle) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         if (handle.handle().equals(this.handle)) {
@@ -177,14 +176,14 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     }
 
     public BattleParticipantInventoryHandle giveItems(final BattleParticipantItemStack stack) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         return new BattleParticipantInventoryHandle(handle, inventory.give(stack));
     }
 
     public int takeItems(final BattleParticipantInventoryHandle handle, final int amount) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         if (handle.handle().equals(this.handle)) {
@@ -196,14 +195,14 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public Iterator<BattleParticipantInventoryHandle> getInventoryIterator() {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         return StreamSupport.stream(inventory.spliterator(), false).map(entry -> new BattleParticipantInventoryHandle(handle, entry.getIntKey())).iterator();
     }
 
     public BattleParticipantStatModifiers.Handle addStatModifier(final BattleParticipantStat stat, final BattleParticipantStatModifier modifier) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         final BattleParticipantStatModifiers.Handle handle = stats.modify(stat, modifier);
@@ -218,21 +217,21 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public double getStat(final BattleParticipantStat stat) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         return stats.calculate(stat, battleState, this);
     }
 
     public void setPos(final BlockPos pos) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         this.pos = battleState.getBounds().getNearest(pos);
     }
 
     public @Nullable BattleDamagePacket damage(final BattleDamagePacket packet) {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         final BattleDamagePacket processed = getEvent(PRE_DAMAGE_EVENT).invoker().onDamage(this, packet);
@@ -256,7 +255,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     }
 
     public void leave() {
-        if(!valid) {
+        if (!valid) {
             throw new RuntimeException();
         }
         valid = false;
