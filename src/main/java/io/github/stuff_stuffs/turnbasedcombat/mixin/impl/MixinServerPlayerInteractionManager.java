@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayerInteractionManager.class)
 public class MixinServerPlayerInteractionManager {
@@ -17,10 +17,10 @@ public class MixinServerPlayerInteractionManager {
     @Final
     protected ServerPlayerEntity player;
 
-    @Inject(method = "setGameMode", at = @At("HEAD"), cancellable = true)
-    private void ignoreSetGameModeWhileInBattle(final GameMode gameMode, final GameMode previousGameMode, final CallbackInfo ci) {
+    @Inject(method = "changeGameMode", at = @At("HEAD"), cancellable = true)
+    private void ignoreSetGameModeWhileInBattle(final GameMode gameMode, final CallbackInfoReturnable<Boolean> cir) {
         if (((BattleAwareEntity) player).tbcex_getCurrentBattle() != null && gameMode != GameMode.SPECTATOR) {
-            ci.cancel();
+            cir.setReturnValue(false);
         }
     }
 }
