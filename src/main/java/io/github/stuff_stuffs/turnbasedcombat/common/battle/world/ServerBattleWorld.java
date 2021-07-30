@@ -3,13 +3,18 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.world;
 import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.ParticipantJoinBattleAction;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantHandle;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -60,6 +66,16 @@ public final class ServerBattleWorld implements BattleWorld {
         return battle;
     }
 
+    public BattleHandle createBattle(final Collection<BattleEntity> entities, final BattleBounds bounds) {
+        final BattleHandle handle = createBattle(bounds);
+        final Battle battle = activeBattles.get(handle);
+        for (final BattleEntity entity : entities) {
+            final BattleAction<?> action = new ParticipantJoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(handle), new BattleParticipantState(new BattleParticipantHandle(handle, ((Entity) entity).getUuid()), entity));
+            battle.push(action);
+        }
+        return handle;
+    }
+
     public BattleHandle createBattle(final BattleBounds bounds) {
         final BattleHandle handle = new BattleHandle(nextId++);
         final Battle battle = new Battle(handle, bounds);
@@ -89,7 +105,7 @@ public final class ServerBattleWorld implements BattleWorld {
         }
     }
 
-    private static String handleToFile(BattleHandle handle) {
+    private static String handleToFile(final BattleHandle handle) {
         return "Battle" + Integer.toString(handle.id(), 16) + "tbcex_battle";
     }
 
