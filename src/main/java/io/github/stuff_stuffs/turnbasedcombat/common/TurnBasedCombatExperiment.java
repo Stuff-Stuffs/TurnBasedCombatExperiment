@@ -15,6 +15,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.world.ServerBattleWo
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.EntityTypes;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.Network;
+import io.github.stuff_stuffs.turnbasedcombat.common.network.PlayerJoinBattleSender;
 import io.github.stuff_stuffs.turnbasedcombat.mixin.api.BattleWorldSupplier;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
@@ -22,14 +23,18 @@ import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 
 public class TurnBasedCombatExperiment implements ModInitializer {
     public static final String MOD_ID = "turn_based_combat";
+    public static final Logger LOGGER = LogManager.getLogger("TBCEx");
 
     public static Identifier createId(final String path) {
         return new Identifier(MOD_ID, path);
@@ -62,6 +67,9 @@ public class TurnBasedCombatExperiment implements ModInitializer {
                 if (entity instanceof BattleEntity battleEntity) {
                     final BattleAction<?> action = new ParticipantJoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(handle), new BattleParticipantState(new BattleParticipantHandle(handle, entity.getUuid()), battleEntity));
                     battle.push(action);
+                    if (entity instanceof ServerPlayerEntity player) {
+                        PlayerJoinBattleSender.send(player, handle);
+                    }
                 } else {
                     context.getSource().sendError(new LiteralText("Entity: " + entity.getUuidAsString() + " is not instanceof BattleEntity, excluding it from battle"));
                 }

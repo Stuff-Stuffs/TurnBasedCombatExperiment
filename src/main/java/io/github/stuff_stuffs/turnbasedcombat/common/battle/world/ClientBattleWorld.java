@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.world;
 
+import io.github.stuff_stuffs.turnbasedcombat.client.TurnBasedCombatExperimentClient;
 import io.github.stuff_stuffs.turnbasedcombat.client.network.RequestBattleSender;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 public final class ClientBattleWorld implements BattleWorld, Iterable<Battle> {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = TurnBasedCombatExperimentClient.LOGGER;
     private final Map<BattleHandle, Battle> battleMap;
     private final Set<BattleHandle> requestedUpdates;
 

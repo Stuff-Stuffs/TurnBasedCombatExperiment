@@ -16,8 +16,6 @@ import io.github.stuff_stuffs.turnbasedcombat.mixin.api.ClientBattleWorldSupplie
 import it.unimi.dsi.fastutil.HashCommon;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
@@ -31,13 +29,16 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
-@Environment(EnvType.CLIENT)
 public class TurnBasedCombatExperimentClient implements ClientModInitializer {
+    public static final Logger LOGGER = LogManager.getLogger("TBCExClient");
+
     @Override
     public void onInitializeClient() {
         Render.init();

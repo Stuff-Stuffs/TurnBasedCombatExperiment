@@ -13,7 +13,6 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.DataOutput;
@@ -21,14 +20,14 @@ import java.io.IOException;
 
 public final class BattleUpdateSender {
     public static final Identifier IDENTIFIER = TurnBasedCombatExperiment.createId("battle_update");
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = TurnBasedCombatExperiment.LOGGER;
 
     public static void send(final BattleHandle handle, final Battle battle, final int sizeBefore, final boolean existing, final ServerPlayerEntity playerEntity) {
         final PacketByteBuf buf = PacketByteBufs.create();
         try {
             buf.writeVarInt(handle.id());
             buf.writeBoolean(existing);
-            if(!existing) {
+            if (!existing) {
                 battle.getState().getBounds().asStream().forEach(buf::writeInt);
             }
             buf.writeVarInt(sizeBefore);

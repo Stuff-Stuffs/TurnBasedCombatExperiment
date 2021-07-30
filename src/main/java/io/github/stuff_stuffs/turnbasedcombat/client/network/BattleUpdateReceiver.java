@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.client.network;
 
+import io.github.stuff_stuffs.turnbasedcombat.client.TurnBasedCombatExperimentClient;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleActionRegistry;
@@ -15,7 +16,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.nbt.*;
 import net.minecraft.network.PacketByteBuf;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.DataInput;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class BattleUpdateReceiver {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = TurnBasedCombatExperimentClient.LOGGER;
 
     private BattleUpdateReceiver() {
     }

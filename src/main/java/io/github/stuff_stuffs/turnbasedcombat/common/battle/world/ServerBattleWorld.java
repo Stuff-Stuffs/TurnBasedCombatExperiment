@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.battle.world;
 
+import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -22,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public final class ServerBattleWorld implements BattleWorld {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = TurnBasedCombatExperiment.LOGGER;
     //TODO config option
     //5 minutes
     private static final long TIME_OUT = 20 * 60 * 5;
