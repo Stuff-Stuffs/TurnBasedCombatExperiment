@@ -2,7 +2,7 @@ package io.github.stuff_stuffs.turnbasedcombat.client.network;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.network.PlayerJoinBattleSender;
-import io.github.stuff_stuffs.turnbasedcombat.mixin.api.BattleAwarePlayer;
+import io.github.stuff_stuffs.turnbasedcombat.mixin.api.BattleAwareEntity;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
@@ -21,7 +21,7 @@ public final class PlayerJoinBattleReceiver {
         final int id = buf.readVarInt();
         minecraftClient.execute(() -> {
             final BattleHandle handle = new BattleHandle(id);
-            ((BattleAwarePlayer) MinecraftClient.getInstance().player).tbcex_setCurrentBattle(handle);
+            ((BattleAwareEntity) MinecraftClient.getInstance().player).tbcex_setCurrentBattle(handle);
         });
     }
 }

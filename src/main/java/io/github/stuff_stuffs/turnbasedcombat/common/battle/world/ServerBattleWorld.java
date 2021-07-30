@@ -3,11 +3,12 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.world;
 import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.ParticipantJoinBattleAction;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
+import io.github.stuff_stuffs.turnbasedcombat.common.network.PlayerJoinBattleSender;
+import io.github.stuff_stuffs.turnbasedcombat.mixin.api.BattleAwareEntity;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -15,6 +16,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.server.network.ServerPlayerEntity;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,10 +72,24 @@ public final class ServerBattleWorld implements BattleWorld {
         final BattleHandle handle = createBattle(bounds);
         final Battle battle = activeBattles.get(handle);
         for (final BattleEntity entity : entities) {
-            final BattleAction<?> action = new ParticipantJoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(handle), new BattleParticipantState(new BattleParticipantHandle(handle, ((Entity) entity).getUuid()), entity));
-            battle.push(action);
+            join(handle, entity);
         }
         return handle;
+    }
+
+    public void join(final BattleHandle handle, final BattleEntity entity) {
+        final Battle battle = getBattle(handle);
+        if (battle != null) {
+            battle.push(new ParticipantJoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(handle), new BattleParticipantState(new BattleParticipantHandle(handle, ((Entity) entity).getUuid()), entity)));
+            if (entity instanceof BattleAwareEntity battleAware) {
+                battleAware.tbcex_setCurrentBattle(handle);
+                if (entity instanceof ServerPlayerEntity player) {
+                    PlayerJoinBattleSender.send(player, handle);
+                }
+            }
+        } else {
+            throw new IllegalArgumentException();
+        }
     }
 
     public BattleHandle createBattle(final BattleBounds bounds) {

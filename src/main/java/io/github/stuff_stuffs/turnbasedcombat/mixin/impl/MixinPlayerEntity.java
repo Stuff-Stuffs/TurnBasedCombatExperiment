@@ -5,10 +5,13 @@ import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
-import io.github.stuff_stuffs.turnbasedcombat.mixin.api.BattleAwarePlayer;
+import io.github.stuff_stuffs.turnbasedcombat.mixin.api.BattleAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.stat.Stat;
+import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,10 +19,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(PlayerEntity.class)
-public class MixinPlayerEntity implements BattleEntity, BattleAwarePlayer {
+public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEntity {
     @Shadow
     @Final
     private PlayerInventory inventory;
+
+    @Shadow
+    public abstract void increaseStat(Stat<?> stat, int amount);
+
     @Unique
     private static final Team TEAM = new Team("test_player");
     @Unique
@@ -70,11 +77,15 @@ public class MixinPlayerEntity implements BattleEntity, BattleAwarePlayer {
         return currentBattle;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void tbcex_setCurrentBattle(@Nullable final BattleHandle handle) {
         if (currentBattle != null && handle != null && !currentBattle.equals(handle)) {
             TurnBasedCombatExperiment.LOGGER.error("Set current battle to {}, while battle {} was active", handle, currentBattle);
         }
         currentBattle = handle;
+        if ((Object) this instanceof ServerPlayerEntity serverPlayer) {
+            serverPlayer.changeGameMode(GameMode.SPECTATOR);
+        }
     }
 }
