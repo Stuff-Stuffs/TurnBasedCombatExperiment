@@ -37,6 +37,7 @@ public final class BattleActionRegistry {
     };
     public static final Type<ParticipantJoinBattleAction> PARTICIPANT_JOIN_BATTLE_ACTION = new Type<>(ParticipantJoinBattleAction.CODEC);
     public static final Type<TeleportBattleAction> TELEPORT_BATTLE_ACTION = new Type<>(TeleportBattleAction.CODEC);
+    public static final Type<EndTurnBattleAction> END_TURN_BATTLE_ACTION = new Type<>(EndTurnBattleAction.CODEC);
 
     private BattleActionRegistry() {
     }
@@ -44,6 +45,7 @@ public final class BattleActionRegistry {
     public static void init() {
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("join"), PARTICIPANT_JOIN_BATTLE_ACTION);
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("teleport"), TELEPORT_BATTLE_ACTION);
+        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("end_turn"), END_TURN_BATTLE_ACTION);
     }
 
     public static final class Type<T extends BattleAction<T>> {
