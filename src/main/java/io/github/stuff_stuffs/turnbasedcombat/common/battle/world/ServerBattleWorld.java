@@ -122,7 +122,7 @@ public final class ServerBattleWorld implements BattleWorld {
     }
 
     private static String handleToFile(final BattleHandle handle) {
-        return "Battle" + Integer.toString(handle.id(), 16) + "tbcex_battle";
+        return "Battle" + Integer.toString(handle.id(), 16) + ".tbcex_battle";
     }
 
     private @Nullable Battle tryLoad(final BattleHandle handle) {
