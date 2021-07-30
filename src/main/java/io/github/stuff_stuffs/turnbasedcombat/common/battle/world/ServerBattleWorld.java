@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+//TODO remember valid battle ids
 public final class ServerBattleWorld implements BattleWorld {
     private static final Logger LOGGER = TurnBasedCombatExperiment.LOGGER;
     //TODO config option
