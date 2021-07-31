@@ -5,53 +5,25 @@ import java.util.function.Supplier;
 public interface WidgetPosition {
     double getX();
 
-    double getRawX();
-
     double getY();
-
-    double getRawY();
 
     double getZ();
 
-    double getRawZ();
-
-    double getScale();
-
-    static WidgetPosition of(double x, double y, double z, double scale) {
+    static WidgetPosition of(final double x, final double y, final double z) {
         return new WidgetPosition() {
             @Override
             public double getX() {
-                return x*scale;
-            }
-
-            @Override
-            public double getRawX() {
                 return x;
             }
 
             @Override
             public double getY() {
-                return y*scale;
-            }
-
-            @Override
-            public double getRawY() {
                 return y;
             }
 
             @Override
             public double getZ() {
-                return z*scale;
-            }
-
-            @Override
-            public double getRawZ() {
                 return z;
-            }
-
-            @Override
-            public double getScale() {
-                return scale;
             }
         };
     }
@@ -68,33 +40,13 @@ public interface WidgetPosition {
             }
 
             @Override
-            public double getRawX() {
-                return first.get().getRawX() + second.getRawX();
-            }
-
-            @Override
             public double getY() {
                 return first.get().getY() + second.getY();
             }
 
             @Override
-            public double getRawY() {
-                return first.get().getRawY() + second.getRawY();
-            }
-
-            @Override
             public double getZ() {
                 return first.get().getZ() + second.getZ();
-            }
-
-            @Override
-            public double getRawZ() {
-                return first.get().getRawZ() + second.getRawZ();
-            }
-
-            @Override
-            public double getScale() {
-                return first.get().getScale() * second.getScale();
             }
         };
     }

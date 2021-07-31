@@ -3,7 +3,7 @@ package io.github.stuff_stuffs.tbcexgui.client.widget.panel;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexgui.client.util.Rect2d;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractParentWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.MutableWidgetPosition;
+import io.github.stuff_stuffs.tbcexgui.client.widget.BasicWidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
@@ -16,21 +16,24 @@ import net.minecraft.util.math.Matrix4f;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class BasicPanelWidget extends AbstractParentWidget {
     private static final Map<PanelPart, Sprite> SPRITE_MAP;
     private static boolean RELOAD_SPRITE_MAP = true;
     private final WidgetPosition position;
     private final BooleanSupplier draggable;
+    private final DoubleSupplier borderWidth;
     private double verticalPixel = 1 / 480d;
     private double horizontalPixel = 1 / 640d;
-    private MutableWidgetPosition offset = new MutableWidgetPosition(0, 0, 0, 1);
+    private BasicWidgetPosition offset = new BasicWidgetPosition(0, 0, 0);
     private WidgetPosition combined;
     private final double panelWidth, panelHeight;
 
-    public BasicPanelWidget(final WidgetPosition position, final BooleanSupplier draggable, final double panelWidth, final double panelHeight) {
+    public BasicPanelWidget(final WidgetPosition position, final BooleanSupplier draggable, DoubleSupplier borderWidth, final double panelWidth, final double panelHeight) {
         this.position = position;
         this.draggable = draggable;
+        this.borderWidth = borderWidth;
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
         combined = WidgetPosition.combine(position, offset);
@@ -40,7 +43,7 @@ public class BasicPanelWidget extends AbstractParentWidget {
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
         final boolean mouseDragged = super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
         if (!mouseDragged && draggable.getAsBoolean()) {
-            final Rect2d rect2d = new Rect2d(combined.getX() * getScreenWidth(), combined.getY() * getScreenHeight(), combined.getX() * getScreenWidth() + panelWidth, combined.getY() * getScreenHeight() + panelHeight);
+            final Rect2d rect2d = new Rect2d(combined.getX(), combined.getY(), combined.getX() + panelWidth, combined.getY() + panelHeight);
             if (rect2d.isIn(mouseX, mouseY)) {
                 offset = offset.withX(offset.getX() + deltaX * getScreenWidth()).withY(offset.getY() + deltaY * getScreenHeight());
                 combined = WidgetPosition.combine(position, offset);
@@ -96,12 +99,13 @@ public class BasicPanelWidget extends AbstractParentWidget {
         final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
         //top left
+        double borderWidth = this.borderWidth.getAsDouble();
         renderRectangle(
                 matrices,
-                combined.getX() * getScreenWidth(),
-                combined.getY() * getScreenHeight(),
-                horizontalPixel * 4,
-                verticalPixel * 4,
+                combined.getX(),
+                combined.getY(),
+                horizontalPixel * 4 * borderWidth,
+                verticalPixel * 4 * borderWidth,
                 SPRITE_MAP.get(PanelPart.TOP_LEFT),
                 0xffffffff,
                 bufferBuilder
@@ -109,10 +113,10 @@ public class BasicPanelWidget extends AbstractParentWidget {
         //top middle
         renderRectangle(
                 matrices,
-                combined.getX() * getScreenWidth() + horizontalPixel * 4,
-                combined.getY() * getScreenHeight(),
-                panelWidth - horizontalPixel * 8,
-                verticalPixel * 4,
+                combined.getX() + horizontalPixel * 4 * borderWidth,
+                combined.getY(),
+                panelWidth - horizontalPixel * 8 * borderWidth,
+                verticalPixel * 4 * borderWidth,
                 SPRITE_MAP.get(PanelPart.TOP),
                 0xffffffff,
                 bufferBuilder
@@ -120,10 +124,10 @@ public class BasicPanelWidget extends AbstractParentWidget {
         //top right
         renderRectangle(
                 matrices,
-                combined.getX() * getScreenWidth() + panelWidth - 4 * horizontalPixel,
-                combined.getY() * getScreenHeight(),
-                horizontalPixel * 4,
-                verticalPixel * 4,
+                combined.getX() + panelWidth - 4 * horizontalPixel * borderWidth,
+                combined.getY(),
+                horizontalPixel * 4 * borderWidth,
+                verticalPixel * 4 * borderWidth,
                 SPRITE_MAP.get(PanelPart.TOP_RIGHT),
                 0xffffffff,
                 bufferBuilder
@@ -131,10 +135,10 @@ public class BasicPanelWidget extends AbstractParentWidget {
         //left
         renderRectangle(
                 matrices,
-                combined.getX() * getScreenWidth(),
-                combined.getY() * getScreenHeight() + verticalPixel * 4,
-                horizontalPixel * 4,
-                panelHeight - verticalPixel * 8,
+                combined.getX(),
+                combined.getY() + verticalPixel * 4 * borderWidth,
+                horizontalPixel * 4 * borderWidth,
+                panelHeight - verticalPixel * 8 * borderWidth,
                 SPRITE_MAP.get(PanelPart.LEFT),
                 0xffffffff,
                 bufferBuilder
@@ -142,10 +146,10 @@ public class BasicPanelWidget extends AbstractParentWidget {
         //middle
         renderRectangle(
                 matrices,
-                combined.getX() * getScreenWidth() + horizontalPixel * 4,
-                combined.getY() * getScreenHeight() + verticalPixel * 4,
-                panelWidth - horizontalPixel * 8,
-                panelHeight - verticalPixel * 8,
+                combined.getX() + horizontalPixel * 4 * borderWidth,
+                combined.getY() + verticalPixel * 4 * borderWidth,
+                panelWidth - horizontalPixel * 8 * borderWidth,
+                panelHeight - verticalPixel * 8 * borderWidth,
                 SPRITE_MAP.get(PanelPart.MIDDLE),
                 0xffffffff,
                 bufferBuilder
@@ -153,10 +157,10 @@ public class BasicPanelWidget extends AbstractParentWidget {
         //right
         renderRectangle(
                 matrices,
-                combined.getX() * getScreenWidth() + panelWidth - horizontalPixel * 4,
-                combined.getY() * getScreenHeight() + verticalPixel * 4,
-                horizontalPixel * 4,
-                panelHeight - verticalPixel * 8,
+                combined.getX() + panelWidth - horizontalPixel * 4 * borderWidth,
+                combined.getY() + verticalPixel * 4 * borderWidth,
+                horizontalPixel * 4 * borderWidth,
+                panelHeight - verticalPixel * 8 * borderWidth,
                 SPRITE_MAP.get(PanelPart.RIGHT),
                 0xffffffff,
                 bufferBuilder
@@ -165,10 +169,10 @@ public class BasicPanelWidget extends AbstractParentWidget {
         //bottom left
         renderRectangle(
                 matrices,
-                combined.getX() * getScreenWidth(),
-                combined.getY() * getScreenHeight() + panelHeight - verticalPixel * 4,
-                horizontalPixel * 4,
-                verticalPixel * 4,
+                combined.getX(),
+                combined.getY() + panelHeight - verticalPixel * 4 * borderWidth,
+                horizontalPixel * 4 * borderWidth,
+                verticalPixel * 4 * borderWidth,
                 SPRITE_MAP.get(PanelPart.BOTTOM_LEFT),
                 0xffffffff,
                 bufferBuilder
@@ -176,10 +180,10 @@ public class BasicPanelWidget extends AbstractParentWidget {
         //bottom middle
         renderRectangle(
                 matrices,
-                combined.getX() * getScreenWidth() + horizontalPixel * 4,
-                combined.getY() * getScreenHeight() + panelHeight - verticalPixel * 4,
-                panelWidth - horizontalPixel * 8,
-                verticalPixel * 4,
+                combined.getX() + horizontalPixel * 4 * borderWidth,
+                combined.getY() + panelHeight - verticalPixel * 4 * borderWidth,
+                panelWidth - horizontalPixel * 8 * borderWidth,
+                verticalPixel * 4 * borderWidth,
                 SPRITE_MAP.get(PanelPart.BOTTOM),
                 0xffffffff,
                 bufferBuilder
@@ -187,10 +191,10 @@ public class BasicPanelWidget extends AbstractParentWidget {
         //bottom right
         renderRectangle(
                 matrices,
-                combined.getX() * getScreenWidth() + panelWidth - 4 * horizontalPixel,
-                combined.getY() * getScreenHeight() + panelHeight - verticalPixel * 4,
-                horizontalPixel * 4,
-                verticalPixel * 4,
+                combined.getX() + panelWidth - 4 * horizontalPixel * borderWidth,
+                combined.getY() + panelHeight - verticalPixel * 4 * borderWidth,
+                horizontalPixel * 4 * borderWidth,
+                verticalPixel * 4 * borderWidth,
                 SPRITE_MAP.get(PanelPart.BOTTOM_RIGHT),
                 0xffffffff,
                 bufferBuilder

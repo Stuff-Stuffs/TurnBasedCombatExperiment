@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.Stack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vector4f;
@@ -20,7 +21,7 @@ public final class ScissorStack {
         min.transform(model);
         final Vector4f max = new Vector4f((float) maxX, (float) maxY, 0, 1);
         max.transform(model);
-        push((int) Math.floor(2*min.getX()), (int) Math.floor(2*min.getY()), (int) Math.ceil(2*max.getX()), (int) Math.ceil(2*max.getY()));
+        push((int) Math.floor(min.getX()), (int) Math.floor(min.getY()), (int) Math.ceil(max.getX()), (int) Math.ceil(max.getY()));
     }
 
     public static void push(final int minX, final int minY, final int maxX, final int maxY) {
@@ -58,7 +59,10 @@ public final class ScissorStack {
             RenderSystem.disableScissor();
         } else {
             final Entry entry = STACK.top();
-            RenderSystem.enableScissor(entry.minX, MinecraftClient.getInstance().getWindow().getFramebufferHeight() - entry.minY, entry.maxX - entry.minX, entry.maxY - entry.minY);
+            Window window = MinecraftClient.getInstance().getWindow();
+            double xFactor = window.getFramebufferWidth()/(double)window.getScaledWidth();
+            double yFactor = window.getFramebufferHeight()/(double)window.getScaledHeight();
+            RenderSystem.enableScissor((int) (entry.minX * xFactor), (int) (entry.minY*yFactor), (int) ((entry.maxX - entry.minX)*xFactor), (int) ((entry.maxY - entry.minY)*yFactor));
         }
     }
 

@@ -2,8 +2,6 @@ package io.github.stuff_stuffs.tbcexgui.client.screen;
 
 import io.github.stuff_stuffs.tbcexgui.client.render.ScissorStack;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -18,11 +16,10 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     protected void init() {
-        final Framebuffer fb = MinecraftClient.getInstance().getFramebuffer();
         if (width > height) {
-            widget.resize(width / (double) height, 1, fb.viewportWidth, fb.viewportHeight);
+            widget.resize(width / (double) height, 1, width, height);
         } else {
-            widget.resize(1, height / (double) width, fb.viewportWidth, fb.viewportHeight);
+            widget.resize(1, height / (double) width, width, height);
         }
     }
 
@@ -33,7 +30,7 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
-        return widget.mouseDragged(transformMouseX(mouseX), transformMouseY(mouseY), button, deltaX / (Math.min(width, height)), deltaY / (Math.min(width, height)));
+        return widget.mouseDragged(transformMouseX(mouseX), transformMouseY(mouseY), button, deltaX / width, deltaY / height);
     }
 
     @Override
@@ -53,21 +50,35 @@ public abstract class TBCExScreen extends Screen {
     }
 
     private double transformMouseX(final double mouseX) {
-        return (mouseX - width / 2d) / (Math.min(width, height) / 2d);
+        if (width > height) {
+            double v = mouseX - (width / 2.0) + (height/2.0);
+            return v/height;
+        }
+        return mouseX / (double) width;
     }
 
     private double transformMouseY(final double mouseY) {
-        return (mouseY - height / 2d) / (Math.min(width, height) / 2d);
+        if (width < height) {
+            double v = mouseY - (height / 2.0) + (width/2.0);
+            return v/width;
+        }
+        return mouseY / (double) height;
     }
 
     @Override
     public void render(final MatrixStack matrices, final int mouseX, final int mouseY, final float delta) {
-        final Framebuffer fb = MinecraftClient.getInstance().getFramebuffer();
-        matrices.translate(fb.viewportWidth / 2d, fb.viewportHeight / 2d, 0);
-        final float scale = Math.min(fb.viewportWidth, fb.viewportHeight);
-        matrices.scale(scale / 2f, scale / 2f, 1);
-        ScissorStack.push(matrices, -1, -1, 1, 1);
+        matrices.push();
+        matrices.scale(width, height, 1);
+        if (width > height) {
+            matrices.scale(height / (float) width, 1, 1);
+            matrices.translate((width / (double) height - 1) / 2d, 0, 0);
+        } else if (width < height) {
+            matrices.scale(1, width / (float) height, 1);
+            matrices.translate(0, (height / (double) width - 1) / 2d, 0);
+        }
+        ScissorStack.push(matrices, 0, 0, 1, 1);
         widget.render(matrices, transformMouseX(mouseX), transformMouseY(mouseY), delta);
         ScissorStack.pop();
+        matrices.pop();
     }
 }
