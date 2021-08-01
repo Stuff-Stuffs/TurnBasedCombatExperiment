@@ -12,7 +12,6 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Matrix4f;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -253,17 +252,5 @@ public class PressableButtonWidget extends AbstractWidget {
             }
             SPRITE_MAP.put(state, spriteMap);
         }
-    }
-
-    private static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final Sprite sprite, final int colour, final VertexConsumer consumer) {
-        final Matrix4f model = matrices.peek().getModel();
-        final int alpha = (colour >> 24) & 0xff;
-        final int red = (colour >> 16) & 0xff;
-        final int green = (colour >> 8) & 0xff;
-        final int blue = (colour) & 0xff;
-        consumer.vertex(model, (float) (x + width), (float) y, 0).color(red, green, blue, alpha).texture(sprite.getMaxU(), sprite.getMinV()).next();
-        consumer.vertex(model, (float) x, (float) y, 0).color(red, green, blue, alpha).texture(sprite.getMinU(), sprite.getMinV()).next();
-        consumer.vertex(model, (float) x, (float) (y + height), 0).color(red, green, blue, alpha).texture(sprite.getMinU(), sprite.getMaxV()).next();
-        consumer.vertex(model, (float) (x + width), (float) (y + height), 0).color(red, green, blue, alpha).texture(sprite.getMaxU(), sprite.getMaxV()).next();
     }
 }

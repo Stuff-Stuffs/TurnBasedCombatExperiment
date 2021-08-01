@@ -35,7 +35,6 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        //TODO
         return widget.mouseReleased(transformMouseX(mouseX), transformMouseY(mouseY), button);
     }
 
