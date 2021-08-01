@@ -33,9 +33,6 @@ public class PressableButtonWidget extends AbstractWidget {
     private final Runnable onClick;
     private boolean held = false;
 
-    private double verticalPixel = 1 / 480d;
-    private double horizontalPixel = 1 / 640d;
-
     public PressableButtonWidget(final WidgetPosition position, final DoubleSupplier borderWidth, final BooleanSupplier enabled, final double width, final double height, final Supplier<Text> message, final Runnable onClick) {
         this.position = position;
         this.borderWidth = borderWidth;
@@ -44,32 +41,6 @@ public class PressableButtonWidget extends AbstractWidget {
         this.height = height;
         this.message = message;
         this.onClick = onClick;
-    }
-
-    @Override
-    public void resize(final double width, final double height, final int pixelWidth, final int pixelHeight) {
-        super.resize(width, height, pixelWidth, pixelHeight);
-        horizontalPixel = 1 / (double) pixelWidth;
-        verticalPixel = 1 / (double) pixelHeight;
-        while (horizontalPixel < 0.005) {
-            horizontalPixel = horizontalPixel * 2;
-        }
-        while (verticalPixel < 0.005) {
-            verticalPixel = verticalPixel * 2;
-        }
-        if (horizontalPixel < verticalPixel / 2d) {
-            double inc = 1;
-            while (inc * horizontalPixel < verticalPixel) {
-                inc++;
-            }
-            horizontalPixel = inc * horizontalPixel;
-        } else if (verticalPixel < horizontalPixel / 2d) {
-            double inc = 1;
-            while (inc * verticalPixel < horizontalPixel) {
-                inc++;
-            }
-            verticalPixel = inc * verticalPixel;
-        }
     }
 
     @Override
@@ -102,13 +73,13 @@ public class PressableButtonWidget extends AbstractWidget {
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
         final Rect2d rect = new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height);
-        return rect.isIn(mouseX,mouseY);
+        return rect.isIn(mouseX, mouseY);
     }
 
     @Override
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
         final Rect2d rect = new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height);
-        return rect.isIn(mouseX,mouseY);
+        return rect.isIn(mouseX, mouseY);
     }
 
     @Override
@@ -143,6 +114,8 @@ public class PressableButtonWidget extends AbstractWidget {
         final Map<ButtonPart, Sprite> sprites = PressableButtonWidget.SPRITE_MAP.get(state);
 
         final double borderWidth = this.borderWidth.getAsDouble();
+        final double horizontalPixel = getHorizontalPixel();
+        final double verticalPixel = getVerticalPixel();
 
         final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
@@ -255,18 +228,18 @@ public class PressableButtonWidget extends AbstractWidget {
         BufferRenderer.draw(bufferBuilder);
         final List<OrderedText> wrapped = textRenderer.wrapLines(text, (int) (width * getPixelWidth()));
         final double textYCenter = (positionY + height / 2.0) + textRenderer.fontHeight / 2.0 / (double) getPixelHeight();
-        final double textYBottom = textYCenter - (((wrapped.size()+1)/2d) * textRenderer.fontHeight)/(double)getPixelHeight();
+        final double textYBottom = textYCenter - (((wrapped.size() + 1) / 2d) * textRenderer.fontHeight) / (double) getPixelHeight();
         for (int i = 0; i < wrapped.size(); i++) {
-            OrderedText current = wrapped.get(i);
+            final OrderedText current = wrapped.get(i);
             matrices.push();
-            double textWidth = textRenderer.getWidth(current);
-            double textY = textYBottom + (textRenderer.fontHeight*i)/(double)getPixelHeight();
-            matrices.translate((positionX + width / 2.0) - textWidth/2 /getPixelWidth(),textY , 0);
-            matrices.scale(1/(float)getPixelWidth(),1/(float)getPixelHeight(),1 );
+            final double textWidth = textRenderer.getWidth(current);
+            final double textY = textYBottom + (textRenderer.fontHeight * i) / (double) getPixelHeight();
+            matrices.translate((positionX + width / 2.0) - textWidth / 2 / getPixelWidth(), textY, 0);
+            matrices.scale(1 / (float) getPixelWidth(), 1 / (float) getPixelHeight(), 1);
             if (shadow) {
-                textRenderer.drawWithShadow(matrices, current, 0,0, -1);
+                textRenderer.drawWithShadow(matrices, current, 0, 0, -1);
             } else {
-                textRenderer.draw(matrices, current, 0,0, -1);
+                textRenderer.draw(matrices, current, 0, 0, -1);
             }
             matrices.pop();
         }

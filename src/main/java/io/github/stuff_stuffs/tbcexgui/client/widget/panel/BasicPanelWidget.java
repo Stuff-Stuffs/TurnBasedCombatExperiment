@@ -24,8 +24,6 @@ public class BasicPanelWidget extends AbstractParentWidget {
     private final WidgetPosition position;
     private final BooleanSupplier draggable;
     private final DoubleSupplier borderWidth;
-    private double verticalPixel = 1 / 480d;
-    private double horizontalPixel = 1 / 640d;
     private BasicWidgetPosition offset = new BasicWidgetPosition(0, 0, 0);
     private WidgetPosition combined;
     private final double panelWidth, panelHeight;
@@ -54,32 +52,6 @@ public class BasicPanelWidget extends AbstractParentWidget {
     }
 
     @Override
-    public void resize(final double width, final double height, final int pixelWidth, final int pixelHeight) {
-        super.resize(width, height, pixelWidth, pixelHeight);
-        horizontalPixel = 1 / (double) pixelWidth;
-        verticalPixel = 1 / (double) pixelHeight;
-        while (horizontalPixel < 0.005) {
-            horizontalPixel = horizontalPixel * 2;
-        }
-        while (verticalPixel < 0.005) {
-            verticalPixel = verticalPixel * 2;
-        }
-        if (horizontalPixel < verticalPixel / 2d) {
-            double inc = 1;
-            while (inc * horizontalPixel < verticalPixel) {
-                inc++;
-            }
-            horizontalPixel = inc * horizontalPixel;
-        } else if (verticalPixel < horizontalPixel / 2d) {
-            double inc = 1;
-            while (inc * verticalPixel < horizontalPixel) {
-                inc++;
-            }
-            verticalPixel = inc * verticalPixel;
-        }
-    }
-
-    @Override
     public WidgetPosition getWidgetPosition() {
         return combined;
     }
@@ -98,8 +70,10 @@ public class BasicPanelWidget extends AbstractParentWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 10f);
         final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
-        //top left
         double borderWidth = this.borderWidth.getAsDouble();
+        double horizontalPixel = getHorizontalPixel();
+        double verticalPixel = getVerticalPixel();
+        //top left
         renderRectangle(
                 matrices,
                 combined.getX(),
