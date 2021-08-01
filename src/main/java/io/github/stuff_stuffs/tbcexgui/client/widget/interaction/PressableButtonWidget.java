@@ -10,10 +10,12 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -122,11 +124,13 @@ public class PressableButtonWidget extends AbstractWidget {
         RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 10f);
         final ButtonState state;
+        final double positionX = position.getX();
+        final double positionY = position.getY();
         if (enabled.getAsBoolean()) {
             if (held) {
                 state = ButtonState.HELD;
             } else {
-                final Rect2d rect = new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height);
+                final Rect2d rect = new Rect2d(positionX, positionY, positionX + width, positionY + height);
                 if (rect.isIn(mouseX, mouseY)) {
                     state = ButtonState.HOVERED;
                 } else {
@@ -145,8 +149,8 @@ public class PressableButtonWidget extends AbstractWidget {
         //top left
         renderRectangle(
                 matrices,
-                position.getX(),
-                position.getY(),
+                positionX,
+                positionY,
                 horizontalPixel * 4 * borderWidth,
                 verticalPixel * 4 * borderWidth,
                 sprites.get(ButtonPart.TOP_LEFT),
@@ -156,8 +160,8 @@ public class PressableButtonWidget extends AbstractWidget {
         //top middle
         renderRectangle(
                 matrices,
-                position.getX() + horizontalPixel * 4 * borderWidth,
-                position.getY(),
+                positionX + horizontalPixel * 4 * borderWidth,
+                positionY,
                 width - horizontalPixel * 8 * borderWidth,
                 verticalPixel * 4 * borderWidth,
                 sprites.get(ButtonPart.TOP_MIDDLE),
@@ -167,8 +171,8 @@ public class PressableButtonWidget extends AbstractWidget {
         //top right
         renderRectangle(
                 matrices,
-                position.getX() + width - 4 * horizontalPixel * borderWidth,
-                position.getY(),
+                positionX + width - 4 * horizontalPixel * borderWidth,
+                positionY,
                 horizontalPixel * 4 * borderWidth,
                 verticalPixel * 4 * borderWidth,
                 sprites.get(ButtonPart.TOP_RIGHT),
@@ -178,8 +182,8 @@ public class PressableButtonWidget extends AbstractWidget {
         //left
         renderRectangle(
                 matrices,
-                position.getX(),
-                position.getY() + verticalPixel * 4 * borderWidth,
+                positionX,
+                positionY + verticalPixel * 4 * borderWidth,
                 horizontalPixel * 4 * borderWidth,
                 height - verticalPixel * 8 * borderWidth,
                 sprites.get(ButtonPart.MIDDLE_LEFT),
@@ -189,8 +193,8 @@ public class PressableButtonWidget extends AbstractWidget {
         //middle
         renderRectangle(
                 matrices,
-                position.getX() + horizontalPixel * 4 * borderWidth,
-                position.getY() + verticalPixel * 4 * borderWidth,
+                positionX + horizontalPixel * 4 * borderWidth,
+                positionY + verticalPixel * 4 * borderWidth,
                 width - horizontalPixel * 8 * borderWidth,
                 height - verticalPixel * 8 * borderWidth,
                 sprites.get(ButtonPart.MIDDLE_MIDDLE),
@@ -200,8 +204,8 @@ public class PressableButtonWidget extends AbstractWidget {
         //right
         renderRectangle(
                 matrices,
-                position.getX() + width - horizontalPixel * 4 * borderWidth,
-                position.getY() + verticalPixel * 4 * borderWidth,
+                positionX + width - horizontalPixel * 4 * borderWidth,
+                positionY + verticalPixel * 4 * borderWidth,
                 horizontalPixel * 4 * borderWidth,
                 height - verticalPixel * 8 * borderWidth,
                 sprites.get(ButtonPart.MIDDLE_RIGHT),
@@ -212,8 +216,8 @@ public class PressableButtonWidget extends AbstractWidget {
         //bottom left
         renderRectangle(
                 matrices,
-                position.getX(),
-                position.getY() + height - verticalPixel * 4 * borderWidth,
+                positionX,
+                positionY + height - verticalPixel * 4 * borderWidth,
                 horizontalPixel * 4 * borderWidth,
                 verticalPixel * 4 * borderWidth,
                 sprites.get(ButtonPart.BOTTOM_LEFT),
@@ -223,8 +227,8 @@ public class PressableButtonWidget extends AbstractWidget {
         //bottom middle
         renderRectangle(
                 matrices,
-                position.getX() + horizontalPixel * 4 * borderWidth,
-                position.getY() + height - verticalPixel * 4 * borderWidth,
+                positionX + horizontalPixel * 4 * borderWidth,
+                positionY + height - verticalPixel * 4 * borderWidth,
                 width - horizontalPixel * 8 * borderWidth,
                 verticalPixel * 4 * borderWidth,
                 sprites.get(ButtonPart.BOTTOM_MIDDLE),
@@ -234,8 +238,8 @@ public class PressableButtonWidget extends AbstractWidget {
         //bottom right
         renderRectangle(
                 matrices,
-                position.getX() + width - 4 * horizontalPixel * borderWidth,
-                position.getY() + height - verticalPixel * 4 * borderWidth,
+                positionX + width - 4 * horizontalPixel * borderWidth,
+                positionY + height - verticalPixel * 4 * borderWidth,
                 horizontalPixel * 4 * borderWidth,
                 verticalPixel * 4 * borderWidth,
                 sprites.get(ButtonPart.BOTTOM_RIGHT),
@@ -246,20 +250,26 @@ public class PressableButtonWidget extends AbstractWidget {
         final boolean shadow = !(state == ButtonState.INACTIVE || state == ButtonState.HELD);
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final Text text = message.get();
-        matrices.push();
-        double textWidth = textRenderer.getWidth(text);
-        matrices.translate((position.getX() + width / 2.0) - textWidth/2 /getPixelWidth(), (position.getY() + height / 2.0) - textRenderer.fontHeight/2.0 / (double)getPixelHeight(), 0);
-        matrices.scale(1/(float)getPixelWidth(),1/(float)getPixelHeight(),1 );
+
         bufferBuilder.end();
         BufferRenderer.draw(bufferBuilder);
-
-
-        if (shadow) {
-            textRenderer.drawWithShadow(matrices, text, 0,0, -1);
-        } else {
-            textRenderer.draw(matrices, text, 0,0, -1);
+        final List<OrderedText> wrapped = textRenderer.wrapLines(text, (int) (width * getPixelWidth()));
+        final double textYCenter = (positionY + height / 2.0) + textRenderer.fontHeight / 2.0 / (double) getPixelHeight();
+        final double textYBottom = textYCenter - (((wrapped.size()+1)/2d) * textRenderer.fontHeight)/(double)getPixelHeight();
+        for (int i = 0; i < wrapped.size(); i++) {
+            OrderedText current = wrapped.get(i);
+            matrices.push();
+            double textWidth = textRenderer.getWidth(current);
+            double textY = textYBottom + (textRenderer.fontHeight*i)/(double)getPixelHeight();
+            matrices.translate((positionX + width / 2.0) - textWidth/2 /getPixelWidth(),textY , 0);
+            matrices.scale(1/(float)getPixelWidth(),1/(float)getPixelHeight(),1 );
+            if (shadow) {
+                textRenderer.drawWithShadow(matrices, current, 0,0, -1);
+            } else {
+                textRenderer.draw(matrices, current, 0,0, -1);
+            }
+            matrices.pop();
         }
-        matrices.pop();
     }
 
     private static void reloadSpriteMap() {
