@@ -62,6 +62,17 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
     }
 
     @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        for (int i = sorted.size() - 1; i >= 0; i--) {
+            final WrappedWidget widget = sorted.get(i);
+            if (widget.widget.mouseReleased(mouseX, mouseY, button)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
         for (int i = sorted.size() - 1; i >= 0; i--) {
             final WrappedWidget widget = sorted.get(i);

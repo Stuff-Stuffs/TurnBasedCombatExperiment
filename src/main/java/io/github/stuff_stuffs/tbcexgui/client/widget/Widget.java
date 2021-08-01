@@ -7,6 +7,8 @@ public interface Widget {
 
     boolean mouseClicked(double mouseX, double mouseY, int button);
 
+    boolean mouseReleased(double mouseX, double mouseY, int button);
+
     boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY);
 
     boolean mouseScrolled(double mouseX, double mouseY, double amount);

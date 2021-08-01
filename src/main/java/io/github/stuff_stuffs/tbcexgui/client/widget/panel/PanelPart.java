@@ -19,7 +19,7 @@ public enum PanelPart {
 
     PanelPart() {
         name = name().toLowerCase(Locale.ROOT);
-        identifier = new Identifier("tbcexgui", "gui/panel_" + getName());
+        identifier = new Identifier("tbcexgui", "gui/panel/panel_" + getName());
     }
 
     public String getName() {
