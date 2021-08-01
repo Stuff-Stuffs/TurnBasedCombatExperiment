@@ -11,7 +11,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix4f;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -28,7 +27,7 @@ public class BasicPanelWidget extends AbstractParentWidget {
     private WidgetPosition combined;
     private final double panelWidth, panelHeight;
 
-    public BasicPanelWidget(final WidgetPosition position, final BooleanSupplier draggable, DoubleSupplier borderWidth, final double panelWidth, final double panelHeight) {
+    public BasicPanelWidget(final WidgetPosition position, final BooleanSupplier draggable, final DoubleSupplier borderWidth, final double panelWidth, final double panelHeight) {
         this.position = position;
         this.draggable = draggable;
         this.borderWidth = borderWidth;
@@ -70,9 +69,9 @@ public class BasicPanelWidget extends AbstractParentWidget {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 10f);
         final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
-        double borderWidth = this.borderWidth.getAsDouble();
-        double horizontalPixel = getHorizontalPixel();
-        double verticalPixel = getVerticalPixel();
+        final double borderWidth = this.borderWidth.getAsDouble();
+        final double horizontalPixel = getHorizontalPixel();
+        final double verticalPixel = getVerticalPixel();
         //top left
         renderRectangle(
                 matrices,

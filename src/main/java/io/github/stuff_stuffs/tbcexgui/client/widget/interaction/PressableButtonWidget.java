@@ -6,6 +6,7 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.*;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
@@ -29,16 +30,18 @@ public class PressableButtonWidget extends AbstractWidget {
     private final double width;
     private final double height;
     private final Supplier<Text> message;
+    private final Supplier<List<TooltipComponent>> tooltip;
     private final Runnable onClick;
     private boolean held = false;
 
-    public PressableButtonWidget(final WidgetPosition position, final DoubleSupplier borderWidth, final BooleanSupplier enabled, final double width, final double height, final Supplier<Text> message, final Runnable onClick) {
+    public PressableButtonWidget(final WidgetPosition position, final DoubleSupplier borderWidth, final BooleanSupplier enabled, final double width, final double height, final Supplier<Text> message, final Supplier<List<TooltipComponent>> tooltip, final Runnable onClick) {
         this.position = position;
         this.borderWidth = borderWidth;
         this.enabled = enabled;
         this.width = width;
         this.height = height;
         this.message = message;
+        this.tooltip = tooltip;
         this.onClick = onClick;
     }
 
@@ -241,6 +244,11 @@ public class PressableButtonWidget extends AbstractWidget {
                 textRenderer.draw(matrices, current, 0, 0, -1);
             }
             matrices.pop();
+        }
+
+        if (state == ButtonState.HOVERED) {
+            matrices.translate(0,0,1);
+            renderTooltip(matrices, tooltip.get(), mouseX, mouseY);
         }
     }
 
