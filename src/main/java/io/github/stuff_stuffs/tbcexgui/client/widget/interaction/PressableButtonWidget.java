@@ -248,9 +248,8 @@ public class PressableButtonWidget extends AbstractWidget {
         final Text text = message.get();
         matrices.push();
         double textWidth = textRenderer.getWidth(text);
-        matrices.translate((position.getX() + width / 2.0) - textWidth/2 /getPixelWidth(), (position.getY() + height / 2.0) - textRenderer.fontHeight / (double)getPixelHeight(), 0);
+        matrices.translate((position.getX() + width / 2.0) - textWidth/2 /getPixelWidth(), (position.getY() + height / 2.0) - textRenderer.fontHeight/2.0 / (double)getPixelHeight(), 0);
         matrices.scale(1/(float)getPixelWidth(),1/(float)getPixelHeight(),1 );
-        //renderRectangle(matrices, 0, 0, 0.1, 0.1, sprites.get(ButtonPart.MIDDLE_MIDDLE), 0xFF00FF00, bufferBuilder);
         bufferBuilder.end();
         BufferRenderer.draw(bufferBuilder);
 
