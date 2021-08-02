@@ -244,6 +244,11 @@ public class CycleButton<T> extends AbstractWidget {
         }
     }
 
+    @Override
+    public boolean keyPress(int keyCode, int scanCode, int modifiers) {
+        return false;
+    }
+
     private static void reloadSpriteMap() {
         for (final ButtonState state : ButtonState.values()) {
             final Map<ButtonPart, Sprite> spriteMap = new EnumMap<>(ButtonPart.class);

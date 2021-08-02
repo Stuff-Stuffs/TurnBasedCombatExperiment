@@ -16,4 +16,9 @@ public interface Widget {
     void resize(double width, double height, int pixelWidth, int pixelHeight);
 
     void render(MatrixStack matrices, double mouseX, double mouseY, float delta);
+
+    boolean keyPress(int keyCode, int scanCode, int modifiers);
+
+    default void setFocused(final boolean focused) {
+    }
 }

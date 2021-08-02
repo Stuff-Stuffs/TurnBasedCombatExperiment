@@ -45,6 +45,14 @@ public class HidingPanel extends AbstractParentWidget {
     }
 
     @Override
+    public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
+        if (hidden) {
+            return false;
+        }
+        return super.keyPress(keyCode, scanCode, modifiers);
+    }
+
+    @Override
     public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final float delta) {
         if (!hidden) {
             super.render(matrices, mouseX, mouseY, delta);

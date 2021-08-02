@@ -48,6 +48,11 @@ public abstract class TBCExScreen extends Screen {
         //TODO
     }
 
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        return widget.keyPress(keyCode, scanCode, modifiers);
+    }
+
     private double transformMouseX(final double mouseX) {
         if (width > height) {
             double v = mouseX - (width / 2.0) + (height/2.0);

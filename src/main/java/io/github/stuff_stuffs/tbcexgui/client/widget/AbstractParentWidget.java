@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.util.math.MatrixStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.List;
@@ -19,12 +20,29 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
     protected final IdSupplier ids;
     protected final Int2ReferenceMap<WrappedWidget> widgetById;
     protected final List<WrappedWidget> sorted;
+    private WrappedWidget focusedWidget;
+    private boolean isFocused;
 
     protected AbstractParentWidget() {
         thisId = ID_SUPPLIER.nextId();
         ids = new IdSupplier();
         widgetById = new Int2ReferenceOpenHashMap<>();
         sorted = new ReferenceArrayList<>();
+    }
+
+    public @Nullable WrappedWidget getFocusedWidget() {
+        return focusedWidget;
+    }
+
+    @Override
+    public void setFocused(final boolean focused) {
+        isFocused = focused;
+        if (!focused) {
+            if (focusedWidget != null) {
+                focusedWidget.widget.setFocused(false);
+            }
+            focusedWidget = null;
+        }
     }
 
     @Override
@@ -53,6 +71,10 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
         for (int i = sorted.size() - 1; i >= 0; i--) {
             final WrappedWidget widget = sorted.get(i);
             if (widget.widget.mouseClicked(mouseX, mouseY, button)) {
+                if (isFocused) {
+                    widget.widget.setFocused(true);
+                    focusedWidget = widget;
+                }
                 widget.clicks++;
                 sorted.sort(COMPARATOR);
                 return true;
@@ -62,7 +84,7 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
         for (int i = sorted.size() - 1; i >= 0; i--) {
             final WrappedWidget widget = sorted.get(i);
             if (widget.widget.mouseReleased(mouseX, mouseY, button)) {
@@ -99,6 +121,14 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
     }
 
     @Override
+    public boolean keyPress(int keyCode, int scanCode, int modifiers) {
+        if(isFocused&&focusedWidget!=null) {
+            return focusedWidget.widget.keyPress(keyCode, scanCode, modifiers);
+        }
+        return false;
+    }
+
+    @Override
     public void resize(final double width, final double height, final int pixelWidth, final int pixelHeight) {
         super.resize(width, height, pixelWidth, pixelHeight);
         for (final WrappedWidget widget : sorted) {
@@ -107,8 +137,8 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
     }
 
     @Override
-    public void render(MatrixStack matrices, double mouseX, double mouseY, float delta) {
-        for (WrappedWidget widget : sorted) {
+    public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final float delta) {
+        for (final WrappedWidget widget : sorted) {
             widget.widget.render(matrices, mouseX, mouseY, delta);
         }
     }
