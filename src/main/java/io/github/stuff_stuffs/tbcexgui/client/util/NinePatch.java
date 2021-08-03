@@ -14,7 +14,7 @@ import static io.github.stuff_stuffs.tbcexgui.client.util.RenderUtil.renderRecta
 
 public final class NinePatch {
     public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final MatrixStack matrices) {
-        render(spriteMap, x, y, width, height, pixelWidth, pixelHeight, borderWidth, 4, 0xffffffff, matrices);
+        render(spriteMap, x, y, width, height, pixelWidth, pixelHeight, borderWidth, 1, 0xffffffff, matrices);
     }
 
     public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final int spriteSize, final int colour, final MatrixStack matrices) {

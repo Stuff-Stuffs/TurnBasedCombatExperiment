@@ -32,7 +32,7 @@ public class TestScreen extends TBCExScreen {
                         panel::getWidgetPosition,
                         WidgetPosition.of(0, 0, 0)
                 ),
-                () -> 1,
+                () -> 2,
                 () -> true,
                 0.25,
                 0.1,
@@ -42,7 +42,7 @@ public class TestScreen extends TBCExScreen {
                 }
         );
         final MutableBoolean selected = new MutableBoolean(false);
-        final SingleHotbarSlotWidget slot = new SingleHotbarSlotWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0.5, 0, 0)), 1 / 16d, () -> 0.25, selected::booleanValue, (hotbarSlotWidget, integer) -> {
+        final SingleHotbarSlotWidget slot = new SingleHotbarSlotWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0.5, 0, 0)), 1 / 16d, () -> 1, selected::booleanValue, (hotbarSlotWidget, integer) -> {
         }, (hotbarSlotWidget, integer) ->  selected.setValue(!selected.booleanValue()), (hotbarSlotWidget, aDouble) -> {
         }, hotbarSlotWidget -> {
         }, hotbarSlotWidget -> {
