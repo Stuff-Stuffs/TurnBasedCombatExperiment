@@ -10,6 +10,9 @@ import net.minecraft.util.math.Matrix4f;
 public class RootPanelWidget extends AbstractParentWidget {
     private static final WidgetPosition ROOT = WidgetPosition.of(0, 0, 0);
 
+    public RootPanelWidget () {
+        this.setFocused(true);
+    }
     @Override
     public WidgetPosition getWidgetPosition() {
         return ROOT;

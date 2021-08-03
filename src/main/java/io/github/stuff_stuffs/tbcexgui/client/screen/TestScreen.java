@@ -1,9 +1,11 @@
 package io.github.stuff_stuffs.tbcexgui.client.screen;
 
-import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.SingleHotbarSlotWidget;
+import io.github.stuff_stuffs.tbcexgui.client.util.ItemStackLike;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
+import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.InventorySlotsWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.PressableButtonWidget;
+import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.SingleHotbarSlotWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.BasicPanelWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
@@ -43,12 +45,28 @@ public class TestScreen extends TBCExScreen {
         );
         final MutableBoolean selected = new MutableBoolean(false);
         final SingleHotbarSlotWidget slot = new SingleHotbarSlotWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0.5, 0, 0)), 1 / 16d, () -> 1, selected::booleanValue, (hotbarSlotWidget, integer) -> {
-        }, (hotbarSlotWidget, integer) ->  selected.setValue(!selected.booleanValue()), (hotbarSlotWidget, aDouble) -> {
+        }, (hotbarSlotWidget, integer) -> selected.setValue(!selected.booleanValue()), (hotbarSlotWidget, aDouble) -> {
         }, hotbarSlotWidget -> {
         }, hotbarSlotWidget -> {
         }, null);
+        final InventorySlotsWidget slots = new InventorySlotsWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0, 0.25, 0)), 1 / 16d, new ItemStackLike[5][6], 1, new InventorySlotsWidget.Handler() {
+            @Override
+            public void onClick(final InventorySlotsWidget widget, final int button, final int x, final int y) {
+                if (button == 0) {
+                    widget.setSelected(x, y);
+                }
+            }
+
+            @Override
+            public void focusChange(InventorySlotsWidget widget, boolean focused) {
+                if(!focused) {
+                    widget.setSelected(-1,-1);
+                }
+            }
+        });
         panel.addWidget(button);
         panel.addWidget(slot);
+        panel.addWidget(slots);
         return new TestScreen(new LiteralText("adsd"), root);
     }
 }

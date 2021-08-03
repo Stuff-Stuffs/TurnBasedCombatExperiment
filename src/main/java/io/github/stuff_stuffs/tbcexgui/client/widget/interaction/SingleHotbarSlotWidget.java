@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
+import io.github.stuff_stuffs.tbcexgui.client.util.ItemStackLike;
 import io.github.stuff_stuffs.tbcexgui.client.util.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.util.Rect2d;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
@@ -122,10 +123,6 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
     @Override
     public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
         return false;
-    }
-
-    public interface ItemStackLike {
-        void render(MatrixStack matrices, double mouseX, double mouseY, float delta);
     }
 
     private static void reloadSpriteMap() {

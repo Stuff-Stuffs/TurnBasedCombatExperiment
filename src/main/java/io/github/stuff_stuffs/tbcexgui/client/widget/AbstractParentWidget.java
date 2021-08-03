@@ -72,13 +72,20 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
             final WrappedWidget widget = sorted.get(i);
             if (widget.widget.mouseClicked(mouseX, mouseY, button)) {
                 if (isFocused) {
-                    widget.widget.setFocused(true);
+                    if(focusedWidget!=null&&!(focusedWidget.widget==widget.widget)) {
+                        focusedWidget.widget.setFocused(false);
+                    }
                     focusedWidget = widget;
+                    focusedWidget.widget.setFocused(true);
                 }
                 widget.clicks++;
                 sorted.sort(COMPARATOR);
                 return true;
             }
+        }
+        if (focusedWidget!=null) {
+            focusedWidget.widget.setFocused(false);
+            focusedWidget = null;
         }
         return false;
     }
