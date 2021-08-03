@@ -13,26 +13,30 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
-public class HotbarSlotWidget extends AbstractWidget {
+public class SingleHotbarSlotWidget extends AbstractWidget {
     private static final Map<NinePatch.Part, Sprite> SPRITE_MAP;
+    private static final Map<NinePatch.Part, Sprite> SELECTED_SPRITE_MAP;
     private static boolean RELOAD_SPRITE_MAP = true;
     private final WidgetPosition position;
     private final double size;
     private final DoubleSupplier borderWidth;
-    private final BiConsumer<HotbarSlotWidget, Integer> onClick;
-    private final BiConsumer<HotbarSlotWidget, Integer> onRelease;
-    private final BiConsumer<HotbarSlotWidget, Double> mouseScroll;
-    private final Consumer<HotbarSlotWidget> onFocus;
-    private final Consumer<HotbarSlotWidget> onLoseFocus;
+    private final BooleanSupplier selected;
+    private final BiConsumer<SingleHotbarSlotWidget, Integer> onClick;
+    private final BiConsumer<SingleHotbarSlotWidget, Integer> onRelease;
+    private final BiConsumer<SingleHotbarSlotWidget, Double> mouseScroll;
+    private final Consumer<SingleHotbarSlotWidget> onFocus;
+    private final Consumer<SingleHotbarSlotWidget> onLoseFocus;
     private @Nullable ItemStackLike itemStackLike;
 
-    public HotbarSlotWidget(final WidgetPosition position, final double size, final DoubleSupplier borderWidth, final BiConsumer<HotbarSlotWidget, Integer> onClick, final BiConsumer<HotbarSlotWidget, Integer> onRelease, final BiConsumer<HotbarSlotWidget, Double> mouseScroll, Consumer<HotbarSlotWidget> onFocus, Consumer<HotbarSlotWidget> onLoseFocus, @Nullable ItemStackLike itemStackLike) {
+    public SingleHotbarSlotWidget(final WidgetPosition position, final double size, final DoubleSupplier borderWidth, final BooleanSupplier selected, final BiConsumer<SingleHotbarSlotWidget, Integer> onClick, final BiConsumer<SingleHotbarSlotWidget, Integer> onRelease, final BiConsumer<SingleHotbarSlotWidget, Double> mouseScroll, final Consumer<SingleHotbarSlotWidget> onFocus, final Consumer<SingleHotbarSlotWidget> onLoseFocus, @Nullable final ItemStackLike itemStackLike) {
         this.position = position;
         this.size = size;
         this.borderWidth = borderWidth;
+        this.selected = selected;
         this.onClick = onClick;
         this.onRelease = onRelease;
         this.mouseScroll = mouseScroll;
@@ -42,16 +46,16 @@ public class HotbarSlotWidget extends AbstractWidget {
     }
 
     @Override
-    public void setFocused(boolean focused) {
+    public void setFocused(final boolean focused) {
         super.setFocused(focused);
-        if(focused) {
+        if (focused) {
             onFocus.accept(this);
         } else {
             onLoseFocus.accept(this);
         }
     }
 
-    public void setItemStackLike(@Nullable ItemStackLike itemStackLike) {
+    public void setItemStackLike(@Nullable final ItemStackLike itemStackLike) {
         this.itemStackLike = itemStackLike;
     }
 
@@ -102,12 +106,13 @@ public class HotbarSlotWidget extends AbstractWidget {
 
     @Override
     public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final float delta) {
-        if(RELOAD_SPRITE_MAP) {
+        if (RELOAD_SPRITE_MAP) {
             reloadSpriteMap();
             RELOAD_SPRITE_MAP = false;
         }
-        NinePatch.render(SPRITE_MAP, position.getX(), position.getY(), size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
-        if(itemStackLike!=null) {
+        final Map<NinePatch.Part, Sprite> spriteMap = selected.getAsBoolean() ? SELECTED_SPRITE_MAP : SPRITE_MAP;
+        NinePatch.render(spriteMap, position.getX(), position.getY(), size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
+        if (itemStackLike != null) {
             itemStackLike.render(matrices, mouseX, mouseY, delta);
         }
     }
@@ -126,10 +131,15 @@ public class HotbarSlotWidget extends AbstractWidget {
         for (final NinePatch.Part part : NinePatch.Part.values()) {
             SPRITE_MAP.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.append(base)));
         }
+        base = new Identifier("tbcexgui", "gui/hotbar/single/selected");
+        for (final NinePatch.Part part : NinePatch.Part.values()) {
+            SELECTED_SPRITE_MAP.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.append(base)));
+        }
     }
 
     static {
         SPRITE_MAP = new EnumMap<>(NinePatch.Part.class);
+        SELECTED_SPRITE_MAP = new EnumMap<>(NinePatch.Part.class);
         ClientSpriteRegistryCallback.event(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).register((atlasTexture, registry) -> RELOAD_SPRITE_MAP = true);
     }
 }

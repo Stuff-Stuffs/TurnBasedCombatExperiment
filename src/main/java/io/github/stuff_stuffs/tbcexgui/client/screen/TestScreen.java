@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client.screen;
 
-import io.github.stuff_stuffs.tbcexgui.client.widget.HotbarSlotWidget;
+import io.github.stuff_stuffs.tbcexgui.client.widget.SingleHotbarSlotWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.PressableButtonWidget;
@@ -9,6 +9,7 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,9 +41,9 @@ public class TestScreen extends TBCExScreen {
                 () -> {
                 }
         );
-        final HotbarSlotWidget slot = new HotbarSlotWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0.5, 0, 0)), 1 / 16d, () -> 0.25, (hotbarSlotWidget, integer) -> {
-        }, (hotbarSlotWidget, integer) -> {
-        }, (hotbarSlotWidget, aDouble) -> {
+        final MutableBoolean selected = new MutableBoolean(false);
+        final SingleHotbarSlotWidget slot = new SingleHotbarSlotWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0.5, 0, 0)), 1 / 16d, () -> 0.25, selected::booleanValue, (hotbarSlotWidget, integer) -> {
+        }, (hotbarSlotWidget, integer) ->  selected.setValue(!selected.booleanValue()), (hotbarSlotWidget, aDouble) -> {
         }, hotbarSlotWidget -> {
         }, hotbarSlotWidget -> {
         }, null);

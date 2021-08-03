@@ -43,6 +43,10 @@ public class TBCExGuiClient implements ClientModInitializer {
             for (NinePatch.Part part : NinePatch.Part.values()) {
                 registry.register(part.append(base));
             }
+            base = new Identifier("tbcexgui", "gui/hotbar/single/selected");
+            for (NinePatch.Part part : NinePatch.Part.values()) {
+                registry.register(part.append(base));
+            }
         });
     }
 }
