@@ -1,7 +1,9 @@
-package io.github.stuff_stuffs.tbcexgui.client.widget;
+package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
 import io.github.stuff_stuffs.tbcexgui.client.util.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.util.Rect2d;
+import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
+import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;

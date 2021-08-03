@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client.screen;
 
-import io.github.stuff_stuffs.tbcexgui.client.widget.SingleHotbarSlotWidget;
+import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.SingleHotbarSlotWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.PressableButtonWidget;
