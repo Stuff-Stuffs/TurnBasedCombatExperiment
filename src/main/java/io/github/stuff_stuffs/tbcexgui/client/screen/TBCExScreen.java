@@ -5,6 +5,7 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
 
 public abstract class TBCExScreen extends Screen {
     protected final Widget widget;
@@ -50,6 +51,10 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if(keyCode == GLFW.GLFW_KEY_ESCAPE && this.shouldCloseOnEsc()) {
+            this.onClose();
+            return true;
+        }
         return widget.keyPress(keyCode, scanCode, modifiers);
     }
 
@@ -80,9 +85,7 @@ public abstract class TBCExScreen extends Screen {
             matrices.scale(1, width / (float) height, 1);
             matrices.translate(0, (height / (double) width - 1) / 2d, 0);
         }
-        ScissorStack.push(matrices, 0, 0, 1, 1);
         widget.render(matrices, transformMouseX(mouseX), transformMouseY(mouseY), delta);
-        ScissorStack.pop();
         matrices.pop();
     }
 }

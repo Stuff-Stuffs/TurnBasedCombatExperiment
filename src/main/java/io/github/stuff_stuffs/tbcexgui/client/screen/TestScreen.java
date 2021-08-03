@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client.screen;
 
+import io.github.stuff_stuffs.tbcexgui.client.widget.HotbarSlotWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.PressableButtonWidget;
@@ -19,7 +20,7 @@ public class TestScreen extends TBCExScreen {
 
     public static TestScreen build() {
         final RootPanelWidget root = new RootPanelWidget();
-        final BasicPanelWidget panel = new BasicPanelWidget(WidgetPosition.of(0.25, 0.25, 0), () -> true, () -> 1, 0.5, 0.5);
+        final BasicPanelWidget panel = new BasicPanelWidget(WidgetPosition.of(0.25, 0.25, 0), () -> true, () -> 0.25, 0.5, 0.5);
         root.addWidget(panel);
         final List<TooltipComponent> tooltipComponents = new ArrayList<>();
         tooltipComponents.add(TooltipComponent.of(new LiteralText("First").asOrderedText()));
@@ -39,7 +40,14 @@ public class TestScreen extends TBCExScreen {
                 () -> {
                 }
         );
+        final HotbarSlotWidget slot = new HotbarSlotWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0.5, 0, 0)), 1 / 16d, () -> 0.25, (hotbarSlotWidget, integer) -> {
+        }, (hotbarSlotWidget, integer) -> {
+        }, (hotbarSlotWidget, aDouble) -> {
+        }, hotbarSlotWidget -> {
+        }, hotbarSlotWidget -> {
+        }, null);
         panel.addWidget(button);
+        panel.addWidget(slot);
         return new TestScreen(new LiteralText("adsd"), root);
     }
 }
