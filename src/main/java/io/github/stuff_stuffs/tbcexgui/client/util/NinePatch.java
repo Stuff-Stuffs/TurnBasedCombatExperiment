@@ -18,6 +18,12 @@ public final class NinePatch {
     }
 
     public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final int colour, final MatrixStack matrices) {
+        final BufferBuilder bufferBuilder = renderSetup();
+        renderMain(spriteMap, x, y, width, height, pixelWidth, pixelHeight, borderWidth, colour, matrices, bufferBuilder);
+        renderEnd(bufferBuilder);
+    }
+
+    public static BufferBuilder renderSetup() {
         RenderSystem.enableBlend();
         RenderSystem.enableTexture();
         RenderSystem.defaultBlendFunc();
@@ -26,6 +32,10 @@ public final class NinePatch {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0f);
         final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
+        return bufferBuilder;
+    }
+
+    public static void renderMain(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final int colour, final MatrixStack matrices, final VertexConsumer consumer) {
         //top left
         renderRectangle(
                 matrices,
@@ -35,7 +45,7 @@ public final class NinePatch {
                 pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.TOP_LEFT),
                 colour,
-                bufferBuilder
+                consumer
         );
         //top middle
         renderRectangle(
@@ -46,7 +56,7 @@ public final class NinePatch {
                 pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.TOP_MIDDLE),
                 colour,
-                bufferBuilder
+                consumer
         );
         //top right
         renderRectangle(
@@ -57,7 +67,7 @@ public final class NinePatch {
                 pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.TOP_RIGHT),
                 colour,
-                bufferBuilder
+                consumer
         );
         //left
         renderRectangle(
@@ -68,7 +78,7 @@ public final class NinePatch {
                 height - pixelHeight * 2 * borderWidth + 0.001,
                 spriteMap.get(Part.MIDDLE_LEFT),
                 colour,
-                bufferBuilder
+                consumer
         );
         //middle
         renderRectangle(
@@ -79,7 +89,7 @@ public final class NinePatch {
                 height - pixelHeight * 2 * borderWidth + 0.001,
                 spriteMap.get(Part.MIDDLE_MIDDLE),
                 colour,
-                bufferBuilder
+                consumer
         );
         //right
         renderRectangle(
@@ -90,7 +100,7 @@ public final class NinePatch {
                 height - pixelHeight * 2 * borderWidth + 0.001,
                 spriteMap.get(Part.MIDDLE_RIGHT),
                 colour,
-                bufferBuilder
+                consumer
         );
 
         //bottom left
@@ -102,7 +112,7 @@ public final class NinePatch {
                 pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.BOTTOM_LEFT),
                 colour,
-                bufferBuilder
+                consumer
         );
         //bottom middle
         renderRectangle(
@@ -113,7 +123,7 @@ public final class NinePatch {
                 pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.BOTTOM_MIDDLE),
                 colour,
-                bufferBuilder
+                consumer
         );
         //bottom right
         renderRectangle(
@@ -124,8 +134,11 @@ public final class NinePatch {
                 pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.BOTTOM_RIGHT),
                 colour,
-                bufferBuilder
+                consumer
         );
+    }
+
+    public static void renderEnd(final BufferBuilder bufferBuilder) {
         bufferBuilder.end();
         BufferRenderer.draw(bufferBuilder);
     }
