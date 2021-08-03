@@ -21,7 +21,7 @@ public class TestScreen extends TBCExScreen {
 
     public static TestScreen build() {
         final RootPanelWidget root = new RootPanelWidget();
-        final BasicPanelWidget panel = new BasicPanelWidget(WidgetPosition.of(0.25, 0.25, 0), () -> true, () -> 0.25, 0.5, 0.5);
+        final BasicPanelWidget panel = new BasicPanelWidget(WidgetPosition.of(0.25, 0.25, 0), () -> true, () -> 1, 0.5, 0.5);
         root.addWidget(panel);
         final List<TooltipComponent> tooltipComponents = new ArrayList<>();
         tooltipComponents.add(TooltipComponent.of(new LiteralText("First").asOrderedText()));

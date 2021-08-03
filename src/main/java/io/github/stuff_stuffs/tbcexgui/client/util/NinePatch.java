@@ -14,16 +14,16 @@ import static io.github.stuff_stuffs.tbcexgui.client.util.RenderUtil.renderRecta
 
 public final class NinePatch {
     public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final MatrixStack matrices) {
-        render(spriteMap, x, y, width, height, pixelWidth, pixelHeight, borderWidth, 1, 0xffffffff, matrices);
+        render(spriteMap, x, y, width, height, pixelWidth, pixelHeight, borderWidth, 0xffffffff, matrices);
     }
 
-    public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final int spriteSize, final int colour, final MatrixStack matrices) {
+    public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final int colour, final MatrixStack matrices) {
         RenderSystem.enableBlend();
         RenderSystem.enableTexture();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 10f);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0f);
         final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
         //top left
@@ -31,8 +31,8 @@ public final class NinePatch {
                 matrices,
                 x,
                 y,
-                pixelWidth * spriteSize * borderWidth + 0.001,
-                pixelHeight * spriteSize * borderWidth + 0.001,
+                pixelWidth * borderWidth + 0.001,
+                pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.TOP_LEFT),
                 colour,
                 bufferBuilder
@@ -40,10 +40,10 @@ public final class NinePatch {
         //top middle
         renderRectangle(
                 matrices,
-                x + pixelWidth * spriteSize * borderWidth,
+                x + pixelWidth * borderWidth,
                 y,
-                width - pixelWidth * 2 * spriteSize * borderWidth + 0.001,
-                pixelHeight * spriteSize * borderWidth + 0.001,
+                width - pixelWidth * 2 * borderWidth + 0.001,
+                pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.TOP_MIDDLE),
                 colour,
                 bufferBuilder
@@ -51,10 +51,10 @@ public final class NinePatch {
         //top right
         renderRectangle(
                 matrices,
-                x + width - spriteSize * pixelWidth * borderWidth,
+                x + width - pixelWidth * borderWidth,
                 y,
-                pixelWidth * spriteSize * borderWidth + 0.001,
-                pixelHeight * spriteSize * borderWidth + 0.001,
+                pixelWidth * borderWidth + 0.001,
+                pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.TOP_RIGHT),
                 colour,
                 bufferBuilder
@@ -63,9 +63,9 @@ public final class NinePatch {
         renderRectangle(
                 matrices,
                 x,
-                y + pixelHeight * spriteSize * borderWidth,
-                pixelWidth * spriteSize * borderWidth + 0.001,
-                height - pixelHeight * 2 * spriteSize * borderWidth + 0.001,
+                y + pixelHeight * borderWidth,
+                pixelWidth * borderWidth + 0.001,
+                height - pixelHeight * 2 * borderWidth + 0.001,
                 spriteMap.get(Part.MIDDLE_LEFT),
                 colour,
                 bufferBuilder
@@ -73,10 +73,10 @@ public final class NinePatch {
         //middle
         renderRectangle(
                 matrices,
-                x + pixelWidth * spriteSize * borderWidth,
-                y + pixelHeight * spriteSize * borderWidth,
-                width - pixelWidth * 2 * spriteSize * borderWidth + 0.001,
-                height - pixelHeight * 2 * spriteSize * borderWidth + 0.001,
+                x + pixelWidth * borderWidth,
+                y + pixelHeight * borderWidth,
+                width - pixelWidth * 2 * borderWidth + 0.001,
+                height - pixelHeight * 2 * borderWidth + 0.001,
                 spriteMap.get(Part.MIDDLE_MIDDLE),
                 colour,
                 bufferBuilder
@@ -84,10 +84,10 @@ public final class NinePatch {
         //right
         renderRectangle(
                 matrices,
-                x + width - pixelWidth * spriteSize * borderWidth,
-                y + pixelHeight * spriteSize * borderWidth,
-                pixelWidth * spriteSize * borderWidth + 0.001,
-                height - pixelHeight * 2 * spriteSize * borderWidth + 0.001,
+                x + width - pixelWidth * borderWidth,
+                y + pixelHeight * borderWidth,
+                pixelWidth * borderWidth + 0.001,
+                height - pixelHeight * 2 * borderWidth + 0.001,
                 spriteMap.get(Part.MIDDLE_RIGHT),
                 colour,
                 bufferBuilder
@@ -97,9 +97,9 @@ public final class NinePatch {
         renderRectangle(
                 matrices,
                 x,
-                y + height - pixelHeight * spriteSize * borderWidth,
-                pixelWidth * spriteSize * borderWidth + 0.001,
-                pixelHeight * spriteSize * borderWidth + 0.001,
+                y + height - pixelHeight * borderWidth,
+                pixelWidth * borderWidth + 0.001,
+                pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.BOTTOM_LEFT),
                 colour,
                 bufferBuilder
@@ -107,10 +107,10 @@ public final class NinePatch {
         //bottom middle
         renderRectangle(
                 matrices,
-                x + pixelWidth * spriteSize * borderWidth,
-                y + height - pixelHeight * spriteSize * borderWidth,
-                width - pixelWidth * 2 * spriteSize * borderWidth + 0.001,
-                pixelHeight * spriteSize * borderWidth + 0.001,
+                x + pixelWidth * borderWidth,
+                y + height - pixelHeight * borderWidth,
+                width - pixelWidth * 2 * borderWidth + 0.001,
+                pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.BOTTOM_MIDDLE),
                 colour,
                 bufferBuilder
@@ -118,10 +118,10 @@ public final class NinePatch {
         //bottom right
         renderRectangle(
                 matrices,
-                x + width - spriteSize * pixelWidth * borderWidth,
-                y + height - pixelHeight * spriteSize * borderWidth,
-                pixelWidth * spriteSize * borderWidth + 0.001,
-                pixelHeight * spriteSize * borderWidth + 0.001,
+                x + width - pixelWidth * borderWidth,
+                y + height - pixelHeight * borderWidth,
+                pixelWidth * borderWidth + 0.001,
+                pixelHeight * borderWidth + 0.001,
                 spriteMap.get(Part.BOTTOM_RIGHT),
                 colour,
                 bufferBuilder
