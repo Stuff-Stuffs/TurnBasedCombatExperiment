@@ -1,21 +1,24 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.stuff_stuffs.tbcexgui.client.util.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.util.Rect2d;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -23,7 +26,7 @@ import java.util.function.Supplier;
 
 public class PressableButtonWidget extends AbstractWidget {
     private static boolean RELOAD_SPRITE_MAP = true;
-    private static final Map<ButtonState, Map<ButtonPart, Sprite>> SPRITE_MAP = new EnumMap<>(ButtonState.class);
+    private static final Map<ButtonState, Map<NinePatch.Part, Sprite>> SPRITE_MAP = new EnumMap<>(ButtonState.class);
     private final WidgetPosition position;
     private final DoubleSupplier borderWidth;
     private final BooleanSupplier enabled;
@@ -113,124 +116,16 @@ public class PressableButtonWidget extends AbstractWidget {
         } else {
             state = ButtonState.INACTIVE;
         }
-        final Map<ButtonPart, Sprite> sprites = PressableButtonWidget.SPRITE_MAP.get(state);
 
-        final double borderWidth = this.borderWidth.getAsDouble();
-        final double horizontalPixel = getHorizontalPixel();
-        final double verticalPixel = getVerticalPixel();
-
-        final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
-        //top left
-        renderRectangle(
-                matrices,
-                positionX,
-                positionY,
-                horizontalPixel * 4 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                sprites.get(ButtonPart.TOP_LEFT),
-                0xffffffff,
-                bufferBuilder
-        );
-        //top middle
-        renderRectangle(
-                matrices,
-                positionX + horizontalPixel * 4 * borderWidth,
-                positionY,
-                width - horizontalPixel * 8 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                sprites.get(ButtonPart.TOP_MIDDLE),
-                0xffffffff,
-                bufferBuilder
-        );
-        //top right
-        renderRectangle(
-                matrices,
-                positionX + width - 4 * horizontalPixel * borderWidth,
-                positionY,
-                horizontalPixel * 4 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                sprites.get(ButtonPart.TOP_RIGHT),
-                0xffffffff,
-                bufferBuilder
-        );
-        //left
-        renderRectangle(
-                matrices,
-                positionX,
-                positionY + verticalPixel * 4 * borderWidth,
-                horizontalPixel * 4 * borderWidth,
-                height - verticalPixel * 8 * borderWidth,
-                sprites.get(ButtonPart.MIDDLE_LEFT),
-                0xffffffff,
-                bufferBuilder
-        );
-        //middle
-        renderRectangle(
-                matrices,
-                positionX + horizontalPixel * 4 * borderWidth,
-                positionY + verticalPixel * 4 * borderWidth,
-                width - horizontalPixel * 8 * borderWidth,
-                height - verticalPixel * 8 * borderWidth,
-                sprites.get(ButtonPart.MIDDLE_MIDDLE),
-                0xffffffff,
-                bufferBuilder
-        );
-        //right
-        renderRectangle(
-                matrices,
-                positionX + width - horizontalPixel * 4 * borderWidth,
-                positionY + verticalPixel * 4 * borderWidth,
-                horizontalPixel * 4 * borderWidth,
-                height - verticalPixel * 8 * borderWidth,
-                sprites.get(ButtonPart.MIDDLE_RIGHT),
-                0xffffffff,
-                bufferBuilder
-        );
-
-        //bottom left
-        renderRectangle(
-                matrices,
-                positionX,
-                positionY + height - verticalPixel * 4 * borderWidth,
-                horizontalPixel * 4 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                sprites.get(ButtonPart.BOTTOM_LEFT),
-                0xffffffff,
-                bufferBuilder
-        );
-        //bottom middle
-        renderRectangle(
-                matrices,
-                positionX + horizontalPixel * 4 * borderWidth,
-                positionY + height - verticalPixel * 4 * borderWidth,
-                width - horizontalPixel * 8 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                sprites.get(ButtonPart.BOTTOM_MIDDLE),
-                0xffffffff,
-                bufferBuilder
-        );
-        //bottom right
-        renderRectangle(
-                matrices,
-                positionX + width - 4 * horizontalPixel * borderWidth,
-                positionY + height - verticalPixel * 4 * borderWidth,
-                horizontalPixel * 4 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                sprites.get(ButtonPart.BOTTOM_RIGHT),
-                0xffffffff,
-                bufferBuilder
-        );
+        NinePatch.render(PressableButtonWidget.SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
 
         final boolean shadow = !(state == ButtonState.INACTIVE || state == ButtonState.HELD);
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final Text text = message.get();
-
-        bufferBuilder.end();
-        BufferRenderer.draw(bufferBuilder);
         final List<OrderedText> wrapped = textRenderer.wrapLines(text, (int) (width * getPixelWidth()));
         final double textYCenter = (positionY + height / 2.0) + textRenderer.fontHeight / 2.0 / (double) getPixelHeight();
         final double textYBottom = textYCenter - (((wrapped.size() + 1) / 2d) * textRenderer.fontHeight) / (double) getPixelHeight();
+
         for (int i = 0; i < wrapped.size(); i++) {
             final OrderedText current = wrapped.get(i);
             matrices.push();
@@ -247,21 +142,22 @@ public class PressableButtonWidget extends AbstractWidget {
         }
 
         if (state == ButtonState.HOVERED) {
-            matrices.translate(0,0,1);
+            matrices.translate(0, 0, 1);
             renderTooltip(matrices, tooltip.get(), mouseX, mouseY);
         }
     }
 
     @Override
-    public boolean keyPress(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
         return false;
     }
 
     private static void reloadSpriteMap() {
         for (final ButtonState state : ButtonState.values()) {
-            final Map<ButtonPart, Sprite> spriteMap = new EnumMap<>(ButtonPart.class);
-            for (final ButtonPart part : ButtonPart.values()) {
-                spriteMap.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.getIdentifier(state)));
+            final Map<NinePatch.Part, Sprite> spriteMap = new EnumMap<>(NinePatch.Part.class);
+            final Identifier base = new Identifier("tbcexgui", "gui/button/" + state.name().toLowerCase(Locale.ROOT));
+            for (final NinePatch.Part part : NinePatch.Part.values()) {
+                spriteMap.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.append(base)));
             }
             SPRITE_MAP.put(state, spriteMap);
         }

@@ -1,16 +1,16 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.panel;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.stuff_stuffs.tbcexgui.client.util.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.util.Rect2d;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractParentWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.BasicWidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.*;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -18,7 +18,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class BasicPanelWidget extends AbstractParentWidget {
-    private static final Map<PanelPart, Sprite> SPRITE_MAP;
+    private static final Map<NinePatch.Part, Sprite> SPRITE_MAP;
     private static boolean RELOAD_SPRITE_MAP = true;
     private final WidgetPosition position;
     private final BooleanSupplier draggable;
@@ -61,130 +61,19 @@ public class BasicPanelWidget extends AbstractParentWidget {
             reloadSpriteMap();
             RELOAD_SPRITE_MAP = false;
         }
-        RenderSystem.enableBlend();
-        RenderSystem.enableTexture();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-        RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 10f);
-        final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
-        final double borderWidth = this.borderWidth.getAsDouble();
-        final double horizontalPixel = getHorizontalPixel();
-        final double verticalPixel = getVerticalPixel();
-        //top left
-        renderRectangle(
-                matrices,
-                combined.getX(),
-                combined.getY(),
-                horizontalPixel * 4 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                SPRITE_MAP.get(PanelPart.TOP_LEFT),
-                0xffffffff,
-                bufferBuilder
-        );
-        //top middle
-        renderRectangle(
-                matrices,
-                combined.getX() + horizontalPixel * 4 * borderWidth,
-                combined.getY(),
-                panelWidth - horizontalPixel * 8 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                SPRITE_MAP.get(PanelPart.TOP),
-                0xffffffff,
-                bufferBuilder
-        );
-        //top right
-        renderRectangle(
-                matrices,
-                combined.getX() + panelWidth - 4 * horizontalPixel * borderWidth,
-                combined.getY(),
-                horizontalPixel * 4 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                SPRITE_MAP.get(PanelPart.TOP_RIGHT),
-                0xffffffff,
-                bufferBuilder
-        );
-        //left
-        renderRectangle(
-                matrices,
-                combined.getX(),
-                combined.getY() + verticalPixel * 4 * borderWidth,
-                horizontalPixel * 4 * borderWidth,
-                panelHeight - verticalPixel * 8 * borderWidth,
-                SPRITE_MAP.get(PanelPart.LEFT),
-                0xffffffff,
-                bufferBuilder
-        );
-        //middle
-        renderRectangle(
-                matrices,
-                combined.getX() + horizontalPixel * 4 * borderWidth,
-                combined.getY() + verticalPixel * 4 * borderWidth,
-                panelWidth - horizontalPixel * 8 * borderWidth,
-                panelHeight - verticalPixel * 8 * borderWidth,
-                SPRITE_MAP.get(PanelPart.MIDDLE),
-                0xffffffff,
-                bufferBuilder
-        );
-        //right
-        renderRectangle(
-                matrices,
-                combined.getX() + panelWidth - horizontalPixel * 4 * borderWidth,
-                combined.getY() + verticalPixel * 4 * borderWidth,
-                horizontalPixel * 4 * borderWidth,
-                panelHeight - verticalPixel * 8 * borderWidth,
-                SPRITE_MAP.get(PanelPart.RIGHT),
-                0xffffffff,
-                bufferBuilder
-        );
-
-        //bottom left
-        renderRectangle(
-                matrices,
-                combined.getX(),
-                combined.getY() + panelHeight - verticalPixel * 4 * borderWidth,
-                horizontalPixel * 4 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                SPRITE_MAP.get(PanelPart.BOTTOM_LEFT),
-                0xffffffff,
-                bufferBuilder
-        );
-        //bottom middle
-        renderRectangle(
-                matrices,
-                combined.getX() + horizontalPixel * 4 * borderWidth,
-                combined.getY() + panelHeight - verticalPixel * 4 * borderWidth,
-                panelWidth - horizontalPixel * 8 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                SPRITE_MAP.get(PanelPart.BOTTOM),
-                0xffffffff,
-                bufferBuilder
-        );
-        //bottom right
-        renderRectangle(
-                matrices,
-                combined.getX() + panelWidth - 4 * horizontalPixel * borderWidth,
-                combined.getY() + panelHeight - verticalPixel * 4 * borderWidth,
-                horizontalPixel * 4 * borderWidth,
-                verticalPixel * 4 * borderWidth,
-                SPRITE_MAP.get(PanelPart.BOTTOM_RIGHT),
-                0xffffffff,
-                bufferBuilder
-        );
-        bufferBuilder.end();
-        BufferRenderer.draw(bufferBuilder);
+        NinePatch.render(SPRITE_MAP, combined.getX(), combined.getY(), panelWidth, panelHeight, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
         super.render(matrices, mouseX, mouseY, delta);
     }
 
     private static void reloadSpriteMap() {
-        for (final PanelPart part : PanelPart.values()) {
-            SPRITE_MAP.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.getIdentifier()));
+        Identifier base = new Identifier("tbcexgui", "gui/panel");
+        for (final NinePatch.Part part : NinePatch.Part.values()) {
+            SPRITE_MAP.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.append(base)));
         }
     }
 
     static {
-        SPRITE_MAP = new EnumMap<>(PanelPart.class);
+        SPRITE_MAP = new EnumMap<>(NinePatch.Part.class);
         ClientSpriteRegistryCallback.event(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).register((atlasTexture, registry) -> RELOAD_SPRITE_MAP = true);
     }
 }
