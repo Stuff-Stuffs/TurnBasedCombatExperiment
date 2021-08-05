@@ -12,14 +12,6 @@ group = project.maven_group
 
 repositories {
     mavenLocal()
-    maven {
-        name = 'AperLambda'
-        url = 'https://aperlambda.github.io/maven'
-    }
-    maven {
-        name = 'Gegy'
-        url = 'https://maven.gegy.dev'
-    }
 }
 
 dependencies {
@@ -31,8 +23,8 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation "dev.lambdaurora:spruceui:${project.spruceui_version}"
-    include "dev.lambdaurora:spruceui:${project.spruceui_version}"
+    modImplementation "io.github.stuff_stuffs.TBCExGui:TBCExGui:${project.tbcex_version}"
+    include "io.github.stuff_stuffs.TBCExGui:TBCExGui:${project.tbcex_version}"
 }
 
 processResources {

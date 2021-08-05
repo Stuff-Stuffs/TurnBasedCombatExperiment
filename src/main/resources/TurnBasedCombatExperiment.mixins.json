@@ -11,7 +11,8 @@
     "MixinWorld"
   ],
   "client": [
-    "MixinClientWorld"
+    "MixinClientWorld",
+    "MixinInGameHud"
   ],
   "injectors": {
     "defaultRequire": 1
