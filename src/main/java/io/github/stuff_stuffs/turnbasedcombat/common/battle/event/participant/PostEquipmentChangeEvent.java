@@ -2,8 +2,8 @@ package io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantStateView;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipment;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipmentSlot;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment.BattleEquipment;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 
 public interface PostEquipmentChangeEvent {

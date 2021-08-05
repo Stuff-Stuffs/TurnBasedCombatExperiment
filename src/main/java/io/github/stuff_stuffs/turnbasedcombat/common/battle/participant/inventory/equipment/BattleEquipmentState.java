@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment;
+package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment;
 
 import com.mojang.serialization.Codec;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantState;
@@ -20,13 +20,6 @@ public final class BattleEquipmentState {
 
     public BattleEquipmentState(final BattleEntity entity) {
         map = new Reference2ObjectOpenHashMap<>();
-        for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
-            final BattleEquipment extracted = slot.extract(entity);
-            if (extracted!=null && !extracted.validSlot(slot)) {
-                throw new RuntimeException();
-            }
-            map.put(slot, extracted);
-        }
     }
 
     public boolean equip(final BattleParticipantState state, final BattleEquipmentSlot slot, @Nullable final BattleEquipment equipment) {

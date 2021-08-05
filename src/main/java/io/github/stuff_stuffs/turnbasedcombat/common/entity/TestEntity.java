@@ -1,12 +1,14 @@
 package io.github.stuff_stuffs.turnbasedcombat.common.entity;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 
@@ -75,5 +77,10 @@ public class TestEntity extends LivingEntity implements BattleEntity {
     @Override
     public double tbcex_getDexterity() {
         return 1;
+    }
+
+    @Override
+    public @Nullable ItemStack tbcex_getEquipped(BattleEquipmentSlot slot) {
+        return null;
     }
 }

@@ -5,7 +5,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.Battle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.action.BattleActionRegistry;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.damage.BattleDamageType;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipmentSlot;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.world.ServerBattleWorld;

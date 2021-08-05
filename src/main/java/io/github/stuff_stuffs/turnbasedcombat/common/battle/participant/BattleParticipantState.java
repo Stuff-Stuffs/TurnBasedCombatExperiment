@@ -13,9 +13,10 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.Po
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PostEquipmentChangeEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PreDamageEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PreEquipmentChangeEvent;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipment;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipmentSlot;
-import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment.BattleEquipmentState;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantEquipmentItem;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment.BattleEquipment;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment.BattleEquipmentState;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventory;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantItemStack;
@@ -35,7 +36,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public static final Codec<BattleParticipantState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleParticipantHandle.CODEC.fieldOf("handle").forGetter(state -> state.handle),
             Team.CODEC.fieldOf("team").forGetter(state -> state.team),
-            BattleEquipmentState.CODEC.fieldOf("equipment").forGetter(state -> state.equipmentState),
             BattleParticipantInventory.CODEC.fieldOf("inventory").forGetter(state -> state.inventory),
             BattleParticipantStats.CODEC.fieldOf("stats").forGetter(state -> state.stats),
             Codec.DOUBLE.fieldOf("health").forGetter(state -> state.health),
@@ -44,7 +44,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
     private final Team team;
-    private final BattleEquipmentState equipmentState;
     private final BattleParticipantInventory inventory;
     private final BattleParticipantStats stats;
     private boolean valid = false;
@@ -52,12 +51,11 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private BlockPos pos;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleEquipmentState equipmentState, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health, final BlockPos pos) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health, final BlockPos pos) {
         this.handle = handle;
         this.team = team;
         eventMap = new EventMap();
         registerEvents();
-        this.equipmentState = equipmentState;
         this.inventory = inventory;
         this.stats = stats;
         this.health = health;
@@ -71,7 +69,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         team = entity.getTeam();
         eventMap = new EventMap();
         registerEvents();
-        equipmentState = new BattleEquipmentState(entity);
         inventory = new BattleParticipantInventory(entity);
         stats = new BattleParticipantStats(entity);
         health = entity.tbcex_getCurrentHealth();
@@ -114,7 +111,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             throw new RuntimeException("Tried to set battle of participant already in battle");
         }
         this.battleState = battleState;
-        equipmentState.initEvents(this);
+        inventory.initEvents(this);
         valid = true;
     }
 
@@ -141,11 +138,11 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         return eventMap.get(key);
     }
 
-    public boolean equip(final BattleEquipmentSlot slot, final BattleEquipment equipment) {
+    public boolean equip(final BattleEquipmentSlot slot, final BattleParticipantItemStack equipment) {
         if (!valid) {
             throw new RuntimeException();
         }
-        return equipmentState.equip(this, slot, equipment);
+        return inventory.equip(this, slot, equipment);
     }
 
     @Override
@@ -260,6 +257,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             throw new RuntimeException();
         }
         valid = false;
-        equipmentState.uninitEvents();
+        inventory.uninitEvents();
     }
 }

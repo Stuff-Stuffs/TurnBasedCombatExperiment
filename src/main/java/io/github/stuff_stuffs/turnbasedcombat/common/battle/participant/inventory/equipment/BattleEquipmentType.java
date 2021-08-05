@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment;
+package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;

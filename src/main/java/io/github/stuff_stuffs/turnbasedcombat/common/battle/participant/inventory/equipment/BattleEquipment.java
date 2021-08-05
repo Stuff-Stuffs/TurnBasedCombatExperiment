@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.equipment;
+package io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment;
 
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleStateView;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.BattleParticipantState;
@@ -7,6 +7,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.action.P
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public interface BattleEquipment {
     default List<ParticipantAction> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView) {
@@ -14,6 +15,8 @@ public interface BattleEquipment {
     }
 
     boolean validSlot(BattleEquipmentSlot slot);
+
+    Set<BattleEquipmentSlot> getBlockedSlots();
 
     void initEvents(BattleParticipantState state);
 
