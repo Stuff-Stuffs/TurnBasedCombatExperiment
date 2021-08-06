@@ -28,34 +28,22 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
     private final double size;
     private final DoubleSupplier borderWidth;
     private final BooleanSupplier selected;
-    private final BiConsumer<SingleHotbarSlotWidget, Integer> onClick;
-    private final BiConsumer<SingleHotbarSlotWidget, Integer> onRelease;
-    private final BiConsumer<SingleHotbarSlotWidget, Double> mouseScroll;
-    private final Consumer<SingleHotbarSlotWidget> onFocus;
-    private final Consumer<SingleHotbarSlotWidget> onLoseFocus;
+    private final Handler handler;
     private @Nullable ItemStackLike itemStackLike;
 
-    public SingleHotbarSlotWidget(final WidgetPosition position, final double size, final DoubleSupplier borderWidth, final BooleanSupplier selected, final BiConsumer<SingleHotbarSlotWidget, Integer> onClick, final BiConsumer<SingleHotbarSlotWidget, Integer> onRelease, final BiConsumer<SingleHotbarSlotWidget, Double> mouseScroll, final Consumer<SingleHotbarSlotWidget> onFocus, final Consumer<SingleHotbarSlotWidget> onLoseFocus, @Nullable final ItemStackLike itemStackLike) {
+    public SingleHotbarSlotWidget(final WidgetPosition position, final double size, final DoubleSupplier borderWidth, final BooleanSupplier selected, Handler handler, @Nullable final ItemStackLike itemStackLike) {
         this.position = position;
         this.size = size;
         this.borderWidth = borderWidth;
         this.selected = selected;
-        this.onClick = onClick;
-        this.onRelease = onRelease;
-        this.mouseScroll = mouseScroll;
-        this.onFocus = onFocus;
-        this.onLoseFocus = onLoseFocus;
+        this.handler = handler;
         this.itemStackLike = itemStackLike;
     }
 
     @Override
     public void setFocused(final boolean focused) {
         super.setFocused(focused);
-        if (focused) {
-            onFocus.accept(this);
-        } else {
-            onLoseFocus.accept(this);
-        }
+        handler.onFocusChange(focused);
     }
 
     public void setItemStackLike(@Nullable final ItemStackLike itemStackLike) {
@@ -75,7 +63,7 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
         final Rect2d rect = new Rect2d(position.getX(), position.getY(), position.getX() + size, position.getY() + size);
         if (rect.isIn(mouseX, mouseY)) {
-            onClick.accept(this, button);
+            handler.onClick(this, button, mouseX, mouseY);
             return true;
         }
         return false;
@@ -85,7 +73,7 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
     public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
         final Rect2d rect = new Rect2d(position.getX(), position.getY(), position.getX() + size, position.getY() + size);
         if (rect.isIn(mouseX, mouseY)) {
-            onRelease.accept(this, button);
+            handler.onRelease(this, button, mouseX, mouseY);
             return true;
         }
         return false;
@@ -101,7 +89,7 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
         final Rect2d rect = new Rect2d(position.getX(), position.getY(), position.getX() + size, position.getY() + size);
         if (rect.isIn(mouseX, mouseY)) {
-            mouseScroll.accept(this, amount);
+            handler.onScroll(this, amount, mouseX, mouseY);
             return true;
         }
         return false;
@@ -123,6 +111,20 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
     @Override
     public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
         return false;
+    }
+
+    public interface Handler {
+        default void onClick(SingleHotbarSlotWidget widget, int button, double x, double y) {
+        }
+
+        default void onRelease(SingleHotbarSlotWidget widget, int button, double x, double y) {
+        }
+
+        default void onScroll(SingleHotbarSlotWidget widget, double amount, double x, double y){
+        }
+
+        default void onFocusChange(boolean focused){
+        }
     }
 
     private static void reloadSpriteMap() {
