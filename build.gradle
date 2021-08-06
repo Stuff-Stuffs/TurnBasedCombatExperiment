@@ -1,3 +1,6 @@
+import net.fabricmc.loom.task.RemapJarTask
+
+import java.nio.charset.StandardCharsets
 plugins {
     id 'fabric-loom' version '0.7-SNAPSHOT'
     id 'maven-publish'
@@ -10,72 +13,144 @@ archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
-repositories {
-    mavenLocal()
-}
+subprojects {
+    apply plugin: 'fabric-loom'
+    apply plugin: 'maven-publish'
 
-dependencies {
-    //to change the versions see the gradle.properties file
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    archivesBaseName = project.name
+    group = "${rootProject.group}.${rootProject.archivesBaseName}"
 
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-    modImplementation "io.github.stuff_stuffs.TBCExGui:TBCExGui:${project.tbcex_version}"
-    include "io.github.stuff_stuffs.TBCExGui:TBCExGui:${project.tbcex_version}"
-}
-
-processResources {
-    inputs.property "version", project.version
-
-    from(sourceSets.main.resources.srcDirs) {
-        include "fabric.mod.json"
-        expand "version": project.version
+    compileJava {
+        options.encoding = StandardCharsets.UTF_8.name()
     }
 
-    from(sourceSets.main.resources.srcDirs) {
-        exclude "fabric.mod.json"
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        from sourceSets.main.allSource
+        classifier = "sources"
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        from javadoc.destinationDir
+        classifier = "javadoc"
     }
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-tasks.withType(JavaCompile) {
-    options.encoding = "UTF-8"
-}
+allprojects {
+    apply plugin: "fabric-loom"
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
+    version = rootProject.mod_version
 
-// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-// if it is present.
-// If you remove this task, sources will not be generated.
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = "sources"
-    from sourceSets.main.allSource
-}
+    configurations {
+        dev
+    }
 
-jar {
-    from "LICENSE"
-}
+    repositories {
+    }
 
-// configure the maven publication
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            // add all the jars that should be included when publishing to maven
-            artifact(remapJar) {
-                builtBy remapJar
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
+    dependencies {
+        minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
+        mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
+        modApi "net.fabricmc:fabric-loader:${rootProject.loader_version}"
+
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    }
+
+    processResources {
+        inputs.property "version", project.version
+
+        filesMatching("fabric.mod.json") {
+            expand "version": project.version
         }
     }
 
-    // select the repositories you want to publish to
-    repositories {
-        // uncomment to publish to the local maven
-        // mavenLocal()
+    // ensure that the encoding is set to UTF-8, no matter what the system default is
+    // this fixes some edge cases with special characters not displaying correctly
+    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = "UTF-8"
+        it.options.release = 16
+    }
+
+    java {
+        // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+        // if it is present.
+        // If you remove this line, sources will not be generated.
+        withSourcesJar()
+    }
+
+    jar {
+        archiveClassifier = "dev"
+    }
+
+    afterEvaluate {
+        artifacts {
+            dev file: file("${project.buildDir}/libs/$archivesBaseName-${version}-dev.jar"), type: "jar", builtBy: jar
+        }
     }
 }
+
+subprojects {
+    version = rootProject.version
+}
+
+dependencies {
+    subprojects.each {
+        implementation project(path: ":${it.name}", configuration: "dev")
+        include project(":${it.name}")
+    }
+}
+
+sourceSets {
+    testmod {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+    }
+    test {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+    }
+}
+
+subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
+
+task testmodJar(type: Jar, dependsOn: testmodClasses) {
+    archiveBaseName = 'CCATest'
+    archiveClassifier = 'dev'
+    from(sourceSets.testmod.output) {
+        include 'fabric.mod.json'
+        expand 'version': project.version
+    }
+    from(sourceSets.testmod.output) {
+        exclude 'fabric.mod.json'
+    }
+}
+
+task remapTestmodJar(type: RemapJarTask, dependsOn: project.testmodJar) {
+    archiveBaseName = 'CCATest'
+    input = testmodJar.archiveFile
+    addNestedDependencies = false
+}
+
+build.dependsOn(remapTestmodJar)
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar")) {
+                builtBy(remapJar)
+            }
+            pom.withXml {
+                def depsNode = asNode().appendNode("dependencies")
+                subprojects.each {
+                    def depNode = depsNode.appendNode("dependency")
+                    depNode.appendNode("groupId", it.group)
+                    depNode.appendNode("artifactId", it.name)
+                    depNode.appendNode("version", it.version)
+                    depNode.appendNode("scope", "compile")
+                }
+            }
+        }
+    }
+}
+tasks.publish.dependsOn build
+

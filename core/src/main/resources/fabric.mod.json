@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "turn_based_combat_experiment",
+  "id": "turn_based_combat_experiment_core",
   "version": "${version}",
-  "name": "TurnBasedCombatExperiment",
+  "name": "TurnBasedCombatExperimentCore",
   "description": "",
   "authors": [],
   "contact": {},
@@ -24,12 +24,5 @@
     "fabricloader": ">=0.11.3",
     "fabric": "*",
     "minecraft": "1.17-alpha.21.20.a"
-  },
-  "custom": {
-    "cardinal-components": [
-      "turn_based_combat:battle_player",
-      "turn_based_combat:battle_world",
-      "turn_based_combat:battle_entity"
-    ]
   }
 }

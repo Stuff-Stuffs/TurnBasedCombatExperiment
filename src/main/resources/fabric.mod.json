@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "turn_based_combat_experiment",
+  "version": "${version}",
+  "name": "TurnBasedCombatExperiment",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/TurnBasedCombatExperiment/icon.png",
+  "environment": "*",
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17-alpha.21.20.a"
+  }
+}

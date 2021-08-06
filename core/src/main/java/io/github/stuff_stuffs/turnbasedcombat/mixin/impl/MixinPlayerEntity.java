@@ -4,8 +4,10 @@ import com.google.common.collect.Iterables;
 import io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.BattleHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.Team;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.turnbasedcombat.common.entity.BattleEntity;
 import io.github.stuff_stuffs.turnbasedcombat.mixin.api.BattleAwareEntity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
@@ -26,6 +28,9 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
 
     @Shadow
     public abstract void increaseStat(Stat<?> stat, int amount);
+
+    @Shadow
+    public abstract ItemStack getEquippedStack(EquipmentSlot slot);
 
     @Unique
     private static final Team TEAM = new Team("test_player");
@@ -87,5 +92,19 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
         if ((Object) this instanceof ServerPlayerEntity serverPlayer) {
             serverPlayer.changeGameMode(GameMode.SPECTATOR);
         }
+    }
+
+    @Override
+    public @Nullable ItemStack tbcex_getEquipped(final BattleEquipmentSlot slot) {
+        if (slot == BattleEquipmentSlot.HEAD_SLOT) {
+            return getEquippedStack(EquipmentSlot.HEAD);
+        } else if (slot == BattleEquipmentSlot.CHEST_SLOT) {
+            return getEquippedStack(EquipmentSlot.CHEST);
+        } else if (slot == BattleEquipmentSlot.LEGS_SLOT) {
+            return getEquippedStack(EquipmentSlot.LEGS);
+        } else if (slot == BattleEquipmentSlot.FEET_SLOT) {
+            return getEquippedStack(EquipmentSlot.FEET);
+        }
+        return null;
     }
 }
