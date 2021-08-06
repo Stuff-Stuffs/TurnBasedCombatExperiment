@@ -114,7 +114,7 @@ sourceSets {
 subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
 
 task testmodJar(type: Jar, dependsOn: testmodClasses) {
-    archiveBaseName = 'CCATest'
+    archiveBaseName = 'TurnBasedCombatTest'
     archiveClassifier = 'dev'
     from(sourceSets.testmod.output) {
         include 'fabric.mod.json'
@@ -126,7 +126,7 @@ task testmodJar(type: Jar, dependsOn: testmodClasses) {
 }
 
 task remapTestmodJar(type: RemapJarTask, dependsOn: project.testmodJar) {
-    archiveBaseName = 'CCATest'
+    archiveBaseName = 'TurnBasedCombatTest'
     input = testmodJar.archiveFile
     addNestedDependencies = false
 }
