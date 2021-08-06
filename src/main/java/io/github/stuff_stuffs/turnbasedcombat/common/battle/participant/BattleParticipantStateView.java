@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.Pr
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.event.participant.PreEquipmentChangeEvent;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.BattleParticipantItemStack;
+import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.turnbasedcombat.common.battle.participant.stats.BattleParticipantStat;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -31,6 +32,8 @@ public interface BattleParticipantStateView {
     BattleParticipantHandle getHandle();
 
     @Nullable BattleParticipantItemStack getItemStack(BattleParticipantInventoryHandle handle);
+
+    @Nullable BattleParticipantItemStack getEquipmentStack(BattleEquipmentSlot slot);
 
     Iterator<BattleParticipantInventoryHandle> getInventoryIterator();
 

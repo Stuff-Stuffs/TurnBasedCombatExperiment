@@ -126,6 +126,10 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         return equipmentState.get(slot);
     }
 
+    public @Nullable BattleParticipantItemStack getEquipmentStack(BattleEquipmentSlot slot) {
+        return equipment.get(slot);
+    }
+
     public void initEvents(BattleParticipantState state) {
         equipmentState.initEvents(state);
     }
