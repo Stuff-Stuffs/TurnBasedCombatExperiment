@@ -27,6 +27,11 @@ public final class BattleEquipmentState {
             if (equipment.validSlot(slot)) {
                 throw new IllegalArgumentException();
             }
+            for (final BattleEquipmentSlot blockedSlot : equipment.getBlockedSlots()) {
+                if (map.get(blockedSlot) != null) {
+                    return false;
+                }
+            }
         }
         final BattleEquipment old = map.get(slot);
         if (!state.getEvent(BattleParticipantStateView.PRE_EQUIPMENT_CHANGE_EVENT).invoker().onEquipmentChange(state, slot, old, equipment)) {
@@ -60,7 +65,7 @@ public final class BattleEquipmentState {
     }
 
     public void uninitEvents() {
-        for (BattleEquipment equipment : map.values()) {
+        for (final BattleEquipment equipment : map.values()) {
             equipment.uninitEvents();
         }
     }
