@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "tbcextest",
+  "version": "${version}",
+  "name": "TurnBasedCombatExperimentCore",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/TurnBasedCombatExperiment/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "io.github.stuff_stuffs.tbcextest.client.TestClient"
+    ],
+    "main": [
+      "io.github.stuff_stuffs.tbcextest.common.Test"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17.1"
+  }
+}

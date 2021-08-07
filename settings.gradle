@@ -10,3 +10,4 @@ pluginManagement {
 
 include 'core'
 include 'gui'
+include 'test'

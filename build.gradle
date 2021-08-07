@@ -104,9 +104,12 @@ repositories {
 
 dependencies {
     modRuntime "curse.maven:LazyDFU-433518:3209972"
+    testImplementation project(path: ":test", configuration: "dev")
     subprojects.each {
-        implementation project(path: ":${it.name}", configuration: "dev")
-        include project(":${it.name}")
+        if(it.name != "test") {
+            implementation project(path: ":${it.name}", configuration: "dev")
+            include project(":${it.name}")
+        }
     }
 }
 
