@@ -71,10 +71,10 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         return stacks.get(handle);
     }
 
-    public int take(final int handle, final int amount) {
+    public @Nullable BattleParticipantItemStack take(final int handle, final int amount) {
         final BattleParticipantItemStack stack = stacks.get(handle);
         if (stack == null) {
-            return 0;
+            return null;
         }
         final int taken = Math.min(stack.getCount(), amount);
         final int remainder = stack.getCount() - taken;
@@ -83,7 +83,7 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         } else {
             stacks.put(handle, stack.withCount(remainder));
         }
-        return taken;
+        return stack.withCount(taken);
     }
 
     @Override

@@ -178,7 +178,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         return new BattleParticipantInventoryHandle(handle, inventory.give(stack));
     }
 
-    public int takeItems(final BattleParticipantInventoryHandle handle, final int amount) {
+    public @Nullable BattleParticipantItemStack takeItems(final BattleParticipantInventoryHandle handle, final int amount) {
         if (!valid) {
             throw new RuntimeException();
         }
