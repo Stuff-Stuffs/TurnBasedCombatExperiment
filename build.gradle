@@ -93,7 +93,17 @@ subprojects {
     version = rootProject.version
 }
 
+repositories {
+    maven {
+        url "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
 dependencies {
+    modRuntime "curse.maven:LazyDFU-433518:3209972"
     subprojects.each {
         implementation project(path: ":${it.name}", configuration: "dev")
         include project(":${it.name}")
