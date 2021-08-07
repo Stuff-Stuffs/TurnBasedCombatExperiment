@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import io.github.stuff_stuffs.tbcexcore.client.network.ClientNetwork;
 import io.github.stuff_stuffs.tbcexcore.client.render.Render;
 import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
 import io.github.stuff_stuffs.tbcexcore.client.render.debug.DebugRenderers;
@@ -44,6 +45,7 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         Render.init();
+        ClientNetwork.init();
         ClientCommandManager.DISPATCHER.register(ClientCommandManager.literal("debugRenderer").then(ClientCommandManager.argument("renderer", DebugRendererArgument.debugRendererArgument()).then(ClientCommandManager.argument("on", BoolArgumentType.bool()).executes(context -> {
             final String renderer = context.getArgument("renderer", String.class);
             final boolean on = BoolArgumentType.getBool(context, "on");
