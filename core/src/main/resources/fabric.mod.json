@@ -11,10 +11,10 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "io.github.stuff_stuffs.turnbasedcombat.client.TurnBasedCombatExperimentClient"
+      "io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient"
     ],
     "main": [
-      "io.github.stuff_stuffs.turnbasedcombat.common.TurnBasedCombatExperiment"
+      "io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment"
     ]
   },
   "mixins": [

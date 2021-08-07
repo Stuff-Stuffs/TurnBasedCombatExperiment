@@ -19,12 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class EquipmentHud {
-    private final Battle battle;
     private final BattleParticipantHandle handle;
     private final List<Slot> slots;
 
-    public EquipmentHud(Battle battle, final BattleParticipantHandle handle) {
-        this.battle = battle;
+    public EquipmentHud(final BattleParticipantHandle handle) {
         if (handle.isUniversal()) {
             throw new IllegalArgumentException();
         }
@@ -33,13 +31,19 @@ public final class EquipmentHud {
         for (final BattleEquipmentSlot equipmentSlot : BattleEquipmentSlot.REGISTRY) {
             final BattleRendererRegistry.EquipmentSlotInfo info = BattleRendererRegistry.getEquipmentSlotInfo(equipmentSlot);
             final Slot slot = new Slot(equipmentSlot, info.x, info.y);
-            slot.tick();
+            slots.add(slot);
         }
     }
 
     public void render(final MatrixStack matrices, final float tickDelta) {
         for (final Slot slot : slots) {
             slot.widget.render(matrices, -1, -1, tickDelta);
+        }
+    }
+
+    public void tick(Battle battle) {
+        for (Slot slot : slots) {
+            slot.tick(battle);
         }
     }
 
@@ -67,7 +71,7 @@ public final class EquipmentHud {
             });
         }
 
-        public void tick() {
+        public void tick(Battle battle) {
             final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
             if (participant != null) {
                 stackHolder.setValue(participant.getEquipmentStack(slot));

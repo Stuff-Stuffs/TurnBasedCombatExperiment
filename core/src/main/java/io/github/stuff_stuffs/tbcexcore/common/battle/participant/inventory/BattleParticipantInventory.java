@@ -40,7 +40,7 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         }
         for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
             final ItemStack itemStack = entity.tbcex_getEquipped(slot);
-            if (itemStack.getItem() instanceof BattleItem battleItem) {
+            if (itemStack!=null && itemStack.getItem() instanceof BattleItem battleItem) {
                 equipment.put(slot, battleItem.toBattleItem(itemStack));
             }
         }

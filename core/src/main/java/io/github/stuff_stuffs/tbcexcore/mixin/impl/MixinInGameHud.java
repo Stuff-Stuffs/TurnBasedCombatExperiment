@@ -88,6 +88,13 @@ public abstract class MixinInGameHud {
         }
     }
 
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void tickHook(final CallbackInfo ci) {
+        if (hud != null) {
+            hud.tick();
+        }
+    }
+
     private void setupHud() {
         final BattleHandle handle = ((BattleAwareEntity) client.player).tbcex_getCurrentBattle();
         if (handle != null) {

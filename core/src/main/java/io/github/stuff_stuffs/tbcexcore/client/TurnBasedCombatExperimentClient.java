@@ -9,8 +9,10 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.stuff_stuffs.tbcexcore.client.render.Render;
+import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
 import io.github.stuff_stuffs.tbcexcore.client.render.debug.DebugRenderers;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.ClientBattleWorldSupplier;
 import it.unimi.dsi.fastutil.HashCommon;
@@ -68,6 +70,10 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
                 }
             }
         }, DebugRenderers.Stage.POST_ENTITY);
+        BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.HEAD_SLOT, 0.5 + 1.5/16d, 1/64d);
+        BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.CHEST_SLOT, 0.5 + 0.5/16d, 1/64d);
+        BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.LEGS_SLOT, 0.5 - 0.5/16d, 1/64d);
+        BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.FEET_SLOT, 0.5 - 1.5/16d, 1/64d);
     }
 
     private static class DebugRendererArgument implements ArgumentType<String> {
