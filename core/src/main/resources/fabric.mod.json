@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "turn_based_combat_experiment_core",
+  "id": "tbcexcore",
   "version": "${version}",
   "name": "TurnBasedCombatExperimentCore",
   "description": "",
@@ -23,6 +23,6 @@
   "depends": {
     "fabricloader": ">=0.11.3",
     "fabric": "*",
-    "minecraft": "1.17-alpha.21.20.a"
+    "minecraft": "1.17.1"
   }
 }

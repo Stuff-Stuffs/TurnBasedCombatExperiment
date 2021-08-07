@@ -27,9 +27,6 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
     private PlayerInventory inventory;
 
     @Shadow
-    public abstract void increaseStat(Stat<?> stat, int amount);
-
-    @Shadow
     public abstract ItemStack getEquippedStack(EquipmentSlot slot);
 
     @Unique

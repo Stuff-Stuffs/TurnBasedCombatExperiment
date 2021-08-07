@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.Collection;
 
 public class TurnBasedCombatExperiment implements ModInitializer {
-    public static final String MOD_ID = "turn_based_combat";
+    public static final String MOD_ID = "tbcexcore";
     public static final Logger LOGGER = LogManager.getLogger("TBCEx");
 
     public static Identifier createId(final String path) {

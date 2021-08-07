@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.Shadow;
 public class MixinServerWorld implements BattleWorldSupplier {
     @Shadow
     @Final
-    private ServerChunkManager serverChunkManager;
+    private ServerChunkManager chunkManager;
 
     @Override
     public BattleWorld tbcex_getBattleWorld() {
-        return ((BattleWorldSupplier) serverChunkManager).tbcex_getBattleWorld();
+        return ((BattleWorldSupplier) chunkManager).tbcex_getBattleWorld();
     }
 }
