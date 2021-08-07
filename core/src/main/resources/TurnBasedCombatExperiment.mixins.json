@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "io.github.stuff_stuffs.turnbasedcombat.mixin.impl",
+  "package": "io.github.stuff_stuffs.tbcexcore.mixin.impl",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
     "MixinPlayerEntity",
