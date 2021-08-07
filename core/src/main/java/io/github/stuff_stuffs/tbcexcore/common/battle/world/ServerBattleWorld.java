@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -126,17 +127,22 @@ public final class ServerBattleWorld implements BattleWorld {
         return "Battle" + Integer.toString(handle.id(), 16) + ".tbcex_battle";
     }
 
+    private static String handleToFileMeta(final BattleHandle handle) {
+        return "Battle" + Integer.toString(handle.id(), 16) + ".tbcex_battle_meta";
+    }
+
     private @Nullable Battle tryLoad(final BattleHandle handle) {
-        final Path path = directory.resolve(handleToFile(handle));
-        if (Files.exists(path) && !Files.isDirectory(path)) {
-            try (final InputStream stream = Files.newInputStream(path, StandardOpenOption.READ)) {
-                final int versionHeaderLength = stream.read();
-                final String version = new String(stream.readNBytes(versionHeaderLength));
+        final Path battlePath = directory.resolve(handleToFile(handle));
+        final Path metaPath = directory.resolve(handleToFileMeta(handle));
+        if (Files.exists(battlePath) && !Files.isDirectory(battlePath) && Files.exists(metaPath) && !Files.isDirectory(metaPath)) {
+            try (final InputStream battleStream = Files.newInputStream(battlePath, StandardOpenOption.READ); final InputStream metaStream = Files.newInputStream(metaPath, StandardOpenOption.READ)) {
+                final int versionHeaderLength = metaStream.read();
+                final String version = new String(metaStream.readNBytes(versionHeaderLength));
                 if (!version.equals(VERSION)) {
                     LOGGER.error("Error loading battle: " + handleToFile(handle) + ", version mismatch");
                     return null;
                 }
-                final Optional<Battle> result = Battle.CODEC.parse(NbtOps.INSTANCE, NbtIo.read(new DataInputStream(stream))).result();
+                final Optional<Battle> result = Battle.CODEC.parse(NbtOps.INSTANCE, NbtIo.readCompressed(new DataInputStream(battleStream)).get("data")).result();
                 if (result.isPresent()) {
                     final Battle battle = result.get();
                     activeBattles.put(handle, battle);
@@ -157,18 +163,22 @@ public final class ServerBattleWorld implements BattleWorld {
     private void save(final BattleHandle handle) {
         final Battle battle = activeBattles.get(handle);
         if (battle != null) {
-            try (final OutputStream stream = Files.newOutputStream(directory.resolve(handleToFile(handle)), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
-                stream.write(VERSION.length());
-                stream.write(VERSION.getBytes(StandardCharsets.UTF_8));
-                final DataOutput output = new DataOutputStream(stream);
+            try (
+                    final OutputStream battleStream = Files.newOutputStream(directory.resolve(handleToFile(handle)), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+                    final OutputStream metaStream = Files.newOutputStream(directory.resolve(handleToFileMeta(handle)), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)
+            ) {
+                metaStream.write(VERSION.length());
+                metaStream.write(VERSION.getBytes(StandardCharsets.UTF_8));
                 Battle.CODEC.encodeStart(NbtOps.INSTANCE, battle).result().ifPresentOrElse(element -> {
                     try {
-                        element.write(output);
+                        NbtCompound nbtCompound = new NbtCompound();
+                        nbtCompound.put("data", element);
+                        NbtIo.writeCompressed(nbtCompound, battleStream);
                     } catch (final IOException e) {
                         throw new RuntimeException("Cannot write battle file");
                     }
                 }, () -> LOGGER.error("Error saving battle: " + handleToFile(handle)));
-                stream.flush();
+                battleStream.flush();
             } catch (final IOException e) {
                 LOGGER.error("Error saving battle: " + handleToFile(handle));
             }
