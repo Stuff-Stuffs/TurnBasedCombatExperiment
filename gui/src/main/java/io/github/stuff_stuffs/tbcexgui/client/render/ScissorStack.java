@@ -17,11 +17,16 @@ public final class ScissorStack {
     }
 
     public static void push(final Matrix4f model, final double minX, final double minY, final double maxX, final double maxY) {
-        final Vector4f min = new Vector4f((float) minX, (float) minY, 0, 1);
+        final Vector4f min = new Vector4f((float) minX, (float) minY, 1, 1);
         min.transform(model);
-        final Vector4f max = new Vector4f((float) maxX, (float) maxY, 0, 1);
+        final Vector4f max = new Vector4f((float) maxX, (float) maxY, 1, 1);
         max.transform(model);
-        push((int) Math.floor(min.getX()), (int) Math.floor(min.getY()), (int) Math.ceil(max.getX()), (int) Math.ceil(max.getY()));
+        push(
+                (int) Math.min(Math.floor(min.getX()), Math.floor(max.getX())),
+                (int) Math.min(Math.floor(min.getY()), Math.floor(max.getY())),
+                (int) Math.max(Math.ceil(min.getX()), Math.ceil(max.getX())),
+                (int) Math.max(Math.ceil(min.getY()), Math.ceil(max.getY()))
+        );
     }
 
     public static void push(final int minX, final int minY, final int maxX, final int maxY) {
@@ -45,7 +50,7 @@ public final class ScissorStack {
         final int curMinY = Math.max(minY, prevMinY);
         final int curMaxX = Math.min(maxX, prevMaxX);
         final int curMaxY = Math.min(maxY, prevMaxY);
-        STACK.push(new Entry(Math.min(curMinX,curMaxX), Math.min(curMinY,curMaxY), Math.max(curMaxX,curMinX), Math.max(curMaxY, curMinY)));
+        STACK.push(new Entry(Math.min(curMinX, curMaxX), Math.min(curMinY, curMaxY), Math.max(curMaxX, curMinX), Math.max(curMaxY, curMinY)));
         update();
     }
 
@@ -59,11 +64,19 @@ public final class ScissorStack {
             RenderSystem.disableScissor();
         } else {
             final Entry entry = STACK.top();
-            Window window = MinecraftClient.getInstance().getWindow();
-            double xFactor = window.getFramebufferWidth()/(double)window.getScaledWidth();
-            double yFactor = window.getFramebufferHeight()/(double)window.getScaledHeight();
-            RenderSystem.enableScissor((int) (entry.minX * xFactor), (int) (entry.minY*yFactor), (int) ((entry.maxX - entry.minX)*xFactor), (int) ((entry.maxY - entry.minY)*yFactor));
+            final Window window = MinecraftClient.getInstance().getWindow();
+            final double scaleFactor = window.getScaleFactor();
+            final int height = (entry.maxY - entry.minY);
+            RenderSystem.enableScissor((int) (entry.minX * scaleFactor), adaptY(entry.minY, height, scaleFactor), (int) (entry.maxX * scaleFactor) - (int) (entry.minX * scaleFactor), (int) Math.floor(height * scaleFactor)-4);
         }
+    }
+
+    //shamelessly stolen from https://github.com/LambdAurora/SpruceUI/blob/1.17/src/main/java/dev/lambdaurora/spruceui/util/ScissorManager.java, width odd adaptions
+    private static int adaptY(final int y, final int height, final double scaleFactor) {
+        final Window window = MinecraftClient.getInstance().getWindow();
+        final int tmpHeight = (int) (window.getFramebufferHeight() / scaleFactor);
+        final int scaledHeight = window.getFramebufferHeight() / scaleFactor >= (double) tmpHeight ? tmpHeight + 1 : tmpHeight;
+        return (int) (scaleFactor * (scaledHeight - height - y))-1;
     }
 
     private static class Entry {

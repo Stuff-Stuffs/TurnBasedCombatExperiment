@@ -10,4 +10,6 @@ public interface BattleParticipantItem {
     List<ParticipantAction> getActions(BattleStateView battleState, BattleParticipantStateView participantState, BattleParticipantInventoryHandle handle);
 
     BattleParticipantItemType getType();
+
+    BattleParticipantItemCategory getCategory();
 }

@@ -41,7 +41,7 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
-        return widget.mouseScrolled(transformMouseX(mouseX), transformMouseY(mouseY), amount);
+        return widget.mouseScrolled(transformMouseX(mouseX), transformMouseY(mouseY), transformMouseY(amount));
     }
 
     @Override
