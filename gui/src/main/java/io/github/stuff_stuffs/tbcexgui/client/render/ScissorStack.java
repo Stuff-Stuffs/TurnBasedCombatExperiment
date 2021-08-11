@@ -67,16 +67,8 @@ public final class ScissorStack {
             final Window window = MinecraftClient.getInstance().getWindow();
             final double scaleFactor = window.getScaleFactor();
             final int height = (entry.maxY - entry.minY);
-            RenderSystem.enableScissor((int) (entry.minX * scaleFactor), adaptY(entry.minY, height, scaleFactor), (int) (entry.maxX * scaleFactor) - (int) (entry.minX * scaleFactor), (int) Math.floor(height * scaleFactor)-4);
+            RenderSystem.enableScissor((int) (entry.minX * scaleFactor), (int) (entry.minY * scaleFactor), (int) (entry.maxX * scaleFactor) - (int) (entry.minX * scaleFactor), (int) Math.ceil(height * scaleFactor));
         }
-    }
-
-    //shamelessly stolen from https://github.com/LambdAurora/SpruceUI/blob/1.17/src/main/java/dev/lambdaurora/spruceui/util/ScissorManager.java, width odd adaptions
-    private static int adaptY(final int y, final int height, final double scaleFactor) {
-        final Window window = MinecraftClient.getInstance().getWindow();
-        final int tmpHeight = (int) (window.getFramebufferHeight() / scaleFactor);
-        final int scaledHeight = window.getFramebufferHeight() / scaleFactor >= (double) tmpHeight ? tmpHeight + 1 : tmpHeight;
-        return (int) (scaleFactor * (scaledHeight - height - y))-1;
     }
 
     private static class Entry {

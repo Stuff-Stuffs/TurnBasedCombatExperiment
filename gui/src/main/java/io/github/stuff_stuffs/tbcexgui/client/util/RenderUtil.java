@@ -1,8 +1,11 @@
 package io.github.stuff_stuffs.tbcexgui.client.util;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
 
 public final class RenderUtil {
@@ -30,7 +33,7 @@ public final class RenderUtil {
         colour(consumer.vertex(model, (float) (x + width), (float) (y + height), 0), bottomRightColour).next();
     }
 
-    private static VertexConsumer colour(final VertexConsumer vertexConsumer, final int colour) {
+    public static VertexConsumer colour(final VertexConsumer vertexConsumer, final int colour) {
         final int alpha = (colour >> 24) & 0xff;
         final int red = (colour >> 16) & 0xff;
         final int green = (colour >> 8) & 0xff;

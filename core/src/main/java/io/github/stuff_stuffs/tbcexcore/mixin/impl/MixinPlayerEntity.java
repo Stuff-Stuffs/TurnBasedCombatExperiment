@@ -41,7 +41,7 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
 
     @Override
     public Iterable<ItemStack> tbcex_getInventory() {
-        return Iterables.concat(inventory.armor, inventory.main, inventory.main);
+        return Iterables.concat(inventory.armor, inventory.main, inventory.offHand);
     }
 
     @Override

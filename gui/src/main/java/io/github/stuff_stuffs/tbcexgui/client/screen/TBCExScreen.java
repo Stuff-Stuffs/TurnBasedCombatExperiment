@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.tbcexgui.client.screen;
 
-import io.github.stuff_stuffs.tbcexgui.client.render.ScissorStack;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
@@ -22,6 +21,20 @@ public abstract class TBCExScreen extends Screen {
         } else {
             widget.resize(1, height / (double) width, width, height);
         }
+    }
+
+    public double getWidth() {
+        if(width>height) {
+            return width/(double)height;
+        }
+        return 1;
+    }
+
+    public double getHeight() {
+        if(width<height) {
+            return height/(double)width;
+        }
+        return 1;
     }
 
     @Override
@@ -50,9 +63,9 @@ public abstract class TBCExScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if(keyCode == GLFW.GLFW_KEY_ESCAPE && this.shouldCloseOnEsc()) {
-            this.onClose();
+    public boolean keyPressed(final int keyCode, final int scanCode, final int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_ESCAPE && shouldCloseOnEsc()) {
+            onClose();
             return true;
         }
         return widget.keyPress(keyCode, scanCode, modifiers);
@@ -60,16 +73,16 @@ public abstract class TBCExScreen extends Screen {
 
     private double transformMouseX(final double mouseX) {
         if (width > height) {
-            double v = mouseX - (width / 2.0) + (height/2.0);
-            return v/height;
+            final double v = mouseX - (width / 2.0) + (height / 2.0);
+            return v / height;
         }
         return mouseX / (double) width;
     }
 
     private double transformMouseY(final double mouseY) {
         if (width < height) {
-            double v = mouseY - (height / 2.0) + (width/2.0);
-            return v/width;
+            final double v = mouseY - (height / 2.0) + (width / 2.0);
+            return v / width;
         }
         return mouseY / (double) height;
     }

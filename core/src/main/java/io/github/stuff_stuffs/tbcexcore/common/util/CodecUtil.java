@@ -25,7 +25,7 @@ public final class CodecUtil {
 
         @Override
         public <T> DataResult<T> encode(final Text input, final DynamicOps<T> ops, final T prefix) {
-            if (prefix != null && prefix != ops.empty()) {
+            if (prefix != ops.empty()) {
                 throw new IllegalArgumentException();
             }
             final JsonElement element = Text.Serializer.toJsonTree(input);

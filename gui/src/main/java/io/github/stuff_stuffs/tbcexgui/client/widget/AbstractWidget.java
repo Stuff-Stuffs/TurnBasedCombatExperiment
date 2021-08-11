@@ -7,6 +7,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 
 import java.util.List;
 
@@ -147,5 +148,30 @@ public abstract class AbstractWidget implements Widget {
             }
             matrices.pop();
         }
+    }
+
+    //TODO wtf
+    public void renderFitText(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
+        final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        final float textWidth = (textRenderer.getWidth(text) * MinecraftClient.getInstance().getWindow().getScaledWidth() / (float) getPixelWidth());
+        double scale;
+        if (textWidth > maxWidth) {
+            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * 1.8;
+        } else {
+            scale = maxHeight;
+        }
+        if (scale * textRenderer.fontHeight > maxHeight) {
+            scale = maxHeight / textRenderer.fontHeight;
+        }
+        matrices.push();
+        double offset = (maxHeight-(scale*textRenderer.fontHeight))/2.0;
+        matrices.translate(x,y + offset,0);
+        matrices.scale((float) scale, (float) scale, (float) scale);
+        if (shadow) {
+            textRenderer.drawWithShadow(matrices, text, 0, 0, colour);
+        } else {
+            textRenderer.draw(matrices, text, 0, 0, colour);
+        }
+        matrices.pop();
     }
 }

@@ -52,6 +52,7 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
         widgetById.put(id, wrappedWidget);
         sorted.add(wrappedWidget);
         sorted.sort(COMPARATOR);
+        widget.resize(getScreenWidth(),getScreenHeight(),getPixelWidth(),getPixelHeight());
         return new WidgetHandle(id, thisId);
     }
 

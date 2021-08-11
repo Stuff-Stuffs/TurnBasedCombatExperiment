@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexcore.common.item.BattleItem;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -19,13 +20,20 @@ import java.util.Map;
 import java.util.Spliterator;
 
 public final class BattleParticipantInventory implements Iterable<Int2ReferenceMap.Entry<BattleParticipantItemStack>> {
-    public static final Codec<BattleParticipantInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.unboundedMap(Codec.INT, BattleParticipantItemStack.CODEC).fieldOf("stacks").forGetter(inventory -> inventory.stacks),Codec.unboundedMap(BattleEquipmentSlot.REGISTRY, BattleParticipantItemStack.CODEC).fieldOf("equipmentStacks").forGetter(inventory -> inventory.equipment), BattleEquipmentState.CODEC.fieldOf("equipment").forGetter(inventory -> inventory.equipmentState)).apply(instance, BattleParticipantInventory::new));
+    public static final Codec<BattleParticipantInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.unboundedMap(Codec.STRING, BattleParticipantItemStack.CODEC).fieldOf("stacks").forGetter(BattleParticipantInventory::createStackMap),
+            Codec.unboundedMap(BattleEquipmentSlot.REGISTRY, BattleParticipantItemStack.CODEC).fieldOf("equipment_stacks").forGetter(inventory -> inventory.equipment),
+            BattleEquipmentState.CODEC.fieldOf("equipment").forGetter(inventory -> inventory.equipmentState)
+    ).apply(instance, BattleParticipantInventory::new));
     private final Int2ReferenceMap<BattleParticipantItemStack> stacks;
     private final Map<BattleEquipmentSlot, BattleParticipantItemStack> equipment;
     private final BattleEquipmentState equipmentState;
 
-    private BattleParticipantInventory(final Map<Integer, BattleParticipantItemStack> map, final Map<BattleEquipmentSlot, BattleParticipantItemStack> equipment, BattleEquipmentState equipmentState) {
-        stacks = new Int2ReferenceOpenHashMap<>(map);
+    private BattleParticipantInventory(final Map<String, BattleParticipantItemStack> map, final Map<BattleEquipmentSlot, BattleParticipantItemStack> equipment, BattleEquipmentState equipmentState) {
+        stacks = new Int2ReferenceOpenHashMap<>(map.size());
+        for (Map.Entry<String, BattleParticipantItemStack> entry : map.entrySet()) {
+            stacks.put(Integer.parseInt(entry.getKey(), 16), entry.getValue());
+        }
         this.equipment = new Reference2ObjectOpenHashMap<>(equipment);
         this.equipmentState = equipmentState;
     }
@@ -35,7 +43,7 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         equipment = new Reference2ObjectOpenHashMap<>();
         for (final ItemStack itemStack : entity.tbcex_getInventory()) {
             if (itemStack.getItem() instanceof BattleItem battleItem) {
-                give(battleItem.toBattleItem(itemStack));
+                giveStack(battleItem.toBattleItem(itemStack));
             }
         }
         for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
@@ -45,6 +53,26 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
             }
         }
         equipmentState = new BattleEquipmentState(entity);
+    }
+
+    private Map<String, BattleParticipantItemStack> createStackMap() {
+        Map<String, BattleParticipantItemStack> stackMap = new Object2ObjectOpenHashMap<>(stacks.size());
+        for (Int2ReferenceMap.Entry<BattleParticipantItemStack> entry : stacks.int2ReferenceEntrySet()) {
+            stackMap.put(Integer.toString(entry.getIntKey(), 16), entry.getValue());
+        }
+        return stackMap;
+    }
+
+    private void giveStack(BattleParticipantItemStack stack) {
+        int i = 0;
+        while (true) {
+            if (!stacks.containsKey(i)) {
+                stacks.put(i, stack);
+                return;
+            } else {
+                i++;
+            }
+        }
     }
 
     public int give(final BattleParticipantItemStack stack) {
