@@ -133,10 +133,11 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final float offsetY = (float) position.getY();
         final double maxWidth = ((width.getAsDouble() - 2 * borderThickness) / (double) COLUMN_COUNT);
         final double y = offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing;
-        renderFitText(matrices, info.stack.getItem().getName(), offsetX + borderThickness, y, maxWidth, entryHeight, index == hoverIndex, -1);
-        renderFitText(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, index == hoverIndex, -1);
-        renderFitText(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, index == hoverIndex, -1);
-        renderFitText(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, index == hoverIndex, info.stack.getItem().getRarity().getRarity().getColour());
+        final boolean shadow = index == hoverIndex || selectedIndex == index;
+        renderFitText(matrices, info.stack.getItem().getName(), offsetX + borderThickness, y, maxWidth, entryHeight, shadow, -1);
+        renderFitText(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, shadow, -1);
+        renderFitText(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, -1);
+        renderFitText(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, info.stack.getItem().getRarity().getRarity().getColour());
     }
 
     private void renderInfo(final ItemStackInfo info, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
@@ -148,7 +149,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final float startY = (float) (offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing);
         final float endY = (float) (offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing + entryHeight);
         int backgroundColour = getBackgroundColour(index);
-        if (hoverIndex == index) {
+        if (hoverIndex == index || selectedIndex == index) {
             backgroundColour |= 0xFF000000;
         }
         RenderUtil.colour(buffer.vertex(model, endX, startY, 0), backgroundColour).next();
