@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcextest.common;
 
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItem;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
 import io.github.stuff_stuffs.tbcexcore.common.item.BattleItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -19,6 +20,9 @@ public class TestItem extends Item implements BattleItem {
     public BattleParticipantItemStack toBattleItem(final ItemStack stack) {
         final Random random = new Random();
         Text[] texts = new Text[]{new LiteralText("short"), new LiteralText("long long long long"), new LiteralText("medium"), new LiteralText("p")};
-        return new BattleParticipantItemStack(new TestBattleParticipantItem(texts[random.nextInt(texts.length)]), stack.getCount());
+        double prog = random.nextDouble();
+        BattleParticipantItem.Rarity[] rarities = BattleParticipantItem.Rarity.values();
+        BattleParticipantItem.Rarity rarity = rarities[random.nextInt(rarities.length)];
+        return new BattleParticipantItemStack(new TestBattleParticipantItem(texts[random.nextInt(texts.length)], new BattleParticipantItem.RarityInstance(rarity, prog)), stack.getCount());
     }
 }

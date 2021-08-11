@@ -156,7 +156,7 @@ public abstract class AbstractWidget implements Widget {
         final float textWidth = (textRenderer.getWidth(text) * MinecraftClient.getInstance().getWindow().getScaledWidth() / (float) getPixelWidth());
         double scale;
         if (textWidth > maxWidth) {
-            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * 1.8;
+            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * 1.75;
         } else {
             scale = maxHeight;
         }
@@ -165,12 +165,13 @@ public abstract class AbstractWidget implements Widget {
         }
         matrices.push();
         double offset = (maxHeight-(scale*textRenderer.fontHeight))/2.0;
-        matrices.translate(x,y + offset,0);
+        double centerX = x+maxWidth/2.0;
+        matrices.translate(centerX,y + offset,0);
         matrices.scale((float) scale, (float) scale, (float) scale);
         if (shadow) {
-            textRenderer.drawWithShadow(matrices, text, 0, 0, colour);
+            textRenderer.drawWithShadow(matrices, text, -textRenderer.getWidth(text)/2f, 0, colour);
         } else {
-            textRenderer.draw(matrices, text, 0, 0, colour);
+            textRenderer.draw(matrices, text, -textRenderer.getWidth(text)/2f, 0, colour);
         }
         matrices.pop();
     }

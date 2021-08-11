@@ -1,13 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
-import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
+import io.github.stuff_stuffs.tbcexcore.client.util.ItemStackInfo;
 import io.github.stuff_stuffs.tbcexgui.client.render.ScissorStack;
 import io.github.stuff_stuffs.tbcexgui.client.util.Rect2d;
 import io.github.stuff_stuffs.tbcexgui.client.util.RenderUtil;
@@ -15,38 +9,35 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Matrix4f;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.function.DoubleSupplier;
+import java.util.function.IntConsumer;
 
-public class BattleInventoryWidget extends AbstractWidget {
+public class BattleInventoryTabWidget extends AbstractWidget {
     private static final int COLUMN_COUNT = 4;
     private final WidgetPosition position;
-    private final BattleParticipantHandle handle;
-    private final World world;
     private final List<ItemStackInfo> stacks;
     private final double borderThickness;
     private final double entryHeight;
     private final double verticalSpacing;
-    private final double width;
-    private final double height;
-    private double listHeight = 0;
+    private final DoubleSupplier width;
+    private final DoubleSupplier height;
+    private final IntConsumer onSelect;
     private double pos = 0;
+    private int selectedIndex = 0;
 
-    public BattleInventoryWidget(final WidgetPosition position, final BattleParticipantHandle handle, final World world, final double borderThickness, final double entryHeight, final double verticalSpacing, final double width, final double height) {
+    public BattleInventoryTabWidget(final WidgetPosition position, final List<ItemStackInfo> stacks, final double borderThickness, final double entryHeight, final double verticalSpacing, final DoubleSupplier width, final DoubleSupplier height, final IntConsumer onSelect) {
         this.position = position;
-        this.handle = handle;
-        this.world = world;
+        this.stacks = stacks;
         this.borderThickness = borderThickness;
         this.entryHeight = entryHeight;
         this.verticalSpacing = verticalSpacing;
         this.width = width;
         this.height = height;
-        stacks = new ArrayList<>();
+        this.onSelect = onSelect;
     }
 
     @Override
@@ -56,18 +47,27 @@ public class BattleInventoryWidget extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
+        if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height.getAsDouble()).isIn(mouseX, mouseY)) {
+            final int index = findHoverIndex(mouseX, mouseY);
+            if (selectedIndex != index) {
+                selectedIndex = index;
+                onSelect.accept(index);
+            }
+            return true;
+        }
         return false;
     }
 
     @Override
     public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        return false;
+        return new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height.getAsDouble()).isIn(mouseX, mouseY);
     }
 
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
-        if (new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height).isIn(mouseX, mouseY)) {
-            pos = Math.min(Math.max(pos - deltaY, 0), listHeight - (height - 2 * borderThickness));
+        final double height = this.height.getAsDouble();
+        if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height).isIn(mouseX, mouseY)) {
+            pos = Math.min(Math.max(pos - deltaY, 0), getListHeight() - (height - 2 * borderThickness));
             return true;
         }
         return false;
@@ -75,8 +75,9 @@ public class BattleInventoryWidget extends AbstractWidget {
 
     @Override
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
-        if (new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height).isIn(mouseX, mouseY)) {
-            pos = Math.min(Math.max(pos - amount, 0), listHeight - (height - 2 * borderThickness));
+        final double height = this.height.getAsDouble();
+        if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height).isIn(mouseX, mouseY)) {
+            pos = Math.min(Math.max(pos - amount, 0), getListHeight() - (height - 2 * borderThickness));
             return true;
         }
         return false;
@@ -93,6 +94,8 @@ public class BattleInventoryWidget extends AbstractWidget {
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
         final double offsetX = position.getX();
         final double offsetY = position.getY();
+        final double width = this.width.getAsDouble();
+        final double height = this.height.getAsDouble();
         buffer.vertex(model, (float) (offsetX + width), (float) offsetY, 0).color(0, 0, 0, 127).next();
         buffer.vertex(model, (float) offsetX, (float) offsetY, 0).color(0, 0, 0, 127).next();
         buffer.vertex(model, (float) offsetX, (float) (offsetY + height), 0).color(0, 0, 0, 127).next();
@@ -100,7 +103,7 @@ public class BattleInventoryWidget extends AbstractWidget {
         final double scrollbarThickness = borderThickness / 3.0;
         final double scrollbarHeight = scrollbarThickness * 8;
         final double scrollAreaHeight = height - 2 * borderThickness - scrollbarHeight;
-        final double progress = pos / (listHeight - (height - 2 * borderThickness));
+        final double progress = pos / (getListHeight() - (height - 2 * borderThickness));
         buffer.vertex(model, (float) (scrollbarThickness * 2), (float) (borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
         buffer.vertex(model, (float) scrollbarThickness, (float) (borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
         buffer.vertex(model, (float) scrollbarThickness, (float) (borderThickness + progress * scrollAreaHeight + scrollbarHeight), 0).color(127, 127, 127, 192).next();
@@ -128,10 +131,12 @@ public class BattleInventoryWidget extends AbstractWidget {
     private void renderDecorations(final ItemStackInfo info, final MatrixStack matrices, final int index, final int hoverIndex) {
         final float offsetX = (float) position.getX();
         final float offsetY = (float) position.getY();
-        final double maxWidth = ((width - 2 * borderThickness) / (double) COLUMN_COUNT);
-        final double y = offsetY + borderThickness + index * entryHeight + (index == 0 ? 0 : index - 1) * verticalSpacing;
+        final double maxWidth = ((width.getAsDouble() - 2 * borderThickness) / (double) COLUMN_COUNT);
+        final double y = offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing;
         renderFitText(matrices, info.stack.getItem().getName(), offsetX + borderThickness, y, maxWidth, entryHeight, index == hoverIndex, -1);
-        renderFitText(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, index == hoverIndex, -1);
+        renderFitText(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, index == hoverIndex, -1);
+        renderFitText(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, index == hoverIndex, -1);
+        renderFitText(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, index == hoverIndex, info.stack.getItem().getRarity().getRarity().getColour());
     }
 
     private void renderInfo(final ItemStackInfo info, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
@@ -139,7 +144,7 @@ public class BattleInventoryWidget extends AbstractWidget {
         final double offsetY = position.getY();
         final Matrix4f model = matrices.peek().getModel();
         final float startX = (float) (offsetX + borderThickness);
-        final float endX = (float) (offsetX + width - borderThickness);
+        final float endX = (float) (offsetX + width.getAsDouble() - borderThickness);
         final float startY = (float) (offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing);
         final float endY = (float) (offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing + entryHeight);
         int backgroundColour = getBackgroundColour(index);
@@ -164,53 +169,25 @@ public class BattleInventoryWidget extends AbstractWidget {
     private int findHoverIndex(final double mouseX, final double mouseY) {
         final double offsetX = position.getX();
         final double offsetY = position.getY();
-        for (int i = 0; i < stacks.size(); i++) {
+        final double width = this.width.getAsDouble();
+        for (int index = 0; index < stacks.size(); index++) {
             final double startX = offsetX + borderThickness;
             final double endX = offsetX + width - borderThickness;
-            final double startY = offsetY + borderThickness + i * entryHeight + (i > 0 ? i - 1 : 0) * verticalSpacing;
+            final double startY = offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing;
             final double endY = startY + entryHeight;
-            final Rect2d rect = new Rect2d(startX, startY, endX, endY);
-            if (rect.isIn(mouseX, mouseY)) {
-                return i;
+            if (new Rect2d(startX, startY, endX, endY).isIn(mouseX, mouseY)) {
+                return index;
             }
         }
         return -1;
     }
 
-    public boolean tick() {
-        final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
-        if (battle == null) {
-            return true;
-        }
-        stacks.clear();
-        final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
-        if (participant == null) {
-            return true;
-        }
-        final Iterator<BattleParticipantInventoryHandle> iterator = participant.getInventoryIterator();
-        while (iterator.hasNext()) {
-            final BattleParticipantInventoryHandle next = iterator.next();
-            stacks.add(new ItemStackInfo(next, participant.getItemStack(next), null));
-        }
-        for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
-            final BattleParticipantItemStack stack = participant.getEquipmentStack(slot);
-            if (stack != null) {
-                stacks.add(new ItemStackInfo(null, stack, slot));
-            }
-        }
-        listHeight = stacks.size() * entryHeight + (stacks.size() - 1) * verticalSpacing;
-        return false;
+    private double getListHeight() {
+        final int size = stacks.size();
+        return size * entryHeight + (size > 0 ? size - 1 : 0) * verticalSpacing;
     }
 
-    private static class ItemStackInfo {
-        public final @Nullable BattleParticipantInventoryHandle handle;
-        public final BattleParticipantItemStack stack;
-        public final @Nullable BattleEquipmentSlot slot;
-
-        public ItemStackInfo(@Nullable final BattleParticipantInventoryHandle handle, final BattleParticipantItemStack stack, @Nullable final BattleEquipmentSlot slot) {
-            this.handle = handle;
-            this.stack = stack;
-            this.slot = slot;
-        }
+    public boolean tick() {
+        return false;
     }
 }
