@@ -17,7 +17,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntConsumer;
 
 public class BattleInventoryTabWidget extends AbstractWidget {
-    private static final int COLUMN_COUNT = 4;
+    public static final int COLUMN_COUNT = 4;
     private final WidgetPosition position;
     private final List<ItemStackInfo> stacks;
     private final double borderThickness;
@@ -45,10 +45,22 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         return position;
     }
 
+    public void setSelectedIndex(final int selectedIndex) {
+        if (0 <= selectedIndex && selectedIndex < stacks.size()) {
+            if (selectedIndex != this.selectedIndex) {
+                this.selectedIndex = selectedIndex;
+                onSelect.accept(selectedIndex);
+            }
+        } else {
+            this.selectedIndex = -1;
+            onSelect.accept(selectedIndex);
+        }
+    }
+
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
         if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height.getAsDouble()).isIn(mouseX, mouseY)) {
-            final int index = findHoverIndex(mouseX, mouseY);
+            final int index = findHoverIndex(mouseX, mouseY+pos);
             if (selectedIndex != index) {
                 selectedIndex = index;
                 onSelect.accept(index);
@@ -67,7 +79,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
         final double height = this.height.getAsDouble();
         if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height).isIn(mouseX, mouseY)) {
-            pos = Math.min(Math.max(pos - deltaY, 0), getListHeight() - (height - 2 * borderThickness));
+            pos = Math.min(Math.max(pos + deltaY, 0), getListHeight() - (height - 2 * borderThickness));
             return true;
         }
         return false;
@@ -104,10 +116,10 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final double scrollbarHeight = scrollbarThickness * 8;
         final double scrollAreaHeight = height - 2 * borderThickness - scrollbarHeight;
         final double progress = pos / (getListHeight() - (height - 2 * borderThickness));
-        buffer.vertex(model, (float) (scrollbarThickness * 2), (float) (borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
-        buffer.vertex(model, (float) scrollbarThickness, (float) (borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
-        buffer.vertex(model, (float) scrollbarThickness, (float) (borderThickness + progress * scrollAreaHeight + scrollbarHeight), 0).color(127, 127, 127, 192).next();
-        buffer.vertex(model, (float) (scrollbarThickness * 2), (float) (borderThickness + progress * scrollAreaHeight + scrollbarHeight), 0).color(127, 127, 127, 192).next();
+        buffer.vertex(model, (float) (offsetX+scrollbarThickness * 2), (float) (borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
+        buffer.vertex(model, (float) (offsetX+scrollbarThickness), (float) (borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
+        buffer.vertex(model, (float) (offsetX+scrollbarThickness), (float) (borderThickness + progress * scrollAreaHeight + scrollbarHeight), 0).color(127, 127, 127, 192).next();
+        buffer.vertex(model, (float) (offsetX+scrollbarThickness * 2), (float) (borderThickness + progress * scrollAreaHeight + scrollbarHeight), 0).color(127, 127, 127, 192).next();
         buffer.end();
         BufferRenderer.draw(buffer);
         ScissorStack.push(matrices, borderThickness + offsetX, borderThickness + offsetY, offsetX + width - borderThickness, (offsetY + height - borderThickness) * 1.1);
@@ -189,6 +201,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     }
 
     public boolean tick() {
+        pos = Math.min(Math.max(pos, 0), getListHeight() - (height.getAsDouble() - 2 * borderThickness));
         return false;
     }
 }

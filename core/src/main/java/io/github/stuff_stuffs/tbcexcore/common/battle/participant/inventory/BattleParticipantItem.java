@@ -12,6 +12,7 @@ import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -83,6 +84,7 @@ public interface BattleParticipantItem {
     }
 
     record RarityInstance(Rarity rarity, double progress) {
+        private static final DecimalFormat RARITY_FORMAT = new DecimalFormat("0.00");
         public static final Codec<RarityInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(Rarity.CODEC.fieldOf("rarity").forGetter(RarityInstance::getRarity), Codec.DOUBLE.fieldOf("progress").forGetter(RarityInstance::getProgress)).apply(instance, RarityInstance::new));
         public Rarity getRarity() {
             return rarity;
@@ -93,7 +95,7 @@ public interface BattleParticipantItem {
         }
 
         public Text getAsText() {
-            return new LiteralText(rarity.name() + "(" + progress + ")");
+            return new LiteralText(rarity.name() + "(" + RARITY_FORMAT.format(progress) + ")");
         }
     }
 }
