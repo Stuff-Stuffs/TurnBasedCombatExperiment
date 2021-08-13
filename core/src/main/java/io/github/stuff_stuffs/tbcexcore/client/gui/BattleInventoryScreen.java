@@ -20,7 +20,6 @@ public class BattleInventoryScreen extends TBCExScreen {
     private BattleInventoryTabWidget inventoryWidget;
     private final World world;
     private boolean init = false;
-    private final List<ItemStackInfo> stackInfos = new ArrayList<>();
 
     public BattleInventoryScreen(final BattleParticipantHandle handle, final World world) {
         super(new LiteralText("Battle Inventory"), new RootPanelWidget());
@@ -37,10 +36,10 @@ public class BattleInventoryScreen extends TBCExScreen {
             final List<ItemStackInfo> infos = new ArrayList<>();
             DoubleSupplier startX = () -> -(widget.getScreenWidth()-1)/2.0;
             DoubleSupplier startY = () -> -(widget.getScreenHeight()-1)/2.0;
-            inventoryWidget = new BattleInventoryTabWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth()*1/4.0, () -> 0, () -> 0), infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth()*1.5/4.0, () -> 1, value -> {
+            inventoryWidget = new BattleInventoryTabWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth()*1/4.0, startY, () -> 0), infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth()*1.5/4.0, () -> 1, value -> {
 
             });
-            navigationWidget = new BattleInventoryFilterWidget(new SuppliedWidgetPosition(startX, () -> 0, () -> 0), () -> widget.getScreenWidth()*1/4.0, () -> 1, 1 / 128.0, 1 / 16.0, 1 / 128.0, world, handle, BattleInventoryFilterWidget.DEFAULTS, value -> {
+            navigationWidget = new BattleInventoryFilterWidget(new SuppliedWidgetPosition(startX, startY, () -> 0), () -> widget.getScreenWidth()*1/4.0, () -> 1, 1 / 128.0, 1 / 16.0, 1 / 128.0, world, handle, BattleInventoryFilterWidget.DEFAULTS, value -> {
                 infos.clear();
                 infos.addAll(navigationWidget.getFiltered());
                 inventoryWidget.setSelectedIndex(-1);

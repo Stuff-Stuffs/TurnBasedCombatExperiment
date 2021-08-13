@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.stuff_stuffs.tbcexcore.client.util.ClientUtil;
 import io.github.stuff_stuffs.tbcexcore.client.util.ItemStackInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
@@ -246,11 +247,11 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         final double y = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
         final double centerY = y + entryHeight / 2.0;
         double dist = Math.abs(centerY - (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
-        dist *= dist;
+        dist *= dist * dist;
         final double offset = height.getAsDouble() / 4;
         final double scale = Math.max(offset - dist, 0) / offset;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
-        renderFitText(matrices, category.getName(), offsetX + borderThickness, y, maxWidth * scale, entryHeight * scale, shadow, -1);
+        renderFitText(matrices, category.getName(), offsetX + borderThickness, y, maxWidth * scale, entryHeight * scale, shadow, ClientUtil.tweakComponent(-1, 3, scale));
     }
 
     private void renderInfo(final Category category, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
@@ -265,13 +266,14 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         final float centerY = (startY + endY) / 2f;
         final float yLen = (endY - startY);
         float dist = Math.abs(centerY - (float) (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
-        dist *= dist;
+        dist *= dist * dist;
         final float offset = ((float) height.getAsDouble()) / 4f;
         final float scale = Math.max(offset - dist, 0) / offset;
         int backgroundColour = getBackgroundColour(index);
         if (hoverIndex == index || selectedIndex == index) {
             backgroundColour |= 0xFF000000;
         }
+        backgroundColour = ClientUtil.tweakComponent(backgroundColour, 3, scale);
         RenderUtil.colour(buffer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour).next();
         RenderUtil.colour(buffer.vertex(model, startX, startY, 0), backgroundColour).next();
         RenderUtil.colour(buffer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour).next();

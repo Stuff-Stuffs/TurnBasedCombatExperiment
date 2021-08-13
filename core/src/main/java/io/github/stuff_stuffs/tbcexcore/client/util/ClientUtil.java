@@ -18,4 +18,15 @@ public final class ClientUtil {
         vec3f.normalize();
         return new Vec3d(vec3f);
     }
+
+    public static int tweakComponent(final int colour, final int componentIndex, final double factor) {
+        assert 0 <= colour && componentIndex < 4;
+        final int shift = componentIndex * 8;
+        final int mask = 0xFF << shift;
+        final int component = (colour & mask) >>> shift;
+        final int tweaked = Math.max(Math.min((int) Math.round(component * factor), 255), 0);
+        int notComponents = colour & ~mask;
+        int shiftTweaked = tweaked << shift;
+        return notComponents | shiftTweaked;
+    }
 }
