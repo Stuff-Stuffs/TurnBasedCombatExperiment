@@ -12,6 +12,7 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.DoubleSupplier;
 
 public class BattleInventoryScreen extends TBCExScreen {
     private final BattleParticipantHandle handle;
@@ -34,10 +35,12 @@ public class BattleInventoryScreen extends TBCExScreen {
             init = true;
             final RootPanelWidget widget = (RootPanelWidget) this.widget;
             final List<ItemStackInfo> infos = new ArrayList<>();
-            inventoryWidget = new BattleInventoryTabWidget(new SuppliedWidgetPosition(() -> 0.25, () -> 0, () -> 0), infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> 0.5, () -> 1, value -> {
+            DoubleSupplier startX = () -> -(widget.getScreenWidth()-1)/2.0;
+            DoubleSupplier startY = () -> -(widget.getScreenHeight()-1)/2.0;
+            inventoryWidget = new BattleInventoryTabWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth()*1/4.0, () -> 0, () -> 0), infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth()*1.5/4.0, () -> 1, value -> {
 
             });
-            navigationWidget = new BattleInventoryFilterWidget(new SuppliedWidgetPosition(() -> 0, () -> 0, () -> 0), () -> 0.25, () -> 1, 1 / 128.0, 1 / 16.0, 1 / 128.0, world, handle, BattleInventoryFilterWidget.DEFAULTS, value -> {
+            navigationWidget = new BattleInventoryFilterWidget(new SuppliedWidgetPosition(startX, () -> 0, () -> 0), () -> widget.getScreenWidth()*1/4.0, () -> 1, 1 / 128.0, 1 / 16.0, 1 / 128.0, world, handle, BattleInventoryFilterWidget.DEFAULTS, value -> {
                 infos.clear();
                 infos.addAll(navigationWidget.getFiltered());
                 inventoryWidget.setSelectedIndex(-1);

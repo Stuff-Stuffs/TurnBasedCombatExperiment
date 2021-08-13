@@ -7,6 +7,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -174,5 +175,55 @@ public abstract class AbstractWidget implements Widget {
             textRenderer.draw(matrices, text, -textRenderer.getWidth(text)/2f, 0, colour);
         }
         matrices.pop();
+    }
+
+    public void renderFitTextWrap(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
+        final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        float textWidth = (textRenderer.getWidth(text) * MinecraftClient.getInstance().getWindow().getScaledWidth() / (float) getPixelWidth());
+        double scale;
+        if (textWidth > maxWidth) {
+            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * 1.75;
+        } else {
+            scale = maxHeight;
+        }
+        if (scale * textRenderer.fontHeight > maxHeight) {
+            scale = maxHeight / textRenderer.fontHeight;
+        }
+        int maxLines = (int) Math.floor(maxHeight/(scale*textRenderer.fontHeight*2));
+        if(maxLines>1) {
+            List<OrderedText> lines = textRenderer.wrapLines(text, (int) Math.floor(textRenderer.getWidth(text)/(float)maxLines));
+            double minScale = Double.MAX_VALUE;
+            for (OrderedText line : lines) {
+                textWidth = textRenderer.getWidth(line)/(float)getPixelWidth();
+                if (textWidth > maxWidth) {
+                    scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * 1.75;
+                } else {
+                    scale = maxHeight;
+                }
+                if (scale * textRenderer.fontHeight > maxHeight) {
+                    scale = maxHeight / textRenderer.fontHeight;
+                }
+                if(scale<minScale) {
+                    minScale = scale;
+                }
+            }
+            minScale /= (float)lines.size();
+            for (int j = 0; j < lines.size(); j++) {
+                OrderedText line = lines.get(j);
+                matrices.push();
+                double offset = (maxHeight/(double) lines.size())*j;
+                double centerX = x + maxWidth / 2.0;
+                matrices.translate(centerX, y + offset, 0);
+                matrices.scale((float) minScale, (float) minScale, (float) minScale);
+                if (shadow) {
+                    textRenderer.drawWithShadow(matrices, line, -textRenderer.getWidth(line) / 2f, 0, colour);
+                } else {
+                    textRenderer.draw(matrices, line, -textRenderer.getWidth(line) / 2f, 0, colour);
+                }
+                matrices.pop();
+            }
+        } else {
+            renderFitText(matrices, text, x, y, maxWidth, maxHeight, shadow, colour);
+        }
     }
 }

@@ -243,9 +243,10 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         final float offsetX = (float) position.getX();
         final float offsetY = (float) position.getY();
         final double maxWidth = width.getAsDouble() - 2 * borderThickness;
-        final double y = offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing;
+        final double y = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
         final double centerY = y + entryHeight / 2.0;
-        final double dist = Math.abs(centerY - (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
+        double dist = Math.abs(centerY - (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
+        dist *= dist;
         final double offset = height.getAsDouble() / 4;
         final double scale = Math.max(offset - dist, 0) / offset;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
@@ -259,11 +260,12 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         final float startX = (float) (offsetX + borderThickness);
         final float endX = (float) (offsetX + width.getAsDouble() - borderThickness);
         final float xLen = (endX - startX);
-        final float startY = (float) (offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing);
-        final float endY = (float) (offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing + entryHeight);
+        final float startY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing);
+        final float endY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
         final float centerY = (startY + endY) / 2f;
         final float yLen = (endY - startY);
-        final float dist = Math.abs(centerY - (float) (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
+        float dist = Math.abs(centerY - (float) (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
+        dist *= dist;
         final float offset = ((float) height.getAsDouble()) / 4f;
         final float scale = Math.max(offset - dist, 0) / offset;
         int backgroundColour = getBackgroundColour(index);
@@ -299,7 +301,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         for (int index = 0; index < categories.size(); index++) {
             final double startX = offsetX + borderThickness;
             final double endX = offsetX + width - borderThickness;
-            final double startY = offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing;
+            final double startY = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
             final double endY = startY + entryHeight;
             if (new Rect2d(startX, startY, endX, endY).isIn(mouseX, mouseY)) {
                 return index;

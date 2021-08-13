@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
 
 import java.util.List;
@@ -146,10 +147,11 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final double maxWidth = ((width.getAsDouble() - 2 * borderThickness) / (double) COLUMN_COUNT);
         final double y = offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
-        renderFitText(matrices, info.stack.getItem().getName(), offsetX + borderThickness, y, maxWidth, entryHeight, shadow, -1);
-        renderFitText(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, shadow, -1);
-        renderFitText(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, -1);
-        renderFitText(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, info.stack.getItem().getRarity().getRarity().getColour());
+        final Text name = info.stack.getItem().getName();
+        renderFitTextWrap(matrices, name, offsetX + borderThickness, y, maxWidth, entryHeight, shadow, -1);
+        renderFitTextWrap(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, shadow, -1);
+        renderFitTextWrap(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, -1);
+        renderFitTextWrap(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, info.stack.getItem().getRarity().getRarity().getColour());
     }
 
     private void renderInfo(final ItemStackInfo info, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
@@ -158,8 +160,8 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final Matrix4f model = matrices.peek().getModel();
         final float startX = (float) (offsetX + borderThickness);
         final float endX = (float) (offsetX + width.getAsDouble() - borderThickness);
-        final float startY = (float) (offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing);
-        final float endY = (float) (offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing + entryHeight);
+        final float startY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing);
+        final float endY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
         int backgroundColour = getBackgroundColour(index);
         if (hoverIndex == index || selectedIndex == index) {
             backgroundColour |= 0xFF000000;
@@ -186,7 +188,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         for (int index = 0; index < stacks.size(); index++) {
             final double startX = offsetX + borderThickness;
             final double endX = offsetX + width - borderThickness;
-            final double startY = offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing;
+            final double startY = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
             final double endY = startY + entryHeight;
             if (new Rect2d(startX, startY, endX, endY).isIn(mouseX, mouseY)) {
                 return index;
@@ -197,7 +199,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
 
     private double getListHeight() {
         final int size = stacks.size();
-        return size * entryHeight + (size > 0 ? size - 1 : 0) * verticalSpacing;
+        return size * entryHeight + size * verticalSpacing;
     }
 
     public boolean tick() {
