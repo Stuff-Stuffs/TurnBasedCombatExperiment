@@ -12,6 +12,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.function.DoubleSupplier;
@@ -61,7 +62,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
         if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height.getAsDouble()).isIn(mouseX, mouseY)) {
-            final int index = findHoverIndex(mouseX, mouseY+pos);
+            final int index = findHoverIndex(mouseX, mouseY + pos);
             if (selectedIndex != index) {
                 selectedIndex = index;
                 onSelect.accept(index);
@@ -117,10 +118,10 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final double scrollbarHeight = scrollbarThickness * 8;
         final double scrollAreaHeight = height - 2 * borderThickness - scrollbarHeight;
         final double progress = pos / (getListHeight() - (height - 2 * borderThickness));
-        buffer.vertex(model, (float) (offsetX+scrollbarThickness * 2), (float) (borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
-        buffer.vertex(model, (float) (offsetX+scrollbarThickness), (float) (borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
-        buffer.vertex(model, (float) (offsetX+scrollbarThickness), (float) (borderThickness + progress * scrollAreaHeight + scrollbarHeight), 0).color(127, 127, 127, 192).next();
-        buffer.vertex(model, (float) (offsetX+scrollbarThickness * 2), (float) (borderThickness + progress * scrollAreaHeight + scrollbarHeight), 0).color(127, 127, 127, 192).next();
+        buffer.vertex(model, (float) (offsetX + scrollbarThickness * 2), (float) (offsetY + borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
+        buffer.vertex(model, (float) (offsetX + scrollbarThickness), (float) (offsetY + borderThickness + progress * scrollAreaHeight), 0).color(127, 127, 127, 192).next();
+        buffer.vertex(model, (float) (offsetX + scrollbarThickness), (float) (offsetY + borderThickness + progress * scrollAreaHeight + scrollbarHeight), 0).color(127, 127, 127, 192).next();
+        buffer.vertex(model, (float) (offsetX + scrollbarThickness * 2), (float) (offsetY + borderThickness + progress * scrollAreaHeight + scrollbarHeight), 0).color(127, 127, 127, 192).next();
         buffer.end();
         BufferRenderer.draw(buffer);
         ScissorStack.push(matrices, borderThickness + offsetX, borderThickness + offsetY, offsetX + width - borderThickness, (offsetY + height - borderThickness) * 1.1);
@@ -145,7 +146,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final float offsetX = (float) position.getX();
         final float offsetY = (float) position.getY();
         final double maxWidth = ((width.getAsDouble() - 2 * borderThickness) / (double) COLUMN_COUNT);
-        final double y = offsetY + borderThickness + index * entryHeight + (index > 0 ? index - 1 : 0) * verticalSpacing;
+        final double y = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
         final Text name = info.stack.getItem().getName();
         renderFitTextWrap(matrices, name, offsetX + borderThickness, y, maxWidth, entryHeight, shadow, -1);
@@ -178,7 +179,14 @@ public class BattleInventoryTabWidget extends AbstractWidget {
 
     @Override
     public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
-        return false;
+        if (keyCode == GLFW.GLFW_KEY_UP) {
+            setSelectedIndex(selectedIndex - 1);
+        } else if (keyCode == GLFW.GLFW_KEY_DOWN) {
+            setSelectedIndex(selectedIndex + 1);
+        } else {
+            return false;
+        }
+        return true;
     }
 
     private int findHoverIndex(final double mouseX, final double mouseY) {

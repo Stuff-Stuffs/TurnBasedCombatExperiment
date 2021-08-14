@@ -17,9 +17,9 @@ public final class ScissorStack {
     }
 
     public static void push(final Matrix4f model, final double minX, final double minY, final double maxX, final double maxY) {
-        final Vector4f min = new Vector4f((float) minX, (float) minY, 1, 1);
+        final Vector4f min = new Vector4f((float) minX, (float) minY, 0, 1);
         min.transform(model);
-        final Vector4f max = new Vector4f((float) maxX, (float) maxY, 1, 1);
+        final Vector4f max = new Vector4f((float) maxX, (float) maxY, 0, 1);
         max.transform(model);
         push(
                 (int) Math.min(Math.floor(min.getX()), Math.floor(max.getX())),
@@ -66,8 +66,9 @@ public final class ScissorStack {
             final Entry entry = STACK.top();
             final Window window = MinecraftClient.getInstance().getWindow();
             final double scaleFactor = window.getScaleFactor();
-            final int height = (entry.maxY - entry.minY);
-            RenderSystem.enableScissor((int) (entry.minX * scaleFactor), (int) (entry.minY * scaleFactor), (int) (entry.maxX * scaleFactor) - (int) (entry.minX * scaleFactor), (int) Math.ceil(height * scaleFactor));
+            int inv = MinecraftClient.getInstance().getWindow().getScaledHeight();
+            final int height = (inv-entry.minY) - (inv-entry.maxY);
+            RenderSystem.enableScissor((int) (entry.minX * scaleFactor), (int) ((inv-entry.maxY) * scaleFactor), (int) (entry.maxX * scaleFactor) - (int) (entry.minX * scaleFactor), (int) (height * scaleFactor));
         }
     }
 

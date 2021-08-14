@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventoryFilterWidget;
+import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventorySorterWidget;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventoryTabWidget;
 import io.github.stuff_stuffs.tbcexcore.client.util.ItemStackInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
@@ -17,6 +18,7 @@ import java.util.function.DoubleSupplier;
 public class BattleInventoryScreen extends TBCExScreen {
     private final BattleParticipantHandle handle;
     private BattleInventoryFilterWidget navigationWidget;
+    private BattleInventorySorterWidget sorterWidget;
     private BattleInventoryTabWidget inventoryWidget;
     private final World world;
     private boolean init = false;
@@ -34,12 +36,16 @@ public class BattleInventoryScreen extends TBCExScreen {
             init = true;
             final RootPanelWidget widget = (RootPanelWidget) this.widget;
             final List<ItemStackInfo> infos = new ArrayList<>();
-            DoubleSupplier startX = () -> -(widget.getScreenWidth()-1)/2.0;
-            DoubleSupplier startY = () -> -(widget.getScreenHeight()-1)/2.0;
-            inventoryWidget = new BattleInventoryTabWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth()*1/4.0, startY, () -> 0), infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth()*1.5/4.0, () -> 1, value -> {
+            final DoubleSupplier startX = () -> -(widget.getScreenWidth() - 1) / 2.0;
+            final DoubleSupplier startY = () -> -(widget.getScreenHeight() - 1) / 2.0;
+            inventoryWidget = new BattleInventoryTabWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 1 / 4.0, () -> startY.getAsDouble() + widget.getScreenHeight() * 1 / 8.0, () -> 0), infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 7 / 8.0, value -> {
 
             });
-            navigationWidget = new BattleInventoryFilterWidget(new SuppliedWidgetPosition(startX, startY, () -> 0), () -> widget.getScreenWidth()*1/4.0, () -> 1, 1 / 128.0, 1 / 16.0, 1 / 128.0, world, handle, BattleInventoryFilterWidget.DEFAULTS, value -> {
+            sorterWidget = new BattleInventorySorterWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 1 / 4.0, startY, () -> 0), () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 1 / 8.0, 1 / 128.0, 1 / 8.0, 1 / 128.0, BattleInventorySorterWidget.DEFAULTS, i -> {
+                sorterWidget.sort(infos);
+                inventoryWidget.setSelectedIndex(-1);
+            });
+            navigationWidget = new BattleInventoryFilterWidget(new SuppliedWidgetPosition(startX, startY, () -> 0), () -> widget.getScreenWidth() * 1 / 4.0, () -> 1, 1 / 128.0, 1 / 16.0, 1 / 128.0, world, handle, BattleInventoryFilterWidget.DEFAULTS, value -> {
                 infos.clear();
                 infos.addAll(navigationWidget.getFiltered());
                 inventoryWidget.setSelectedIndex(-1);
@@ -47,6 +53,7 @@ public class BattleInventoryScreen extends TBCExScreen {
             navigationWidget.setSelectedIndex(0);
             infos.addAll(navigationWidget.getFiltered());
             widget.addWidget(inventoryWidget);
+            widget.addWidget(sorterWidget);
             widget.addWidget(navigationWidget);
         }
         inventoryWidget.tick();

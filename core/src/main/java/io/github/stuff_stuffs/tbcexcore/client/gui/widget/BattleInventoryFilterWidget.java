@@ -156,7 +156,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
     public void setSelectedIndex(final int selectedIndex) {
         if (0 <= selectedIndex && selectedIndex < categories.size()) {
             if (selectedIndex != this.selectedIndex) {
-                pos = (position.getY() + borderThickness + selectedIndex * entryHeight + (selectedIndex > 0 ? selectedIndex - 1 : 0) * verticalSpacing + entryHeight / 2) - (height.getAsDouble() - 2 * borderThickness) / 2;
+                pos = (position.getY() + borderThickness + selectedIndex * entryHeight + selectedIndex * verticalSpacing + entryHeight / 2) - (height.getAsDouble() - 2 * borderThickness) / 2;
                 this.selectedIndex = selectedIndex;
                 onSelect.accept(selectedIndex);
             }
