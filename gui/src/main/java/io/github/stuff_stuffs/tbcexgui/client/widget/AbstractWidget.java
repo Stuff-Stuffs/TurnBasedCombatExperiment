@@ -155,9 +155,11 @@ public abstract class AbstractWidget implements Widget {
     public void renderFitText(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final float textWidth = (textRenderer.getWidth(text) * MinecraftClient.getInstance().getWindow().getScaledWidth() / (float) getPixelWidth());
+        //todo even more wtf
+        double scaleFactor = maxWidth<=0.125?1:1.75;
         double scale;
         if (textWidth > maxWidth) {
-            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * 1.75;
+            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * scaleFactor;
         } else {
             scale = maxHeight;
         }
@@ -180,23 +182,24 @@ public abstract class AbstractWidget implements Widget {
     public void renderFitTextWrap(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         float textWidth = (textRenderer.getWidth(text) * MinecraftClient.getInstance().getWindow().getScaledWidth() / (float) getPixelWidth());
+        double scaleFactor = maxWidth<=0.125?1:1.75;
         double scale;
         if (textWidth > maxWidth) {
-            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * 1.75;
+            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * scaleFactor;
         } else {
             scale = maxHeight;
         }
         if (scale * textRenderer.fontHeight > maxHeight) {
             scale = maxHeight / textRenderer.fontHeight;
         }
-        int maxLines = (int) Math.floor(maxHeight/(scale*textRenderer.fontHeight*2));
+        int maxLines = (int) Math.floor(maxHeight/(scale*textRenderer.fontHeight*2*scaleFactor));
         if(maxLines>1) {
             List<OrderedText> lines = textRenderer.wrapLines(text, (int) Math.floor(textRenderer.getWidth(text)/(float)maxLines));
             double minScale = Double.MAX_VALUE;
             for (OrderedText line : lines) {
                 textWidth = textRenderer.getWidth(line)/(float)getPixelWidth();
                 if (textWidth > maxWidth) {
-                    scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * 1.75;
+                    scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * scaleFactor;
                 } else {
                     scale = maxHeight;
                 }

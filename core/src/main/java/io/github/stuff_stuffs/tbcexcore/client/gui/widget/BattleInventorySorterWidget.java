@@ -30,13 +30,13 @@ public class BattleInventorySorterWidget extends AbstractWidget {
     private static final Comparator<ItemStackInfo> DEFAULT_COMPARATOR = (first, second) -> {
         final Optional<Pair<BattleParticipantHandle, BattleEquipmentSlot>> firstRight = first.location.right();
         final Optional<Pair<BattleParticipantHandle, BattleEquipmentSlot>> secondRight = second.location.right();
-        if(firstRight.isPresent()&&secondRight.isPresent()) {
+        if (firstRight.isPresent() && secondRight.isPresent()) {
             return Integer.compare(BattleEquipmentSlot.REGISTRY.getRawId(firstRight.get().getSecond()), BattleEquipmentSlot.REGISTRY.getRawId(secondRight.get().getSecond()));
         }
         final Optional<BattleParticipantInventoryHandle> firstLeft = first.location.left();
         final Optional<BattleParticipantInventoryHandle> secondLeft = second.location.left();
-        if(firstLeft.isPresent()) {
-            if(secondLeft.isPresent()) {
+        if (firstLeft.isPresent()) {
+            if (secondLeft.isPresent()) {
                 return Integer.compare(firstLeft.get().id(), secondLeft.get().id());
             } else {
                 return 1;
@@ -104,7 +104,9 @@ public class BattleInventorySorterWidget extends AbstractWidget {
     private final IntConsumer onSelect;
     private double pos = 0;
     private int selectedIndex = 0;
+    private boolean reversedSort = false;
     private int prevSelectedIndex = -1;
+    private boolean prevReversedSort = false;
 
 
     public BattleInventorySorterWidget(final WidgetPosition position, final DoubleSupplier width, final DoubleSupplier height, final double borderThickness, final double entryWidth, final double horizontalSpacing, final List<Sort> sorts, final IntConsumer onSelect) {
@@ -120,12 +122,18 @@ public class BattleInventorySorterWidget extends AbstractWidget {
 
     public void sort(final List<ItemStackInfo> infos) {
         if (0 <= selectedIndex && selectedIndex < sorts.size()) {
-            final Comparator<ItemStackInfo> first = sorts.get(selectedIndex).getComparator();
+            Comparator<ItemStackInfo> first = sorts.get(selectedIndex).getComparator();
+            if(reversedSort) {
+                first = first.reversed();
+            }
             Comparator<ItemStackInfo> second;
             if (0 <= prevSelectedIndex && prevSelectedIndex < sorts.size()) {
                 second = sorts.get(prevSelectedIndex).getComparator();
             } else {
                 second = DEFAULT_COMPARATOR;
+            }
+            if(prevReversedSort) {
+                second = second.reversed();
             }
             infos.sort(first.thenComparing(second));
         } else {
@@ -138,12 +146,15 @@ public class BattleInventorySorterWidget extends AbstractWidget {
             if (selectedIndex != this.selectedIndex) {
                 pos = (position.getX() + selectedIndex * entryWidth + selectedIndex * horizontalSpacing + entryWidth / 2) - (width.getAsDouble() - 2 * borderThickness) / 2;
                 prevSelectedIndex = this.selectedIndex;
+                prevReversedSort = reversedSort;
                 this.selectedIndex = selectedIndex;
-                onSelect.accept(selectedIndex);
+            } else {
+                reversedSort = !reversedSort;
             }
+            onSelect.accept(selectedIndex);
         } else {
             this.selectedIndex = -1;
-            onSelect.accept(selectedIndex);
+            onSelect.accept(-1);
         }
     }
 
@@ -155,11 +166,8 @@ public class BattleInventorySorterWidget extends AbstractWidget {
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
         if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height.getAsDouble()).isIn(mouseX, mouseY)) {
-            final int index = findHoverIndex(mouseX+pos, mouseY);
-            if (selectedIndex != index) {
-                selectedIndex = index;
-                onSelect.accept(index);
-            }
+            final int index = findHoverIndex(mouseX + pos, mouseY);
+            setSelectedIndex(index);
             return true;
         }
         return false;
@@ -215,7 +223,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
 
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        final int hoverIndex = findHoverIndex(mouseX, mouseY + pos);
+        final int hoverIndex = findHoverIndex(mouseX + pos, mouseY);
         for (int i = 0; i < sorts.size(); i++) {
             renderInfo(sorts.get(i), buffer, matrices, i, hoverIndex);
         }
@@ -232,15 +240,16 @@ public class BattleInventorySorterWidget extends AbstractWidget {
     private void renderDecorations(final Sort sort, final MatrixStack matrices, final int index, final int hoverIndex) {
         final float offsetX = (float) position.getX();
         final float offsetY = (float) position.getY();
-        final double x = offsetX + borderThickness + index * entryWidth + index * horizontalSpacing;
+        final double startX = offsetX + borderThickness + index * entryWidth + index * horizontalSpacing;
+        final float endX = (float) (offsetX + borderThickness + index * entryWidth + index * horizontalSpacing + entryWidth);
         final double y = offsetY + borderThickness;
-        final double centerX = x + entryWidth / 2.0;
+        final double centerX = (startX + endX) / 2.0;
         double dist = Math.abs(centerX - (pos + (width.getAsDouble() - 2 * borderThickness) / 2));
         dist *= dist * dist;
         final double offset = height.getAsDouble() / 4;
         final double scale = Math.max(offset - dist, 0) / offset;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
-        renderFitText(matrices, sort.getName(), x, y, entryWidth * scale, height.getAsDouble() - 2 * borderThickness, shadow, ClientUtil.tweakComponent(-1, 3, scale));
+        renderFitText(matrices, sort.getName(), startX, y, (endX-startX) * scale, (height.getAsDouble() - 2 * borderThickness)*scale, shadow, ClientUtil.tweakComponent(-1, 3, scale));
     }
 
     private void renderInfo(final Sort category, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
