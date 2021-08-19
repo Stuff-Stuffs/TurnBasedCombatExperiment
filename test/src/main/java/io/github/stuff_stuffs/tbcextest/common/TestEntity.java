@@ -1,7 +1,8 @@
-package io.github.stuff_stuffs.tbcexcore.common.entity;
+package io.github.stuff_stuffs.tbcextest.common;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
+import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;

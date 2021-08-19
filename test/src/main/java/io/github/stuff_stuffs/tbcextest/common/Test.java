@@ -14,5 +14,6 @@ public class Test implements ModInitializer {
     public void onInitialize() {
         Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_item"), TEST_ITEM);
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_item"), TEST_ITEM_TYPE);
+        EntityTypes.init();
     }
 }

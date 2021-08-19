@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexcore.common.entity;
+package io.github.stuff_stuffs.tbcextest.common;
 
 import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
