@@ -77,7 +77,7 @@ public enum Easing {
         @Override
         public double apply(final double x) {
             final double a = 1 - x;
-            return 1 - x * x * x * x;
+            return 1 - a * a * a * a;
         }
     },
     easeInOutQuart {
