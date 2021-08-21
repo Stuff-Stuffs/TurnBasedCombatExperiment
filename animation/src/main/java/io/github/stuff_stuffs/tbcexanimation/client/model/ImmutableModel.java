@@ -22,6 +22,26 @@ public final class ImmutableModel implements Model {
     }
 
     @Override
+    public ImmutableModel copy(boolean copyState) {
+        Builder builder = builder();
+        for (ModelBoneInstance boneInstance : bones.values()) {
+            builder.addBone(boneInstance.getBone());
+        }
+        ImmutableModel model = builder.build(scale);
+        if(copyState) {
+            for (Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
+                final ModelBoneInstance bone = model.getBone(entry.getKey());
+                if(bone==null) {
+                    throw new RuntimeException();
+                }
+                bone.setRotation(entry.getValue().getRotation());
+                bone.setOffset(entry.getValue().getOffset());
+            }
+        }
+        return model;
+    }
+
+    @Override
     public boolean containsBone(final String name) {
         return bones.containsKey(name);
     }
@@ -60,6 +80,10 @@ public final class ImmutableModel implements Model {
             boneInstance.render(matrices, vertexConsumers);
         }
         matrices.pop();
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static final class Builder {

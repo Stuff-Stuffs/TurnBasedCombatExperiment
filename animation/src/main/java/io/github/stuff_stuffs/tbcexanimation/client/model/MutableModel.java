@@ -18,9 +18,34 @@ public final class MutableModel implements Model {
     private int lastTick = Integer.MIN_VALUE;
     private double lastPartialTick = 0;
 
+    private MutableModel(Map<String, ModelBoneInstance> bones, final double scale) {
+        this.scale = scale;
+        this.bones = bones;
+    }
+
     public MutableModel(final double scale) {
         this.scale = scale;
         bones = new Object2ReferenceOpenHashMap<>();
+    }
+
+    @Override
+    public MutableModel copy(boolean copyState) {
+        Builder builder = builder();
+        for (ModelBoneInstance boneInstance : bones.values()) {
+            builder.addBone(boneInstance.getBone());
+        }
+        MutableModel model = builder.build(scale);
+        if(copyState) {
+            for (Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
+                final ModelBoneInstance bone = model.getBone(entry.getKey());
+                if(bone==null) {
+                    throw new RuntimeException();
+                }
+                bone.setRotation(entry.getValue().getRotation());
+                bone.setOffset(entry.getValue().getOffset());
+            }
+        }
+        return model;
     }
 
     @Override
@@ -104,5 +129,42 @@ public final class MutableModel implements Model {
             boneInstance.render(matrices, vertexConsumers);
         }
         matrices.pop();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private final Map<String, ModelBone> bones;
+
+        private Builder() {
+            bones = new Object2ReferenceOpenHashMap<>();
+        }
+
+        public Builder addBone(final ModelBone bone) {
+            if (bones.put(bone.getName(), bone) != null) {
+                throw new RuntimeException();
+            }
+            return this;
+        }
+
+        public MutableModel build(final double scale) {
+            final Map<String, ModelBoneInstance> boneInstances = new Object2ReferenceOpenHashMap<>();
+            boolean added = true;
+            while (added) {
+                added = false;
+                for (final ModelBone bone : bones.values()) {
+                    final ModelBone parent = bone.getParent();
+                    if (!boneInstances.containsKey(bone.getName())) {
+                        if (parent == null || boneInstances.containsKey(parent.getName())) {
+                            boneInstances.put(bone.getName(), new ModelBoneInstance(bone, parent == null ? null : boneInstances.get(parent.getName())));
+                            added = true;
+                        }
+                    }
+                }
+            }
+            return new MutableModel(boneInstances, scale);
+        }
     }
 }
