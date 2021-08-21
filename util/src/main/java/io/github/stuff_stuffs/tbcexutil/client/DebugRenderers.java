@@ -64,6 +64,13 @@ public final class DebugRenderers {
         TOGGLES.put(renderer, on);
     }
 
+    public static boolean get(String renderer) {
+        if(DEBUG_RENDERS_UNINIT.containsKey(renderer)) {
+            init();
+        }
+        return TOGGLES.getBoolean(renderer);
+    }
+
     public static Collection<String> getKeys() {
         final ArrayList<String> keys = new ArrayList<>(TOGGLES.keySet());
         keys.addAll(DEBUG_RENDERS_UNINIT.keySet());

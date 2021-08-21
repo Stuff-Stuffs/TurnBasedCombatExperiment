@@ -1,7 +1,9 @@
 package io.github.stuff_stuffs.tbcexanimation.client.model;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.stuff_stuffs.tbcexanimation.client.TBCExAnimationClient;
 import io.github.stuff_stuffs.tbcexanimation.client.animation.Animation;
+import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -141,12 +143,14 @@ public final class ModelBoneInstance {
     public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {
         matrices.push();
         transform(matrices);
-        final VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.LINES);
-        for (final Pair<Vec3d, Vec3d> boneLine : bone.getBoneLines()) {
-            final Vec3d start = boneLine.getFirst();
-            final Vec3d end = boneLine.getSecond();
-            buffer.vertex(matrices.peek().getModel(), (float) start.x, (float) start.y, (float) start.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), 0, 0, 1).next();
-            buffer.vertex(matrices.peek().getModel(), (float) end.x, (float) end.y, (float) end.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), 0, 0, 1).next();
+        if(DebugRenderers.get(TBCExAnimationClient.BONE_DEBUG_RENDERER)) {
+            final VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.LINES);
+            for (final Pair<Vec3d, Vec3d> boneLine : bone.getBoneLines()) {
+                final Vec3d start = boneLine.getFirst();
+                final Vec3d end = boneLine.getSecond();
+                buffer.vertex(matrices.peek().getModel(), (float) start.x, (float) start.y, (float) start.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), 0, 0, 1).next();
+                buffer.vertex(matrices.peek().getModel(), (float) end.x, (float) end.y, (float) end.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), 0, 0, 1).next();
+            }
         }
         for (final ModelPart part : parts.values()) {
             matrices.push();
