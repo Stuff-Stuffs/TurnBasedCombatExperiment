@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget;
 
-import io.github.stuff_stuffs.tbcexutil.client.IdSupplier;
+import io.github.stuff_stuffs.tbcexutil.common.IdSupplier;
 
 public interface ParentWidget extends Widget {
     IdSupplier ID_SUPPLIER = new IdSupplier();

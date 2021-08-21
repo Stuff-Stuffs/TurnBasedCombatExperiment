@@ -12,6 +12,6 @@ public interface Animation {
     boolean isCancelled();
 
     default boolean isFinished() {
-        return getTimeRemaining()<=0;
+        return getTimeRemaining() <= 0;
     }
 }
