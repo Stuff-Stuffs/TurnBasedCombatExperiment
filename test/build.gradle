@@ -1,4 +1,6 @@
 dependencies {
     implementation project(':core')
     implementation project(':gui')
+    implementation project(':animation')
+    implementation project(':util')
 }

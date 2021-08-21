@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcextest.common;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemType;
+import io.github.stuff_stuffs.tbcextest.common.entity.EntityTypes;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;

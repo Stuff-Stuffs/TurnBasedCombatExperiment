@@ -11,7 +11,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.stuff_stuffs.tbcexcore.client.network.ClientNetwork;
 import io.github.stuff_stuffs.tbcexcore.client.render.Render;
 import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
-import io.github.stuff_stuffs.tbcexcore.client.render.debug.DebugRenderers;
+import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
@@ -46,12 +46,7 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
     public void onInitializeClient() {
         Render.init();
         ClientNetwork.init();
-        ClientCommandManager.DISPATCHER.register(ClientCommandManager.literal("debugRenderer").then(ClientCommandManager.argument("renderer", DebugRendererArgument.debugRendererArgument()).then(ClientCommandManager.argument("on", BoolArgumentType.bool()).executes(context -> {
-            final String renderer = context.getArgument("renderer", String.class);
-            final boolean on = BoolArgumentType.getBool(context, "on");
-            DebugRenderers.set(renderer, on);
-            return 0;
-        }))));
+
         ClientTickEvents.START_WORLD_TICK.register(world -> ((ClientBattleWorldSupplier) world).tbcex_getBattleWorld().tick());
         DebugRenderers.register("battle_bounds", context -> {
             final VertexConsumerProvider consumers = context.consumers();
@@ -76,39 +71,5 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
         BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.CHEST_SLOT, 1/64d, 0.5 + 0.5/16d);
         BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.LEGS_SLOT, 1/64d, 0.5 - 0.5/16d);
         BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.FEET_SLOT, 1/64d, 0.5 - 1.5/16d);
-    }
-
-    private static class DebugRendererArgument implements ArgumentType<String> {
-        private static final SimpleCommandExceptionType EXCEPTION = new SimpleCommandExceptionType(new TranslatableText("turn_base_combat.debugRenderer.invalid"));
-
-        private DebugRendererArgument() {
-        }
-
-        public static DebugRendererArgument debugRendererArgument() {
-            return new DebugRendererArgument();
-        }
-
-        @Override
-        public String parse(final StringReader reader) throws CommandSyntaxException {
-            final int i = reader.getCursor();
-            final String s = reader.readStringUntil(' ');
-            //cursed
-            reader.setCursor(reader.getCursor() - 1);
-            if (DebugRenderers.contains(s)) {
-                return s;
-            }
-            reader.setCursor(i);
-            throw EXCEPTION.createWithContext(reader);
-        }
-
-        @Override
-        public Collection<String> getExamples() {
-            return new ObjectArrayList<>(DebugRenderers.getKeys());
-        }
-
-        @Override
-        public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder) {
-            return CommandSource.suggestMatching(DebugRenderers.getKeys(), builder);
-        }
     }
 }

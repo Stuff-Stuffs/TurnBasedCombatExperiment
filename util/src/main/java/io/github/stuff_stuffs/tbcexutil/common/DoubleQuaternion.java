@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexanimation.common.util;
+package io.github.stuff_stuffs.tbcexutil.common;
 
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
@@ -9,6 +9,13 @@ public final class DoubleQuaternion {
     public final double y;
     public final double z;
     public final double w;
+
+    public DoubleQuaternion() {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.w = 1;
+    }
 
     public DoubleQuaternion(final double x, final double y, final double z, final double w) {
         this.x = x;

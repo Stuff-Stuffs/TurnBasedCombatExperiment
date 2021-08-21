@@ -6,7 +6,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.*;
-import io.github.stuff_stuffs.tbcexcore.common.util.CodecUtil;
+import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.Text;
 

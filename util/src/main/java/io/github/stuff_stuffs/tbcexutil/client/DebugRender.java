@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexcore.client.render.debug;
+package io.github.stuff_stuffs.tbcexutil.client;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 

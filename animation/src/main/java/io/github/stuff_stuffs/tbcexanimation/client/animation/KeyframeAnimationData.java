@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexanimation.client.animation;
 
-import io.github.stuff_stuffs.tbcexanimation.common.util.DoubleQuaternion;
-import io.github.stuff_stuffs.tbcexanimation.common.util.Easing;
+import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
+import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.doubles.Double2ObjectSortedMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;

@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.stuff_stuffs.tbcexgui.client.util.RenderUtil;
+import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;

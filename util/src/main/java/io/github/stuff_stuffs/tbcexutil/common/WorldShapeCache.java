@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexcore.common.util;
+package io.github.stuff_stuffs.tbcexutil.common;
 
 import com.google.common.base.Suppliers;
 import it.unimi.dsi.fastutil.HashCommon;

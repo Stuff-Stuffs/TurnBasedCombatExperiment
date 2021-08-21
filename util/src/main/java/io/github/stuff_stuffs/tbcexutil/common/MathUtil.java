@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexcore.common.util;
+package io.github.stuff_stuffs.tbcexutil.common;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;

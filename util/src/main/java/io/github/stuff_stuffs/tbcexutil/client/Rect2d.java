@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexgui.client.util;
+package io.github.stuff_stuffs.tbcexutil.client;
 
 public final class Rect2d {
     public final double minX, minY, maxX, maxY;

@@ -10,7 +10,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattlePa
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.ServerBattleWorld;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
-import io.github.stuff_stuffs.tbcexcore.common.entity.EntityTypes;
 import io.github.stuff_stuffs.tbcexcore.common.network.Network;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import net.fabricmc.api.ModInitializer;
@@ -37,7 +36,6 @@ public class TurnBasedCombatExperiment implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        EntityTypes.init();
         Network.init();
         BattleDamageType.init();
         BattleActionRegistry.init();

@@ -3,7 +3,7 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
-import io.github.stuff_stuffs.tbcexcore.common.util.CodecUtil;
+import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 
 import java.util.UUID;
 import java.util.function.Function;

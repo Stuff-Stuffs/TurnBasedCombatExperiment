@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexgui.client.util;
+package io.github.stuff_stuffs.tbcexutil.client;
 
 import net.minecraft.client.util.math.MatrixStack;
 

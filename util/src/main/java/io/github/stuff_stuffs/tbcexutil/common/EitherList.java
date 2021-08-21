@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexcore.common.util;
+package io.github.stuff_stuffs.tbcexutil.common;
 
 import com.google.common.collect.AbstractIterator;
 import com.mojang.datafixers.util.Either;

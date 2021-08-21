@@ -2,7 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
-import io.github.stuff_stuffs.tbcexcore.common.util.EitherList;
+import io.github.stuff_stuffs.tbcexutil.common.EitherList;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 

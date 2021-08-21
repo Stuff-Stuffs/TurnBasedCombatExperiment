@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.panel;
 
-import io.github.stuff_stuffs.tbcexgui.client.util.NinePatch;
-import io.github.stuff_stuffs.tbcexgui.client.util.Rect2d;
+import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
+import io.github.stuff_stuffs.tbcexutil.client.Rect2d;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractParentWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.BasicWidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;

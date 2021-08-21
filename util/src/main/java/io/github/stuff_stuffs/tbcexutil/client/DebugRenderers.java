@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexcore.client.render.debug;
+package io.github.stuff_stuffs.tbcexutil.client;
 
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;

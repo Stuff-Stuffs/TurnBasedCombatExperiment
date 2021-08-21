@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget;
 
-import io.github.stuff_stuffs.tbcexgui.client.util.IdSupplier;
+import io.github.stuff_stuffs.tbcexutil.client.IdSupplier;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "tbcextest",
+  "id": "tbcexutil",
   "version": "${version}",
-  "name": "TurnBasedCombatExperimentTest",
+  "name": "TurnBasedCombatExperimentUtil",
   "description": "",
   "authors": [],
   "contact": {},
@@ -11,10 +11,7 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "io.github.stuff_stuffs.tbcextest.client.TestClient"
-    ],
-    "main": [
-      "io.github.stuff_stuffs.tbcextest.common.Test"
+      "io.github.stuff_stuffs.tbcexutil.client.ClientUtil"
     ]
   },
   "depends": {

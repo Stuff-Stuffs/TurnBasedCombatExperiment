@@ -1,9 +1,12 @@
 package io.github.stuff_stuffs.tbcexanimation.client.model;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexanimation.client.animation.Animation;
-import io.github.stuff_stuffs.tbcexanimation.common.util.DoubleQuaternion;
-import io.github.stuff_stuffs.tbcexanimation.common.util.Easing;
+import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
+import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -51,8 +54,9 @@ public final class ModelBoneInstance {
         if (parent != null) {
             parent.transform(matrices);
         }
-        matrices.translate(offset.x, offset.y, offset.z);
+        matrices.translate(offset.x - bone.getPivotPoint().x, offset.y - bone.getPivotPoint().y, offset.z - bone.getPivotPoint().z);
         matrices.multiply(rotation.toFloatQuat());
+        matrices.translate(bone.getPivotPoint().x, bone.getPivotPoint().y, bone.getPivotPoint().z);
     }
 
     public Animation resetAnimationAutomatic(final double scale, final Easing easing) {
@@ -134,10 +138,17 @@ public final class ModelBoneInstance {
         rotation = rotation.multiply(quaternion).normalize();
     }
 
-    public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
+    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {
         matrices.push();
         transform(matrices);
-        for (ModelPart part : parts.values()) {
+        final VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.LINES);
+        for (final Pair<Vec3d, Vec3d> boneLine : bone.getBoneLines()) {
+            final Vec3d start = boneLine.getFirst();
+            final Vec3d end = boneLine.getSecond();
+            buffer.vertex(matrices.peek().getModel(), (float) start.x, (float) start.y, (float) start.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), 0, 0, 1).next();
+            buffer.vertex(matrices.peek().getModel(), (float) end.x, (float) end.y, (float) end.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), 0, 0, 1).next();
+        }
+        for (final ModelPart part : parts.values()) {
             matrices.push();
             part.render(matrices, vertexConsumers);
             matrices.pop();

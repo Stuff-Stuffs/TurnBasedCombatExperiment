@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
-import io.github.stuff_stuffs.tbcexcore.common.util.CodecUtil;
+import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 
 public final class ParticipantJoinBattleAction extends BattleAction<ParticipantJoinBattleAction> {
     public static final Codec<ParticipantJoinBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(

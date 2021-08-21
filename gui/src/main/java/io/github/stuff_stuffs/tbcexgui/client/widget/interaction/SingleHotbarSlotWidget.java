@@ -1,8 +1,8 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
-import io.github.stuff_stuffs.tbcexgui.client.util.ItemStackLike;
-import io.github.stuff_stuffs.tbcexgui.client.util.NinePatch;
-import io.github.stuff_stuffs.tbcexgui.client.util.Rect2d;
+import io.github.stuff_stuffs.tbcexutil.client.ItemStackLike;
+import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
+import io.github.stuff_stuffs.tbcexutil.client.Rect2d;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
@@ -15,9 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 public class SingleHotbarSlotWidget extends AbstractWidget {

@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexgui.client.util;
+package io.github.stuff_stuffs.tbcexutil.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.render.*;
@@ -10,7 +10,7 @@ import net.minecraft.util.Identifier;
 import java.util.Locale;
 import java.util.Map;
 
-import static io.github.stuff_stuffs.tbcexgui.client.util.RenderUtil.renderRectangle;
+import static io.github.stuff_stuffs.tbcexutil.client.RenderUtil.renderRectangle;
 
 public final class NinePatch {
     public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final MatrixStack matrices) {

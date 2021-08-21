@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexanimation.common.util;
+package io.github.stuff_stuffs.tbcexutil.common;
 
 public enum Easing {
     easeInBack {
