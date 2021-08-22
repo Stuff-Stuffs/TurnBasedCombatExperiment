@@ -50,6 +50,7 @@ public final class MutableSkeleton implements Skeleton {
                 }
                 bone.setRotation(entry.getValue().getRotation());
                 bone.setOffset(entry.getValue().getOffset());
+                bone.setScale(entry.getValue().getScale());
             }
         }
         return model;
@@ -69,6 +70,7 @@ public final class MutableSkeleton implements Skeleton {
                 }
                 bone.setRotation(entry.getValue().getRotation());
                 bone.setOffset(entry.getValue().getOffset());
+                bone.setScale(entry.getValue().getScale());
             }
         }
         return model;

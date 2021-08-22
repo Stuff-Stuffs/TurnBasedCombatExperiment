@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexanimation.client.animation;
 
-import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.ModelBoneInstance;
+import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 
@@ -28,7 +28,7 @@ public class SimpleKeyframeAnimation implements Animation {
                     if (instance == null) {
                         throw new RuntimeException();
                     }
-                    defaultData.put(bone, new KeyframeAnimationData.KeyframeData(0, instance.getRotation(), Easing.easeInQuad, instance.getOffset(), Easing.easeInQuad));
+                    defaultData.put(bone, new KeyframeAnimationData.KeyframeData(0, instance.getRotation(), Easing.easeInOutQuad, instance.getOffset(), Easing.easeInOutQuad, instance.getScale(), Easing.easeInOutQuad));
                 }
             }
             for (final String bone : skeleton.getBones()) {
@@ -50,6 +50,7 @@ public class SimpleKeyframeAnimation implements Animation {
                 if (supremum == null) {
                     boneInstance.setRotation(infimum.rotation);
                     boneInstance.setOffset(infimum.offset);
+                    boneInstance.setScale(infimum.scale);
                 } else {
                     updateBone(boneInstance, infimum, supremum);
                 }
@@ -71,6 +72,7 @@ public class SimpleKeyframeAnimation implements Animation {
         final KeyframeAnimationData.KeyframeData interpolated = KeyframeAnimationData.interpolate(progress - loopCount * data.getLength(), start, end);
         boneInstance.setRotation(interpolated.rotation);
         boneInstance.setOffset(interpolated.offset);
+        boneInstance.setScale(interpolated.scale);
     }
 
     @Override

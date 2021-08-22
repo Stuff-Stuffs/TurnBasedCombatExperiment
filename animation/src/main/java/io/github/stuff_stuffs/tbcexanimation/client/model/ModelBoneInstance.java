@@ -52,6 +52,7 @@ public final class ModelBoneInstance {
     public void reset() {
         offset = bone.getDefaultPos();
         rotation = bone.getDefaultRotation();
+        scale = bone.getDefaultScale();
     }
 
     public void transform(final MatrixStack matrices) {
@@ -60,13 +61,15 @@ public final class ModelBoneInstance {
         }
         matrices.translate(offset.x - bone.getPivotPoint().x, offset.y - bone.getPivotPoint().y, offset.z - bone.getPivotPoint().z);
         matrices.multiply(rotation.toFloatQuat());
+        matrices.scale((float) scale.x, (float) scale.y, (float) scale.z);
         matrices.translate(bone.getPivotPoint().x, bone.getPivotPoint().y, bone.getPivotPoint().z);
     }
 
     public Animation resetAnimationAutomatic(final double scale, final Easing easing) {
         final double angleDifference = Math.toDegrees(DoubleQuaternion.angularDistance(rotation, bone.getDefaultRotation())) / 135.0;
         final double distance = offset.distanceTo(bone.getDefaultPos());
-        final double max = Math.max(distance, angleDifference);
+        final double scaleDistance = this.scale.distanceTo(bone.getDefaultScale());
+        final double max = Math.max(distance, Math.max(angleDifference, scaleDistance));
         return resetAnimation(max * scale, easing);
     }
 
@@ -74,6 +77,7 @@ public final class ModelBoneInstance {
         return new Animation() {
             private final DoubleQuaternion startingRotation = rotation;
             private final Vec3d startingOffset = offset;
+            private final Vec3d startingScale = scale;
             private final String name = bone.getName();
             private double progress = 0;
             private boolean cancelled = false;
@@ -90,6 +94,7 @@ public final class ModelBoneInstance {
                     final double eased = easing.apply(progress / time);
                     boneInstance.setRotation(DoubleQuaternion.slerp(eased, startingRotation, bone.getDefaultRotation()));
                     boneInstance.setOffset(startingOffset.multiply(1 - eased).add(bone.getDefaultPos().multiply(eased)));
+                    boneInstance.setScale(startingScale.multiply(1 - eased).add(bone.getDefaultScale().multiply(eased)));
                 }
             }
 
@@ -138,7 +143,7 @@ public final class ModelBoneInstance {
         this.rotation = rotation;
     }
 
-    public void setScale(Vec3d scale) {
+    public void setScale(final Vec3d scale) {
         this.scale = scale;
     }
 
@@ -150,14 +155,14 @@ public final class ModelBoneInstance {
         rotation = rotation.multiply(quaternion).normalize();
     }
 
-    public void scale(Vec3d scale) {
+    public void scale(final Vec3d scale) {
         this.scale = scale.multiply(this.scale);
     }
 
     public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {
         matrices.push();
         transform(matrices);
-        if(DebugRenderers.get(TBCExAnimationClient.BONE_DEBUG_RENDERER)) {
+        if (DebugRenderers.get(TBCExAnimationClient.BONE_DEBUG_RENDERER)) {
             final VertexConsumer buffer = vertexConsumers.getBuffer(RenderLayer.LINES);
             for (final Pair<Vec3d, Vec3d> boneLine : bone.getBoneLines()) {
                 final Vec3d start = boneLine.getFirst();

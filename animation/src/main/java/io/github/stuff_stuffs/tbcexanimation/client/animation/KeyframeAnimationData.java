@@ -72,13 +72,20 @@ public final class KeyframeAnimationData {
         public final Easing rotationEasing;
         public final Vec3d offset;
         public final Easing positionEasing;
+        public final Vec3d scale;
+        public final Easing scaleEasing;
 
-        public KeyframeData(final double startTime, final DoubleQuaternion rotation, final Easing rotationEasing, final Vec3d offset, final Easing positionEasing) {
+        public KeyframeData(final double startTime, final DoubleQuaternion rotation, final Easing rotationEasing, final Vec3d offset, final Easing positionEasing, Vec3d scale, Easing scaleEasing) {
+            if(startTime<0) {
+                throw new RuntimeException();
+            }
             this.startTime = startTime;
             this.rotation = rotation;
             this.rotationEasing = rotationEasing;
             this.offset = offset;
             this.positionEasing = positionEasing;
+            this.scale = scale;
+            this.scaleEasing = scaleEasing;
         }
     }
 
@@ -90,9 +97,10 @@ public final class KeyframeAnimationData {
         if (normalized >= 1) {
             return end;
         }
-        final double rotationProgress = end.rotationEasing.apply(normalized);
-        final double positionProgress = end.rotationEasing.apply(normalized);
-        return new KeyframeData(time, DoubleQuaternion.slerp(rotationProgress, start.rotation, end.rotation), end.rotationEasing, start.offset.multiply(positionProgress).add(end.offset.multiply(1 - positionProgress)), end.positionEasing);
+        final double rotationProgress = 1-end.rotationEasing.apply(normalized);
+        final double positionProgress = 1-end.positionEasing.apply(normalized);
+        final double scaleProgress = 1-end.scaleEasing.apply(normalized);
+        return new KeyframeData(time, DoubleQuaternion.slerp(rotationProgress, start.rotation, end.rotation), end.rotationEasing, start.offset.multiply(positionProgress).add(end.offset.multiply(1 - positionProgress)), end.positionEasing, start.scale.multiply(scaleProgress).add(end.scale.multiply(1-scaleProgress)), end.scaleEasing);
     }
 
     public static Builder builder() {
