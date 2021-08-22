@@ -22,6 +22,7 @@ public final class ModelBoneInstance {
     private final @Nullable ModelBoneInstance parent;
     private Vec3d offset;
     private DoubleQuaternion rotation;
+    private Vec3d scale;
 
     public ModelBoneInstance(final ModelBone bone, @Nullable final ModelBoneInstance parent) {
         this.bone = bone;
@@ -29,6 +30,7 @@ public final class ModelBoneInstance {
         this.parent = parent;
         offset = bone.getDefaultPos();
         rotation = bone.getDefaultRotation();
+        scale = bone.getDefaultScale();
     }
 
     public boolean containsPart(final String part) {
@@ -124,6 +126,10 @@ public final class ModelBoneInstance {
         return rotation;
     }
 
+    public Vec3d getScale() {
+        return scale;
+    }
+
     public void setOffset(final Vec3d offset) {
         this.offset = offset;
     }
@@ -132,12 +138,20 @@ public final class ModelBoneInstance {
         this.rotation = rotation;
     }
 
+    public void setScale(Vec3d scale) {
+        this.scale = scale;
+    }
+
     public void offset(final Vec3d offset) {
         this.offset = this.offset.add(offset);
     }
 
     public void rotate(final DoubleQuaternion quaternion) {
         rotation = rotation.multiply(quaternion).normalize();
+    }
+
+    public void scale(Vec3d scale) {
+        this.scale = scale.multiply(this.scale);
     }
 
     public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {

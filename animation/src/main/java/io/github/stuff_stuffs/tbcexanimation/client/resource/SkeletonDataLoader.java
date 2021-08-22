@@ -26,10 +26,10 @@ public final class SkeletonDataLoader {
             registerTypeHierarchyAdapter(DoubleQuaternion.class, new DoubleQuaternionJson()).
             registerTypeHierarchyAdapter(SkeletonData.class, new SkeletonJson()).create();
 
-    public static SkeletonData fromResource(Resource resource) {
-        try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+    public static SkeletonData fromResource(final Resource resource) {
+        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
             return GSON.fromJson(bufferedReader, SkeletonData.class);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LoggerUtil.LOGGER.error("Error while loading skeleton data", e);
             return null;
         }
@@ -43,6 +43,7 @@ public final class SkeletonDataLoader {
             final Vec3d pos = context.deserialize(object.get("pos"), Vec3d.class);
             final DoubleQuaternion rotation = context.deserialize(object.get("rotation"), DoubleQuaternion.class);
             final Vec3d pivotPoint = context.deserialize(object.get("pivot"), Vec3d.class);
+            final Vec3d defaultScale = context.deserialize(object.get("scale"), Vec3d.class);
             String parent = null;
             if (object.has("parent")) {
                 parent = object.get("parent").getAsString();
@@ -53,7 +54,7 @@ public final class SkeletonDataLoader {
                 final JsonObject l = line.getAsJsonObject();
                 boneLines.add(Pair.of(context.deserialize(l.get("start"), Vec3d.class), context.deserialize(l.get("end"), Vec3d.class)));
             }
-            return new PartialModelBone(name, pos, pivotPoint, rotation, boneLines, parent);
+            return new PartialModelBone(name, pos, pivotPoint, rotation, defaultScale, boneLines, parent);
         }
 
         public static JsonElement serializeBone(final ModelBone src, final JsonSerializationContext context) {
@@ -62,6 +63,7 @@ public final class SkeletonDataLoader {
             dst.add("pos", context.serialize(src.getDefaultPos(), Vec3d.class));
             dst.add("rotation", context.serialize(src.getDefaultRotation(), DoubleQuaternion.class));
             dst.add("pivot", context.serialize(src.getPivotPoint(), Vec3d.class));
+            dst.add("scale", context.serialize(src.getDefaultScale(), Vec3d.class));
             if (src.getParent() != null) {
                 dst.addProperty("parent", src.getParent().getName());
             }
@@ -101,7 +103,7 @@ public final class SkeletonDataLoader {
                         } else {
                             parent = null;
                         }
-                        bones.put(bone.name, new ModelBone(bone.name, bone.defaultPos, bone.pivotPoint, bone.defaultRotation, bone.boneLines, parent));
+                        bones.put(bone.name, new ModelBone(bone.name, bone.defaultPos, bone.pivotPoint, bone.defaultScale, bone.defaultRotation, bone.boneLines, parent));
                     }
                 }
             }
@@ -125,14 +127,16 @@ public final class SkeletonDataLoader {
         private final Vec3d defaultPos;
         private final Vec3d pivotPoint;
         private final DoubleQuaternion defaultRotation;
+        private final Vec3d defaultScale;
         private final List<Pair<Vec3d, Vec3d>> boneLines;
         private final @Nullable String parent;
 
-        private PartialModelBone(final String name, final Vec3d defaultPos, final Vec3d pivotPoint, final DoubleQuaternion defaultRotation, final List<Pair<Vec3d, Vec3d>> boneLines, @Nullable final String parent) {
+        private PartialModelBone(final String name, final Vec3d defaultPos, final Vec3d pivotPoint, final DoubleQuaternion defaultRotation, final Vec3d defaultScale, final List<Pair<Vec3d, Vec3d>> boneLines, @Nullable final String parent) {
             this.name = name;
             this.defaultPos = defaultPos;
             this.pivotPoint = pivotPoint;
             this.defaultRotation = defaultRotation;
+            this.defaultScale = defaultScale;
             this.boneLines = boneLines;
             this.parent = parent;
         }

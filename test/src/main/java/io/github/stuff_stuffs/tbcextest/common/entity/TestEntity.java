@@ -35,23 +35,23 @@ public class TestEntity extends LivingEntity implements BattleEntity {
         spineLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, 12 / 16.0, 0)));
         spineLine.add(Pair.of(new Vec3d(-0.15, 0, 0), new Vec3d(0.15, 0, 0)));
         spineLine.add(Pair.of(new Vec3d(-0.275, 12 / 16.0, 0), new Vec3d(0.275, 12 / 16.0, 0)));
-        final ModelBone torso = new ModelBone("spine", new Vec3d(0, 12 / 16.0, 0), Vec3d.ZERO, new DoubleQuaternion(), spineLine, null);
+        final ModelBone torso = new ModelBone("spine", new Vec3d(0, 12 / 16.0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), spineLine, null);
 
         final List<Pair<Vec3d, Vec3d>> leftLegLine = new ArrayList<>();
         leftLegLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, -12 / 16.0, 0)));
-        final ModelBone leftLeg = new ModelBone("left_leg", new Vec3d(-0.15, 0, 0), Vec3d.ZERO, new DoubleQuaternion(), leftLegLine, torso);
+        final ModelBone leftLeg = new ModelBone("left_leg", new Vec3d(-0.15, 0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), leftLegLine, torso);
 
         final List<Pair<Vec3d, Vec3d>> rightLegLine = new ArrayList<>();
         rightLegLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, -12 / 16.0, 0)));
-        final ModelBone rightLeg = new ModelBone("right_leg", new Vec3d(0.15, 0, 0), Vec3d.ZERO, new DoubleQuaternion(), rightLegLine, torso);
+        final ModelBone rightLeg = new ModelBone("right_leg", new Vec3d(0.15, 0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), rightLegLine, torso);
 
         final List<Pair<Vec3d, Vec3d>> leftArmLine = new ArrayList<>();
         leftArmLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, -12 / 16.0, 0)));
-        final ModelBone leftArm = new ModelBone("left_arm", new Vec3d(-0.275, 12 / 16.0, 0), Vec3d.ZERO, new DoubleQuaternion(), leftArmLine, torso);
+        final ModelBone leftArm = new ModelBone("left_arm", new Vec3d(-0.275, 12 / 16.0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), leftArmLine, torso);
 
         final List<Pair<Vec3d, Vec3d>> rightArmLine = new ArrayList<>();
         rightArmLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, -12 / 16.0, 0)));
-        final ModelBone rightArm = new ModelBone("right_arm", new Vec3d(0.275, 12 / 16.0, 0), Vec3d.ZERO, new DoubleQuaternion(), rightArmLine, torso);
+        final ModelBone rightArm = new ModelBone("right_arm", new Vec3d(0.275, 12 / 16.0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), rightArmLine, torso);
 
         final MutableSkeleton model = new MutableSkeleton(1);
         model.addBoneIfAbsent(torso);
