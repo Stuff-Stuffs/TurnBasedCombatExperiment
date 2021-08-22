@@ -77,10 +77,10 @@ public final class ModelBoneInstance {
             private boolean cancelled = false;
 
             @Override
-            public void update(final Model model, final double timeSinceLast) {
+            public void update(final Skeleton skeleton, final double timeSinceLast) {
                 if (!cancelled && progress < time) {
                     progress = Math.min(progress + timeSinceLast, time);
-                    final ModelBoneInstance boneInstance = model.getBone(name);
+                    final ModelBoneInstance boneInstance = skeleton.getBone(name);
                     if (boneInstance == null) {
                         cancelled = true;
                         return;

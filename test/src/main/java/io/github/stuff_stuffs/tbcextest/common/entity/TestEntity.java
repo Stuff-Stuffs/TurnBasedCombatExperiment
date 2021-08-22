@@ -1,9 +1,9 @@
 package io.github.stuff_stuffs.tbcextest.common.entity;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.stuff_stuffs.tbcexanimation.client.model.Model;
+import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.ModelBone;
-import io.github.stuff_stuffs.tbcexanimation.client.model.MutableModel;
+import io.github.stuff_stuffs.tbcexanimation.client.model.MutableSkeleton;
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
@@ -23,14 +23,14 @@ import java.util.List;
 
 public class TestEntity extends LivingEntity implements BattleEntity {
     private static final Team TEAM = new Team("test_non-player");
-    private Model model;
+    private Skeleton skeleton;
 
     public TestEntity(final EntityType<? extends LivingEntity> entityType, final World world) {
         super(entityType, world);
-        model = createModel();
+        skeleton = createModel();
     }
 
-    private static Model createModel() {
+    private static Skeleton createModel() {
         final List<Pair<Vec3d, Vec3d>> spineLine = new ArrayList<>();
         spineLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, 12 / 16.0, 0)));
         spineLine.add(Pair.of(new Vec3d(-0.15, 0, 0), new Vec3d(0.15, 0, 0)));
@@ -53,7 +53,7 @@ public class TestEntity extends LivingEntity implements BattleEntity {
         rightArmLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, -12 / 16.0, 0)));
         final ModelBone rightArm = new ModelBone("right_arm", new Vec3d(0.275, 12 / 16.0, 0), Vec3d.ZERO, new DoubleQuaternion(), rightArmLine, torso);
 
-        final MutableModel model = new MutableModel(1);
+        final MutableSkeleton model = new MutableSkeleton(1);
         model.addBoneIfAbsent(torso);
         model.addBoneIfAbsent(leftLeg);
         model.addBoneIfAbsent(rightLeg);
@@ -62,14 +62,14 @@ public class TestEntity extends LivingEntity implements BattleEntity {
         return model;
     }
 
-    public Model getModel() {
-        return model;
+    public Skeleton getModel() {
+        return skeleton;
     }
 
     @Override
     public void tick() {
-        model = createModel();
-        model.getBone("left_arm").setRotation(new DoubleQuaternion(new Vec3d(1, 0, 0), world.getTime(), true));
+        skeleton = createModel();
+        skeleton.getBone("left_arm").setRotation(new DoubleQuaternion(new Vec3d(1, 0, 0), world.getTime(), true));
         super.tick();
     }
 

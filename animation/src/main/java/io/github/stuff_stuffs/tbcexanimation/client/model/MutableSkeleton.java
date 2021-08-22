@@ -2,32 +2,65 @@ package io.github.stuff_stuffs.tbcexanimation.client.model;
 
 import io.github.stuff_stuffs.tbcexanimation.client.animation.Animation;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public final class ImmutableModel implements Model {
+public final class MutableSkeleton implements Skeleton {
     private final Map<String, ModelBoneInstance> bones;
     private final double scale;
     private Animation currentAnimation = null;
     private int lastTick = Integer.MIN_VALUE;
     private double lastPartialTick = 0;
 
-    private ImmutableModel(final Map<String, ModelBoneInstance> bones, final double scale) {
-        this.bones = bones;
+    private MutableSkeleton(Map<String, ModelBoneInstance> bones, final double scale) {
         this.scale = scale;
+        this.bones = bones;
+    }
+
+    public MutableSkeleton(final double scale, SkeletonData data) {
+        this(scale);
+        for (ModelBone bone : data.getBones()) {
+            addBoneIfAbsent(bone);
+        }
+    }
+
+    public MutableSkeleton(final double scale) {
+        this.scale = scale;
+        bones = new Object2ReferenceOpenHashMap<>();
     }
 
     @Override
-    public ImmutableModel copy(boolean copyState) {
+    public MutableSkeleton copy(boolean copyState) {
         Builder builder = builder();
         for (ModelBoneInstance boneInstance : bones.values()) {
             builder.addBone(boneInstance.getBone());
         }
-        ImmutableModel model = builder.build(scale);
+        MutableSkeleton model = builder.build(scale);
+        if(copyState) {
+            for (Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
+                final ModelBoneInstance bone = model.getBone(entry.getKey());
+                if(bone==null) {
+                    throw new RuntimeException();
+                }
+                bone.setRotation(entry.getValue().getRotation());
+                bone.setOffset(entry.getValue().getOffset());
+            }
+        }
+        return model;
+    }
+
+    public ImmutableSkeleton toImmutable(boolean copyState) {
+        ImmutableSkeleton.Builder builder = ImmutableSkeleton.builder();
+        for (ModelBoneInstance boneInstance : bones.values()) {
+            builder.addBone(boneInstance.getBone());
+        }
+        ImmutableSkeleton model = builder.build(scale);
         if(copyState) {
             for (Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
                 final ModelBoneInstance bone = model.getBone(entry.getKey());
@@ -48,7 +81,7 @@ public final class ImmutableModel implements Model {
 
     @Override
     public Set<String> getBones() {
-        return bones.keySet();
+        return new ObjectOpenHashSet<>(bones.keySet());
     }
 
     @Override
@@ -56,11 +89,54 @@ public final class ImmutableModel implements Model {
         return bones.get(name);
     }
 
+    public void addBoneIfAbsent(final ModelBone bone) {
+        addBoneIfAbsentInternal(bone);
+    }
+
+    private void addBoneIfAbsentInternal(final ModelBone bone) {
+        final ModelBone parent = bone.getParent();
+        if (parent != null && !bones.containsKey(parent.getName())) {
+            addBoneIfAbsentInternal(parent);
+        }
+        if (!bones.containsKey(bone.getName())) {
+            final ModelBoneInstance parentInstance;
+            if (parent != null) {
+                parentInstance = bones.get(parent.getName());
+            } else {
+                parentInstance = null;
+            }
+            bones.put(bone.getName(), new ModelBoneInstance(bone, parentInstance));
+        }
+    }
+
+    public void removeBoneIfPresent(final String bone) {
+        if (bones.containsKey(bone)) {
+            bones.remove(bone);
+            removeAllChildren(bone);
+        }
+    }
+
+    private void removeAllChildren(final String bone) {
+        final Iterator<ModelBoneInstance> iterator = bones.values().iterator();
+        final Set<String> children = new ObjectOpenHashSet<>();
+        while (iterator.hasNext()) {
+            final ModelBoneInstance instance = iterator.next();
+            final ModelBone parent = instance.getBone().getParent();
+            if (parent != null && parent.getName().equals(bone)) {
+                children.add(instance.getBone().getName());
+                iterator.remove();
+            }
+        }
+        for (final String child : children) {
+            removeAllChildren(child);
+        }
+    }
+
     @Override
     public void tick(final int ticks, final double partialTick) {
         if (lastTick != Integer.MIN_VALUE) {
             if (currentAnimation != null) {
-                currentAnimation.update(this, Math.max((ticks + partialTick) - (lastTick + lastPartialTick), 0));
+                currentAnimation.update(this, (ticks + partialTick) - (lastTick + lastPartialTick));
                 if (currentAnimation.isFinished() || currentAnimation.isCancelled()) {
                     currentAnimation = null;
                 }
@@ -69,7 +145,6 @@ public final class ImmutableModel implements Model {
         lastTick = ticks;
         lastPartialTick = partialTick;
     }
-
 
     @Override
     public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int ticks, final double partialTick) {
@@ -100,7 +175,7 @@ public final class ImmutableModel implements Model {
             return this;
         }
 
-        public ImmutableModel build(final double scale) {
+        public MutableSkeleton build(final double scale) {
             final Map<String, ModelBoneInstance> boneInstances = new Object2ReferenceOpenHashMap<>();
             boolean added = true;
             while (added) {
@@ -115,7 +190,7 @@ public final class ImmutableModel implements Model {
                     }
                 }
             }
-            return new ImmutableModel(boneInstances, scale);
+            return new MutableSkeleton(boneInstances, scale);
         }
     }
 }

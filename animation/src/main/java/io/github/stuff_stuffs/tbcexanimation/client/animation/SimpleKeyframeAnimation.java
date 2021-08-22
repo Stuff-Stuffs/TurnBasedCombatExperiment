@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexanimation.client.animation;
 
-import io.github.stuff_stuffs.tbcexanimation.client.model.Model;
+import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.ModelBoneInstance;
 import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -20,19 +20,19 @@ public class SimpleKeyframeAnimation implements Animation {
     }
 
     @Override
-    public void update(final Model model, final double timeSinceLast) {
+    public void update(final Skeleton skeleton, final double timeSinceLast) {
         if (!cancelled && !finished) {
             if (progress == 0 && loopCount == 0) {
-                for (final String bone : model.getBones()) {
-                    final ModelBoneInstance instance = model.getBone(bone);
+                for (final String bone : skeleton.getBones()) {
+                    final ModelBoneInstance instance = skeleton.getBone(bone);
                     if (instance == null) {
                         throw new RuntimeException();
                     }
                     defaultData.put(bone, new KeyframeAnimationData.KeyframeData(0, instance.getRotation(), Easing.easeInQuad, instance.getOffset(), Easing.easeInQuad));
                 }
             }
-            for (final String bone : model.getBones()) {
-                final ModelBoneInstance boneInstance = model.getBone(bone);
+            for (final String bone : skeleton.getBones()) {
+                final ModelBoneInstance boneInstance = skeleton.getBone(bone);
                 if (boneInstance == null) {
                     cancelled = true;
                     return;

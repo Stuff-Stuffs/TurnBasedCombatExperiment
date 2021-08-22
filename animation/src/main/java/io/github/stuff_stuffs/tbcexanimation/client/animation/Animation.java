@@ -1,9 +1,9 @@
 package io.github.stuff_stuffs.tbcexanimation.client.animation;
 
-import io.github.stuff_stuffs.tbcexanimation.client.model.Model;
+import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 
 public interface Animation {
-    void update(Model model, double timeSinceLast);
+    void update(Skeleton skeleton, double timeSinceLast);
 
     double getLength();
 

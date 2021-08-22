@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public interface Model {
-    Model copy(boolean copyState);
+public interface Skeleton {
+    Skeleton copy(boolean copyState);
 
     boolean containsBone(String name);
 

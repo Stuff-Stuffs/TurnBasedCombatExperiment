@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexanimation.client.animation;
 
-import io.github.stuff_stuffs.tbcexanimation.client.model.Model;
+import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class CompoundAnimation implements Animation {
     }
 
     @Override
-    public void update(final Model model, double timeSinceLast) {
+    public void update(final Skeleton skeleton, double timeSinceLast) {
         if (!finished) {
             if (index >= animations.size()) {
                 finished = true;
@@ -30,19 +30,19 @@ public class CompoundAnimation implements Animation {
             final Animation animation = animations.get(index);
             if(animation.isFinished()||animation.isCancelled()) {
                 index++;
-                update(model, timeSinceLast);
+                update(skeleton, timeSinceLast);
                 return;
             }
             final double currentTimeLeft = animation.getTimeRemaining();
             if (currentTimeLeft <= timeSinceLast) {
                 timeSinceLast -= currentTimeLeft;
-                animation.update(model, currentTimeLeft);
+                animation.update(skeleton, currentTimeLeft);
                 index++;
                 if (timeSinceLast > 0) {
-                    update(model, timeSinceLast);
+                    update(skeleton, timeSinceLast);
                 }
             } else {
-                animation.update(model, currentTimeLeft);
+                animation.update(skeleton, currentTimeLeft);
             }
             currentTime += timeSinceLast;
         }
