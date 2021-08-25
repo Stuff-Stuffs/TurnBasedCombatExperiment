@@ -35,7 +35,7 @@ public class Test implements ModInitializer {
         CommandRegistrationCallback.EVENT.register(Test::register);
     }
 
-    private static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicated) {
+    private static void register(final CommandDispatcher<ServerCommandSource> dispatcher, final boolean dedicated) {
         dispatcher.register(CommandManager.literal("battleCreate").then(CommandManager.argument("entities", EntityArgumentType.entities()).executes(context -> {
             final Collection<? extends Entity> entities = EntityArgumentType.getEntities(context, "entities");
             final ServerWorld world = context.getSource().getWorld();

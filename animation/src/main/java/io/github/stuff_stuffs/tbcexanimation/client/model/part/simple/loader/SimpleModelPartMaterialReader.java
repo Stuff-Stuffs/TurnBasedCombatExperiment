@@ -53,7 +53,7 @@ public final class SimpleModelPartMaterialReader {
         return materials;
     }
 
-    private static SimpleModelPartMaterial createMaterial(String name, SimpleModelPartMaterial.RenderType renderType, Identifier texture, int colour, boolean emissive) throws IOException {
+    private static SimpleModelPartMaterial createMaterial(final String name, final SimpleModelPartMaterial.RenderType renderType, final Identifier texture, final int colour, final boolean emissive) throws IOException {
         if (renderType == null || texture == null) {
             throw new IOException("Missing critical element in material");
         }

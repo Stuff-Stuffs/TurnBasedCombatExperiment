@@ -113,7 +113,7 @@ public final class ImmutableSkeleton implements Skeleton {
 
 
     @Override
-    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int ticks, final double partialTick, final World world, Vec3d pos) {
+    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int ticks, final double partialTick, final World world, final Vec3d pos) {
         tick(ticks, partialTick);
         matrices.push();
         matrices.scale((float) scale, (float) scale, (float) scale);

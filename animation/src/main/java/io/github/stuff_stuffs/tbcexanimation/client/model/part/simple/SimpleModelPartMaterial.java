@@ -12,7 +12,7 @@ public final class SimpleModelPartMaterial {
     private final int colour;
     private final boolean emissive;
 
-    public SimpleModelPartMaterial(String name, RenderType renderType, Identifier texture, int colour, boolean emissive) {
+    public SimpleModelPartMaterial(final String name, final RenderType renderType, final Identifier texture, final int colour, final boolean emissive) {
         this.name = name;
         this.renderType = renderType;
         this.texture = texture;

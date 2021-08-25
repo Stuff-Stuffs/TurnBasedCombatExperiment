@@ -3,7 +3,6 @@ package io.github.stuff_stuffs.tbcextest.common.entity;
 import io.github.stuff_stuffs.tbcexanimation.client.TBCExAnimationClient;
 import io.github.stuff_stuffs.tbcexanimation.client.model.ImmutableSkeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
-import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPart;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
@@ -34,7 +33,7 @@ public class TestEntity extends LivingEntity implements BattleEntity {
         if (TBCExAnimationClient.MODEL_MANAGER.isInitialized()) {
             final ImmutableSkeleton skeleton = new ImmutableSkeleton(1, TBCExAnimationClient.MODEL_MANAGER.getSkeletonData(new Identifier("test", "humanoid_skeleton")));
             final SimpleModelPart part = TBCExAnimationClient.MODEL_MANAGER.getSimpleModelPart(new Identifier("test", "simple/ilo"));
-            if(part!=null) {
+            if (part != null) {
                 skeleton.getBone("left_arm").addPart("p", part);
                 skeleton.getBone("right_arm").addPart("p", part);
                 skeleton.getBone("left_leg").addPart("p", part);

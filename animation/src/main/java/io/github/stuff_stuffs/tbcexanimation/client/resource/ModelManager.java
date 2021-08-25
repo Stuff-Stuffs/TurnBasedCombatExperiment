@@ -93,7 +93,7 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
             simpleModelParts.clear();
             for (final Identifier resourceId : data.simpleModelPartResources) {
                 try {
-                    SimpleModelPart part = SimpleModelPartLoader.load(resourceId, manager);
+                    final SimpleModelPart part = SimpleModelPartLoader.load(resourceId, manager);
                     simpleModelParts.put(new Identifier(resourceId.getNamespace(), resourceId.getPath().substring("tbcex_models/model".length() + 1, resourceId.getPath().lastIndexOf('.'))), part);
                 } catch (final IOException e) {
                     LoggerUtil.LOGGER.error("Error while deserializing SimpleModelPart", e);

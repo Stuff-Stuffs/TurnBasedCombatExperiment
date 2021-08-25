@@ -20,14 +20,14 @@ public final class MutableSkeleton implements Skeleton {
     private int lastTick = Integer.MIN_VALUE;
     private double lastPartialTick = 0;
 
-    private MutableSkeleton(Map<String, ModelBoneInstance> bones, final double scale) {
+    private MutableSkeleton(final Map<String, ModelBoneInstance> bones, final double scale) {
         this.scale = scale;
         this.bones = bones;
     }
 
-    public MutableSkeleton(final double scale, SkeletonData data) {
+    public MutableSkeleton(final double scale, final SkeletonData data) {
         this(scale);
-        for (ModelBone bone : data.getBones()) {
+        for (final ModelBone bone : data.getBones()) {
             addBoneIfAbsent(bone);
         }
     }
@@ -38,16 +38,16 @@ public final class MutableSkeleton implements Skeleton {
     }
 
     @Override
-    public MutableSkeleton copy(boolean copyState) {
-        Builder builder = builder();
-        for (ModelBoneInstance boneInstance : bones.values()) {
+    public MutableSkeleton copy(final boolean copyState) {
+        final Builder builder = builder();
+        for (final ModelBoneInstance boneInstance : bones.values()) {
             builder.addBone(boneInstance.getBone());
         }
-        MutableSkeleton model = builder.build(scale);
-        if(copyState) {
-            for (Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
+        final MutableSkeleton model = builder.build(scale);
+        if (copyState) {
+            for (final Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
                 final ModelBoneInstance bone = model.getBone(entry.getKey());
-                if(bone==null) {
+                if (bone == null) {
                     throw new RuntimeException();
                 }
                 bone.setRotation(entry.getValue().getRotation());
@@ -58,16 +58,16 @@ public final class MutableSkeleton implements Skeleton {
         return model;
     }
 
-    public ImmutableSkeleton toImmutable(boolean copyState) {
-        ImmutableSkeleton.Builder builder = ImmutableSkeleton.builder();
-        for (ModelBoneInstance boneInstance : bones.values()) {
+    public ImmutableSkeleton toImmutable(final boolean copyState) {
+        final ImmutableSkeleton.Builder builder = ImmutableSkeleton.builder();
+        for (final ModelBoneInstance boneInstance : bones.values()) {
             builder.addBone(boneInstance.getBone());
         }
-        ImmutableSkeleton model = builder.build(scale);
-        if(copyState) {
-            for (Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
+        final ImmutableSkeleton model = builder.build(scale);
+        if (copyState) {
+            for (final Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
                 final ModelBoneInstance bone = model.getBone(entry.getKey());
-                if(bone==null) {
+                if (bone == null) {
                     throw new RuntimeException();
                 }
                 bone.setRotation(entry.getValue().getRotation());
@@ -151,7 +151,7 @@ public final class MutableSkeleton implements Skeleton {
     }
 
     @Override
-    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int ticks, final double partialTick, World world, Vec3d pos) {
+    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int ticks, final double partialTick, final World world, final Vec3d pos) {
         tick(ticks, partialTick);
         matrices.push();
         matrices.scale((float) scale, (float) scale, (float) scale);

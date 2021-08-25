@@ -19,10 +19,10 @@ public class TestItem extends Item implements BattleItem {
     @Override
     public BattleParticipantItemStack toBattleItem(final ItemStack stack) {
         final Random random = new Random();
-        Text[] texts = new Text[]{new LiteralText("short"), new LiteralText("long long long long"), new LiteralText("medium"), new LiteralText("p")};
-        double prog = random.nextDouble();
-        BattleParticipantItem.Rarity[] rarities = BattleParticipantItem.Rarity.values();
-        BattleParticipantItem.Rarity rarity = rarities[random.nextInt(rarities.length)];
+        final Text[] texts = new Text[]{new LiteralText("short"), new LiteralText("long long long long"), new LiteralText("medium"), new LiteralText("p")};
+        final double prog = random.nextDouble();
+        final BattleParticipantItem.Rarity[] rarities = BattleParticipantItem.Rarity.values();
+        final BattleParticipantItem.Rarity rarity = rarities[random.nextInt(rarities.length)];
         return new BattleParticipantItemStack(new TestBattleParticipantItem(texts[random.nextInt(texts.length)], new BattleParticipantItem.RarityInstance(rarity, prog)), stack.getCount());
     }
 }

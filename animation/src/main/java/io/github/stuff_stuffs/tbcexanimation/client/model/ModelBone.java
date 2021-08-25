@@ -16,7 +16,7 @@ public final class ModelBone {
     private final List<Pair<Vec3d, Vec3d>> boneLines;
     private final @Nullable ModelBone parent;
 
-    public ModelBone(final String name, final Vec3d defaultPos, final Vec3d pivotPoint, Vec3d defaultScale, final DoubleQuaternion defaultRotation, final List<Pair<Vec3d, Vec3d>> boneLines, @Nullable final ModelBone parent) {
+    public ModelBone(final String name, final Vec3d defaultPos, final Vec3d pivotPoint, final Vec3d defaultScale, final DoubleQuaternion defaultRotation, final List<Pair<Vec3d, Vec3d>> boneLines, @Nullable final ModelBone parent) {
         this.name = name;
         this.defaultPos = defaultPos;
         this.pivotPoint = pivotPoint;

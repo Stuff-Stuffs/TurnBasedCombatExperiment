@@ -33,7 +33,7 @@ public final class SimpleModelPart implements ModelPart {
     }
 
     @Override
-    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final World world, Vec3d pos) {
+    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final World world, final Vec3d pos) {
         for (final Map.Entry<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> renderTypeEntry : faces.entrySet()) {
             for (final Map.Entry<Identifier, Face[]> faceEntry : renderTypeEntry.getValue().entrySet()) {
                 final VertexConsumer vertexConsumer = renderTypeEntry.getKey().create(faceEntry.getKey(), vertexConsumers);
@@ -47,7 +47,7 @@ public final class SimpleModelPart implements ModelPart {
         }
     }
 
-    private static VertexConsumer light(final VertexConsumer vertexConsumer, final Vec3d pos, Vec3d offset, final boolean emissive, final MatrixStack matrices, final World world) {
+    private static VertexConsumer light(final VertexConsumer vertexConsumer, final Vec3d pos, final Vec3d offset, final boolean emissive, final MatrixStack matrices, final World world) {
         final int packed;
         if (emissive) {
             packed = LightmapTextureManager.pack(15, 15);
@@ -57,7 +57,7 @@ public final class SimpleModelPart implements ModelPart {
         return vertexConsumer.light(packed);
     }
 
-    private static int getLight(final Vec3d pos, Vec3d offset, final MatrixStack matrices, final World world) {
+    private static int getLight(final Vec3d pos, final Vec3d offset, final MatrixStack matrices, final World world) {
         LIGHT_VEC.set((float) pos.x, (float) pos.y, (float) pos.z, 1);
         LIGHT_VEC.transform(matrices.peek().getModel());
         MUTABLE.set(LIGHT_VEC.getX() + offset.x, LIGHT_VEC.getY() + offset.y, LIGHT_VEC.getZ() + offset.z);
@@ -179,7 +179,7 @@ public final class SimpleModelPart implements ModelPart {
                 return this;
             }
 
-            public FaceEmitter emissive(boolean emissive) {
+            public FaceEmitter emissive(final boolean emissive) {
                 this.emissive = emissive;
                 return this;
             }

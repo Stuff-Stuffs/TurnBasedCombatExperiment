@@ -22,6 +22,7 @@ public final class SimpleModelPartLoader {
         final SimpleModelPart.Builder builder = SimpleModelPart.builder();
         final SimpleModelPart.Builder.FaceEmitter emitter = builder.getEmitter();
         for (final Map.Entry<String, Obj> entry : ObjSplitting.splitByMaterialGroups(obj).entrySet()) {
+            final Obj group = entry.getValue();
             final SimpleModelPartMaterial material = materials.get(entry.getKey());
             for (int i = 0; i < entry.getValue().getNumFaces(); i++) {
                 final ObjFace objFace = entry.getValue().getFace(i);
@@ -37,28 +38,28 @@ public final class SimpleModelPartLoader {
                     for (int j = 0; j < 3; j++) {
                         final int vertexIndex = objFace.getVertexIndex(j);
                         final int texCoordIndex = objFace.getTexCoordIndex(j);
-                        final FloatTuple vertex = entry.getValue().getVertex(vertexIndex);
-                        final FloatTuple texCoord = entry.getValue().getTexCoord(texCoordIndex);
+                        final FloatTuple vertex = group.getVertex(vertexIndex);
+                        final FloatTuple texCoord = group.getTexCoord(texCoordIndex);
                         emitter.vertex(j, vertex.getX(), vertex.getY(), vertex.getZ());
                         emitter.uv(j, texCoord.getX(), texCoord.getY());
-                        if(j==0) {
+                        if (j == 0) {
                             p0 = new Vec3d(vertex.getX(), vertex.getY(), vertex.getZ());
                             t0 = new Vec2d(texCoord.getX(), texCoord.getY());
-                        } else if(j==2) {
+                        } else if (j == 2) {
                             p2 = new Vec3d(vertex.getX(), vertex.getY(), vertex.getZ());
                             t2 = new Vec2d(texCoord.getX(), texCoord.getY());
                         }
                     }
-                    Vec3d p3 = p0.add(p2).multiply(0.5);
-                    Vec2d t3 = t0.add(t2).scale(0.5);
+                    final Vec3d p3 = p0.add(p2).multiply(0.5);
+                    final Vec2d t3 = t0.add(t2).scale(0.5);
                     emitter.vertex(3, p3);
                     emitter.uv(3, t3);
                 } else if (objFace.getNumVertices() == 4) {
                     for (int j = 0; j < 4; j++) {
                         final int vertexIndex = objFace.getVertexIndex(j);
                         final int texCoordIndex = objFace.getTexCoordIndex(j);
-                        final FloatTuple vertex = entry.getValue().getVertex(vertexIndex);
-                        final FloatTuple texCoord = entry.getValue().getTexCoord(texCoordIndex);
+                        final FloatTuple vertex = group.getVertex(vertexIndex);
+                        final FloatTuple texCoord = group.getTexCoord(texCoordIndex);
                         emitter.vertex(j, vertex.getX(), vertex.getY(), vertex.getZ());
                         emitter.uv(j, texCoord.getX(), texCoord.getY());
                     }

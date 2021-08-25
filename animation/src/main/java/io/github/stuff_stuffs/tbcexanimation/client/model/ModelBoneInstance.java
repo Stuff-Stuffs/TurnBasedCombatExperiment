@@ -161,7 +161,7 @@ public final class ModelBoneInstance {
         this.scale = scale.multiply(this.scale);
     }
 
-    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, World world, Vec3d pos) {
+    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final World world, final Vec3d pos) {
         matrices.push();
         transform(matrices);
         if (DebugRenderers.get(TBCExAnimationClient.BONE_DEBUG_RENDERER)) {
