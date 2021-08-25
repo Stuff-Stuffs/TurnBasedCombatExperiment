@@ -2,14 +2,18 @@ package io.github.stuff_stuffs.tbcexanimation.client.animation;
 
 import io.github.stuff_stuffs.tbcexanimation.client.model.ModelBoneInstance;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
+import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Map;
 
 public class SimpleKeyframeAnimation implements Animation {
     private final KeyframeAnimationData data;
-    private final Map<String, KeyframeAnimationData.KeyframeData> defaultData = new Object2ReferenceOpenHashMap<>();
+    private final Map<String, DoubleQuaternion> defaultRotation = new Object2ReferenceOpenHashMap<>();
+    private final Map<String, Vec3d> defaultPosition = new Object2ReferenceOpenHashMap<>();
+    private final Map<String, Vec3d> defaultScale = new Object2ReferenceOpenHashMap<>();
     private int loopCount = 0;
     private double progress = 0;
     private boolean cancelled = false;
@@ -28,7 +32,9 @@ public class SimpleKeyframeAnimation implements Animation {
                     if (instance == null) {
                         throw new RuntimeException();
                     }
-                    defaultData.put(bone, new KeyframeAnimationData.KeyframeData(0, instance.getRotation(), Easing.easeInOutQuad, instance.getOffset(), Easing.easeInOutQuad, instance.getScale(), Easing.easeInOutQuad));
+                    defaultRotation.put(bone, instance.getRotation());
+                    defaultPosition.put(bone, instance.getOffset());
+                    defaultScale.put(bone, instance.getScale());
                 }
             }
             for (final String bone : skeleton.getBones()) {
@@ -37,27 +43,10 @@ public class SimpleKeyframeAnimation implements Animation {
                     cancelled = true;
                     return;
                 }
-                KeyframeAnimationData.KeyframeData infimum = data.getInfimum(bone, progress - loopCount * data.getLength());
-                if (loopCount == 0 && infimum == null) {
-                    infimum = defaultData.get(bone);
-                } else if (loopCount > 0) {
-                    data.getInfimum(bone, Double.MAX_VALUE);
-                }
-                KeyframeAnimationData.KeyframeData supremum = data.getInfimum(bone, progress - loopCount * data.getLength());
-                if (supremum == null && loopCount > 0) {
-                    supremum = data.getSupremum(bone, -Double.MAX_VALUE);
-                }
-                if (supremum == null) {
-                    boneInstance.setRotation(infimum.rotation);
-                    boneInstance.setOffset(infimum.offset);
-                    boneInstance.setScale(infimum.scale);
-                } else {
-                    updateBone(boneInstance, infimum, supremum);
-                }
+                updateBone(boneInstance);
             }
-            if (progress == data.getLength() && !data.isLooped()) {
+            if (progress >= data.getLength() && !data.isLooped()) {
                 finished = true;
-                return;
             }
             progress += timeSinceLast;
             if (!data.isLooped()) {
@@ -68,11 +57,11 @@ public class SimpleKeyframeAnimation implements Animation {
         }
     }
 
-    private void updateBone(final ModelBoneInstance boneInstance, final KeyframeAnimationData.KeyframeData start, final KeyframeAnimationData.KeyframeData end) {
-        final KeyframeAnimationData.KeyframeData interpolated = KeyframeAnimationData.interpolate(progress - loopCount * data.getLength(), start, end);
-        boneInstance.setRotation(interpolated.rotation);
-        boneInstance.setOffset(interpolated.offset);
-        boneInstance.setScale(interpolated.scale);
+    private void updateBone(final ModelBoneInstance boneInstance) {
+        final String name = boneInstance.getBone().getName();
+        boneInstance.setRotation(data.getRotation(name, defaultRotation.get(name), progress));
+        boneInstance.setOffset(data.getPosition(name, defaultPosition.get(name), progress));
+        boneInstance.setScale(data.getScale(name, defaultScale.get(name), progress));
     }
 
     @Override
