@@ -41,6 +41,21 @@ public final class ImmutableSkeleton implements Skeleton {
         }
     }
 
+    @Nullable
+    @Override
+    public Animation getCurrentAnimation() {
+        return currentAnimation;
+    }
+
+    @Override
+    public void setAnimation(final Animation animation, final boolean stopCurrent) {
+        if (currentAnimation == null) {
+            currentAnimation = animation;
+        } else if (stopCurrent) {
+            currentAnimation = animation;
+        }
+    }
+
     @Override
     public ImmutableSkeleton copy(final boolean copyState) {
         final Builder builder = builder();

@@ -1,5 +1,7 @@
 package io.github.stuff_stuffs.tbcexanimation.client.resource;
 
+import io.github.stuff_stuffs.tbcexanimation.client.animation.keyframe.KeyframeAnimationData;
+import io.github.stuff_stuffs.tbcexanimation.client.animation.keyframe.KeyframeDataLoader;
 import io.github.stuff_stuffs.tbcexanimation.client.model.SkeletonData;
 import io.github.stuff_stuffs.tbcexanimation.client.model.loader.SkeletonDataLoader;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPart;
@@ -26,11 +28,13 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
     private static final Identifier IDENTIFIER = new Identifier(TBCExAnimation.MOD_ID, "model_manager");
     private final Map<Identifier, SkeletonData> skeletonDatas;
     private final Map<Identifier, SimpleModelPart> simpleModelParts;
+    private final Map<Identifier, KeyframeAnimationData> animationDatas;
     private boolean initialized;
 
     public ModelManager() {
         skeletonDatas = new Object2ReferenceOpenHashMap<>();
         simpleModelParts = new Object2ReferenceOpenHashMap<>();
+        animationDatas = new Object2ReferenceOpenHashMap<>();
     }
 
     public boolean isInitialized() {
@@ -49,6 +53,13 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
             throw new RuntimeException();
         }
         return simpleModelParts.get(identifier);
+    }
+
+    public @Nullable KeyframeAnimationData getAnimationData(final Identifier identifier) {
+        if (!initialized) {
+            throw new RuntimeException();
+        }
+        return animationDatas.get(identifier);
     }
 
     @Override
@@ -73,10 +84,13 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
                 }
             }
             final Collection<Identifier> simpleModelPartResources = manager.findResources("tbcex_models/model/simple", filename -> filename.endsWith(".obj"));
-            final Set<Identifier> simpleModelPartResourceSet = new ObjectOpenHashSet<>();
+            final Set<Identifier> simpleModelPartResourceSet = new ObjectOpenHashSet<>(simpleModelPartResources.size());
             simpleModelPartResourceSet.addAll(simpleModelPartResources);
+            final Collection<Identifier> animationResources = manager.findResources("tbcex_models/animation", filename -> filename.endsWith(".json"));
+            final Set<Identifier> animationResourceSet = new ObjectOpenHashSet<>(animationResources.size());
+            animationResourceSet.addAll(animationResources);
             initialized = true;
-            return new PreparationData(skeletonDataResourceMap, simpleModelPartResourceSet);
+            return new PreparationData(skeletonDataResourceMap, simpleModelPartResourceSet, animationResourceSet);
         }, executor);
     }
 
@@ -99,16 +113,30 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
                     LoggerUtil.LOGGER.error("Error while deserializing SimpleModelPart", e);
                 }
             }
+            animationDatas.clear();
+            for (final Identifier resourceId : data.animationResources) {
+                try {
+                    Identifier canonical = new Identifier(resourceId.getNamespace(), resourceId.getPath().substring("tbcex_models/animation".length() + 1, resourceId.getPath().lastIndexOf('.')));
+                    final Map<Identifier, KeyframeAnimationData> animations = KeyframeDataLoader.getAnimations(canonical, manager.getResource(resourceId));
+                    if (animations != null) {
+                        animationDatas.putAll(animations);
+                    }
+                } catch (final IOException e) {
+                    LoggerUtil.LOGGER.error("Error while deserializing keyframe animation data", e);
+                }
+            }
         }, executor);
     }
 
     protected static final class PreparationData {
         private final Map<Identifier, Resource> skeletonDataResources;
         private final Set<Identifier> simpleModelPartResources;
+        private final Set<Identifier> animationResources;
 
-        private PreparationData(final Map<Identifier, Resource> skeletonDataResources, final Set<Identifier> simpleModelPartResources) {
+        private PreparationData(final Map<Identifier, Resource> skeletonDataResources, final Set<Identifier> simpleModelPartResources, final Set<Identifier> animationResources) {
             this.skeletonDataResources = skeletonDataResources;
             this.simpleModelPartResources = simpleModelPartResources;
+            this.animationResources = animationResources;
         }
     }
 }

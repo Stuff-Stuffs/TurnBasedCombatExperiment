@@ -1,0 +1,51 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.simple.s": {
+      "animation_length": 5,
+      "bones": {
+        "spine": {
+          "rotation": {
+            "0.0": {
+              "vector": [0, 0, 0]
+            },
+            "5.0": {
+              "vector": [0, 85, -65],
+              "easing": "easeInOutExpo"
+            }
+          },
+          "position": {
+            "0.0": {
+              "vector": [0, 0, 0]
+            },
+            "5.0": {
+              "vector": [-3, 0, -5],
+              "easing": "easeInOutExpo"
+            }
+          },
+          "scale": {
+            "0.0": {
+              "vector": [1, 1, 1]
+            },
+            "5.0": {
+              "vector": [0.5, 0.5, 0.5],
+              "easing": "easeInOutExpo"
+            }
+          }
+        },
+        "left_arm": {
+          "rotation": {
+            "0.0": {
+              "vector": [0, 0, 0]
+            },
+            "5.0": {
+              "vector": [0, 85, -65],
+              "easing": "easeInOutExpo"
+            }
+          }
+        }
+      },
+      "timeline": {}
+    }
+  }
+}

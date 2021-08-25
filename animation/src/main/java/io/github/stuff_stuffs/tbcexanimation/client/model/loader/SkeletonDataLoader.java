@@ -96,7 +96,7 @@ public final class SkeletonDataLoader {
             final Map<String, ModelBone> bones = new Object2ReferenceOpenHashMap<>();
             while (bones.size() != boneMap.size()) {
                 for (final PartialModelBone bone : boneMap.values()) {
-                    if (bone.parent == null || boneMap.containsKey(bone.parent)) {
+                    if (!bones.containsKey(bone.name) && (bone.parent == null || bones.containsKey(bone.parent))) {
                         final ModelBone parent;
                         if (bone.parent != null) {
                             parent = bones.get(bone.parent);

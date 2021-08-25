@@ -1,9 +1,9 @@
-package io.github.stuff_stuffs.tbcexanimation.client.animation;
+package io.github.stuff_stuffs.tbcexanimation.client.animation.keyframe;
 
+import io.github.stuff_stuffs.tbcexanimation.client.animation.Animation;
 import io.github.stuff_stuffs.tbcexanimation.client.model.ModelBoneInstance;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
-import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.util.math.Vec3d;
 
@@ -45,33 +45,33 @@ public class SimpleKeyframeAnimation implements Animation {
                 }
                 updateBone(boneInstance);
             }
-            if (progress >= data.getLength() && !data.isLooped()) {
+            if (progress >= data.getLength()*20 && !data.isLooped()) {
                 finished = true;
             }
             progress += timeSinceLast;
             if (!data.isLooped()) {
-                progress = Math.min(progress, data.getLength());
+                progress = Math.min(progress, data.getLength()*20);
             } else {
-                loopCount = (int) Math.floor(progress / data.getLength());
+                loopCount = (int) Math.floor(progress / (data.getLength()*20));
             }
         }
     }
 
     private void updateBone(final ModelBoneInstance boneInstance) {
         final String name = boneInstance.getBone().getName();
-        boneInstance.setRotation(data.getRotation(name, defaultRotation.get(name), progress));
-        boneInstance.setOffset(data.getPosition(name, defaultPosition.get(name), progress));
-        boneInstance.setScale(data.getScale(name, defaultScale.get(name), progress));
+        boneInstance.setRotation(data.getRotation(name, defaultRotation.get(name), progress/20.0));
+        boneInstance.setOffset(data.getPosition(name, defaultPosition.get(name), progress/20.0));
+        boneInstance.setScale(data.getScale(name, defaultScale.get(name), progress/20.0));
     }
 
     @Override
     public double getLength() {
-        return data.isLooped() ? Double.MAX_VALUE : data.getLength();
+        return data.isLooped() ? Double.MAX_VALUE : data.getLength()*20;
     }
 
     @Override
     public double getTimeRemaining() {
-        return data.isLooped() ? Double.MAX_VALUE : data.getLength() - progress;
+        return data.isLooped() ? Double.MAX_VALUE : data.getLength()*20 - progress;
     }
 
     @Override

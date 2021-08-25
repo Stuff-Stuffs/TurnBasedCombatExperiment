@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexanimation.client.animation;
+package io.github.stuff_stuffs.tbcexanimation.client.animation.keyframe;
 
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import io.github.stuff_stuffs.tbcexutil.common.Easing;
@@ -43,19 +43,19 @@ public final class KeyframeAnimationData {
     }
 
     public Vec3d getPosition(final String bone, final Vec3d start, final double t) {
-        if (!rotationKeyframes.containsKey(bone)) {
+        if (!positionKeyframes.containsKey(bone)) {
             return start;
         }
         final Double2ObjectSortedMap<VecKeyframe> keyframes = positionKeyframes.get(bone);
-        return interp(new VecKeyframe(start, Easing.easeOutQuad, 0), keyframes, t, ((start1, end, t1) -> start1.add(end).multiply(0.5)));
+        return interp(new VecKeyframe(start, Easing.easeOutQuad, 0), keyframes, t, ((start1, end, t1) -> start1.multiply(1-t1).add(end.multiply(t1))));
     }
 
     public Vec3d getScale(final String bone, final Vec3d start, final double t) {
-        if (!rotationKeyframes.containsKey(bone)) {
+        if (!scaleKeyframes.containsKey(bone)) {
             return start;
         }
         final Double2ObjectSortedMap<VecKeyframe> keyframes = scaleKeyframes.get(bone);
-        return interp(new VecKeyframe(start, Easing.easeOutQuad, 0), keyframes, t, ((start1, end, t1) -> start1.add(end).multiply(0.5)));
+        return interp(new VecKeyframe(start, Easing.easeOutQuad, 0), keyframes, t, ((start1, end, t1) -> start1.multiply(1-t1).add(end.multiply(t1))));
     }
 
     private <T> T interp(final Keyframe<T> start, final Double2ObjectSortedMap<? extends Keyframe<T>> keyframes, final double t, final Interpolator<T> interpolator) {
@@ -112,6 +112,9 @@ public final class KeyframeAnimationData {
     }
 
     private static <T> @Nullable Keyframe<T> getInfimum(final Double2ObjectSortedMap<? extends Keyframe<T>> keyframes, final double t) {
+        if(keyframes==null) {
+            return null;
+        }
         final Double2ObjectSortedMap<? extends Keyframe<T>> headMap = keyframes.headMap(t);
         if (headMap.isEmpty()) {
             return null;
@@ -121,6 +124,9 @@ public final class KeyframeAnimationData {
     }
 
     private static <T> @Nullable Keyframe<T> getSupremum(final Double2ObjectSortedMap<? extends Keyframe<T>> keyframes, final double t) {
+        if(keyframes==null) {
+            return null;
+        }
         final Double2ObjectSortedMap<? extends Keyframe<T>> tailMap = keyframes.tailMap(t);
         if (tailMap.isEmpty()) {
             return null;
@@ -195,6 +201,10 @@ public final class KeyframeAnimationData {
         T interp(T start, T end, double t);
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public static final class Builder {
         private final Map<String, Double2ObjectSortedMap<RotationKeyframe>> rotationKeyframes = new Object2ReferenceOpenHashMap<>();
         private final Map<String, Double2ObjectSortedMap<VecKeyframe>> positionKeyframes = new Object2ReferenceOpenHashMap<>();
@@ -204,59 +214,59 @@ public final class KeyframeAnimationData {
         private Builder() {
         }
 
-        public Builder addRotationKeyframe(String bone, DoubleQuaternion rotation, Easing easing, double time) {
-            if(built) {
+        public Builder addRotationKeyframe(final String bone, final DoubleQuaternion rotation, final Easing easing, final double time) {
+            if (built) {
                 throw new RuntimeException();
             }
-            if(!rotationKeyframes.computeIfAbsent(bone, b -> new Double2ObjectAVLTreeMap<>()).tailMap(time).isEmpty()) {
+            if (!rotationKeyframes.computeIfAbsent(bone, b -> new Double2ObjectAVLTreeMap<>()).tailMap(time).isEmpty()) {
                 throw new RuntimeException();
             }
             rotationKeyframes.get(bone).put(time, new RotationKeyframe(rotation, easing, time));
             return this;
         }
 
-        public Builder addPositionKeyframe(String bone, Vec3d pos, Easing easing, double time) {
-            if(built) {
+        public Builder addPositionKeyframe(final String bone, final Vec3d pos, final Easing easing, final double time) {
+            if (built) {
                 throw new RuntimeException();
             }
-            if(!positionKeyframes.computeIfAbsent(bone, b -> new Double2ObjectAVLTreeMap<>()).tailMap(time).isEmpty()) {
+            if (!positionKeyframes.computeIfAbsent(bone, b -> new Double2ObjectAVLTreeMap<>()).tailMap(time).isEmpty()) {
                 throw new RuntimeException();
             }
             positionKeyframes.get(bone).put(time, new VecKeyframe(pos, easing, time));
             return this;
         }
 
-        public Builder addScaleKeyframe(String bone, Vec3d scale, Easing easing, double time) {
-            if(built) {
+        public Builder addScaleKeyframe(final String bone, final Vec3d scale, final Easing easing, final double time) {
+            if (built) {
                 throw new RuntimeException();
             }
-            if(!scaleKeyframes.computeIfAbsent(bone, b -> new Double2ObjectAVLTreeMap<>()).tailMap(time).isEmpty()) {
+            if (!scaleKeyframes.computeIfAbsent(bone, b -> new Double2ObjectAVLTreeMap<>()).tailMap(time).isEmpty()) {
                 throw new RuntimeException();
             }
             scaleKeyframes.get(bone).put(time, new VecKeyframe(scale, easing, time));
             return this;
         }
 
-        public KeyframeAnimationData build(double length, boolean loop) {
-            if(built) {
+        public KeyframeAnimationData build(final double length, final boolean loop) {
+            if (built) {
                 throw new RuntimeException();
             }
             built = true;
-            for (Double2ObjectSortedMap<RotationKeyframe> map : rotationKeyframes.values()) {
-                final Double2ObjectSortedMap<RotationKeyframe> tailMap = map.tailMap(length+0.0000001);
-                if(!tailMap.isEmpty()) {
+            for (final Double2ObjectSortedMap<RotationKeyframe> map : rotationKeyframes.values()) {
+                final Double2ObjectSortedMap<RotationKeyframe> tailMap = map.tailMap(length + 0.0000001);
+                if (!tailMap.isEmpty()) {
                     throw new RuntimeException();
                 }
             }
-            for (Double2ObjectSortedMap<VecKeyframe> map : positionKeyframes.values()) {
-                final Double2ObjectSortedMap<VecKeyframe> tailMap = map.tailMap(length+0.0000001);
-                if(!tailMap.isEmpty()) {
+            for (final Double2ObjectSortedMap<VecKeyframe> map : positionKeyframes.values()) {
+                final Double2ObjectSortedMap<VecKeyframe> tailMap = map.tailMap(length + 0.0000001);
+                if (!tailMap.isEmpty()) {
                     throw new RuntimeException();
                 }
             }
-            for (Double2ObjectSortedMap<VecKeyframe> map : scaleKeyframes.values()) {
-                final Double2ObjectSortedMap<VecKeyframe> tailMap = map.tailMap(length+0.0000001);
-                if(!tailMap.isEmpty()) {
+            for (final Double2ObjectSortedMap<VecKeyframe> map : scaleKeyframes.values()) {
+                final Double2ObjectSortedMap<VecKeyframe> tailMap = map.tailMap(length + 0.0000001);
+                if (!tailMap.isEmpty()) {
                     throw new RuntimeException();
                 }
             }

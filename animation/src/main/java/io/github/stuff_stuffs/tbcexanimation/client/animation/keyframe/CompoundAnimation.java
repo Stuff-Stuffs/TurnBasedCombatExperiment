@@ -1,5 +1,6 @@
-package io.github.stuff_stuffs.tbcexanimation.client.animation;
+package io.github.stuff_stuffs.tbcexanimation.client.animation.keyframe;
 
+import io.github.stuff_stuffs.tbcexanimation.client.animation.Animation;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 
 import java.util.List;

@@ -37,6 +37,21 @@ public final class MutableSkeleton implements Skeleton {
         bones = new Object2ReferenceOpenHashMap<>();
     }
 
+    @Nullable
+    @Override
+    public Animation getCurrentAnimation() {
+        return currentAnimation;
+    }
+
+    @Override
+    public void setAnimation(final Animation animation, final boolean stopCurrent) {
+        if (currentAnimation == null) {
+            currentAnimation = animation;
+        } else if (stopCurrent) {
+            currentAnimation = animation;
+        }
+    }
+
     @Override
     public MutableSkeleton copy(final boolean copyState) {
         final Builder builder = builder();
