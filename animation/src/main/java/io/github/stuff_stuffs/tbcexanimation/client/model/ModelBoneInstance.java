@@ -8,6 +8,7 @@ import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -169,8 +170,9 @@ public final class ModelBoneInstance {
             for (final Pair<Vec3d, Vec3d> boneLine : bone.getBoneLines()) {
                 final Vec3d start = boneLine.getFirst();
                 final Vec3d end = boneLine.getSecond();
-                buffer.vertex(matrices.peek().getModel(), (float) start.x, (float) start.y, (float) start.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), 0, 0, 1).next();
-                buffer.vertex(matrices.peek().getModel(), (float) end.x, (float) end.y, (float) end.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), 0, 0, 1).next();
+                Vec3d normal = end.subtract(start).normalize();
+                buffer.vertex(matrices.peek().getModel(), (float) start.x, (float) start.y, (float) start.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), (float)normal.x, (float)normal.y, (float)normal.z).next();
+                buffer.vertex(matrices.peek().getModel(), (float) end.x, (float) end.y, (float) end.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), (float)normal.x, (float)normal.y, (float)normal.z).next();
             }
         }
         for (final ModelPart part : parts.values()) {
