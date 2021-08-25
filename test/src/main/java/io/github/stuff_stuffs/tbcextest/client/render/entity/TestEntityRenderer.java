@@ -17,7 +17,8 @@ public class TestEntityRenderer extends EntityRenderer<TestEntity> {
     public void render(final TestEntity entity, final float yaw, final float tickDelta, final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int light) {
         final Skeleton skeleton = entity.getModel();
         final int ticks = (int) entity.world.getTime();
-        skeleton.render(matrices, vertexConsumers, ticks, tickDelta);
+        matrices.translate(0,1,0);
+        skeleton.render(matrices, vertexConsumers, ticks, tickDelta, entity.world, entity.getPos());
     }
 
     @Override

@@ -4,6 +4,8 @@ import io.github.stuff_stuffs.tbcexanimation.client.animation.Animation;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -21,9 +23,9 @@ public final class ImmutableSkeleton implements Skeleton {
         this.scale = scale;
     }
 
-    private ImmutableSkeleton(final double scale,SkeletonData data) {
+    public ImmutableSkeleton(final double scale, final SkeletonData data) {
         this.scale = scale;
-        this.bones = new Object2ReferenceOpenHashMap<>();
+        bones = new Object2ReferenceOpenHashMap<>();
         boolean added = true;
         while (added) {
             added = false;
@@ -40,16 +42,16 @@ public final class ImmutableSkeleton implements Skeleton {
     }
 
     @Override
-    public ImmutableSkeleton copy(boolean copyState) {
-        Builder builder = builder();
-        for (ModelBoneInstance boneInstance : bones.values()) {
+    public ImmutableSkeleton copy(final boolean copyState) {
+        final Builder builder = builder();
+        for (final ModelBoneInstance boneInstance : bones.values()) {
             builder.addBone(boneInstance.getBone());
         }
-        ImmutableSkeleton model = builder.build(scale);
-        if(copyState) {
-            for (Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
+        final ImmutableSkeleton model = builder.build(scale);
+        if (copyState) {
+            for (final Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
                 final ModelBoneInstance bone = model.getBone(entry.getKey());
-                if(bone==null) {
+                if (bone == null) {
                     throw new RuntimeException();
                 }
                 bone.setRotation(entry.getValue().getRotation());
@@ -60,16 +62,16 @@ public final class ImmutableSkeleton implements Skeleton {
         return model;
     }
 
-    public MutableSkeleton toMutable(boolean copyState) {
-        MutableSkeleton.Builder builder = MutableSkeleton.builder();
-        for (ModelBoneInstance boneInstance : bones.values()) {
+    public MutableSkeleton toMutable(final boolean copyState) {
+        final MutableSkeleton.Builder builder = MutableSkeleton.builder();
+        for (final ModelBoneInstance boneInstance : bones.values()) {
             builder.addBone(boneInstance.getBone());
         }
-        MutableSkeleton model = builder.build(scale);
-        if(copyState) {
-            for (Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
+        final MutableSkeleton model = builder.build(scale);
+        if (copyState) {
+            for (final Map.Entry<String, ModelBoneInstance> entry : bones.entrySet()) {
                 final ModelBoneInstance bone = model.getBone(entry.getKey());
-                if(bone==null) {
+                if (bone == null) {
                     throw new RuntimeException();
                 }
                 bone.setRotation(entry.getValue().getRotation());
@@ -111,12 +113,12 @@ public final class ImmutableSkeleton implements Skeleton {
 
 
     @Override
-    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int ticks, final double partialTick) {
+    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int ticks, final double partialTick, final World world, Vec3d pos) {
         tick(ticks, partialTick);
         matrices.push();
         matrices.scale((float) scale, (float) scale, (float) scale);
         for (final ModelBoneInstance boneInstance : bones.values()) {
-            boneInstance.render(matrices, vertexConsumers);
+            boneInstance.render(matrices, vertexConsumers, world, pos);
         }
         matrices.pop();
     }

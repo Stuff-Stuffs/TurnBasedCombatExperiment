@@ -5,6 +5,8 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -149,12 +151,12 @@ public final class MutableSkeleton implements Skeleton {
     }
 
     @Override
-    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int ticks, final double partialTick) {
+    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final int ticks, final double partialTick, World world, Vec3d pos) {
         tick(ticks, partialTick);
         matrices.push();
         matrices.scale((float) scale, (float) scale, (float) scale);
         for (final ModelBoneInstance boneInstance : bones.values()) {
-            boneInstance.render(matrices, vertexConsumers);
+            boneInstance.render(matrices, vertexConsumers, world, pos);
         }
         matrices.pop();
     }

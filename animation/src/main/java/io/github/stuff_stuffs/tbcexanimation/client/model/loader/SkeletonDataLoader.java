@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexanimation.client.resource;
+package io.github.stuff_stuffs.tbcexanimation.client.model.loader;
 
 import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;

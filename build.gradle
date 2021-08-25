@@ -45,6 +45,7 @@ allprojects {
     }
 
     repositories {
+        maven { url = "https://oss.sonatype.org/content/repositories/releases/" }
     }
 
     dependencies {
@@ -53,6 +54,10 @@ allprojects {
         modApi "net.fabricmc:fabric-loader:${rootProject.loader_version}"
 
         modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+        //this shouldn't need to be here
+        implementation "de.javagl:obj:0.3.0"
+        include "de.javagl:obj:0.3.0"
     }
 
     processResources {

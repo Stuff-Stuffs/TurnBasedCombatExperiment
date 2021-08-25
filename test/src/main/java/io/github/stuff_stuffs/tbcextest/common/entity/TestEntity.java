@@ -1,25 +1,25 @@
 package io.github.stuff_stuffs.tbcextest.common.entity;
 
-import com.mojang.datafixers.util.Pair;
+import io.github.stuff_stuffs.tbcexanimation.client.TBCExAnimationClient;
+import io.github.stuff_stuffs.tbcexanimation.client.model.ImmutableSkeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
-import io.github.stuff_stuffs.tbcexanimation.client.model.ModelBone;
-import io.github.stuff_stuffs.tbcexanimation.client.model.MutableSkeleton;
-import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPart;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
+import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class TestEntity extends LivingEntity implements BattleEntity {
     private static final Team TEAM = new Team("test_non-player");
@@ -31,35 +31,20 @@ public class TestEntity extends LivingEntity implements BattleEntity {
     }
 
     private static Skeleton createModel() {
-        final List<Pair<Vec3d, Vec3d>> spineLine = new ArrayList<>();
-        spineLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, 12 / 16.0, 0)));
-        spineLine.add(Pair.of(new Vec3d(-0.15, 0, 0), new Vec3d(0.15, 0, 0)));
-        spineLine.add(Pair.of(new Vec3d(-0.275, 12 / 16.0, 0), new Vec3d(0.275, 12 / 16.0, 0)));
-        final ModelBone torso = new ModelBone("spine", new Vec3d(0, 12 / 16.0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), spineLine, null);
-
-        final List<Pair<Vec3d, Vec3d>> leftLegLine = new ArrayList<>();
-        leftLegLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, -12 / 16.0, 0)));
-        final ModelBone leftLeg = new ModelBone("left_leg", new Vec3d(-0.15, 0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), leftLegLine, torso);
-
-        final List<Pair<Vec3d, Vec3d>> rightLegLine = new ArrayList<>();
-        rightLegLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, -12 / 16.0, 0)));
-        final ModelBone rightLeg = new ModelBone("right_leg", new Vec3d(0.15, 0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), rightLegLine, torso);
-
-        final List<Pair<Vec3d, Vec3d>> leftArmLine = new ArrayList<>();
-        leftArmLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, -12 / 16.0, 0)));
-        final ModelBone leftArm = new ModelBone("left_arm", new Vec3d(-0.275, 12 / 16.0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), leftArmLine, torso);
-
-        final List<Pair<Vec3d, Vec3d>> rightArmLine = new ArrayList<>();
-        rightArmLine.add(Pair.of(new Vec3d(0, 0, 0), new Vec3d(0, -12 / 16.0, 0)));
-        final ModelBone rightArm = new ModelBone("right_arm", new Vec3d(0.275, 12 / 16.0, 0), Vec3d.ZERO, new Vec3d(1,1,1), new DoubleQuaternion(), rightArmLine, torso);
-
-        final MutableSkeleton model = new MutableSkeleton(1);
-        model.addBoneIfAbsent(torso);
-        model.addBoneIfAbsent(leftLeg);
-        model.addBoneIfAbsent(rightLeg);
-        model.addBoneIfAbsent(leftArm);
-        model.addBoneIfAbsent(rightArm);
-        return model;
+        if (TBCExAnimationClient.MODEL_MANAGER.isInitialized()) {
+            final ImmutableSkeleton skeleton = new ImmutableSkeleton(1, TBCExAnimationClient.MODEL_MANAGER.getSkeletonData(new Identifier("test", "humanoid_skeleton")));
+            final SimpleModelPart part = TBCExAnimationClient.MODEL_MANAGER.getSimpleModelPart(new Identifier("test", "simple/ilo"));
+            if(part!=null) {
+                skeleton.getBone("left_arm").addPart("p", part);
+                skeleton.getBone("right_arm").addPart("p", part);
+                skeleton.getBone("left_leg").addPart("p", part);
+                skeleton.getBone("right_leg").addPart("p", part);
+                skeleton.getBone("spine").addPart("p", part);
+            }
+            return skeleton;
+        } else {
+            return ImmutableSkeleton.builder().build(1);
+        }
     }
 
     public Skeleton getModel() {
@@ -69,7 +54,9 @@ public class TestEntity extends LivingEntity implements BattleEntity {
     @Override
     public void tick() {
         skeleton = createModel();
-        skeleton.getBone("left_arm").setRotation(new DoubleQuaternion(new Vec3d(1, 0, 0), world.getTime(), true));
+        if (skeleton.containsBone("left_arm")) {
+            skeleton.getBone("left_arm").setRotation(new DoubleQuaternion(new Vec3d(1, 0, 0), world.getTime(), true));
+        }
         super.tick();
     }
 

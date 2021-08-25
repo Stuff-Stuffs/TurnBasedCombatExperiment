@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public final class ClientUtil implements ClientModInitializer {
-    private ClientUtil() {
+    public ClientUtil() {
     }
 
     public static Vec3d getMouseVector() {

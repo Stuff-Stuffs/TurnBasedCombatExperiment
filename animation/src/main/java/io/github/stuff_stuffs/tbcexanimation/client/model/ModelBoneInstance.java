@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.tbcexanimation.client.model;
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexanimation.client.TBCExAnimationClient;
 import io.github.stuff_stuffs.tbcexanimation.client.animation.Animation;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
 import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import io.github.stuff_stuffs.tbcexutil.common.Easing;
@@ -12,6 +13,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -61,8 +63,8 @@ public final class ModelBoneInstance {
         }
         matrices.translate(offset.x - bone.getPivotPoint().x, offset.y - bone.getPivotPoint().y, offset.z - bone.getPivotPoint().z);
         matrices.multiply(rotation.toFloatQuat());
-        matrices.scale((float) scale.x, (float) scale.y, (float) scale.z);
         matrices.translate(bone.getPivotPoint().x, bone.getPivotPoint().y, bone.getPivotPoint().z);
+        matrices.scale((float) scale.x, (float) scale.y, (float) scale.z);
     }
 
     public Animation resetAnimationAutomatic(final double scale, final Easing easing) {
@@ -159,7 +161,7 @@ public final class ModelBoneInstance {
         this.scale = scale.multiply(this.scale);
     }
 
-    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {
+    public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, World world, Vec3d pos) {
         matrices.push();
         transform(matrices);
         if (DebugRenderers.get(TBCExAnimationClient.BONE_DEBUG_RENDERER)) {
@@ -173,7 +175,7 @@ public final class ModelBoneInstance {
         }
         for (final ModelPart part : parts.values()) {
             matrices.push();
-            part.render(matrices, vertexConsumers);
+            part.render(matrices, vertexConsumers, world, pos);
             matrices.pop();
         }
         matrices.pop();

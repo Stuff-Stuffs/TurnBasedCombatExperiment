@@ -1,9 +1,11 @@
 package io.github.stuff_stuffs.tbcexutil.client;
 
+import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;
+import net.minecraft.util.math.Vec3d;
 
 public final class RenderUtil {
     public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final Sprite sprite, final int colour, final VertexConsumer consumer) {
@@ -40,5 +42,14 @@ public final class RenderUtil {
     }
 
     private RenderUtil() {
+    }
+
+    public static VertexConsumer position(final VertexConsumer vertexConsumer, final Vec3d pos, final MatrixStack matrices) {
+        vertexConsumer.vertex(matrices.peek().getModel(), (float) pos.x, (float) pos.y, (float) pos.z);
+        return vertexConsumer;
+    }
+
+    public static VertexConsumer uv(final VertexConsumer vertexConsumer, final Vec2d uv) {
+        return vertexConsumer.texture((float) uv.x, (float) uv.y);
     }
 }
