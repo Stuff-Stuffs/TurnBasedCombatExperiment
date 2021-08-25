@@ -31,7 +31,7 @@ public final class KeyframeDataLoader {
             final Map<String, KeyframeAnimationData> map = GSON.fromJson(bufferedReader, MAP_STRING_KEYFRAME_ANIMATE_DATA);
             final Map<Identifier, KeyframeAnimationData> out = new Object2ReferenceOpenHashMap<>(map.size());
             for (final Map.Entry<String, KeyframeAnimationData> entry : map.entrySet()) {
-                out.put(new Identifier(identifier.getNamespace(), identifier.getPath() + "/" + entry.getKey()), entry.getValue());
+                out.put(new Identifier(identifier.getNamespace(), identifier.getPath() + "/" + entry.getKey().substring(entry.getKey().indexOf('.') + 1)), entry.getValue());
             }
             return out;
         } catch (final Exception e) {

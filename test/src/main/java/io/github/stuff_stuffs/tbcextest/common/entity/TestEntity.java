@@ -37,13 +37,10 @@ public class TestEntity extends LivingEntity implements BattleEntity {
             if (skeletonData != null) {
                 final ImmutableSkeleton skeleton = new ImmutableSkeleton(1, skeletonData);
                 final SimpleModelPart part = TBCExAnimationClient.MODEL_MANAGER.getSimpleModelPart(new Identifier("test", "simple/ilo"));
-                //if (part != null) {
-                //    skeleton.getBone("left_arm").addPart("p", part);
-                //    skeleton.getBone("right_arm").addPart("p", part);
-                //    skeleton.getBone("left_leg").addPart("p", part);
-                //    skeleton.getBone("right_leg").addPart("p", part);
-                //    skeleton.getBone("spine").addPart("p", part);
-                //}
+                if (part != null) {
+                    skeleton.getBone("left_arm").addPart("p", part);
+                    skeleton.getBone("spine").addPart("p", part);
+                }
                 return skeleton;
             }
         }
@@ -59,7 +56,7 @@ public class TestEntity extends LivingEntity implements BattleEntity {
         final Animation animation = skeleton.getCurrentAnimation();
         if (animation == null || animation.isFinished()) {
             skeleton = createModel();
-            final KeyframeAnimationData animationData = TBCExAnimationClient.MODEL_MANAGER.getAnimationData(new Identifier("test", "simple_animation/animation.simple.s"));
+            final KeyframeAnimationData animationData = TBCExAnimationClient.MODEL_MANAGER.getAnimationData(new Identifier("test", "simple_animation/simple.s"));
             if (animationData != null) {
                 skeleton.setAnimation(new SimpleKeyframeAnimation(animationData), false);
             }
