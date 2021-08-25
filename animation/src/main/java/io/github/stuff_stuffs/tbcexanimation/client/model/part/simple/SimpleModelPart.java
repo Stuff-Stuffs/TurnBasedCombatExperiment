@@ -4,6 +4,7 @@ import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
@@ -21,14 +22,14 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
-public final class SimpleModelPart implements ModelPart {
+public class SimpleModelPart implements ModelPart {
     private static long LAST_LIGHT_QUERY = -1;
     private static int LAST_LIGHT = 0;
     private static final Vector4f LIGHT_VEC = new Vector4f();
     private static final BlockPos.Mutable MUTABLE = new BlockPos.Mutable();
-    private final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> faces;
+    protected final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> faces;
 
-    private SimpleModelPart(final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> faces) {
+    protected SimpleModelPart(final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> faces) {
         this.faces = faces;
     }
 
@@ -38,16 +39,28 @@ public final class SimpleModelPart implements ModelPart {
             for (final Map.Entry<Identifier, Face[]> faceEntry : renderTypeEntry.getValue().entrySet()) {
                 final VertexConsumer vertexConsumer = renderTypeEntry.getKey().create(faceEntry.getKey(), vertexConsumers);
                 for (final Face face : faceEntry.getValue()) {
-                    light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.topLeft, matrices), face.colour), face.topLeftUV).overlay(OverlayTexture.DEFAULT_UV), face.topLeft, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
-                    light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.topRight, matrices), face.colour), face.topRightUV).overlay(OverlayTexture.DEFAULT_UV), face.topRight, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
-                    light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.bottomRight, matrices), face.colour), face.bottomRightUV).overlay(OverlayTexture.DEFAULT_UV), face.bottomRight, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
-                    light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.bottomLeft, matrices), face.colour), face.bottomLeftUV).overlay(OverlayTexture.DEFAULT_UV), face.bottomLeft, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
+                    renderFace(face, matrices, vertexConsumer, world, pos);
                 }
             }
         }
     }
 
-    private static VertexConsumer light(final VertexConsumer vertexConsumer, final Vec3d pos, final Vec3d offset, final boolean emissive, final MatrixStack matrices, final World world) {
+    public Set<Identifier> getTextures() {
+        Set<Identifier> textures = new ObjectOpenHashSet<>();
+        for (Map<Identifier, Face[]> map : faces.values()) {
+            textures.addAll(map.keySet());
+        }
+        return textures;
+    }
+
+    protected static void renderFace(final Face face, final MatrixStack matrices, final VertexConsumer vertexConsumer, final World world, final Vec3d pos) {
+        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.topLeft, matrices), face.colour), face.topLeftUV).overlay(OverlayTexture.DEFAULT_UV), face.topLeft, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
+        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.topRight, matrices), face.colour), face.topRightUV).overlay(OverlayTexture.DEFAULT_UV), face.topRight, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
+        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.bottomRight, matrices), face.colour), face.bottomRightUV).overlay(OverlayTexture.DEFAULT_UV), face.bottomRight, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
+        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.bottomLeft, matrices), face.colour), face.bottomLeftUV).overlay(OverlayTexture.DEFAULT_UV), face.bottomLeft, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
+    }
+
+    protected static VertexConsumer light(final VertexConsumer vertexConsumer, final Vec3d pos, final Vec3d offset, final boolean emissive, final MatrixStack matrices, final World world) {
         final int packed;
         if (emissive) {
             packed = LightmapTextureManager.pack(15, 15);
