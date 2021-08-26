@@ -1,7 +1,0 @@
-# Made in Blockbench 3.9.3
-newmtl m_0
-texture test:textures/texture.png
-render_type solid
-newmtl none
-texture test:textures/texture.png
-render_type solid

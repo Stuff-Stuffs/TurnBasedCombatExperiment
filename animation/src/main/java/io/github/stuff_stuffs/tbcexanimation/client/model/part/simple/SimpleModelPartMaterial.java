@@ -40,6 +40,28 @@ public final class SimpleModelPartMaterial {
         return emissive;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SimpleModelPartMaterial material)) return false;
+
+        if (colour != material.colour) return false;
+        if (emissive != material.emissive) return false;
+        if (!name.equals(material.name)) return false;
+        if (renderType != material.renderType) return false;
+        return texture.equals(material.texture);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + renderType.hashCode();
+        result = 31 * result + texture.hashCode();
+        result = 31 * result + colour;
+        result = 31 * result + (emissive ? 1 : 0);
+        return result;
+    }
+
     public enum RenderType {
         SOLID {
             @Override

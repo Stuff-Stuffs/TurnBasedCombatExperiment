@@ -18,9 +18,7 @@ import net.minecraft.util.math.Vector4f;
 import net.minecraft.world.LightType;
 import net.minecraft.world.World;
 
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SimpleModelPart implements ModelPart {
     private static long LAST_LIGHT_QUERY = -1;
@@ -46,18 +44,18 @@ public class SimpleModelPart implements ModelPart {
     }
 
     public Set<Identifier> getTextures() {
-        Set<Identifier> textures = new ObjectOpenHashSet<>();
-        for (Map<Identifier, Face[]> map : faces.values()) {
+        final Set<Identifier> textures = new ObjectOpenHashSet<>();
+        for (final Map<Identifier, Face[]> map : faces.values()) {
             textures.addAll(map.keySet());
         }
         return textures;
     }
 
     protected static void renderFace(final Face face, final MatrixStack matrices, final VertexConsumer vertexConsumer, final World world, final Vec3d pos) {
-        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.topLeft, matrices), face.colour), face.topLeftUV).overlay(OverlayTexture.DEFAULT_UV), face.topLeft, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
-        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.topRight, matrices), face.colour), face.topRightUV).overlay(OverlayTexture.DEFAULT_UV), face.topRight, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
-        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.bottomRight, matrices), face.colour), face.bottomRightUV).overlay(OverlayTexture.DEFAULT_UV), face.bottomRight, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
-        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.bottomLeft, matrices), face.colour), face.bottomLeftUV).overlay(OverlayTexture.DEFAULT_UV), face.bottomLeft, pos, face.emissive, matrices, world).normal(0, 1, 0).next();
+        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.topLeft, matrices), face.material.getColour()), face.topLeftUV).overlay(OverlayTexture.DEFAULT_UV), face.topLeft, pos, face.material.isEmissive(), matrices, world).normal(0, 1, 0).next();
+        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.topRight, matrices), face.material.getColour()), face.topRightUV).overlay(OverlayTexture.DEFAULT_UV), face.topRight, pos, face.material.isEmissive(), matrices, world).normal(0, 1, 0).next();
+        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.bottomRight, matrices), face.material.getColour()), face.bottomRightUV).overlay(OverlayTexture.DEFAULT_UV), face.bottomRight, pos, face.material.isEmissive(), matrices, world).normal(0, 1, 0).next();
+        light(RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, face.bottomLeft, matrices), face.material.getColour()), face.bottomLeftUV).overlay(OverlayTexture.DEFAULT_UV), face.bottomLeft, pos, face.material.isEmissive(), matrices, world).normal(0, 1, 0).next();
     }
 
     protected static VertexConsumer light(final VertexConsumer vertexConsumer, final Vec3d pos, final Vec3d offset, final boolean emissive, final MatrixStack matrices, final World world) {
@@ -71,7 +69,7 @@ public class SimpleModelPart implements ModelPart {
     }
 
     private static int getLight(final Vec3d pos, final Vec3d offset, final MatrixStack matrices, final World world) {
-        LIGHT_VEC.set((float) pos.x, (float) pos.y, (float) pos.z, 1);
+        LIGHT_VEC.set((float) pos.x, (float) pos.y, (float) pos.z, 0);
         LIGHT_VEC.transform(matrices.peek().getModel());
         MUTABLE.set(LIGHT_VEC.getX() + offset.x, LIGHT_VEC.getY() + offset.y, LIGHT_VEC.getZ() + offset.z);
         final long l = MUTABLE.asLong();
@@ -83,8 +81,55 @@ public class SimpleModelPart implements ModelPart {
         return LAST_LIGHT;
     }
 
-    public record Face(Vec3d topLeft, Vec3d topRight, Vec3d bottomRight, Vec3d bottomLeft, int colour, Vec2d topLeftUV,
-                       Vec2d topRightUV, Vec2d bottomRightUV, Vec2d bottomLeftUV, boolean emissive) {
+    public record Face(Vec3d topLeft, Vec3d topRight, Vec3d bottomRight, Vec3d bottomLeft, Vec2d topLeftUV,
+                       Vec2d topRightUV, Vec2d bottomRightUV, Vec2d bottomLeftUV, SimpleModelPartMaterial material) {
+    }
+
+    public SimpleModelPart remapMaterials(final MaterialRemapper remapper) {
+        final Map<SimpleModelPartMaterial, List<Face>> faceByMaterial = new Object2ReferenceOpenHashMap<>();
+        for (final Map<Identifier, Face[]> map : faces.values()) {
+            for (final Face[] faces : map.values()) {
+                for (final Face face : faces) {
+                    faceByMaterial.computeIfAbsent(face.material(), mat -> new ArrayList<>()).add(face);
+                }
+            }
+        }
+        final Map<SimpleModelPartMaterial, List<Face>> remapped = new Object2ReferenceOpenHashMap<>();
+        for (final Map.Entry<SimpleModelPartMaterial, List<Face>> entry : faceByMaterial.entrySet()) {
+            remapped.computeIfAbsent(remapper.remapMaterial(entry.getKey()), mat -> new ArrayList<>()).addAll(entry.getValue());
+        }
+        final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> built = new EnumMap<>(SimpleModelPartMaterial.RenderType.class);
+        for (final Map.Entry<SimpleModelPartMaterial, List<Face>> entry : remapped.entrySet()) {
+            final SimpleModelPartMaterial material = entry.getKey();
+            final List<Face> facesToRebuild = entry.getValue();
+            final Face[] rebuilt = new Face[facesToRebuild.size()];
+            for (int i = 0; i < facesToRebuild.size(); i++) {
+                final Face face = facesToRebuild.get(i);
+                rebuilt[i] = new Face(face.topLeft, face.topRight, face.bottomRight, face.bottomLeft, face.topLeftUV, face.topRightUV, face.bottomRightUV, face.bottomLeftUV, material);
+            }
+            final Map<Identifier, Face[]> facesByTexture = built.computeIfAbsent(material.getRenderType(), renderType -> new Object2ReferenceOpenHashMap<>());
+            final Face[] existing = facesByTexture.put(material.getTexture(), rebuilt);
+            if (existing != null && existing.length > 0) {
+                final Face[] merged = new Face[rebuilt.length + existing.length];
+                System.arraycopy(rebuilt, 0, merged, 0, rebuilt.length);
+                System.arraycopy(existing, 0, merged, rebuilt.length, existing.length);
+                facesByTexture.put(material.getTexture(), merged);
+            }
+        }
+        return new SimpleModelPart(faces);
+    }
+
+    public static MaterialRemapper createTextureRemapper(Map<Identifier, Identifier> textureSwapMap) {
+        return material -> {
+            if(textureSwapMap.containsKey(material.getTexture())) {
+                return new SimpleModelPartMaterial(material.getName(), material.getRenderType(), textureSwapMap.get(material.getTexture()), material.getColour(), material.isEmissive());
+            }
+            return material;
+        };
+    }
+
+    public interface MaterialRemapper {
+        SimpleModelPartMaterial remapMaterial(SimpleModelPartMaterial material);
     }
 
     public static Builder builder() {
@@ -114,7 +159,6 @@ public class SimpleModelPart implements ModelPart {
         }
 
         public final class FaceEmitter {
-            private static final Identifier DEFAULT_TEX = new Identifier("minecraft", "missing");
             private Vec3d first;
             private Vec3d second;
             private Vec3d third;
@@ -123,10 +167,7 @@ public class SimpleModelPart implements ModelPart {
             private Vec2d secondUV;
             private Vec2d thirdUV;
             private Vec2d fourthUV;
-            private int colour;
-            private Identifier texture;
-            private SimpleModelPartMaterial.RenderType renderType;
-            private boolean emissive;
+            private SimpleModelPartMaterial material;
 
             private FaceEmitter() {
                 setup();
@@ -141,10 +182,7 @@ public class SimpleModelPart implements ModelPart {
                 secondUV = Vec2d.ZERO;
                 thirdUV = Vec2d.ZERO;
                 fourthUV = Vec2d.ZERO;
-                colour = -1;
-                texture = DEFAULT_TEX;
-                renderType = SimpleModelPartMaterial.RenderType.SOLID;
-                emissive = false;
+                material = null;
             }
 
             public FaceEmitter vertex(final int index, final double x, final double y, final double z) {
@@ -177,31 +215,19 @@ public class SimpleModelPart implements ModelPart {
                 return this;
             }
 
-            public FaceEmitter colour(final int colour) {
-                this.colour = colour;
-                return this;
-            }
-
-            public FaceEmitter texture(final Identifier texture) {
-                this.texture = texture;
-                return this;
-            }
-
-            public FaceEmitter renderType(final SimpleModelPartMaterial.RenderType renderType) {
-                this.renderType = renderType;
-                return this;
-            }
-
-            public FaceEmitter emissive(final boolean emissive) {
-                this.emissive = emissive;
+            public FaceEmitter material(final SimpleModelPartMaterial material) {
+                this.material = material;
                 return this;
             }
 
             public FaceEmitter emit() {
-                faces.computeIfAbsent(renderType, r -> new Object2ReferenceOpenHashMap<>()).
-                        computeIfAbsent(texture, t -> new ReferenceOpenHashSet<>()).
+                if (material == null) {
+                    throw new RuntimeException();
+                }
+                faces.computeIfAbsent(material.getRenderType(), r -> new Object2ReferenceOpenHashMap<>()).
+                        computeIfAbsent(material.getTexture(), t -> new ReferenceOpenHashSet<>()).
                         add(
-                                new Face(first, second, third, fourth, colour, firstUV, secondUV, thirdUV, fourthUV, emissive)
+                                new Face(first, second, third, fourth, firstUV, secondUV, thirdUV, fourthUV, material)
                         );
                 setup();
                 return this;

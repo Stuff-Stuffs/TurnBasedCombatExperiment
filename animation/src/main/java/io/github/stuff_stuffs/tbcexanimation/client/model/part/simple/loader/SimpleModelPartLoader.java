@@ -26,10 +26,7 @@ public final class SimpleModelPartLoader {
             final SimpleModelPartMaterial material = materials.get(entry.getKey());
             for (int i = 0; i < entry.getValue().getNumFaces(); i++) {
                 final ObjFace objFace = entry.getValue().getFace(i);
-                emitter.texture(material.getTexture());
-                emitter.colour(material.getColour());
-                emitter.renderType(material.getRenderType());
-                emitter.emissive(material.isEmissive());
+                emitter.material(material);
                 if (objFace.getNumVertices() == 3) {
                     Vec3d p0 = null;
                     Vec3d p2 = null;
