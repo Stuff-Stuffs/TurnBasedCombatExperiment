@@ -151,7 +151,14 @@ public class SimpleModelPart implements ModelPart {
             for (final Map.Entry<SimpleModelPartMaterial.RenderType, Map<Identifier, Set<Face>>> renderTypeEntry : faces.entrySet()) {
                 final Map<Identifier, Face[]> texturedFaces = new Object2ReferenceOpenHashMap<>();
                 for (final Map.Entry<Identifier, Set<Face>> entry : renderTypeEntry.getValue().entrySet()) {
-                    texturedFaces.put(entry.getKey(), entry.getValue().toArray(new Face[0]));
+                    final Face[] built = entry.getValue().toArray(new Face[0]);
+                    final Face[] existing = texturedFaces.put(entry.getKey(), built);
+                    if (existing != null && existing.length > 0) {
+                        final Face[] merged = new Face[built.length + existing.length];
+                        System.arraycopy(built, 0, merged, 0, built.length);
+                        System.arraycopy(existing, 0, merged, built.length, existing.length);
+                        texturedFaces.put(entry.getKey(), merged);
+                    }
                 }
                 builtFaces.put(renderTypeEntry.getKey(), texturedFaces);
             }
