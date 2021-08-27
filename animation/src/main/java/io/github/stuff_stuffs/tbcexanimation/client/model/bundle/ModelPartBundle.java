@@ -6,6 +6,7 @@ import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -67,6 +68,11 @@ public final class ModelPartBundle {
         @Override
         public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final World world, final Vec3d pos) {
             wrapped.render(matrices, vertexConsumers, world, pos);
+        }
+
+        @Override
+        public ModelPart remapTexture(Identifier target, Identifier replace) {
+            throw new UnsupportedOperationException();
         }
     }
 

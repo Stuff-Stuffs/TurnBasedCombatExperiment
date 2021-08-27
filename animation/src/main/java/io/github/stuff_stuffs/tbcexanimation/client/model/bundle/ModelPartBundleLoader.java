@@ -2,11 +2,8 @@ package io.github.stuff_stuffs.tbcexanimation.client.model.bundle;
 
 import com.google.gson.*;
 import io.github.stuff_stuffs.tbcexanimation.client.TBCExAnimationClient;
-import io.github.stuff_stuffs.tbcexanimation.client.animation.keyframe.KeyframeAnimationData;
-import io.github.stuff_stuffs.tbcexanimation.client.model.SkeletonData;
 import io.github.stuff_stuffs.tbcexanimation.client.resource.ModelPartIdentifier;
 import io.github.stuff_stuffs.tbcexutil.common.LoggerUtil;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;

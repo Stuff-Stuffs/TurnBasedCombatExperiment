@@ -1,8 +1,7 @@
 package io.github.stuff_stuffs.tbcexanimation.client.resource;
 
 import com.google.gson.*;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.util.Identifier;
 
 import java.lang.reflect.Type;
@@ -11,9 +10,9 @@ import java.util.Map;
 public final class ModelPartIdentifier {
     public static final Serializer SERIALIZER = new Serializer();
     private final Identifier identifier;
-    private final Map<String, String> arguments;
+    private final Object2ObjectLinkedOpenHashMap<String, String> arguments;
 
-    private ModelPartIdentifier(final Identifier identifier, final Map<String, String> arguments) {
+    private ModelPartIdentifier(final Identifier identifier, final Object2ObjectLinkedOpenHashMap<String, String> arguments) {
         this.identifier = identifier;
         this.arguments = arguments;
     }
@@ -31,7 +30,7 @@ public final class ModelPartIdentifier {
     }
 
     public static final class Builder {
-        private final Map<String, String> arguments = new Object2ObjectOpenHashMap<>();
+        private final Map<String, String> arguments = new Object2ObjectLinkedOpenHashMap<>();
 
         private Builder() {
         }
@@ -44,7 +43,7 @@ public final class ModelPartIdentifier {
         }
 
         public ModelPartIdentifier build(final Identifier identifier) {
-            return new ModelPartIdentifier(identifier, new Object2ReferenceOpenHashMap<>(arguments));
+            return new ModelPartIdentifier(identifier, new Object2ObjectLinkedOpenHashMap<>(arguments));
         }
     }
 

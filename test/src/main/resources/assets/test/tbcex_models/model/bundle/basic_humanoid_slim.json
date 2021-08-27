@@ -1,0 +1,63 @@
+{
+  "parts": {
+    "left_arm": {
+      "main": {
+        "identifier": "test:simple/humanoid/left_arm",
+        "args": {
+          "texture_swap": {
+            "replace:left_arm": "test:textures/texture.png"
+          },
+          "scale": {
+            "scale": {
+              "x": 0.75,
+              "y": 1,
+              "z": 1
+            },
+            "offset": {
+              "x": 0.03125,
+              "y": 0,
+              "z": 0
+            }
+          }
+        }
+      }
+    },
+    "left_leg": {
+      "main": {
+        "identifier": "test:simple/humanoid/left_leg"
+      }
+    },
+    "right_arm": {
+      "main": {
+        "identifier": "test:simple/humanoid/right_arm",
+        "args": {
+          "texture_swap": {
+            "replace:right_arm": "test:textures/texture.png"
+          },
+          "scale": {
+            "scale": {
+              "x": 0.75,
+              "y": 1,
+              "z": 1
+            },
+            "offset": {
+              "x": -0.03125,
+              "y": 0,
+              "z": 0
+            }
+          }
+        }
+      }
+    },
+    "right_leg": {
+      "main": {
+        "identifier": "test:simple/humanoid/right_leg"
+      }
+    },
+    "spine": {
+      "main": {
+        "identifier": "test:simple/humanoid/body"
+      }
+    }
+  }
+}

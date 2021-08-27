@@ -8,8 +8,6 @@ import io.github.stuff_stuffs.tbcexanimation.client.model.ImmutableSkeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.SkeletonData;
 import io.github.stuff_stuffs.tbcexanimation.client.model.bundle.ModelPartBundle;
-import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
-import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPart;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
@@ -27,19 +25,26 @@ import java.util.Collections;
 public class TestEntity extends LivingEntity implements BattleEntity {
     private static final Team TEAM = new Team("test_non-player");
     private Skeleton skeleton;
+    private boolean slim = false;
 
     public TestEntity(final EntityType<? extends LivingEntity> entityType, final World world) {
         super(entityType, world);
         skeleton = createModel();
     }
 
-    private static Skeleton createModel() {
+    private Skeleton createModel() {
         if (TBCExAnimationClient.MODEL_MANAGER.isInitialized()) {
             final SkeletonData skeletonData = TBCExAnimationClient.MODEL_MANAGER.getSkeletonData(new Identifier("test", "humanoid_skeleton"));
             if (skeletonData != null) {
                 final ImmutableSkeleton skeleton = new ImmutableSkeleton(1, skeletonData);
-                ModelPartBundle bundle = TBCExAnimationClient.MODEL_MANAGER.getModelPartBundle(new Identifier("test", "basic_humanoid"));
-                if(bundle!=null) {
+                final ModelPartBundle bundle;
+                if (slim) {
+                    bundle = TBCExAnimationClient.MODEL_MANAGER.getModelPartBundle(new Identifier("test", "basic_humanoid_slim"));
+                } else {
+                    bundle = TBCExAnimationClient.MODEL_MANAGER.getModelPartBundle(new Identifier("test", "basic_humanoid"));
+                }
+                slim = !slim;
+                if (bundle != null) {
                     bundle.apply(skeleton, true, true);
                 }
                 return skeleton;

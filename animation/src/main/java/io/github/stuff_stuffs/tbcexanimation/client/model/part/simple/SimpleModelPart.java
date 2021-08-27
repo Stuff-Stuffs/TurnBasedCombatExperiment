@@ -43,6 +43,11 @@ public class SimpleModelPart implements ModelPart {
         }
     }
 
+    @Override
+    public SimpleModelPart remapTexture(final Identifier target, final Identifier replace) {
+        return remapMaterials(createTextureRemapper(Map.of(target, replace)));
+    }
+
     public Set<Identifier> getTextures() {
         final Set<Identifier> textures = new ObjectOpenHashSet<>();
         for (final Map<Identifier, Face[]> map : faces.values()) {
@@ -119,9 +124,9 @@ public class SimpleModelPart implements ModelPart {
         return new SimpleModelPart(built);
     }
 
-    public static MaterialRemapper createTextureRemapper(Map<Identifier, Identifier> textureSwapMap) {
+    public static MaterialRemapper createTextureRemapper(final Map<Identifier, Identifier> textureSwapMap) {
         return material -> {
-            if(textureSwapMap.containsKey(material.getTexture())) {
+            if (textureSwapMap.containsKey(material.getTexture())) {
                 return new SimpleModelPartMaterial(material.getName(), material.getRenderType(), textureSwapMap.get(material.getTexture()), material.getColour(), material.isEmissive());
             }
             return material;

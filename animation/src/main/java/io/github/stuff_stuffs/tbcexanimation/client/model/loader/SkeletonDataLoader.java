@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexanimation.client.model.ModelBone;
 import io.github.stuff_stuffs.tbcexanimation.client.model.SkeletonData;
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
+import io.github.stuff_stuffs.tbcexutil.common.GsonUtil;
 import io.github.stuff_stuffs.tbcexutil.common.LoggerUtil;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -22,8 +23,8 @@ import java.util.Map;
 
 public final class SkeletonDataLoader {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().
-            registerTypeHierarchyAdapter(Vec3d.class, new Vec3dJson()).
-            registerTypeHierarchyAdapter(DoubleQuaternion.class, new DoubleQuaternionJson()).
+            registerTypeHierarchyAdapter(Vec3d.class, new GsonUtil.Vec3dJson()).
+            registerTypeHierarchyAdapter(DoubleQuaternion.class, new GsonUtil.DoubleQuaternionJson()).
             registerTypeHierarchyAdapter(SkeletonData.class, new SkeletonJson()).create();
 
     public static SkeletonData fromResource(final Resource resource) {
@@ -139,41 +140,6 @@ public final class SkeletonDataLoader {
             this.defaultScale = defaultScale;
             this.boneLines = boneLines;
             this.parent = parent;
-        }
-    }
-
-    private static final class DoubleQuaternionJson implements JsonSerializer<DoubleQuaternion>, JsonDeserializer<DoubleQuaternion> {
-        @Override
-        public DoubleQuaternion deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-            final JsonObject object = json.getAsJsonObject();
-            return new DoubleQuaternion(object.getAsJsonPrimitive("x").getAsDouble(), object.getAsJsonPrimitive("y").getAsDouble(), object.getAsJsonPrimitive("z").getAsDouble(), object.getAsJsonPrimitive("w").getAsDouble());
-        }
-
-        @Override
-        public JsonElement serialize(final DoubleQuaternion src, final Type typeOfSrc, final JsonSerializationContext context) {
-            final JsonObject dst = new JsonObject();
-            dst.addProperty("x", src.x);
-            dst.addProperty("y", src.y);
-            dst.addProperty("z", src.z);
-            dst.addProperty("w", src.w);
-            return dst;
-        }
-    }
-
-    private static final class Vec3dJson implements JsonSerializer<Vec3d>, JsonDeserializer<Vec3d> {
-        @Override
-        public Vec3d deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-            final JsonObject object = json.getAsJsonObject();
-            return new Vec3d(object.getAsJsonPrimitive("x").getAsDouble(), object.getAsJsonPrimitive("y").getAsDouble(), object.getAsJsonPrimitive("z").getAsDouble());
-        }
-
-        @Override
-        public JsonElement serialize(final Vec3d src, final Type typeOfSrc, final JsonSerializationContext context) {
-            final JsonObject dst = new JsonObject();
-            dst.addProperty("x", src.x);
-            dst.addProperty("y", src.y);
-            dst.addProperty("z", src.z);
-            return dst;
         }
     }
 }
