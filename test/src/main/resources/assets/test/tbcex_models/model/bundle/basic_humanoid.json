@@ -1,0 +1,34 @@
+{
+  "parts": {
+    "left_arm": {
+      "main": {
+        "identifier": "test:simple/humanoid/left_arm",
+        "args": {
+          "texture_swap": {
+            "replace:left_arm": "test:textures/texture.png"
+          }
+        }
+      }
+    },
+    "left_leg": {
+      "main": {
+        "identifier": "test:simple/humanoid/left_leg"
+      }
+    },
+    "right_arm": {
+      "main": {
+        "identifier": "test:simple/humanoid/right_arm"
+      }
+    },
+    "right_leg": {
+      "main": {
+        "identifier": "test:simple/humanoid/right_leg"
+      }
+    },
+    "spine": {
+      "main": {
+        "identifier": "test:simple/humanoid/body"
+      }
+    }
+  }
+}

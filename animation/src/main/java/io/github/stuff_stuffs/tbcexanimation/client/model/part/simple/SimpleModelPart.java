@@ -116,7 +116,7 @@ public class SimpleModelPart implements ModelPart {
                 facesByTexture.put(material.getTexture(), merged);
             }
         }
-        return new SimpleModelPart(faces);
+        return new SimpleModelPart(built);
     }
 
     public static MaterialRemapper createTextureRemapper(Map<Identifier, Identifier> textureSwapMap) {

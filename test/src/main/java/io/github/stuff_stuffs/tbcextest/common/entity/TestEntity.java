@@ -7,6 +7,8 @@ import io.github.stuff_stuffs.tbcexanimation.client.animation.keyframe.SimpleKey
 import io.github.stuff_stuffs.tbcexanimation.client.model.ImmutableSkeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.SkeletonData;
+import io.github.stuff_stuffs.tbcexanimation.client.model.bundle.ModelPartBundle;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPart;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
@@ -36,21 +38,9 @@ public class TestEntity extends LivingEntity implements BattleEntity {
             final SkeletonData skeletonData = TBCExAnimationClient.MODEL_MANAGER.getSkeletonData(new Identifier("test", "humanoid_skeleton"));
             if (skeletonData != null) {
                 final ImmutableSkeleton skeleton = new ImmutableSkeleton(1, skeletonData);
-                final SimpleModelPart left_arm = TBCExAnimationClient.MODEL_MANAGER.getSimpleModelPart(new Identifier("test", "simple/humanoid/left_arm"));
-                final SimpleModelPart right_arm = TBCExAnimationClient.MODEL_MANAGER.getSimpleModelPart(new Identifier("test", "simple/humanoid/right_arm"));
-                final SimpleModelPart left_leg = TBCExAnimationClient.MODEL_MANAGER.getSimpleModelPart(new Identifier("test", "simple/humanoid/left_leg"));
-                final SimpleModelPart right_leg = TBCExAnimationClient.MODEL_MANAGER.getSimpleModelPart(new Identifier("test", "simple/humanoid/right_leg"));
-                final SimpleModelPart body = TBCExAnimationClient.MODEL_MANAGER.getSimpleModelPart(new Identifier("test", "simple/humanoid/body"));
-                if (left_arm != null && right_arm != null) {
-                    skeleton.getBone("left_arm").addPart("main", left_arm);
-                    skeleton.getBone("right_arm").addPart("main", right_arm);
-                }
-                if (left_leg != null && right_leg != null) {
-                    skeleton.getBone("left_leg").addPart("main", left_leg);
-                    skeleton.getBone("right_leg").addPart("main", right_leg);
-                }
-                if (body != null) {
-                    skeleton.getBone("spine").addPart("main", body);
+                ModelPartBundle bundle = TBCExAnimationClient.MODEL_MANAGER.getModelPartBundle(new Identifier("test", "basic_humanoid"));
+                if(bundle!=null) {
+                    bundle.apply(skeleton, true, true);
                 }
                 return skeleton;
             }
