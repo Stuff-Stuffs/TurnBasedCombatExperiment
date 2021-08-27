@@ -5,7 +5,10 @@
         "identifier": "test:simple/humanoid/left_arm",
         "args": {
           "texture_swap": {
-            "replace:left_arm": "test:textures/texture.png"
+            "replace:left_arm": {
+              "texture": "test:textures/texture.png",
+              "render_type": "solid"
+            }
           },
           "scale": {
             "scale": {
@@ -32,7 +35,10 @@
         "identifier": "test:simple/humanoid/right_arm",
         "args": {
           "texture_swap": {
-            "replace:right_arm": "test:textures/texture.png"
+            "replace:right_arm": {
+              "texture": "test:textures/texture.png",
+              "render_type": "solid"
+            }
           },
           "scale": {
             "scale": {

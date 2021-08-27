@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.loader;
 
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.RenderType;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPartMaterial;
 import net.minecraft.util.Identifier;
 
@@ -18,7 +19,7 @@ public final class SimpleModelPartMaterialReader {
     public static List<SimpleModelPartMaterial> read(final BufferedReader reader) throws IOException {
         final List<SimpleModelPartMaterial> materials = new ArrayList<>();
         String currentMtlName = null;
-        SimpleModelPartMaterial.RenderType currentMtlRenderType = null;
+        RenderType currentMtlRenderType = null;
         Identifier currentMtlTexture = null;
         int currentMtlColour = -1;
         boolean currentMtlEmissive = false;
@@ -41,7 +42,7 @@ public final class SimpleModelPartMaterialReader {
             }
             switch (token) {
                 case "texture", "Texture", "TEXTURE" -> currentMtlTexture = new Identifier(line.substring(token.length()).trim());
-                case "render_type", "Render_Type", "RENDER_TYPE" -> currentMtlRenderType = SimpleModelPartMaterial.RenderType.valueOf(tokenizer.nextToken().toUpperCase(Locale.ROOT));
+                case "render_type", "Render_Type", "RENDER_TYPE" -> currentMtlRenderType = RenderType.valueOf(tokenizer.nextToken().toUpperCase(Locale.ROOT));
                 case "colour", "Colour", "COLOUR" -> currentMtlColour = parseInt(tokenizer.nextToken(), 16);
                 case "emissive", "Emissive", "EMISSIVE" -> currentMtlEmissive = parseBoolean(tokenizer.nextToken());
             }
@@ -53,7 +54,7 @@ public final class SimpleModelPartMaterialReader {
         return materials;
     }
 
-    private static SimpleModelPartMaterial createMaterial(final String name, final SimpleModelPartMaterial.RenderType renderType, final Identifier texture, final int colour, final boolean emissive) throws IOException {
+    private static SimpleModelPartMaterial createMaterial(final String name, final RenderType renderType, final Identifier texture, final int colour, final boolean emissive) throws IOException {
         if (renderType == null || texture == null) {
             throw new IOException("Missing critical element in material");
         }

@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.tbcexanimation.client.model.bundle;
 import io.github.stuff_stuffs.tbcexanimation.client.model.ModelBoneInstance;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.RenderType;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
@@ -71,7 +72,7 @@ public final class ModelPartBundle {
         }
 
         @Override
-        public ModelPart remapTexture(Identifier target, Identifier replace) {
+        public ModelPart remapTexture(Identifier target, Identifier replace, RenderType targetRenderType) {
             throw new UnsupportedOperationException();
         }
     }

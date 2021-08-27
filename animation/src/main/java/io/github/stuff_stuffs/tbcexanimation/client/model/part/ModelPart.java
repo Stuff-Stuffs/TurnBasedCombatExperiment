@@ -9,5 +9,5 @@ import net.minecraft.world.World;
 public interface ModelPart {
     void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, World world, Vec3d pos);
 
-    ModelPart remapTexture(Identifier target, Identifier replace);
+    ModelPart remapTexture(Identifier target, Identifier replace, RenderType targetRenderType);
 }

@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.tbcexanimation.client.resource;
 
 import com.google.gson.*;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.RenderType;
 import io.github.stuff_stuffs.tbcexutil.common.GsonUtil;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
@@ -49,8 +50,8 @@ public final class ModelPartScalerArgumentApplier implements ModelPartArgumentAp
         }
 
         @Override
-        public ModelPart remapTexture(final Identifier target, final Identifier replace) {
-            return new ScaledModelPart(scale, offset, wrapped.remapTexture(target, replace));
+        public ModelPart remapTexture(final Identifier target, final Identifier replace, RenderType targetRenderType) {
+            return new ScaledModelPart(scale, offset, wrapped.remapTexture(target, replace, targetRenderType));
         }
     }
 

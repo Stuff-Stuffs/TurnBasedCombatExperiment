@@ -5,7 +5,10 @@
         "identifier": "test:simple/humanoid/left_arm",
         "args": {
           "texture_swap": {
-            "replace:left_arm": "test:textures/texture.png"
+            "replace:left_arm": {
+              "texture": "test:textures/texture",
+              "render_type": "solid"
+            }
           }
         }
       }

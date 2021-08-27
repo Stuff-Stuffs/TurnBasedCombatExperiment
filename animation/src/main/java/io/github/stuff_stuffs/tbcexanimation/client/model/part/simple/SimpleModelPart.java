@@ -1,6 +1,8 @@
 package io.github.stuff_stuffs.tbcexanimation.client.model.part.simple;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.RenderType;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -25,15 +27,15 @@ public class SimpleModelPart implements ModelPart {
     private static int LAST_LIGHT = 0;
     private static final Vector4f LIGHT_VEC = new Vector4f();
     private static final BlockPos.Mutable MUTABLE = new BlockPos.Mutable();
-    protected final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> faces;
+    protected final Map<RenderType, Map<Identifier, Face[]>> faces;
 
-    protected SimpleModelPart(final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> faces) {
+    protected SimpleModelPart(final Map<RenderType, Map<Identifier, Face[]>> faces) {
         this.faces = faces;
     }
 
     @Override
     public void render(final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final World world, final Vec3d pos) {
-        for (final Map.Entry<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> renderTypeEntry : faces.entrySet()) {
+        for (final Map.Entry<RenderType, Map<Identifier, Face[]>> renderTypeEntry : faces.entrySet()) {
             for (final Map.Entry<Identifier, Face[]> faceEntry : renderTypeEntry.getValue().entrySet()) {
                 final VertexConsumer vertexConsumer = renderTypeEntry.getKey().create(faceEntry.getKey(), vertexConsumers);
                 for (final Face face : faceEntry.getValue()) {
@@ -44,8 +46,8 @@ public class SimpleModelPart implements ModelPart {
     }
 
     @Override
-    public SimpleModelPart remapTexture(final Identifier target, final Identifier replace) {
-        return remapMaterials(createTextureRemapper(Map.of(target, replace)));
+    public SimpleModelPart remapTexture(final Identifier target, final Identifier replace, RenderType targetRenderType) {
+        return remapMaterials(createTextureRemapper(Map.of(target, Pair.of(replace, targetRenderType))));
     }
 
     public Set<Identifier> getTextures() {
@@ -103,7 +105,7 @@ public class SimpleModelPart implements ModelPart {
         for (final Map.Entry<SimpleModelPartMaterial, List<Face>> entry : faceByMaterial.entrySet()) {
             remapped.computeIfAbsent(remapper.remapMaterial(entry.getKey()), mat -> new ArrayList<>()).addAll(entry.getValue());
         }
-        final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> built = new EnumMap<>(SimpleModelPartMaterial.RenderType.class);
+        final Map<RenderType, Map<Identifier, Face[]>> built = new EnumMap<>(RenderType.class);
         for (final Map.Entry<SimpleModelPartMaterial, List<Face>> entry : remapped.entrySet()) {
             final SimpleModelPartMaterial material = entry.getKey();
             final List<Face> facesToRebuild = entry.getValue();
@@ -124,10 +126,11 @@ public class SimpleModelPart implements ModelPart {
         return new SimpleModelPart(built);
     }
 
-    public static MaterialRemapper createTextureRemapper(final Map<Identifier, Identifier> textureSwapMap) {
+    public static MaterialRemapper createTextureRemapper(final Map<Identifier, Pair<Identifier,RenderType>> textureSwapMap) {
         return material -> {
             if (textureSwapMap.containsKey(material.getTexture())) {
-                return new SimpleModelPartMaterial(material.getName(), material.getRenderType(), textureSwapMap.get(material.getTexture()), material.getColour(), material.isEmissive());
+                final Pair<Identifier, RenderType> pair = textureSwapMap.get(material.getTexture());
+                return new SimpleModelPartMaterial(material.getName(), pair.getSecond(), pair.getFirst(), material.getColour(), material.isEmissive());
             }
             return material;
         };
@@ -142,7 +145,7 @@ public class SimpleModelPart implements ModelPart {
     }
 
     public static final class Builder {
-        private final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Set<Face>>> faces = new EnumMap<>(SimpleModelPartMaterial.RenderType.class);
+        private final Map<RenderType, Map<Identifier, Set<Face>>> faces = new EnumMap<>(RenderType.class);
 
         private Builder() {
         }
@@ -152,8 +155,8 @@ public class SimpleModelPart implements ModelPart {
         }
 
         public SimpleModelPart build() {
-            final Map<SimpleModelPartMaterial.RenderType, Map<Identifier, Face[]>> builtFaces = new EnumMap<>(SimpleModelPartMaterial.RenderType.class);
-            for (final Map.Entry<SimpleModelPartMaterial.RenderType, Map<Identifier, Set<Face>>> renderTypeEntry : faces.entrySet()) {
+            final Map<RenderType, Map<Identifier, Face[]>> builtFaces = new EnumMap<>(RenderType.class);
+            for (final Map.Entry<RenderType, Map<Identifier, Set<Face>>> renderTypeEntry : faces.entrySet()) {
                 final Map<Identifier, Face[]> texturedFaces = new Object2ReferenceOpenHashMap<>();
                 for (final Map.Entry<Identifier, Set<Face>> entry : renderTypeEntry.getValue().entrySet()) {
                     final Face[] built = entry.getValue().toArray(new Face[0]);

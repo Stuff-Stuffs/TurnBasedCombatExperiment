@@ -1,8 +1,6 @@
 package io.github.stuff_stuffs.tbcexanimation.client.model.part.simple;
 
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.RenderType;
 import net.minecraft.util.Identifier;
 
 public final class SimpleModelPartMaterial {
@@ -41,14 +39,26 @@ public final class SimpleModelPartMaterial {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SimpleModelPartMaterial material)) return false;
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SimpleModelPartMaterial material)) {
+            return false;
+        }
 
-        if (colour != material.colour) return false;
-        if (emissive != material.emissive) return false;
-        if (!name.equals(material.name)) return false;
-        if (renderType != material.renderType) return false;
+        if (colour != material.colour) {
+            return false;
+        }
+        if (emissive != material.emissive) {
+            return false;
+        }
+        if (!name.equals(material.name)) {
+            return false;
+        }
+        if (renderType != material.renderType) {
+            return false;
+        }
         return texture.equals(material.texture);
     }
 
@@ -62,26 +72,4 @@ public final class SimpleModelPartMaterial {
         return result;
     }
 
-    public enum RenderType {
-        SOLID {
-            @Override
-            public VertexConsumer create(final Identifier texture, final VertexConsumerProvider vertexConsumers) {
-                return vertexConsumers.getBuffer(RenderLayer.getEntitySolid(texture));
-            }
-        },
-        CUTOUT {
-            @Override
-            public VertexConsumer create(final Identifier texture, final VertexConsumerProvider vertexConsumers) {
-                return vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(texture, false));
-            }
-        },
-        TRANSLUCENT {
-            @Override
-            public VertexConsumer create(final Identifier texture, final VertexConsumerProvider vertexConsumers) {
-                return vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(texture));
-            }
-        };
-
-        public abstract VertexConsumer create(Identifier texture, VertexConsumerProvider vertexConsumers);
-    }
 }
