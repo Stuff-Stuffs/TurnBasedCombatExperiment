@@ -6,7 +6,7 @@
         "args": {
           "texture_swap": {
             "replace:left_arm": {
-              "texture": "test:textures/texture",
+              "texture": "test:textures/texture.png",
               "render_type": "solid"
             }
           }
