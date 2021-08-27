@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexgui.client;
 
-import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.ButtonState;
+import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

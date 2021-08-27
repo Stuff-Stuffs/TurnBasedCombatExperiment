@@ -14,7 +14,6 @@ import net.minecraft.text.Text;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.function.BiFunction;
 
 public interface BattleParticipantItem {
     List<ParticipantAction> getActions(BattleStateView battleState, BattleParticipantStateView participantState, BattleParticipantInventoryHandle handle);

@@ -1,14 +1,14 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
-import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
+import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
+import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;

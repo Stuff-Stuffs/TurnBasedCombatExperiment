@@ -1,25 +1,15 @@
 package io.github.stuff_stuffs.tbcexcore.client;
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.stuff_stuffs.tbcexcore.client.network.ClientNetwork;
 import io.github.stuff_stuffs.tbcexcore.client.render.Render;
 import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
-import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.ClientBattleWorldSupplier;
+import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import it.unimi.dsi.fastutil.HashCommon;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Frustum;
@@ -28,16 +18,12 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.command.CommandSource;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collection;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 
 public class TurnBasedCombatExperimentClient implements ClientModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("TBCExClient");

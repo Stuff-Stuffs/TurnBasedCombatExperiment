@@ -13,11 +13,11 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PostDama
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PostEquipmentChangeEvent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PreDamageEvent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PreEquipmentChangeEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventory;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStatModifier;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStatModifiers;
