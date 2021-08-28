@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.tbcexanimation.client.model.bundle;
 
 import com.google.gson.*;
 import io.github.stuff_stuffs.tbcexanimation.client.TBCExAnimationClient;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
 import io.github.stuff_stuffs.tbcexanimation.client.resource.ModelPartIdentifier;
 import io.github.stuff_stuffs.tbcexutil.common.LoggerUtil;
 import net.minecraft.resource.Resource;
@@ -38,7 +39,11 @@ public final class ModelPartBundleLoader {
             final ModelPartBundle.Builder builder = ModelPartBundle.builder();
             for (final Map.Entry<String, JsonElement> boneEntry : parts.entrySet()) {
                 for (final Map.Entry<String, JsonElement> partEntry : boneEntry.getValue().getAsJsonObject().entrySet()) {
-                    builder.addPart(boneEntry.getKey(), partEntry.getKey(), TBCExAnimationClient.MODEL_MANAGER.getModelPart((ModelPartIdentifier) context.deserialize(partEntry.getValue(), ModelPartIdentifier.class)));
+                    final ModelPart modelPart = TBCExAnimationClient.MODEL_MANAGER.getModelPart((ModelPartIdentifier) context.deserialize(partEntry.getValue(), ModelPartIdentifier.class));
+                    if(modelPart==null) {
+                        throw new RuntimeException("Missin model part: " + partEntry.getValue().toString());
+                    }
+                    builder.addPart(boneEntry.getKey(), partEntry.getKey(), modelPart);
                 }
             }
             return builder.build();

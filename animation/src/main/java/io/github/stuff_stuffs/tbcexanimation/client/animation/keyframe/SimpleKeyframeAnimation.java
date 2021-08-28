@@ -14,7 +14,6 @@ public class SimpleKeyframeAnimation implements Animation {
     private final Map<String, DoubleQuaternion> defaultRotation = new Object2ReferenceOpenHashMap<>();
     private final Map<String, Vec3d> defaultPosition = new Object2ReferenceOpenHashMap<>();
     private final Map<String, Vec3d> defaultScale = new Object2ReferenceOpenHashMap<>();
-    private int loopCount = 0;
     private double progress = 0;
     private boolean cancelled = false;
     private boolean finished = false;
@@ -26,7 +25,7 @@ public class SimpleKeyframeAnimation implements Animation {
     @Override
     public void update(final Skeleton skeleton, final double timeSinceLast) {
         if (!cancelled && !finished) {
-            if (progress == 0 && loopCount == 0) {
+            if (progress == 0) {
                 for (final String bone : skeleton.getBones()) {
                     final ModelBoneInstance instance = skeleton.getBone(bone);
                     if (instance == null) {
@@ -45,33 +44,29 @@ public class SimpleKeyframeAnimation implements Animation {
                 }
                 updateBone(boneInstance);
             }
-            if (progress >= data.getLength()*20 && !data.isLooped()) {
+            if (progress >= data.getLength() * 20) {
                 finished = true;
             }
             progress += timeSinceLast;
-            if (!data.isLooped()) {
-                progress = Math.min(progress, data.getLength()*20);
-            } else {
-                loopCount = (int) Math.floor(progress / (data.getLength()*20));
-            }
+            progress = Math.min(progress, data.getLength() * 20);
         }
     }
 
     private void updateBone(final ModelBoneInstance boneInstance) {
         final String name = boneInstance.getBone().getName();
-        boneInstance.setRotation(data.getRotation(name, defaultRotation.get(name), progress/20.0));
-        boneInstance.setOffset(data.getPosition(name, defaultPosition.get(name), progress/20.0));
-        boneInstance.setScale(data.getScale(name, defaultScale.get(name), progress/20.0));
+        boneInstance.setRotation(data.getRotation(name, defaultRotation.get(name), progress / 20.0));
+        boneInstance.setOffset(data.getPosition(name, defaultPosition.get(name), progress / 20.0));
+        boneInstance.setScale(data.getScale(name, defaultScale.get(name), progress / 20.0));
     }
 
     @Override
     public double getLength() {
-        return data.isLooped() ? Double.MAX_VALUE : data.getLength()*20;
+        return data.getLength() * 20;
     }
 
     @Override
     public double getTimeRemaining() {
-        return data.isLooped() ? Double.MAX_VALUE : data.getLength()*20 - progress;
+        return data.getLength() * 20 - progress;
     }
 
     @Override

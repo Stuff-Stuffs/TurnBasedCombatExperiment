@@ -59,12 +59,12 @@ public class TestEntity extends LivingEntity implements BattleEntity {
 
     @Override
     public void tick() {
-        final Animation animation = skeleton.getCurrentAnimation();
+        Animation animation = skeleton.getCurrentAnimation();
         if (animation == null || animation.isFinished()) {
             skeleton = createModel();
-            final KeyframeAnimationData animationData = TBCExAnimationClient.MODEL_MANAGER.getAnimationData(new Identifier("test", "simple_animation/simple.s"));
-            if (animationData != null) {
-                skeleton.setAnimation(new SimpleKeyframeAnimation(animationData), false);
+            animation = TBCExAnimationClient.MODEL_MANAGER.getAnimation(new Identifier("test", "simple_animation_reset"));
+            if (animation != null) {
+                skeleton.setAnimation(animation, false);
             }
         }
         super.tick();

@@ -1,0 +1,6 @@
+{
+  "animations": [
+    "test:simple_animation/simple.s",
+    "tbcexanimation:builtin/reset/100/easeinoutexpo"
+  ]
+}

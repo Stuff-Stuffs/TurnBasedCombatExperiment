@@ -1,24 +1,26 @@
-package io.github.stuff_stuffs.tbcexanimation.client.animation.keyframe;
+package io.github.stuff_stuffs.tbcexanimation.client.animation;
 
-import io.github.stuff_stuffs.tbcexanimation.client.animation.Animation;
+import io.github.stuff_stuffs.tbcexanimation.client.TBCExAnimationClient;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
+import net.minecraft.util.Identifier;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CompoundAnimation implements Animation {
+public final class CompoundAnimation implements Animation {
     private final List<Animation> animations;
-    private final double length;
-    private double currentTime;
     private int index;
     private boolean finished;
 
-    public CompoundAnimation(final List<Animation> animations) {
-        this.animations = animations;
-        double l = 0;
-        for (final Animation animation : animations) {
-            l += animation.getLength();
+    public CompoundAnimation(final CompoundAnimationData data) {
+        animations = new ArrayList<>(data.getAnimations().size());
+        for (final Identifier animationId : data.getAnimations()) {
+            final Animation animation = TBCExAnimationClient.MODEL_MANAGER.getAnimation(animationId);
+            if (animation == null) {
+                throw new RuntimeException("Error, missing animation: " + animationId);
+            }
+            animations.add(animation);
         }
-        length = l;
     }
 
     @Override
@@ -29,7 +31,7 @@ public class CompoundAnimation implements Animation {
                 return;
             }
             final Animation animation = animations.get(index);
-            if(animation.isFinished()||animation.isCancelled()) {
+            if (animation.isFinished() || animation.isCancelled()) {
                 index++;
                 update(skeleton, timeSinceLast);
                 return;
@@ -43,20 +45,24 @@ public class CompoundAnimation implements Animation {
                     update(skeleton, timeSinceLast);
                 }
             } else {
-                animation.update(skeleton, currentTimeLeft);
+                animation.update(skeleton, timeSinceLast);
             }
-            currentTime += timeSinceLast;
         }
     }
 
     @Override
     public double getLength() {
-        return length;
+        return Double.POSITIVE_INFINITY;
     }
 
     @Override
     public double getTimeRemaining() {
-        return length - currentTime;
+        return Double.POSITIVE_INFINITY;
+    }
+
+    @Override
+    public boolean isFinished() {
+        return finished;
     }
 
     @Override

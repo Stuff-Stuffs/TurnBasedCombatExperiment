@@ -1,5 +1,10 @@
 package io.github.stuff_stuffs.tbcexutil.common;
 
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+
+import java.util.Locale;
+import java.util.Map;
+
 public enum Easing {
     easeInSine {
         @Override
@@ -228,5 +233,16 @@ public enum Easing {
         }
     };
 
+    Easing() {
+        MapHolder.map.put(name().toLowerCase(Locale.ROOT), this);
+    }
+
     public abstract double apply(double x);
+
+    public static Easing getEasing(String key) {
+        return MapHolder.map.get(key.toLowerCase(Locale.ROOT));
+    }
+    private static final class MapHolder {
+        private static final Map<String, Easing> map = new Object2ReferenceOpenHashMap<>();
+    }
 }

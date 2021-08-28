@@ -16,23 +16,18 @@ public final class KeyframeAnimationData {
     private final Map<String, Double2ObjectSortedMap<VecKeyframe>> positionKeyframes;
     private final Map<String, Double2ObjectSortedMap<VecKeyframe>> scaleKeyframes;
     private final double length;
-    private final boolean loop;
 
-    private KeyframeAnimationData(final Map<String, Double2ObjectSortedMap<RotationKeyframe>> rotationKeyframes, final Map<String, Double2ObjectSortedMap<VecKeyframe>> positionKeyframes, final Map<String, Double2ObjectSortedMap<VecKeyframe>> scaleKeyframes, final double length, final boolean loop) {
+    private KeyframeAnimationData(final Map<String, Double2ObjectSortedMap<RotationKeyframe>> rotationKeyframes, final Map<String, Double2ObjectSortedMap<VecKeyframe>> positionKeyframes, final Map<String, Double2ObjectSortedMap<VecKeyframe>> scaleKeyframes, final double length) {
         this.rotationKeyframes = rotationKeyframes;
         this.positionKeyframes = positionKeyframes;
         this.scaleKeyframes = scaleKeyframes;
         this.length = length;
-        this.loop = loop;
     }
 
     public double getLength() {
         return length;
     }
 
-    public boolean isLooped() {
-        return loop;
-    }
 
     public DoubleQuaternion getRotation(final String bone, final DoubleQuaternion start, final double t) {
         if (!rotationKeyframes.containsKey(bone)) {
@@ -47,7 +42,7 @@ public final class KeyframeAnimationData {
             return start;
         }
         final Double2ObjectSortedMap<VecKeyframe> keyframes = positionKeyframes.get(bone);
-        return interp(new VecKeyframe(start, Easing.easeOutQuad, 0), keyframes, t, ((start1, end, t1) -> start1.multiply(1-t1).add(end.multiply(t1))));
+        return interp(new VecKeyframe(start, Easing.easeOutQuad, 0), keyframes, t, ((start1, end, t1) -> start1.multiply(1 - t1).add(end.multiply(t1))));
     }
 
     public Vec3d getScale(final String bone, final Vec3d start, final double t) {
@@ -55,64 +50,28 @@ public final class KeyframeAnimationData {
             return start;
         }
         final Double2ObjectSortedMap<VecKeyframe> keyframes = scaleKeyframes.get(bone);
-        return interp(new VecKeyframe(start, Easing.easeOutQuad, 0), keyframes, t, ((start1, end, t1) -> start1.multiply(1-t1).add(end.multiply(t1))));
+        return interp(new VecKeyframe(start, Easing.easeOutQuad, 0), keyframes, t, ((start1, end, t1) -> start1.multiply(1 - t1).add(end.multiply(t1))));
     }
 
     private <T> T interp(final Keyframe<T> start, final Double2ObjectSortedMap<? extends Keyframe<T>> keyframes, final double t, final Interpolator<T> interpolator) {
-        if (loop && t > length) {
-            final Keyframe<T> infimum = Objects.requireNonNullElseGet(getInfimum(keyframes, t), () -> getInfimum(keyframes, Double.MAX_VALUE));
-            final Keyframe<T> supremum = Objects.requireNonNullElseGet(getSupremum(keyframes, t), () -> getSupremum(keyframes, -Double.MAX_VALUE));
-            final double offset = infimum.getStartTime();
-            final double duration;
-            if (supremum.getStartTime() < infimum.getStartTime()) {
-                duration = supremum.getStartTime() + infimum.getStartTime() - length;
-            } else {
-                duration = supremum.getStartTime() - infimum.getStartTime();
-            }
-            double o = t % length;
-            if (o < infimum.getStartTime()) {
-                o += length;
-            }
-            final double normalized = (o - offset) / duration;
-            final double progress = supremum.getEasing().apply(normalized);
-            return interpolator.interp(infimum.getValue(), supremum.getValue(), progress);
-        } else if (loop) {
-            final Keyframe<T> infimum = Objects.requireNonNullElse(getInfimum(keyframes, t), start);
-            final Keyframe<T> supremum = Objects.requireNonNullElseGet(getSupremum(keyframes, t), () -> getSupremum(keyframes, -Double.MAX_VALUE));
-            final double offset = infimum.getStartTime();
-            final double duration;
-            if (supremum.getStartTime() < infimum.getStartTime()) {
-                duration = supremum.getStartTime() + infimum.getStartTime() - length;
-            } else {
-                duration = supremum.getStartTime() - infimum.getStartTime();
-            }
-            double o = t % length;
-            if (o < infimum.getStartTime()) {
-                o += length;
-            }
-            final double normalized = (o - offset) / duration;
-            final double progress = supremum.getEasing().apply(normalized);
-            return interpolator.interp(infimum.getValue(), supremum.getValue(), progress);
-        } else {
-            final Keyframe<T> infimum = Objects.requireNonNullElse(getInfimum(keyframes, t), start);
-            final Keyframe<T> supremum = getSupremum(keyframes, t);
-            if (supremum == null) {
-                return infimum.getValue();
-            }
-            final double normalized = (t - infimum.getStartTime()) / (supremum.getStartTime()) - infimum.getStartTime();
-            if (normalized <= 0) {
-                return infimum.getValue();
-            }
-            if (normalized >= 1) {
-                return supremum.getValue();
-            }
-            final double progress = supremum.getEasing().apply(normalized);
-            return interpolator.interp(infimum.getValue(), supremum.getValue(), progress);
+        final Keyframe<T> infimum = Objects.requireNonNullElse(getInfimum(keyframes, t), start);
+        final Keyframe<T> supremum = getSupremum(keyframes, t);
+        if (supremum == null) {
+            return infimum.getValue();
         }
+        final double normalized = infimum.getStartTime()== supremum.getStartTime()?0:(t - infimum.getStartTime()) / (supremum.getStartTime()) - infimum.getStartTime();
+        if (normalized <= 0) {
+            return infimum.getValue();
+        }
+        if (normalized >= 1) {
+            return supremum.getValue();
+        }
+        final double progress = supremum.getEasing().apply(normalized);
+        return interpolator.interp(infimum.getValue(), supremum.getValue(), progress);
     }
 
     private static <T> @Nullable Keyframe<T> getInfimum(final Double2ObjectSortedMap<? extends Keyframe<T>> keyframes, final double t) {
-        if(keyframes==null) {
+        if (keyframes == null) {
             return null;
         }
         final Double2ObjectSortedMap<? extends Keyframe<T>> headMap = keyframes.headMap(t);
@@ -124,7 +83,7 @@ public final class KeyframeAnimationData {
     }
 
     private static <T> @Nullable Keyframe<T> getSupremum(final Double2ObjectSortedMap<? extends Keyframe<T>> keyframes, final double t) {
-        if(keyframes==null) {
+        if (keyframes == null) {
             return null;
         }
         final Double2ObjectSortedMap<? extends Keyframe<T>> tailMap = keyframes.tailMap(t);
@@ -270,7 +229,7 @@ public final class KeyframeAnimationData {
                     throw new RuntimeException();
                 }
             }
-            return new KeyframeAnimationData(rotationKeyframes, positionKeyframes, scaleKeyframes, length, loop);
+            return new KeyframeAnimationData(rotationKeyframes, positionKeyframes, scaleKeyframes, length);
         }
     }
 }
