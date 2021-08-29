@@ -26,21 +26,17 @@ public final class GsonUtil {
         }
     }
 
-    public static final class DoubleQuaternionJson implements JsonSerializer<DoubleQuaternion>, JsonDeserializer<DoubleQuaternion> {
-        @Override
-        public DoubleQuaternion deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-            final JsonObject object = json.getAsJsonObject();
-            return new DoubleQuaternion(object.getAsJsonPrimitive("x").getAsDouble(), object.getAsJsonPrimitive("y").getAsDouble(), object.getAsJsonPrimitive("z").getAsDouble(), object.getAsJsonPrimitive("w").getAsDouble());
+    public static final class DoubleQuaternionJson implements JsonDeserializer<DoubleQuaternion> {
+        private final boolean degrees;
+
+        public DoubleQuaternionJson(boolean degrees) {
+            this.degrees = degrees;
         }
 
         @Override
-        public JsonElement serialize(final DoubleQuaternion src, final Type typeOfSrc, final JsonSerializationContext context) {
-            final JsonObject dst = new JsonObject();
-            dst.addProperty("x", src.x);
-            dst.addProperty("y", src.y);
-            dst.addProperty("z", src.z);
-            dst.addProperty("w", src.w);
-            return dst;
+        public DoubleQuaternion deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
+            final JsonObject object = json.getAsJsonObject();
+            return new DoubleQuaternion(object.getAsJsonPrimitive("x").getAsDouble(), object.getAsJsonPrimitive("y").getAsDouble(), object.getAsJsonPrimitive("z").getAsDouble(), degrees);
         }
     }
 }

@@ -24,7 +24,7 @@ import java.util.Map;
 public final class SkeletonDataLoader {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().
             registerTypeHierarchyAdapter(Vec3d.class, new GsonUtil.Vec3dJson()).
-            registerTypeHierarchyAdapter(DoubleQuaternion.class, new GsonUtil.DoubleQuaternionJson()).
+            registerTypeHierarchyAdapter(DoubleQuaternion.class, new GsonUtil.DoubleQuaternionJson(true)).
             registerTypeHierarchyAdapter(SkeletonData.class, new SkeletonJson()).create();
 
     public static SkeletonData fromResource(final Resource resource) {
@@ -36,7 +36,7 @@ public final class SkeletonDataLoader {
         }
     }
 
-    private static final class SkeletonJson implements JsonSerializer<SkeletonData>, JsonDeserializer<SkeletonData> {
+    private static final class SkeletonJson implements JsonDeserializer<SkeletonData> {
 
         public static PartialModelBone deserializeBone(final JsonElement element, final JsonDeserializationContext context) {
             final JsonObject object = element.getAsJsonObject();
@@ -56,27 +56,6 @@ public final class SkeletonDataLoader {
                 boneLines.add(Pair.of(context.deserialize(l.get("start"), Vec3d.class), context.deserialize(l.get("end"), Vec3d.class)));
             }
             return new PartialModelBone(name, pos, pivotPoint, rotation, defaultScale, boneLines, parent);
-        }
-
-        public static JsonElement serializeBone(final ModelBone src, final JsonSerializationContext context) {
-            final JsonObject dst = new JsonObject();
-            dst.addProperty("name", src.getName());
-            dst.add("pos", context.serialize(src.getDefaultPos(), Vec3d.class));
-            dst.add("rotation", context.serialize(src.getDefaultRotation(), DoubleQuaternion.class));
-            dst.add("pivot", context.serialize(src.getPivotPoint(), Vec3d.class));
-            dst.add("scale", context.serialize(src.getDefaultScale(), Vec3d.class));
-            if (src.getParent() != null) {
-                dst.addProperty("parent", src.getParent().getName());
-            }
-            final JsonArray positions = new JsonArray();
-            for (final Pair<Vec3d, Vec3d> boneLine : src.getBoneLines()) {
-                final JsonObject line = new JsonObject();
-                line.add("start", context.serialize(boneLine.getFirst(), Vec3d.class));
-                line.add("end", context.serialize(boneLine.getSecond(), Vec3d.class));
-                positions.add(line);
-            }
-            dst.add("lines", positions);
-            return dst;
         }
 
         @Override
@@ -109,17 +88,6 @@ public final class SkeletonDataLoader {
                 }
             }
             return new SkeletonData(new ReferenceOpenHashSet<>(bones.values()));
-        }
-
-        @Override
-        public JsonElement serialize(final SkeletonData src, final Type typeOfSrc, final JsonSerializationContext context) {
-            final JsonObject object = new JsonObject();
-            final JsonArray boneArray = new JsonArray();
-            for (final ModelBone bone : src.getBones()) {
-                boneArray.add(serializeBone(bone, context));
-            }
-            object.add("bones", boneArray);
-            return object;
         }
     }
 
