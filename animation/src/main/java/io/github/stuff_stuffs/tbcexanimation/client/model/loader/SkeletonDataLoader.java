@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+//TODO maybe use an json object with key names as bones instead of array
 public final class SkeletonDataLoader {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().
             registerTypeHierarchyAdapter(Vec3d.class, new GsonUtil.Vec3dJson()).

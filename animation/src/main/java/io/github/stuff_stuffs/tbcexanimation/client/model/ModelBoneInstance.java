@@ -180,11 +180,12 @@ public final class ModelBoneInstance {
                 buffer.vertex(matrices.peek().getModel(), (float) start.x, (float) start.y, (float) start.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), (float) normal.x, (float) normal.y, (float) normal.z).next();
                 buffer.vertex(matrices.peek().getModel(), (float) end.x, (float) end.y, (float) end.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), (float) normal.x, (float) normal.y, (float) normal.z).next();
             }
-        }
-        for (final ModelPart part : parts.values()) {
-            matrices.push();
-            part.render(matrices, vertexConsumers, world, pos);
-            matrices.pop();
+        } else {
+            for (final ModelPart part : parts.values()) {
+                matrices.push();
+                part.render(matrices, vertexConsumers, world, pos);
+                matrices.pop();
+            }
         }
         matrices.pop();
     }
