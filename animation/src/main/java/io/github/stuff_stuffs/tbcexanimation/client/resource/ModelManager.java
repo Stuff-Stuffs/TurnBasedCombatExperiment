@@ -245,7 +245,7 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
             compoundAnimationDatas.clear();
             compoundAnimationDatas.putAll(data.compoundAnimationDatas);
             bundledParts.clear();
-            for (Map.Entry<Identifier, Supplier<ModelPartBundle>> entry : data.bundledParts.entrySet()) {
+            for (Map.Entry<Identifier, Supplier<@Nullable ModelPartBundle>> entry : data.bundledParts.entrySet()) {
                 final Identifier key = entry.getKey();
                 final ModelPartBundle bundle = entry.getValue().get();
                 if(bundle!=null) {
@@ -260,9 +260,9 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
         private final Map<Identifier, SimpleModelPart> simpleModelParts;
         private final Map<Identifier, KeyframeAnimationData> animationDatas;
         private final Map<Identifier, CompoundAnimationData> compoundAnimationDatas;
-        private final Map<Identifier, Supplier<ModelPartBundle>> bundledParts;
+        private final Map<Identifier, Supplier<@Nullable ModelPartBundle>> bundledParts;
 
-        public PreparationData(final Map<Identifier, SkeletonData> skeletonDatas, final Map<Identifier, SimpleModelPart> simpleModelParts, final Map<Identifier, KeyframeAnimationData> animationDatas, final Map<Identifier, CompoundAnimationData> compoundAnimationDatas, final Map<Identifier, Supplier<ModelPartBundle>> bundledParts) {
+        public PreparationData(final Map<Identifier, SkeletonData> skeletonDatas, final Map<Identifier, SimpleModelPart> simpleModelParts, final Map<Identifier, KeyframeAnimationData> animationDatas, final Map<Identifier, CompoundAnimationData> compoundAnimationDatas, final Map<Identifier, Supplier<@Nullable ModelPartBundle>> bundledParts) {
             this.skeletonDatas = skeletonDatas;
             this.simpleModelParts = simpleModelParts;
             this.animationDatas = animationDatas;
