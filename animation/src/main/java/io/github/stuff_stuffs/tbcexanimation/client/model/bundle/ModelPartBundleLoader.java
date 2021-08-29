@@ -39,9 +39,9 @@ public final class ModelPartBundleLoader {
             final ModelPartBundle.Builder builder = ModelPartBundle.builder();
             for (final Map.Entry<String, JsonElement> boneEntry : parts.entrySet()) {
                 for (final Map.Entry<String, JsonElement> partEntry : boneEntry.getValue().getAsJsonObject().entrySet()) {
-                    final ModelPart modelPart = TBCExAnimationClient.MODEL_MANAGER.getModelPart((ModelPartIdentifier) context.deserialize(partEntry.getValue(), ModelPartIdentifier.class));
+                    final ModelPartIdentifier modelPart = context.deserialize(partEntry.getValue(), ModelPartIdentifier.class);
                     if(modelPart==null) {
-                        throw new RuntimeException("Missin model part: " + partEntry.getValue().toString());
+                        throw new RuntimeException("Missing model part: " + partEntry.getValue().toString());
                     }
                     builder.addPart(boneEntry.getKey(), partEntry.getKey(), modelPart);
                 }

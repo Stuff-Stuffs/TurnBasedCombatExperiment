@@ -41,7 +41,7 @@ public final class ModelBoneInstance {
 
     public boolean containsPart(final String partName, final ModelPart part) {
         if (parts.containsKey(partName)) {
-            return parts.get(partName) == part;
+            return parts.get(partName).equals(part);
         }
         return false;
     }
@@ -188,5 +188,11 @@ public final class ModelBoneInstance {
             }
         }
         matrices.pop();
+    }
+
+    public void tick(final double timeSinceLast) {
+        for (final ModelPart part : parts.values()) {
+            part.tick(timeSinceLast);
+        }
     }
 }

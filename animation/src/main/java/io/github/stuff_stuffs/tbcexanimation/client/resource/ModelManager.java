@@ -13,9 +13,7 @@ import io.github.stuff_stuffs.tbcexanimation.client.model.SkeletonData;
 import io.github.stuff_stuffs.tbcexanimation.client.model.bundle.ModelPartBundle;
 import io.github.stuff_stuffs.tbcexanimation.client.model.bundle.ModelPartBundleLoader;
 import io.github.stuff_stuffs.tbcexanimation.client.model.loader.SkeletonDataLoader;
-import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
-import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPart;
-import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.loader.SimpleModelPartLoader;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPartFactory;
 import io.github.stuff_stuffs.tbcexanimation.common.TBCExAnimation;
 import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import io.github.stuff_stuffs.tbcexutil.common.LoggerUtil;
@@ -26,35 +24,43 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public final class ModelManager implements SimpleResourceReloadListener<ModelManager.PreparationData> {
     private static final Identifier IDENTIFIER = new Identifier(TBCExAnimation.MOD_ID, "model_manager");
     private final Map<String, ModelPartArgumentApplier> modifiers;
     private final Map<Identifier, SkeletonData> skeletonDatas;
-    private final Map<Identifier, SimpleModelPart> simpleModelParts;
     private final Map<Identifier, KeyframeAnimationData> animationDatas;
     private final Map<Identifier, CompoundAnimationData> compoundAnimationDatas;
     private final Map<Identifier, ModelPartBundle> bundledParts;
+    private final List<ModelPartFactoryProvider> providers;
     private boolean initialized;
 
     public ModelManager() {
         skeletonDatas = new Object2ReferenceOpenHashMap<>();
-        simpleModelParts = new Object2ReferenceOpenHashMap<>();
         animationDatas = new Object2ReferenceOpenHashMap<>();
         modifiers = new Object2ReferenceOpenHashMap<>();
         compoundAnimationDatas = new Object2ReferenceOpenHashMap<>();
         bundledParts = new Object2ReferenceOpenHashMap<>();
+        providers = new ArrayList<>();
+    }
+
+    @Override
+    public Collection<Identifier> getFabricDependencies() {
+        return providers.stream().map(ModelPartFactoryProvider::getResourceReloadId).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     public void addModifier(final String argumentName, final ModelPartArgumentApplier applier) {
         if (modifiers.put(argumentName, applier) != null) {
             throw new RuntimeException();
         }
+    }
+
+    public void registerModelProvider(final ModelPartFactoryProvider factoryProvider) {
+        providers.add(factoryProvider);
     }
 
     public boolean isInitialized() {
@@ -68,11 +74,16 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
         return skeletonDatas.get(identifier);
     }
 
-    public @Nullable SimpleModelPart getSimpleModelPart(final Identifier identifier) {
+    private @Nullable ModelPartFactory loadModelPart(final ModelPartIdentifier identifier) {
         if (!initialized) {
             throw new RuntimeException();
         }
-        return simpleModelParts.get(identifier);
+        ModelPartFactory part = null;
+        final Iterator<ModelPartFactoryProvider> iterator = providers.iterator();
+        while (part == null && iterator.hasNext()) {
+            part = iterator.next().get(identifier);
+        }
+        return part;
     }
 
     public @Nullable ModelPartBundle getModelPartBundle(final Identifier identifier) {
@@ -82,15 +93,15 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
         return bundledParts.get(identifier);
     }
 
-    public @Nullable ModelPart getModelPart(final Identifier identifier) {
-        return getModelPart(ModelPartIdentifier.builder().build(identifier));
+    public @Nullable ModelPartFactory getModelFactoryPart(final Identifier identifier) {
+        return getModelFactoryPart(ModelPartIdentifier.builder().build(identifier));
     }
 
-    public @Nullable ModelPart getModelPart(final ModelPartIdentifier identifier) {
+    public @Nullable ModelPartFactory getModelFactoryPart(final ModelPartIdentifier identifier) {
         if (!initialized) {
             throw new RuntimeException();
         }
-        ModelPart tmp = getSimpleModelPart(identifier.getIdentifier());
+        ModelPartFactory tmp = loadModelPart(identifier);
         if (tmp == null) {
             return null;
         }
@@ -172,17 +183,6 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
                 }
             }
 
-            final Collection<Identifier> simpleModelPartResources = manager.findResources("tbcex_models/model/simple", filename -> filename.endsWith(".obj"));
-            final Map<Identifier, SimpleModelPart> simpleModelParts = new Object2ReferenceOpenHashMap<>();
-            for (final Identifier resourceId : simpleModelPartResources) {
-                try {
-                    final SimpleModelPart part = SimpleModelPartLoader.load(resourceId, manager);
-                    simpleModelParts.put(new Identifier(resourceId.getNamespace(), resourceId.getPath().substring("tbcex_models/model".length() + 1, resourceId.getPath().lastIndexOf('.'))), part);
-                } catch (final Exception e) {
-                    LoggerUtil.LOGGER.error("Error while deserializing SimpleModelPart", e);
-                }
-            }
-
             final Collection<Identifier> animationResources = manager.findResources("tbcex_models/animation/keyframe", filename -> filename.endsWith(".json"));
             final Map<Identifier, KeyframeAnimationData> animationDatas = new Object2ReferenceOpenHashMap<>();
             for (final Identifier resourceId : animationResources) {
@@ -212,24 +212,20 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
             }
 
             final Collection<Identifier> bundledModelPartResources = manager.findResources("tbcex_models/model/bundle", filename -> filename.endsWith(".json"));
-            final Map<Identifier, Supplier<@Nullable ModelPartBundle>> bundledParts = new Object2ReferenceOpenHashMap<>();
+            final Map<Identifier, ModelPartBundle> bundledParts = new Object2ReferenceOpenHashMap<>();
             for (final Identifier resourceId : bundledModelPartResources) {
+                final Identifier canonical = new Identifier(resourceId.getNamespace(), resourceId.getPath().substring("tbcex_models/model/bundle".length() + 1, resourceId.getPath().lastIndexOf('.')));
                 try {
-                    final Identifier canonical = new Identifier(resourceId.getNamespace(), resourceId.getPath().substring("tbcex_models/model/bundle".length() + 1, resourceId.getPath().lastIndexOf('.')));
-                    bundledParts.put(canonical, () -> {
-                        try {
-                            return ModelPartBundleLoader.fromResource(manager.getResource(resourceId));
-                        } catch (final Exception e) {
-                            LoggerUtil.LOGGER.error("Error while deserializing bundled parts", e);
-                            return null;
-                        }
-                    });
+                    final ModelPartBundle bundle = ModelPartBundleLoader.fromResource(manager.getResource(resourceId));
+                    if (bundle != null) {
+                        bundledParts.put(canonical, bundle);
+                    }
                 } catch (final Exception e) {
                     LoggerUtil.LOGGER.error("Error while deserializing bundled parts", e);
                 }
             }
 
-            return new PreparationData(skeletonDatas, simpleModelParts, animationDatas, compoundAnimationDatas, bundledParts);
+            return new PreparationData(skeletonDatas, animationDatas, compoundAnimationDatas, bundledParts);
         }, executor);
     }
 
@@ -238,33 +234,23 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
         return CompletableFuture.runAsync(() -> {
             skeletonDatas.clear();
             skeletonDatas.putAll(data.skeletonDatas);
-            simpleModelParts.clear();
-            simpleModelParts.putAll(data.simpleModelParts);
             animationDatas.clear();
             animationDatas.putAll(data.animationDatas);
             compoundAnimationDatas.clear();
             compoundAnimationDatas.putAll(data.compoundAnimationDatas);
             bundledParts.clear();
-            for (Map.Entry<Identifier, Supplier<@Nullable ModelPartBundle>> entry : data.bundledParts.entrySet()) {
-                final Identifier key = entry.getKey();
-                final ModelPartBundle bundle = entry.getValue().get();
-                if(bundle!=null) {
-                    bundledParts.put(key, bundle);
-                }
-            }
+            bundledParts.putAll(data.bundledParts);
         }, executor);
     }
 
     protected static final class PreparationData {
         private final Map<Identifier, SkeletonData> skeletonDatas;
-        private final Map<Identifier, SimpleModelPart> simpleModelParts;
         private final Map<Identifier, KeyframeAnimationData> animationDatas;
         private final Map<Identifier, CompoundAnimationData> compoundAnimationDatas;
-        private final Map<Identifier, Supplier<@Nullable ModelPartBundle>> bundledParts;
+        private final Map<Identifier, ModelPartBundle> bundledParts;
 
-        public PreparationData(final Map<Identifier, SkeletonData> skeletonDatas, final Map<Identifier, SimpleModelPart> simpleModelParts, final Map<Identifier, KeyframeAnimationData> animationDatas, final Map<Identifier, CompoundAnimationData> compoundAnimationDatas, final Map<Identifier, Supplier<@Nullable ModelPartBundle>> bundledParts) {
+        public PreparationData(final Map<Identifier, SkeletonData> skeletonDatas, final Map<Identifier, KeyframeAnimationData> animationDatas, final Map<Identifier, CompoundAnimationData> compoundAnimationDatas, final Map<Identifier, ModelPartBundle> bundledParts) {
             this.skeletonDatas = skeletonDatas;
-            this.simpleModelParts = simpleModelParts;
             this.animationDatas = animationDatas;
             this.compoundAnimationDatas = compoundAnimationDatas;
             this.bundledParts = bundledParts;

@@ -161,6 +161,9 @@ public final class MutableSkeleton implements Skeleton {
                 }
             }
         }
+        for (final ModelBoneInstance boneInstance : bones.values()) {
+            boneInstance.tick((ticks + partialTick) - (lastTick + lastPartialTick));
+        }
         lastTick = ticks;
         lastPartialTick = partialTick;
     }

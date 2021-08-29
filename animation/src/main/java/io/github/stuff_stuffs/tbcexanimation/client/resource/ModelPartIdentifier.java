@@ -29,6 +29,14 @@ public final class ModelPartIdentifier {
         return new Builder();
     }
 
+    @Override
+    public String toString() {
+        return "ModelPartIdentifier{" +
+                "identifier=" + identifier +
+                ", arguments=" + arguments +
+                '}';
+    }
+
     public static final class Builder {
         private final Map<String, String> arguments = new Object2ObjectLinkedOpenHashMap<>();
 

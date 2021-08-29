@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.loader;
 
 import de.javagl.obj.*;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPart;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPartFactory;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPartMaterial;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -16,11 +17,11 @@ import java.util.Map;
 
 //Based on HavenKing's Myron library
 public final class SimpleModelPartLoader {
-    public static SimpleModelPart load(final Identifier identifier, final ResourceManager resourceManager) throws IOException {
+    public static SimpleModelPartFactory load(final Identifier identifier, final ResourceManager resourceManager) throws IOException {
         final Obj obj = ObjReader.read(resourceManager.getResource(identifier).getInputStream());
         final Map<String, SimpleModelPartMaterial> materials = getMaterials(resourceManager, identifier, obj);
-        final SimpleModelPart.Builder builder = SimpleModelPart.builder();
-        final SimpleModelPart.Builder.FaceEmitter emitter = builder.getEmitter();
+        final SimpleModelPartFactory.Builder builder = SimpleModelPartFactory.builder();
+        final SimpleModelPartFactory.Builder.FaceEmitter emitter = builder.getEmitter();
         for (final Map.Entry<String, Obj> entry : ObjSplitting.splitByMaterialGroups(obj).entrySet()) {
             final Obj group = entry.getValue();
             final SimpleModelPartMaterial material = materials.get(entry.getKey());

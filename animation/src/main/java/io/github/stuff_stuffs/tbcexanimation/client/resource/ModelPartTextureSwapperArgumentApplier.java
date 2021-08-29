@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPart;
+import io.github.stuff_stuffs.tbcexanimation.client.model.part.ModelPartFactory;
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.RenderType;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.util.Identifier;
@@ -18,16 +19,16 @@ public final class ModelPartTextureSwapperArgumentApplier implements ModelPartAr
     private static final Gson GSON = new GsonBuilder().registerTypeAdapter(TYPE, new Deserializer()).setPrettyPrinting().create();
 
     @Override
-    public ModelPart apply(ModelPart modelPart, final String argument) {
+    public ModelPartFactory apply(ModelPartFactory modelPartFactory, final String argument) {
         if (argument.isEmpty()) {
-            return modelPart;
+            return modelPartFactory;
         }
 
         final Map<Identifier, Pair<Identifier, RenderType>> map = GSON.fromJson(argument, TYPE);
         for (final Map.Entry<Identifier, Pair<Identifier, RenderType>> entry : map.entrySet()) {
-            modelPart = modelPart.remapTexture(entry.getKey(), entry.getValue().getFirst(), entry.getValue().getSecond());
+            modelPartFactory = modelPartFactory.remapTexture(entry.getKey(), entry.getValue().getFirst(), entry.getValue().getSecond());
         }
-        return modelPart;
+        return modelPartFactory;
     }
 
     private static final class Deserializer implements JsonDeserializer<Map<Identifier, Pair<Identifier, RenderType>>> {

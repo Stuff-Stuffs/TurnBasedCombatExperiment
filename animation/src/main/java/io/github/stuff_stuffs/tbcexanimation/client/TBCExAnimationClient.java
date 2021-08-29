@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexanimation.client;
 
 import io.github.stuff_stuffs.tbcexanimation.client.resource.ModelManager;
+import io.github.stuff_stuffs.tbcexanimation.client.resource.ModelPartFactoryProvider;
 import io.github.stuff_stuffs.tbcexanimation.client.resource.ModelPartScalerArgumentApplier;
 import io.github.stuff_stuffs.tbcexanimation.client.resource.ModelPartTextureSwapperArgumentApplier;
 import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
@@ -14,9 +15,12 @@ public class TBCExAnimationClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        final ModelPartFactoryProvider.DefaultModelPartFactoryProvider provider = new ModelPartFactoryProvider.DefaultModelPartFactoryProvider();
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(provider);
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(MODEL_MANAGER);
         DebugRenderers.register(BONE_DEBUG_RENDERER, context -> {
         }, DebugRenderers.Stage.POST_ENTITY);
+        MODEL_MANAGER.registerModelProvider(provider);
         MODEL_MANAGER.addModifier("texture_swap", new ModelPartTextureSwapperArgumentApplier());
         MODEL_MANAGER.addModifier("scale", new ModelPartScalerArgumentApplier());
     }

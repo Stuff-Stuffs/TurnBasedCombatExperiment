@@ -8,6 +8,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.Partici
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.*;
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
 
     @Override
     public List<TooltipComponent> getTooltip() {
-        return new ArrayList<>();
+        return List.of(TooltipComponent.of(new LiteralText("adsdasddgfsdfgdfgdfhggfdhf").asOrderedText()), TooltipComponent.of(new LiteralText("sad").asOrderedText()), TooltipComponent.of(new LiteralText("asdasdsdgfdfgd fhgdfhgfghfghfg hfghfghasdsda a dsadasd").asOrderedText()));
     }
 
     @Override
