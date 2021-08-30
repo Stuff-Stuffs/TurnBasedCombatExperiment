@@ -115,6 +115,7 @@ public final class ImmutableSkeleton implements Skeleton {
     @Override
     public void tick(final int ticks, final double partialTick) {
         if (lastTick != Integer.MIN_VALUE) {
+            lastTick = ticks;
             if (currentAnimation != null) {
                 currentAnimation.update(this, Math.max((ticks + partialTick) - (lastTick + lastPartialTick), 0));
                 if (currentAnimation.isFinished() || currentAnimation.isCancelled()) {

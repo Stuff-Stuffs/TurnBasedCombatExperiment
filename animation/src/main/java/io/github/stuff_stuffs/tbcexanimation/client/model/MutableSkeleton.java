@@ -154,6 +154,7 @@ public final class MutableSkeleton implements Skeleton {
     @Override
     public void tick(final int ticks, final double partialTick) {
         if (lastTick != Integer.MIN_VALUE) {
+            lastTick = ticks;
             if (currentAnimation != null) {
                 currentAnimation.update(this, (ticks + partialTick) - (lastTick + lastPartialTick));
                 if (currentAnimation.isFinished() || currentAnimation.isCancelled()) {
