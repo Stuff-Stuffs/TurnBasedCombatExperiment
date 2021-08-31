@@ -135,7 +135,7 @@ public class CycleButton<T> extends AbstractWidget {
 
         if (state == ButtonState.HOVERED) {
             matrices.translate(0, 0, 1);
-            renderTooltip(matrices, tooltipFactory.apply(currentState), mouseX, mouseY);
+            renderTooltip(matrices, tooltipFactory.apply(currentState), mouseX, mouseY, true);
         }
     }
 

@@ -19,7 +19,7 @@ public class TestItem extends Item implements BattleItem {
     @Override
     public BattleParticipantItemStack toBattleItem(final ItemStack stack) {
         final Random random = new Random();
-        final Text[] texts = new Text[]{new LiteralText("short"), new LiteralText("long long long long"), new LiteralText("medium"), new LiteralText("p")};
+        final Text[] texts = new Text[]{new LiteralText("short"), new LiteralText("long long long long"), new LiteralText("medium"), new LiteralText("p"), new LiteralText("Lorem ipsum idot segat lol")};
         final double prog = random.nextDouble();
         final BattleParticipantItem.Rarity[] rarities = BattleParticipantItem.Rarity.values();
         final BattleParticipantItem.Rarity rarity = rarities[random.nextInt(rarities.length)];

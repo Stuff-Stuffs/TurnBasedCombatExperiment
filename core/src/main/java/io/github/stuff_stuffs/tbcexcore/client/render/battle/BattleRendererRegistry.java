@@ -8,9 +8,8 @@ import java.util.Map;
 
 public final class BattleRendererRegistry {
     private static final Map<BattleParticipantItemType, BattleParticipantItemRenderer> BATTLE_ITEM_RENDERER_MAP = new Reference2ObjectOpenHashMap<>();
-    private static final Map<BattleEquipmentSlot, EquipmentSlotInfo> EQUIPMENT_INFO_MAP = new Reference2ObjectOpenHashMap<>();
 
-    public static void putBattleItemRenderer(final BattleParticipantItemType type, final BattleParticipantItemRenderer renderer) {
+    public static void addItemRenderer(final BattleParticipantItemType type, final BattleParticipantItemRenderer renderer) {
         if (BATTLE_ITEM_RENDERER_MAP.containsKey(type)) {
             //TODO
             throw new RuntimeException();
@@ -18,15 +17,7 @@ public final class BattleRendererRegistry {
         BATTLE_ITEM_RENDERER_MAP.put(type, renderer);
     }
 
-    public static void putEquipmentInfo(final BattleEquipmentSlot slot, final double x, final double y) {
-        if (EQUIPMENT_INFO_MAP.containsKey(slot)) {
-            //TODO
-            throw new RuntimeException();
-        }
-        EQUIPMENT_INFO_MAP.put(slot, new EquipmentSlotInfo(x, y));
-    }
-
-    public static BattleParticipantItemRenderer getRenderer(final BattleParticipantItemType type) {
+    public static BattleParticipantItemRenderer getItemRenderer(final BattleParticipantItemType type) {
         final BattleParticipantItemRenderer renderer = BATTLE_ITEM_RENDERER_MAP.get(type);
         if (renderer == null) {
             //TODO
@@ -35,25 +26,6 @@ public final class BattleRendererRegistry {
         return renderer;
     }
 
-    public static EquipmentSlotInfo getEquipmentSlotInfo(BattleEquipmentSlot slot) {
-        final EquipmentSlotInfo info = EQUIPMENT_INFO_MAP.get(slot);
-        if (info == null) {
-            //TODO
-            throw new RuntimeException();
-        }
-        return info;
-    }
-
     private BattleRendererRegistry() {
-    }
-
-    public final static class EquipmentSlotInfo {
-        public final double x;
-        public final double y;
-
-        private EquipmentSlotInfo(final double x, final double y) {
-            this.x = x;
-            this.y = y;
-        }
     }
 }

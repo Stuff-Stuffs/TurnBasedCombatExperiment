@@ -7,11 +7,14 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 
 public final class BattleParticipantItemType {
     public static final Registry<BattleParticipantItemType> REGISTRY = FabricRegistryBuilder.createSimple(BattleParticipantItemType.class, TurnBasedCombatExperiment.createId("items")).buildAndRegister();
@@ -41,11 +44,13 @@ public final class BattleParticipantItemType {
     private final Codec<BattleParticipantItem> codec;
     private final BiPredicate<BattleParticipantItemStack, BattleParticipantItemStack> canMerge;
     private final BinaryOperator<BattleParticipantItemStack> merger;
+    private final Function<BattleParticipantItemStack, Collection<ItemStack>> toItemStacks;
 
-    public BattleParticipantItemType(final Codec<BattleParticipantItem> codec, final BiPredicate<BattleParticipantItemStack, BattleParticipantItemStack> canMerge, final BinaryOperator<BattleParticipantItemStack> merger) {
+    public BattleParticipantItemType(final Codec<BattleParticipantItem> codec, final BiPredicate<BattleParticipantItemStack, BattleParticipantItemStack> canMerge, final BinaryOperator<BattleParticipantItemStack> merger, Function<BattleParticipantItemStack, Collection<ItemStack>> toItemStacks) {
         this.codec = codec;
         this.canMerge = canMerge;
         this.merger = merger;
+        this.toItemStacks = toItemStacks;
     }
 
     private boolean canMerge0(final BattleParticipantItemStack first, final BattleParticipantItemStack second) {
@@ -68,5 +73,9 @@ public final class BattleParticipantItemType {
             return first.getItem().getType().merge0(first, second);
         }
         return null;
+    }
+
+    public static Collection<ItemStack> toItemStack(BattleParticipantItemStack stack) {
+        return stack.getItem().getType().toItemStacks.apply(stack);
     }
 }

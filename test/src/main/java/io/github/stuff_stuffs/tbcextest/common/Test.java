@@ -1,6 +1,8 @@
 package io.github.stuff_stuffs.tbcextest.common;
 
 import com.mojang.brigadier.CommandDispatcher;
+import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleParticipantItemRenderer;
+import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemType;
@@ -25,7 +27,7 @@ import java.util.Collection;
 
 public class Test implements ModInitializer {
     public static final Item TEST_ITEM = new TestItem();
-    public static final BattleParticipantItemType TEST_ITEM_TYPE = new BattleParticipantItemType(TestBattleParticipantItem.CODEC, TestBattleParticipantItem.CAN_MERGE, TestBattleParticipantItem.MERGER);
+    public static final BattleParticipantItemType TEST_ITEM_TYPE = new BattleParticipantItemType(TestBattleParticipantItem.CODEC, TestBattleParticipantItem.CAN_MERGE, TestBattleParticipantItem.MERGER, TestBattleParticipantItem.TO_ITEM_STACK);
 
     @Override
     public void onInitialize() {
@@ -33,6 +35,7 @@ public class Test implements ModInitializer {
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_item"), TEST_ITEM_TYPE);
         EntityTypes.init();
         CommandRegistrationCallback.EVENT.register(Test::register);
+        BattleRendererRegistry.addItemRenderer(TEST_ITEM_TYPE, new BattleParticipantItemRenderer.DefaultRenderer());
     }
 
     private static void register(final CommandDispatcher<ServerCommandSource> dispatcher, final boolean dedicated) {

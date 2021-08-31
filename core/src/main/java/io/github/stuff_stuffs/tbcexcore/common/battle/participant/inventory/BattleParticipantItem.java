@@ -24,13 +24,13 @@ public interface BattleParticipantItem {
 
     Text getName();
 
-    List<TooltipComponent> getTooltip();
+    List<Text> getTooltip();
 
     RarityInstance getRarity();
 
     enum Rarity {
         COMMON(0.0, 0xFFFFFFFF),
-        UNCOMMON(1_00.0, 0xFF02F262),
+        UNCOMMON(100.0, 0xFF02F262),
         RARE(10_000.0, 0xFF43EEFD),
         EPIC(1_000_000.0, 0xFFFD43EE),
         LEGENDARY(100_000_000.0, 0xFFFFD700);

@@ -7,14 +7,14 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.*;
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.item.ItemStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 
 public class TestBattleParticipantItem implements BattleParticipantItem {
     public static final Codec<BattleParticipantItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -32,6 +32,12 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
             return stack.withCount(stack.getCount() + stack2.getCount());
         }
         throw new RuntimeException();
+    };
+    public static final Function<BattleParticipantItemStack, Collection<ItemStack>> TO_ITEM_STACK = stack -> {
+        if (stack.getItem() instanceof TestBattleParticipantItem) {
+            return Collections.singletonList(new ItemStack(Test.TEST_ITEM, stack.getCount()));
+        }
+        return null;
     };
     private final Text name;
     private final RarityInstance rarity;
@@ -62,8 +68,16 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
     }
 
     @Override
-    public List<TooltipComponent> getTooltip() {
-        return List.of(TooltipComponent.of(new LiteralText("adsdasddgfsdfgdfgdfhggfdhf").asOrderedText()), TooltipComponent.of(new LiteralText("sad").asOrderedText()), TooltipComponent.of(new LiteralText("asdasdsdgfdfgd fhgdfhgfghfghfg hfghfghasdsda a dsadasd").asOrderedText()));
+    public List<Text> getTooltip() {
+        final Random random = new Random(hashCode());
+        final int i = random.nextInt(3);
+        if (i == 0) {
+            return List.of(new LiteralText("adsdasddgfsdfgdfgdfhggfdhf"), new LiteralText("sad"), new LiteralText("asdasdsdgfdfgd fhgdfhgfghfghfg hfghfghasdsda a dsadasd"));
+        }
+        if (i == 1) {
+            return List.of(new LiteralText("adsdasddgfsdfgdfgdfhggfdhfdddddddddddddddddddddddddddddddddddddd"), new LiteralText("sad"), new LiteralText("asdasdsdgfdfgd fhgdfhgfghfghfg hfghfghasdsda a dsadasd"));
+        }
+        return List.of(new LiteralText("adsdasddgfsdf"), new LiteralText("sad"), new LiteralText("asdasdsdgfdfgd fhgdfhgfghfghfg"));
     }
 
     @Override

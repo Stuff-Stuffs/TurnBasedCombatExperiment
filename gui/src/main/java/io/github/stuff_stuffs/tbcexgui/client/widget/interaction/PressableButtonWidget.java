@@ -143,7 +143,7 @@ public class PressableButtonWidget extends AbstractWidget {
 
         if (state == ButtonState.HOVERED) {
             matrices.translate(0, 0, 1);
-            renderTooltip(matrices, tooltip.get(), mouseX, mouseY);
+            renderTooltip(matrices, tooltip.get(), mouseX, mouseY, true);
         }
     }
 

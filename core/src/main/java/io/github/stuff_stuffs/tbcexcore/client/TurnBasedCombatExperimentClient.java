@@ -53,9 +53,5 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
                 }
             }
         }, DebugRenderers.Stage.POST_ENTITY);
-        BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.HEAD_SLOT, 1/64d, 0.5 + 1.5/16d);
-        BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.CHEST_SLOT, 1/64d, 0.5 + 0.5/16d);
-        BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.LEGS_SLOT, 1/64d, 0.5 - 0.5/16d);
-        BattleRendererRegistry.putEquipmentInfo(BattleEquipmentSlot.FEET_SLOT, 1/64d, 0.5 - 1.5/16d);
     }
 }
