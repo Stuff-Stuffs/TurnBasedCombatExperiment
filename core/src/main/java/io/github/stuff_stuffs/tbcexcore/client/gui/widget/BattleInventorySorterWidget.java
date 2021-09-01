@@ -123,7 +123,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
     public void sort(final List<ItemStackInfo> infos) {
         if (0 <= selectedIndex && selectedIndex < sorts.size()) {
             Comparator<ItemStackInfo> first = sorts.get(selectedIndex).getComparator();
-            if(reversedSort) {
+            if (reversedSort) {
                 first = first.reversed();
             }
             Comparator<ItemStackInfo> second;
@@ -132,7 +132,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
             } else {
                 second = DEFAULT_COMPARATOR;
             }
-            if(prevReversedSort) {
+            if (prevReversedSort) {
                 second = second.reversed();
             }
             infos.sort(first.thenComparing(second));
@@ -180,9 +180,9 @@ public class BattleInventorySorterWidget extends AbstractWidget {
 
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
-        final double width = height.getAsDouble();
+        final double width = this.width.getAsDouble();
         if (new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height.getAsDouble()).isIn(mouseX, mouseY)) {
-            pos = Math.min(Math.max(pos + deltaX, -(width - 2 * borderThickness) / 2), getListWidth() - (width - 2 * borderThickness) / 2);
+            pos = Math.min(Math.max(pos + deltaX, -(width - 2 * borderThickness) / 2 + entryWidth), getListWidth() - (width - 2 * borderThickness) / 2);
             return true;
         }
         return false;
@@ -192,7 +192,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
         final double width = this.width.getAsDouble();
         if (new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height.getAsDouble()).isIn(mouseX, mouseY)) {
-            pos = Math.min(Math.max(pos + amount, -(width - 2 * borderThickness) / 2), getListWidth() - (width - 2 * borderThickness) / 2);
+            pos = Math.min(Math.max(pos + amount, -(width - 2 * borderThickness) / 2 + entryWidth), getListWidth() - (width - 2 * borderThickness) / 2);
             return true;
         }
         return false;
@@ -246,10 +246,10 @@ public class BattleInventorySorterWidget extends AbstractWidget {
         final double centerX = (startX + endX) / 2.0;
         double dist = Math.abs(centerX - (pos + (width.getAsDouble() - 2 * borderThickness) / 2));
         dist *= dist * dist;
-        final double offset = height.getAsDouble() / 4;
+        final double offset = width.getAsDouble() / 8;
         final double scale = Math.max(offset - dist, 0) / offset;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
-        renderFitText(matrices, sort.getName(), startX, y, (endX-startX) * scale, (height.getAsDouble() - 2 * borderThickness)*scale, shadow, ClientUtil.tweakComponent(-1, 3, scale));
+        renderFitText(matrices, sort.getName(), startX, y, (endX - startX) * scale, (height.getAsDouble() - 2 * borderThickness) * scale, shadow, ClientUtil.tweakComponent(-1, 3, scale));
     }
 
     private void renderInfo(final Sort category, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
@@ -265,7 +265,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
         final float yLen = (endY - startY);
         float dist = Math.abs(centerX - (float) (pos + (width.getAsDouble() - 2 * borderThickness) / 2));
         dist *= dist * dist;
-        final float offset = ((float) width.getAsDouble()) / 4f;
+        final float offset = ((float) width.getAsDouble()) / 8f;
         final float scale = Math.max(offset - dist, 0) / offset;
         int backgroundColour = getBackgroundColour(index);
         if (hoverIndex == index || selectedIndex == index) {

@@ -124,7 +124,7 @@ public class BattleInventoryPreviewWidget extends AbstractWidget {
         if (stackInfo != null) {
             y += height - (height * infoFraction);
             matrices.translate(0, 0, 1);
-            renderFitText(matrices, stackInfo.stack.getItem().getName(), x, y+getVerticalPixel(), width, height * infoFraction * 0.25 - 2 * getVerticalPixel(), true, -1);
+            renderFitText(matrices, stackInfo.stack.getItem().getName(), x + getHorizontalPixel(), y+getVerticalPixel(), width - 2 * getHorizontalPixel(), height * infoFraction * 0.25 - 2 * getVerticalPixel(), true, -1);
             matrices.translate(0, 0, -1);
             renderTooltipBackground(x, y, width, height * infoFraction * 0.25, matrices);
             renderTooltipBackground(x, y + height * infoFraction * 0.25, width, height * infoFraction * 0.75, matrices);
