@@ -1,9 +1,13 @@
 package io.github.stuff_stuffs.tbcexgui.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 public abstract class TBCExScreen extends Screen {
@@ -16,6 +20,9 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     protected void init() {
+        Window window = MinecraftClient.getInstance().getWindow();
+        width = window.getFramebufferWidth();
+        height = window.getFramebufferHeight();
         if (width > height) {
             widget.resize(width / (double) height, 1, width, height);
         } else {
@@ -24,15 +31,15 @@ public abstract class TBCExScreen extends Screen {
     }
 
     public double getWidth() {
-        if(width>height) {
-            return width/(double)height;
+        if (width > height) {
+            return width / (double) height;
         }
         return 1;
     }
 
     public double getHeight() {
-        if(width<height) {
-            return height/(double)width;
+        if (width < height) {
+            return height / (double) width;
         }
         return 1;
     }
@@ -72,6 +79,9 @@ public abstract class TBCExScreen extends Screen {
     }
 
     private double transformMouseX(final double mouseX) {
+        Window window = MinecraftClient.getInstance().getWindow();
+        int width = window.getScaledWidth();
+        int height = window.getScaledHeight();
         if (width > height) {
             final double v = mouseX - (width / 2.0) + (height / 2.0);
             return v / height;
@@ -80,6 +90,9 @@ public abstract class TBCExScreen extends Screen {
     }
 
     private double transformMouseY(final double mouseY) {
+        Window window = MinecraftClient.getInstance().getWindow();
+        int width = window.getScaledWidth();
+        int height = window.getScaledHeight();
         if (width < height) {
             final double v = mouseY - (height / 2.0) + (width / 2.0);
             return v / width;
@@ -89,6 +102,10 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     public void render(final MatrixStack matrices, final int mouseX, final int mouseY, final float delta) {
+        final Window window = MinecraftClient.getInstance().getWindow();
+        final Matrix4f prevProjection = RenderSystem.getProjectionMatrix();
+        final Matrix4f matrix4f = Matrix4f.projectionMatrix(0.0F, window.getFramebufferWidth(), 0.0F, window.getFramebufferHeight(), 1000.0F, 3000.0F);
+        RenderSystem.setProjectionMatrix(matrix4f);
         matrices.push();
         matrices.scale(width, height, 1);
         if (width > height) {
@@ -100,5 +117,7 @@ public abstract class TBCExScreen extends Screen {
         }
         widget.render(matrices, transformMouseX(mouseX), transformMouseY(mouseY), delta);
         matrices.pop();
+
+        RenderSystem.setProjectionMatrix(prevProjection);
     }
 }

@@ -64,11 +64,9 @@ public final class ScissorStack {
             RenderSystem.disableScissor();
         } else {
             final Entry entry = STACK.top();
-            final Window window = MinecraftClient.getInstance().getWindow();
-            final double scaleFactor = window.getScaleFactor();
-            int inv = MinecraftClient.getInstance().getWindow().getScaledHeight();
-            final int height = (inv-entry.minY) - (inv-entry.maxY);
-            RenderSystem.enableScissor((int) (entry.minX * scaleFactor), (int) ((inv-entry.maxY) * scaleFactor), (int) (entry.maxX * scaleFactor) - (int) (entry.minX * scaleFactor), (int) (height * scaleFactor));
+            int h = MinecraftClient.getInstance().getWindow().getFramebufferHeight();
+            final int height = (h-entry.minY) - (h-entry.maxY);
+            RenderSystem.enableScissor(entry.minX, h-entry.maxY, height, height);
         }
     }
 

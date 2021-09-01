@@ -9,6 +9,7 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Vector4f;
 
 import java.util.List;
 
@@ -188,21 +189,36 @@ public abstract class AbstractWidget implements Widget {
 
     //TODO wtf
     //fixme
-    public double getTextScale(int textWidth, final double maxWidth, final double maxHeight) {
+    public TextInfo getTextScale(final int textWidth, final double maxWidth, final double maxHeight, final MatrixStack matrices) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        textWidth = textWidth * MinecraftClient.getInstance().getWindow().getScaledWidth() / getPixelWidth();
-        //this is broken, found by experimentation
-        final double scaleFactor = maxWidth <= 0.125 ? 1 : maxWidth<=0.5?1.75:1;
-        double scale;
-        if (textWidth > maxWidth) {
-            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * scaleFactor;
-        } else {
-            scale = maxHeight;
+        double hScale = (textWidth*4 / (double) pixelWidth)*MinecraftClient.getInstance().getWindow().getScaleFactor();
+        double hSize = (maxWidth / hScale) * horizontalPixel;
+        double vScale = (textRenderer.fontHeight*2 / (double) pixelHeight)*MinecraftClient.getInstance().getWindow().getScaleFactor();
+        double vSize = (maxHeight / vScale) * verticalPixel;
+
+        return new TextInfo(Math.min(hSize, vSize), hScale, vScale);
+    }
+
+    public static class TextInfo {
+        public final double textScale;
+        public final double textWidth;
+        public final double textHeight;
+
+        public TextInfo(final double textScale, final double textWidth, final double textHeight) {
+            this.textScale = textScale;
+            this.textWidth = textWidth;
+            this.textHeight = textHeight;
         }
-        if (scale * textRenderer.fontHeight > maxHeight) {
-            scale = maxHeight / textRenderer.fontHeight;
-        }
-        return scale;
+    }
+
+    public double widthToScaledWidth(final double width, final MatrixStack matrices) {
+        final Vector4f vec = new Vector4f(0, 0, 0, 0);
+        vec.transform(matrices.peek().getModel());
+        final double min = vec.getX();
+        vec.set((float) width, 0, 0, 0);
+        vec.transform(matrices.peek().getModel());
+        final double max = vec.getX();
+        return max - min;
     }
 
     public void renderText(final MatrixStack matrices, final Text text, final boolean center, final boolean shadow, final int colour) {
@@ -229,7 +245,7 @@ public abstract class AbstractWidget implements Widget {
 
     public void renderFitText(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        final double scale = getTextScale(textRenderer.getWidth(text), maxWidth, maxHeight);
+        final double scale = getTextScale(textRenderer.getWidth(text), maxWidth, maxHeight, matrices).textScale;
         matrices.push();
         final double offset = (maxHeight - (scale * textRenderer.fontHeight)) / 2.0;
         final double centerX = x + maxWidth / 2.0;
@@ -241,36 +257,15 @@ public abstract class AbstractWidget implements Widget {
 
     public void renderFitTextWrap(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        float textWidth = (textRenderer.getWidth(text) * MinecraftClient.getInstance().getWindow().getScaledWidth() / (float) getPixelWidth());
-        final double scaleFactor = maxWidth <= 0.125 ? 1 : maxWidth<=0.15?1.75:8;
-        double scale;
-        if (textWidth > maxWidth) {
-            scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * scaleFactor;
-        } else {
-            scale = maxHeight;
-        }
-        if (scale * textRenderer.fontHeight > maxHeight) {
-            scale = maxHeight / textRenderer.fontHeight;
-        }
-        final int maxLines = (int) Math.floor(maxHeight / (scale * textRenderer.fontHeight * 2 * scaleFactor));
+        final TextInfo textInfo = getTextScale(textRenderer.getWidth(text), maxWidth, maxHeight, matrices);
+        final double width = textInfo.textWidth;
+        final int maxLines = (int) Math.floor(maxWidth / (width * 1.5));
         if (maxLines > 1) {
-            final List<OrderedText> lines = textRenderer.wrapLines(text, (int) Math.floor(textRenderer.getWidth(text) / (float) maxLines));
+            final List<OrderedText> lines = textRenderer.wrapLines(text, (int) Math.floor(widthToScaledWidth(maxWidth, matrices)));
             double minScale = Double.MAX_VALUE;
             for (final OrderedText line : lines) {
-                textWidth = textRenderer.getWidth(line) / (float) getPixelWidth();
-                if (textWidth > maxWidth) {
-                    scale = maxHeight * (maxWidth / textWidth) * textRenderer.fontHeight * scaleFactor;
-                } else {
-                    scale = maxHeight;
-                }
-                if (scale * textRenderer.fontHeight > maxHeight) {
-                    scale = maxHeight / textRenderer.fontHeight;
-                }
-                if (scale < minScale) {
-                    minScale = scale;
-                }
+                minScale = Math.min(getTextScale(textRenderer.getWidth(line), maxWidth, maxHeight / lines.size(), matrices).textScale, minScale);
             }
-            minScale /= (float) lines.size();
             for (int j = 0; j < lines.size(); j++) {
                 final OrderedText line = lines.get(j);
                 matrices.push();
@@ -292,8 +287,10 @@ public abstract class AbstractWidget implements Widget {
         }
         final double maxHeightPerText = maxHeight / texts.size();
         double minScale = Double.MAX_VALUE;
+        final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         for (final Text text : texts) {
-            minScale = Math.min(minScale, getTextScale(MinecraftClient.getInstance().textRenderer.getWidth(text), maxWidth, maxHeightPerText));
+            final int width = textRenderer.getWidth(text);
+            minScale = Math.min(minScale, getTextScale(width, maxWidth, maxHeightPerText, matrices).textScale);
         }
         for (int i = 0; i < texts.size(); i++) {
             final Text text = texts.get(i);
