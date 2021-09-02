@@ -81,20 +81,23 @@ public abstract class AbstractWidget implements Widget {
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
             bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
             double maxWidth = 0.05 + 4 * horizontalPixel * borderThickness;
-            double height = 4 * verticalPixel * borderThickness + 2 / (double) pixelHeight;
+            double height = 4 * verticalPixel * borderThickness + 2;
             for (final TooltipComponent component : components) {
-                height += component.getHeight() / (double) pixelHeight;
-                final double width = component.getWidth(textRenderer) / (double) pixelWidth;
+                final int componentHeight = component.getHeight();
+                final TextInfo textInfo = getTextScaleClamped(component.getWidth(textRenderer), 100, 100);
+                height += componentHeight;
+                final double width = textInfo.textScale;
                 if (width > maxWidth) {
                     maxWidth = width;
                 }
             }
+            height *= maxWidth;
             maxWidth += 6 * horizontalPixel;
             if (move) {
-                if (maxWidth + x > 1) {
+                if (maxWidth + x > getScreenWidth()) {
                     x -= maxWidth;
                 }
-                if (height + y > 1) {
+                if (height + y > getScreenHeight()) {
                     y -= height;
                 }
             }
@@ -132,10 +135,10 @@ public abstract class AbstractWidget implements Widget {
                 matrices.push();
                 matrices.translate(0, offset, 0);
                 matrices.translate(x + 3 * horizontalPixel, y + 3 * verticalPixel, 0);
-                matrices.scale(1 / (float) pixelWidth, 1 / (float) pixelWidth, 1);
+                matrices.scale((float)maxWidth, (float) maxWidth, 1);
                 final TooltipComponent component = components.get(v);
                 component.drawText(textRenderer, 0, 0, matrices.peek().getModel(), immediate);
-                offset += (component.getHeight() + (v == 0 ? 2 : 0)) / (double) pixelHeight;
+                offset += (component.getHeight() + (v == 0 ? 2 : 0)) * maxWidth;
                 matrices.pop();
             }
 
@@ -144,10 +147,10 @@ public abstract class AbstractWidget implements Widget {
                 matrices.push();
                 matrices.translate(0, offset, 0);
                 matrices.translate(x + 3 * horizontalPixel, y + 3 * verticalPixel, 0);
-                matrices.scale(1 / (float) pixelWidth, 1 / (float) pixelWidth, 1);
+                matrices.scale((float)maxWidth, (float) maxWidth, 1);
                 final TooltipComponent component = components.get(v);
                 component.drawItems(textRenderer, 0, 0, matrices, MinecraftClient.getInstance().getItemRenderer(), 0, MinecraftClient.getInstance().getTextureManager());
-                offset += (component.getHeight() + (v == 0 ? 2 : 0)) / (double) pixelHeight;
+                offset += (component.getHeight() + (v == 0 ? 2 : 0)) * maxWidth;
                 matrices.pop();
             }
             matrices.pop();
@@ -187,14 +190,24 @@ public abstract class AbstractWidget implements Widget {
         RenderSystem.enableTexture();
     }
 
-    //TODO wtf
-    //fixme
-    public TextInfo getTextScale(final int textWidth, final double maxWidth, final double maxHeight, final MatrixStack matrices) {
+    public TextInfo getTextScale(final int textWidth, final double maxWidth, final double maxHeight) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        double hScale = (textWidth*4 / (double) pixelWidth)*MinecraftClient.getInstance().getWindow().getScaleFactor();
-        double hSize = (maxWidth / hScale) * horizontalPixel;
-        double vScale = (textRenderer.fontHeight*2 / (double) pixelHeight)*MinecraftClient.getInstance().getWindow().getScaleFactor();
-        double vSize = (maxHeight / vScale) * verticalPixel;
+        final double scaleFactor = MinecraftClient.getInstance().getWindow().getScaleFactor();
+        final double hScale = (textWidth * 4 / (double) pixelWidth) * scaleFactor;
+        final double hSize = (maxWidth / hScale) * horizontalPixel;
+        final double vScale = (textRenderer.fontHeight * 2 / (double) pixelHeight) * scaleFactor;
+        final double vSize = (maxHeight / vScale) * verticalPixel;
+
+        return new TextInfo(Math.min(hSize, vSize), hSize, vSize);
+    }
+
+    public TextInfo getTextScaleClamped(final int textWidth, final double maxWidth, final double maxHeight) {
+        final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        final double scaleFactor = MinecraftClient.getInstance().getWindow().getScaleFactor();
+        final double hScale = (textWidth * 4 / (double) pixelWidth) * scaleFactor;
+        final double hSize = Math.min(maxWidth / hScale, scaleFactor) * horizontalPixel;
+        final double vScale = (textRenderer.fontHeight * 2 / (double) pixelHeight) * scaleFactor;
+        final double vSize = Math.min(maxHeight / vScale, scaleFactor) * verticalPixel;
 
         return new TextInfo(Math.min(hSize, vSize), hScale, vScale);
     }
@@ -245,7 +258,7 @@ public abstract class AbstractWidget implements Widget {
 
     public void renderFitText(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        final double scale = getTextScale(textRenderer.getWidth(text), maxWidth, maxHeight, matrices).textScale;
+        final double scale = getTextScale(textRenderer.getWidth(text), maxWidth, maxHeight).textScale;
         matrices.push();
         final double offset = (maxHeight - (scale * textRenderer.fontHeight)) / 2.0;
         final double centerX = x + maxWidth / 2.0;
@@ -257,19 +270,19 @@ public abstract class AbstractWidget implements Widget {
 
     public void renderFitTextWrap(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        final TextInfo textInfo = getTextScale(textRenderer.getWidth(text), maxWidth, maxHeight, matrices);
+        final TextInfo textInfo = getTextScale(textRenderer.getWidth(text), maxWidth, maxHeight);
         final double width = textInfo.textWidth;
         final int maxLines = (int) Math.floor(maxWidth / (width * 1.5));
         if (maxLines > 1) {
             final List<OrderedText> lines = textRenderer.wrapLines(text, (int) Math.floor(widthToScaledWidth(maxWidth, matrices)));
             double minScale = Double.MAX_VALUE;
             for (final OrderedText line : lines) {
-                minScale = Math.min(getTextScale(textRenderer.getWidth(line), maxWidth, maxHeight / lines.size(), matrices).textScale, minScale);
+                minScale = Math.min(getTextScale(textRenderer.getWidth(line), maxWidth, maxHeight / lines.size()).textScale, minScale);
             }
             for (int j = 0; j < lines.size(); j++) {
                 final OrderedText line = lines.get(j);
                 matrices.push();
-                final double offset = (maxHeight / (double) lines.size()) * j;
+                final double offset = j * minScale * textRenderer.fontHeight;
                 final double centerX = x + maxWidth / 2.0;
                 matrices.translate(centerX, y + offset, 0);
                 matrices.scale((float) minScale, (float) minScale, (float) minScale);
@@ -290,11 +303,11 @@ public abstract class AbstractWidget implements Widget {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         for (final Text text : texts) {
             final int width = textRenderer.getWidth(text);
-            minScale = Math.min(minScale, getTextScale(width, maxWidth, maxHeightPerText, matrices).textScale);
+            minScale = Math.min(minScale, getTextScale(width, maxWidth, maxHeightPerText).textScale);
         }
         for (int i = 0; i < texts.size(); i++) {
             final Text text = texts.get(i);
-            final double offset = (maxHeight / (double) texts.size()) * i;
+            final double offset = i * minScale * textRenderer.fontHeight;
             final double centerX;
             if (center) {
                 centerX = x + maxWidth / 2.0;
