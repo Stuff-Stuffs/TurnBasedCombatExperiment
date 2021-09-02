@@ -198,7 +198,7 @@ public abstract class AbstractWidget implements Widget {
         final double vScale = (textRenderer.fontHeight * 2 / (double) pixelHeight) * scaleFactor;
         final double vSize = (maxHeight / vScale) * verticalPixel;
 
-        return new TextInfo(Math.min(hSize, vSize), hSize, vSize);
+        return new TextInfo(Math.min(hSize, vSize), hScale, vScale);
     }
 
     public TextInfo getTextScaleClamped(final int textWidth, final double maxWidth, final double maxHeight) {
