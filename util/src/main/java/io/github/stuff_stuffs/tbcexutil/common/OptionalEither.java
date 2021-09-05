@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexutil.common;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -54,7 +55,7 @@ public abstract class OptionalEither<L, R> {
         }
 
         @Override
-        public void consume(Consumer<? super Object> leftConsumer, Consumer<? super Object> rightConsumer, Runnable absent) {
+        public void consume(final Consumer<? super Object> leftConsumer, final Consumer<? super Object> rightConsumer, final Runnable absent) {
             absent.run();
         }
 
@@ -65,6 +66,14 @@ public abstract class OptionalEither<L, R> {
     };
 
     private OptionalEither() {
+    }
+
+    public static <L, R> OptionalEither<L, R> leftNullable(@Nullable final L left) {
+        if (left == null) {
+            return neither();
+        } else {
+            return left(left);
+        }
     }
 
     public static <L, R> OptionalEither<L, R> left(@NotNull final L left) {
@@ -115,7 +124,7 @@ public abstract class OptionalEither<L, R> {
             }
 
             @Override
-            public void consume(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer, Runnable absent) {
+            public void consume(final Consumer<? super L> leftConsumer, final Consumer<? super R> rightConsumer, final Runnable absent) {
                 leftConsumer.accept(left);
             }
 
@@ -124,6 +133,14 @@ public abstract class OptionalEither<L, R> {
                 return OptionalEither.right(left);
             }
         };
+    }
+
+    public static <L, R> OptionalEither<L, R> rightNullable(@Nullable final R right) {
+        if (right == null) {
+            return neither();
+        } else {
+            return right(right);
+        }
     }
 
     public static <L, R> OptionalEither<L, R> right(@NotNull final R right) {
@@ -154,7 +171,7 @@ public abstract class OptionalEither<L, R> {
             }
 
             @Override
-            public <U> OptionalEither<L, U> mapRight(Function<? super R, ? extends U> function) {
+            public <U> OptionalEither<L, U> mapRight(final Function<? super R, ? extends U> function) {
                 return OptionalEither.right(function.apply(right));
             }
 
@@ -174,7 +191,7 @@ public abstract class OptionalEither<L, R> {
             }
 
             @Override
-            public void consume(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer, Runnable absent) {
+            public void consume(final Consumer<? super L> leftConsumer, final Consumer<? super R> rightConsumer, final Runnable absent) {
                 rightConsumer.accept(right);
             }
 
@@ -210,4 +227,8 @@ public abstract class OptionalEither<L, R> {
     public abstract void consume(Consumer<? super L> leftConsumer, Consumer<? super R> rightConsumer, Runnable absent);
 
     public abstract OptionalEither<R, L> swap();
+
+    public final boolean isNeither() {
+        return this == NEITHER;
+    }
 }

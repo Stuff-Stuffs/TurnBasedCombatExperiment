@@ -1,20 +1,26 @@
 package io.github.stuff_stuffs.tbcextest.common;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.*;
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
+import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TestBattleParticipantItem implements BattleParticipantItem {
     public static final Codec<BattleParticipantItem> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -49,7 +55,63 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
 
     @Override
     public List<ParticipantAction> getActions(final BattleStateView battleState, final BattleParticipantStateView participantState, final BattleParticipantInventoryHandle handle) {
-        return new ArrayList<>();
+        final ParticipantAction action1 = new ParticipantAction() {
+            @Override
+            public Text getName() {
+                return new LiteralText("Equip");
+            }
+
+            @Override
+            public List<TooltipComponent> getTooltip() {
+                return Stream.of(new LiteralText("dasd"), new LiteralText("sda"), new LiteralText("asdkjashfkjasdhfksdhfgkjdsfghkjdfghk asfsdgf"), new LiteralText("asdasdadsf dfg")).map(t -> TooltipComponent.of(t.asOrderedText())).collect(Collectors.toList());
+            }
+
+            @Override
+            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle) {
+                return new ParticipantActionInstance(new SingleTargetParticipantActionInfo(TargetType.PARTICIPANT, new SingleTargetParticipantActionInfo.TargetGetter() {
+                    @Override
+                    public Set<BlockPos> getBlockPositions(BattleStateView battleState, BattleParticipantHandle user) {
+                        throw new RuntimeException();
+                    }
+
+                    @Override
+                    public Set<BattleParticipantHandle> getParticipants(BattleStateView battleState, BattleParticipantHandle user) {
+                        return Set.of(user);
+                    }
+                }, (battleStateView, user, target) -> {
+
+                }), battleState, handle);
+            }
+        };
+        final ParticipantAction action2 = new ParticipantAction() {
+            @Override
+            public Text getName() {
+                return new LiteralText("Use");
+            }
+
+            @Override
+            public List<TooltipComponent> getTooltip() {
+                return Stream.of(new LiteralText("dasd"), new LiteralText("sda"), new LiteralText("asdkjashfkjasdhfksdhfgkjdsfghkjdfghk asfsdgf"), new LiteralText("asdasdadsf dfg")).map(t -> TooltipComponent.of(t.asOrderedText())).collect(Collectors.toList());
+            }
+
+            @Override
+            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle) {
+                return new ParticipantActionInstance(new SingleTargetParticipantActionInfo(TargetType.POSITION, new SingleTargetParticipantActionInfo.TargetGetter() {
+                    @Override
+                    public Set<BlockPos> getBlockPositions(BattleStateView battleState, BattleParticipantHandle user) {
+                        return Set.of(battleState.getParticipant(user).getPos());
+                    }
+
+                    @Override
+                    public Set<BattleParticipantHandle> getParticipants(BattleStateView battleState, BattleParticipantHandle user) {
+                        throw new RuntimeException();
+                    }
+                }, (battleStateView, user, target) -> {
+
+                }), battleState, handle);
+            }
+        };
+        return List.of(action1,action2);
     }
 
     @Override

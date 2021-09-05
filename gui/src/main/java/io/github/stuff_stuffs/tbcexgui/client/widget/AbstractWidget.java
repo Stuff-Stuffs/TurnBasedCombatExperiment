@@ -205,9 +205,9 @@ public abstract class AbstractWidget implements Widget {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final double scaleFactor = MinecraftClient.getInstance().getWindow().getScaleFactor();
         final double hScale = (textWidth * 4 / (double) pixelWidth) * scaleFactor;
-        final double hSize = Math.min(maxWidth / hScale, scaleFactor) * horizontalPixel;
+        final double hSize = Math.min(maxWidth / hScale, 1) * horizontalPixel;
         final double vScale = (textRenderer.fontHeight * 2 / (double) pixelHeight) * scaleFactor;
-        final double vSize = Math.min(maxHeight / vScale, scaleFactor) * verticalPixel;
+        final double vSize = Math.min(maxHeight / vScale, 1) * verticalPixel;
 
         return new TextInfo(Math.min(hSize, vSize), hScale, vScale);
     }

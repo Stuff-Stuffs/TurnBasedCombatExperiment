@@ -28,10 +28,11 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     private final DoubleSupplier width;
     private final DoubleSupplier height;
     private final IntConsumer onSelect;
+    private final DoubleSelect doubleSelect;
     private double pos = 0;
     private int selectedIndex = 0;
 
-    public BattleInventoryTabWidget(final WidgetPosition position, final List<ItemStackInfo> stacks, final double borderThickness, final double entryHeight, final double verticalSpacing, final DoubleSupplier width, final DoubleSupplier height, final IntConsumer onSelect) {
+    public BattleInventoryTabWidget(final WidgetPosition position, final List<ItemStackInfo> stacks, final double borderThickness, final double entryHeight, final double verticalSpacing, final DoubleSupplier width, final DoubleSupplier height, final IntConsumer onSelect, DoubleSelect doubleSelect) {
         this.position = position;
         this.stacks = stacks;
         this.borderThickness = borderThickness;
@@ -40,6 +41,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         this.width = width;
         this.height = height;
         this.onSelect = onSelect;
+        this.doubleSelect = doubleSelect;
     }
 
     @Override
@@ -47,15 +49,23 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         return position;
     }
 
-    public void setSelectedIndex(final int selectedIndex) {
+    public void resetSelectedIndex() {
+        setSelectedIndex(-1, 0, 0);
+    }
+
+    public void setSelectedIndex(final int selectedIndex, final double mouseX, final double mouseY) {
         if (0 <= selectedIndex && selectedIndex < stacks.size()) {
             if (selectedIndex != this.selectedIndex) {
                 this.selectedIndex = selectedIndex;
                 onSelect.accept(selectedIndex);
+                doubleSelect.onDoubleSelect(-1, 0, 0);
+            } else {
+                doubleSelect.onDoubleSelect(selectedIndex, mouseX, mouseY);
             }
         } else {
             this.selectedIndex = -1;
             onSelect.accept(selectedIndex);
+            doubleSelect.onDoubleSelect(-1, 0, 0);
         }
     }
 
@@ -63,10 +73,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
         if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height.getAsDouble()).isIn(mouseX, mouseY)) {
             final int index = findHoverIndex(mouseX, mouseY + pos);
-            if (selectedIndex != index) {
-                selectedIndex = index;
-                onSelect.accept(index);
-            }
+            setSelectedIndex(index, mouseX, mouseY);
             return true;
         }
         return false;
@@ -179,10 +186,31 @@ public class BattleInventoryTabWidget extends AbstractWidget {
 
     @Override
     public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
+        final double offsetX = position.getX();
+        final double offsetY = position.getY();
         if (keyCode == GLFW.GLFW_KEY_UP) {
-            setSelectedIndex(selectedIndex - 1);
+            int index = selectedIndex - 1;
+            final double startX = (offsetX + borderThickness);
+            final double endX = (offsetX + width.getAsDouble() - borderThickness);
+            final double startY = (offsetY + borderThickness + selectedIndex * entryHeight + index * verticalSpacing);
+            final double endY = (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
+            pos = Math.min(Math.max(pos - entryHeight, 0), getListHeight() - (offsetY - 2 * borderThickness));
+            setSelectedIndex(index, (startX+endX)/2, (startY+endY)/2);
         } else if (keyCode == GLFW.GLFW_KEY_DOWN) {
-            setSelectedIndex(selectedIndex + 1);
+            int index = selectedIndex + 1;
+            final double startX = (offsetX + borderThickness);
+            final double endX = (offsetX + width.getAsDouble() - borderThickness);
+            final double startY = (offsetY + borderThickness + selectedIndex * entryHeight + index * verticalSpacing);
+            final double endY = (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
+            pos = Math.min(Math.max(pos + entryHeight, 0), getListHeight() - (offsetY - 2 * borderThickness));
+            setSelectedIndex(index, (startX+endX)/2, (startY+endY)/2);
+        } else if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+            int index = selectedIndex;
+            final double startX = (offsetX + borderThickness);
+            final double endX = (offsetX + width.getAsDouble() - borderThickness);
+            final double startY = (offsetY + borderThickness + selectedIndex * entryHeight + index * verticalSpacing);
+            final double endY = (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
+            setSelectedIndex(index, (startX+endX)/2, (startY+endY)/2);
         } else {
             return false;
         }
@@ -213,5 +241,9 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     public boolean tick() {
         pos = Math.min(Math.max(pos, 0), getListHeight() - (height.getAsDouble() - 2 * borderThickness));
         return false;
+    }
+
+    public interface DoubleSelect {
+        void onDoubleSelect(int index, double mouseX, double mouseY);
     }
 }

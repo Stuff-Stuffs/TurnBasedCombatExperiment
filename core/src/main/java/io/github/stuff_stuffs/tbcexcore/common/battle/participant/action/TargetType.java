@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action;
 
-enum TargetType {
+public enum TargetType {
     POSITION,
     PARTICIPANT,
     ANY

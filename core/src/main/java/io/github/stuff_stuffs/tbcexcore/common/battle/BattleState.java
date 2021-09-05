@@ -37,6 +37,11 @@ public final class BattleState implements BattleStateView {
         turnChooser = new TurnChooser(this);
     }
 
+    @Override
+    public BattleHandle getHandle() {
+        return handle;
+    }
+
     private void registerEvents() {
         eventMap.register(PRE_PARTICIPANT_JOIN_EVENT, new MutableEventHolder.BasicEventHolder<>(PRE_PARTICIPANT_JOIN_EVENT, view -> (battleState, participant) -> {
             view.onParticipantJoin(battleState, participant);

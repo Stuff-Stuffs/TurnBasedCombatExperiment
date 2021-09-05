@@ -189,12 +189,13 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         }
     }
 
-    public @Nullable BattleEquipment getEquipment(BattleEquipmentSlot slot) {
+    @Override
+    public @Nullable BattleEquipment getEquipment(final BattleEquipmentSlot slot) {
         return inventory.getEquipment(slot);
     }
 
     @Override
-    public @Nullable BattleParticipantItemStack getEquipmentStack(BattleEquipmentSlot slot) {
+    public @Nullable BattleParticipantItemStack getEquipmentStack(final BattleEquipmentSlot slot) {
         return inventory.getEquipmentStack(slot);
     }
 

@@ -94,9 +94,11 @@ public final class ParticipantActionInstance {
                     acceptableHandles = info.getValidTargetParticipants(battleState, user, list);
                     acceptablePositions = null;
                 }
+                default -> {
+                    acceptableHandles = null;
+                    acceptablePositions = null;
+                }
             }
         }
     }
-
-
 }

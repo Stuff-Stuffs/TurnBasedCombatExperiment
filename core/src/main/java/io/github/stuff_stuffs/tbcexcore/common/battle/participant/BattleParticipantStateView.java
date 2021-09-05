@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PreDamag
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PreEquipmentChangeEvent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import net.minecraft.util.math.BlockPos;
@@ -42,4 +43,6 @@ public interface BattleParticipantStateView {
     double getHealth();
 
     BlockPos getPos();
+
+    BattleEquipment getEquipment(BattleEquipmentSlot slot);
 }

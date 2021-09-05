@@ -17,6 +17,8 @@ public interface BattleStateView {
     EventKey<PreParticipantLeaveEvent.Mut, PreParticipantLeaveEvent> PRE_PARTICIPANT_LEAVE_EVENT = new EventKey<>(PreParticipantLeaveEvent.Mut.class, PreParticipantLeaveEvent.class);
     EventKey<PostParticipantLeaveEvent.Mut, PostParticipantLeaveEvent> POST_PARTICIPANT_LEAVE_EVENT = new EventKey<>(PostParticipantLeaveEvent.Mut.class, PostParticipantLeaveEvent.class);
 
+    BattleHandle getHandle();
+
     @Nullable BattleParticipantStateView getParticipant(BattleParticipantHandle handle);
 
     @Nullable BattleParticipantHandle getCurrentTurn();

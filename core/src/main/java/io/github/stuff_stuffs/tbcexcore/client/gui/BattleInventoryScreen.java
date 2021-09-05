@@ -1,14 +1,20 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
-import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventoryFilterWidget;
-import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventoryPreviewWidget;
-import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventorySorterWidget;
-import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventoryTabWidget;
+import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
+import io.github.stuff_stuffs.tbcexcore.client.gui.widget.*;
 import io.github.stuff_stuffs.tbcexcore.client.util.ItemStackInfo;
+import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
 import io.github.stuff_stuffs.tbcexgui.client.widget.SuppliedWidgetPosition;
+import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetHandle;
+import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.text.LiteralText;
 import net.minecraft.world.World;
@@ -24,6 +30,9 @@ public class BattleInventoryScreen extends TBCExScreen {
     private BattleInventorySorterWidget sorterWidget;
     private BattleInventoryTabWidget inventoryWidget;
     private BattleInventoryPreviewWidget previewWidget;
+    private BattleInventoryActionSelectionWidget selectionWidget;
+    private WidgetHandle selectionWidgetHandle;
+    private final MutableInt selected = new MutableInt(-1);
     private final World world;
     private boolean init = false;
 
@@ -42,24 +51,57 @@ public class BattleInventoryScreen extends TBCExScreen {
             final List<ItemStackInfo> infos = new ArrayList<>();
             final DoubleSupplier startX = () -> -(widget.getScreenWidth() - 1) / 2.0;
             final DoubleSupplier startY = () -> -(widget.getScreenHeight() - 1) / 2.0;
-            MutableInt selected = new MutableInt(0);
-            inventoryWidget = new BattleInventoryTabWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 1 / 4.0, () -> startY.getAsDouble() + widget.getScreenHeight() * 1 / 8.0, () -> 0), infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 7 / 8.0, selected::setValue);
+            final SuppliedWidgetPosition tabPosition = new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 1 / 4.0, () -> startY.getAsDouble() + widget.getScreenHeight() * 1 / 8.0, () -> 0);
+            inventoryWidget = new BattleInventoryTabWidget(tabPosition, infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 7 / 8.0, this::select, (index, mouseX, mouseY) -> {
+                if (index >= 0 && index < infos.size()) {
+                    final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
+                    final BattleParticipantStateView participantState;
+                    if (battle != null) {
+                        participantState = battle.getState().getParticipant(handle);
+                    } else {
+                        throw new RuntimeException();
+                    }
+                    if (participantState == null) {
+                        throw new RuntimeException();
+                    }
+                    final Either<BattleParticipantInventoryHandle, Pair<BattleParticipantHandle, BattleEquipmentSlot>> location = infos.get(index).location;
+                    List<ParticipantAction> actions = new ArrayList<>();
+                    actions.addAll(location.map(h -> participantState.getItemStack(h).getItem().getActions(battle.getState(), participantState, h), p -> participantState.getEquipment(p.getSecond()).getActions(battle.getState(), participantState)));
+                    if (actions.size() > 0) {
+                        selectionWidget = new BattleInventoryActionSelectionWidget(WidgetPosition.of(mouseX, mouseY, 10), battle.getState(), handle, actions);
+                        if (selectionWidgetHandle != null) {
+                            widget.removeWidget(selectionWidgetHandle);
+                        }
+                        selectionWidgetHandle = widget.addWidget(selectionWidget);
+                    } else {
+                        selectionWidget = null;
+                        if (selectionWidgetHandle != null) {
+                            widget.removeWidget(selectionWidgetHandle);
+                        }
+                    }
+                } else {
+                    selectionWidget = null;
+                    if (selectionWidgetHandle != null) {
+                        widget.removeWidget(selectionWidgetHandle);
+                    }
+                }
+            });
 
             sorterWidget = new BattleInventorySorterWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 1 / 4.0, startY, () -> 0), () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 1 / 8.0, 1 / 128.0, 1 / 8.0, 1 / 128.0, BattleInventorySorterWidget.DEFAULTS, i -> {
                 sorterWidget.sort(infos);
-                inventoryWidget.setSelectedIndex(-1);
+                inventoryWidget.resetSelectedIndex();
             });
 
             navigationWidget = new BattleInventoryFilterWidget(new SuppliedWidgetPosition(startX, startY, () -> 0), () -> widget.getScreenWidth() * 1 / 4.0, widget::getScreenHeight, 1 / 128.0, 1 / 16.0, 1 / 128.0, world, handle, BattleInventoryFilterWidget.DEFAULTS, value -> {
                 infos.clear();
                 infos.addAll(navigationWidget.getFiltered());
-                inventoryWidget.setSelectedIndex(-1);
+                inventoryWidget.resetSelectedIndex();
             });
             navigationWidget.setSelectedIndex(0);
             infos.addAll(navigationWidget.getFiltered());
 
-            previewWidget = new BattleInventoryPreviewWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 5 / 8.0, startY, () -> 0), () -> widget.getScreenWidth()*3/8.0, widget::getScreenHeight, 0.45, ((BattleWorldSupplier)world).tbcex_getBattleWorld().getBattle(handle.battleId()).getState(), () -> {
-                if(selected.intValue()>=0&&selected.intValue()<infos.size()) {
+            previewWidget = new BattleInventoryPreviewWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 5 / 8.0, startY, () -> 0), () -> widget.getScreenWidth() * 3 / 8.0, widget::getScreenHeight, 0.45, ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId()).getState(), () -> {
+                if (selected.intValue() >= 0 && selected.intValue() < infos.size()) {
                     return infos.get(selected.intValue());
                 }
                 return null;
@@ -71,5 +113,9 @@ public class BattleInventoryScreen extends TBCExScreen {
             widget.addWidget(previewWidget);
         }
         inventoryWidget.tick();
+    }
+
+    private void select(final int index) {
+        selected.setValue(index);
     }
 }

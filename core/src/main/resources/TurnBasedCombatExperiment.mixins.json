@@ -11,7 +11,7 @@
     "MixinWorld"
   ],
   "client": [
-    "AccessorMatrix4f",
+    "AccessorGameRenderer",
     "MixinClientWorld",
     "MixinInGameHud",
     "MixinMinecraftClient"

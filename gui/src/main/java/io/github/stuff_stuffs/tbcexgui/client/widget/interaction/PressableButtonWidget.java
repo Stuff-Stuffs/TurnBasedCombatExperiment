@@ -120,26 +120,8 @@ public class PressableButtonWidget extends AbstractWidget {
         NinePatch.render(PressableButtonWidget.SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
 
         final boolean shadow = !(state == ButtonState.INACTIVE || state == ButtonState.HELD);
-        final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final Text text = message.get();
-        final List<OrderedText> wrapped = textRenderer.wrapLines(text, (int) (width * getPixelWidth()));
-        final double textYCenter = (positionY + height / 2.0) + textRenderer.fontHeight / 2.0 / (double) getPixelHeight();
-        final double textYBottom = textYCenter - (((wrapped.size() + 1) / 2d) * textRenderer.fontHeight) / (double) getPixelHeight();
-
-        for (int i = 0; i < wrapped.size(); i++) {
-            final OrderedText current = wrapped.get(i);
-            matrices.push();
-            final double textWidth = textRenderer.getWidth(current);
-            final double textY = textYBottom + (textRenderer.fontHeight * i) / (double) getPixelHeight();
-            matrices.translate((positionX + width / 2.0) - textWidth / 2 / getPixelWidth(), textY, 0);
-            matrices.scale(1 / (float) getPixelWidth(), 1 / (float) getPixelHeight(), 1);
-            if (shadow) {
-                textRenderer.drawWithShadow(matrices, current, 0, 0, -1);
-            } else {
-                textRenderer.draw(matrices, current, 0, 0, -1);
-            }
-            matrices.pop();
-        }
+        renderFitTextWrap(matrices, text, positionX, positionY, width, height, shadow, -1);
 
         if (state == ButtonState.HOVERED) {
             matrices.translate(0, 0, 1);
