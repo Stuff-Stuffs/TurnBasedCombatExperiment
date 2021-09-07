@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
@@ -8,7 +7,6 @@ import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -89,12 +87,7 @@ public class CycleButton<T> extends AbstractWidget {
             reloadSpriteMap();
             RELOAD_SPRITE_MAP = false;
         }
-        RenderSystem.enableBlend();
-        RenderSystem.enableTexture();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-        RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 10f);
+
         final ButtonState state;
         final double positionX = position.getX();
         final double positionY = position.getY();
@@ -112,26 +105,9 @@ public class CycleButton<T> extends AbstractWidget {
         NinePatch.render(SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
 
         final boolean shadow = !(state == ButtonState.INACTIVE);
-        final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final Text text = messageFactory.apply(currentState);
 
-        final List<OrderedText> wrapped = textRenderer.wrapLines(text, (int) (width * getPixelWidth()));
-        final double textYCenter = (positionY + height / 2.0) + textRenderer.fontHeight / 2.0 / (double) getPixelHeight();
-        final double textYBottom = textYCenter - (((wrapped.size() + 1) / 2d) * textRenderer.fontHeight) / (double) getPixelHeight();
-        for (int i = 0; i < wrapped.size(); i++) {
-            final OrderedText current = wrapped.get(i);
-            matrices.push();
-            final double textWidth = textRenderer.getWidth(current);
-            final double textY = textYBottom + (textRenderer.fontHeight * i) / (double) getPixelHeight();
-            matrices.translate((positionX + width / 2.0) - textWidth / 2 / getPixelWidth(), textY, 0);
-            matrices.scale(1 / (float) getPixelWidth(), 1 / (float) getPixelHeight(), 1);
-            if (shadow) {
-                textRenderer.drawWithShadow(matrices, current, 0, 0, -1);
-            } else {
-                textRenderer.draw(matrices, current, 0, 0, -1);
-            }
-            matrices.pop();
-        }
+        render(vertexConsumers -> renderFitTextWrap(matrices, text, positionX + getHorizontalPixel(), positionY + getVerticalPixel(), width - 2 * getHorizontalPixel(), height - 2 * getHorizontalPixel(), shadow, -1, vertexConsumers));
 
         if (state == ButtonState.HOVERED) {
             matrices.translate(0, 0, 1);
@@ -140,14 +116,14 @@ public class CycleButton<T> extends AbstractWidget {
     }
 
     @Override
-    public boolean keyPress(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
         return false;
     }
 
     private static void reloadSpriteMap() {
         for (final ButtonState state : ButtonState.values()) {
             final Map<NinePatch.Part, Sprite> spriteMap = new EnumMap<>(NinePatch.Part.class);
-            Identifier base = new Identifier("tbcexgui", "gui/button/" + state.name().toLowerCase(Locale.ROOT));
+            final Identifier base = new Identifier("tbcexgui", "gui/button/" + state.name().toLowerCase(Locale.ROOT));
             for (final NinePatch.Part part : NinePatch.Part.values()) {
                 spriteMap.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.append(base)));
             }

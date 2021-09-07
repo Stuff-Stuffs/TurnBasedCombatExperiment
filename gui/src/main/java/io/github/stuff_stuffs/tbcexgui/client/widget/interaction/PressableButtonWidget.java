@@ -1,15 +1,11 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -93,12 +89,7 @@ public class PressableButtonWidget extends AbstractWidget {
             reloadSpriteMap();
             RELOAD_SPRITE_MAP = false;
         }
-        RenderSystem.enableBlend();
-        RenderSystem.enableTexture();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-        RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 10f);
+
         final ButtonState state;
         final double positionX = position.getX();
         final double positionY = position.getY();
@@ -121,9 +112,7 @@ public class PressableButtonWidget extends AbstractWidget {
 
         final boolean shadow = !(state == ButtonState.INACTIVE || state == ButtonState.HELD);
         final Text text = message.get();
-        final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-        renderFitTextWrap(matrices, text, positionX + 2 * getHorizontalPixel(), positionY, width - 4 * getHorizontalPixel(), height, shadow, -1, immediate);
-        immediate.draw();
+        render(vertexConsumers -> renderFitTextWrap(matrices, text, positionX + 2 * getHorizontalPixel(), positionY, width - 4 * getHorizontalPixel(), height, shadow, -1, vertexConsumers));
 
         if (state == ButtonState.HOVERED) {
             matrices.translate(0, 0, 1);

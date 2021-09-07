@@ -230,11 +230,11 @@ public class BattleInventorySorterWidget extends AbstractWidget {
         buffer.end();
         BufferRenderer.draw(buffer);
 
-        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-        for (int i = 0; i < sorts.size(); i++) {
-            renderDecorations(sorts.get(i), matrices, i, hoverIndex, immediate);
-        }
-        immediate.draw();
+        render(vertexConsumers -> {
+            for (int i = 0; i < sorts.size(); i++) {
+                renderDecorations(sorts.get(i), matrices, i, hoverIndex, vertexConsumers);
+            }
+        });
 
         matrices.pop();
     }

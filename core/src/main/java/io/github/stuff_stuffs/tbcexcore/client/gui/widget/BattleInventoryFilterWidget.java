@@ -233,11 +233,11 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         buffer.end();
         BufferRenderer.draw(buffer);
 
-        final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-        for (int i = 0; i < categories.size(); i++) {
-            renderDecorations(categories.get(i), matrices, i, hoverIndex, immediate);
-        }
-        immediate.draw();
+        render(vertexConsumers -> {
+            for (int i = 0; i < categories.size(); i++) {
+                renderDecorations(categories.get(i), matrices, i, hoverIndex, vertexConsumers);
+            }
+        });
 
         matrices.pop();
     }

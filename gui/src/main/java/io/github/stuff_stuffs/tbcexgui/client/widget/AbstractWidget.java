@@ -2,17 +2,25 @@ package io.github.stuff_stuffs.tbcexgui.client.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.FontStorage;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public abstract class AbstractWidget implements Widget {
+    private static final Map<RenderLayer, BufferBuilder> GUI_BUFFERS;
+    private static final BufferBuilder FALLBACK_BUFFER;
     private double screenWidth, screenHeight;
     private int pixelWidth, pixelHeight;
     private double verticalPixel = 1 / 480d;
@@ -45,6 +53,12 @@ public abstract class AbstractWidget implements Widget {
             }
             verticalPixel = inc * verticalPixel;
         }
+    }
+
+    public void render(Consumer<VertexConsumerProvider> renderer) {
+        final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(GUI_BUFFERS, FALLBACK_BUFFER);
+        renderer.accept(immediate);
+        immediate.draw();
     }
 
     public double getVerticalPixel() {
@@ -183,11 +197,7 @@ public abstract class AbstractWidget implements Widget {
             final float middle = textRenderer.getWidth(text) / 2.0f;
             textRenderer.draw(text, -middle, 0, colour, shadow, matrices.peek().getModel(), vertexConsumer, false, backgroundColour, light);
         } else {
-            if (shadow) {
-                textRenderer.draw(matrices, text, 0, 0, colour);
-            } else {
-                textRenderer.drawWithShadow(matrices, text, 0, 0, colour);
-            }
+            textRenderer.draw(text, 0, 0, colour, shadow, matrices.peek().getModel(), vertexConsumer, false, backgroundColour, light);
         }
     }
 
@@ -269,5 +279,34 @@ public abstract class AbstractWidget implements Widget {
             renderText(matrices, text.asOrderedText(), center, shadow, colour, backgroundColour, light, vertexConsumers);
             matrices.pop();
         }
+    }
+
+    static {
+        GUI_BUFFERS = new Reference2ReferenceOpenHashMap<>();
+        RenderLayer renderLayer = RenderLayer.getText(Style.DEFAULT_FONT_ID);
+        BufferBuilder builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
+        GUI_BUFFERS.put(renderLayer, builder);
+
+        renderLayer = RenderLayer.getTextSeeThrough(Style.DEFAULT_FONT_ID);
+        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
+        GUI_BUFFERS.put(renderLayer,builder);
+
+        renderLayer = RenderLayer.getTextPolygonOffset(Style.DEFAULT_FONT_ID);
+        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
+        GUI_BUFFERS.put(renderLayer,builder);
+
+        renderLayer = RenderLayer.getTextIntensity(Style.DEFAULT_FONT_ID);
+        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
+        GUI_BUFFERS.put(renderLayer, builder);
+
+        renderLayer = RenderLayer.getTextIntensitySeeThrough(Style.DEFAULT_FONT_ID);
+        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
+        GUI_BUFFERS.put(renderLayer,builder);
+
+        renderLayer = RenderLayer.getTextIntensityPolygonOffset(Style.DEFAULT_FONT_ID);
+        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
+        GUI_BUFFERS.put(renderLayer,builder);
+
+        FALLBACK_BUFFER = new BufferBuilder(4096);
     }
 }

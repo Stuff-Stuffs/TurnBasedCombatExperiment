@@ -102,7 +102,7 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
         final Map<NinePatch.Part, Sprite> spriteMap = selected.getAsBoolean() ? SELECTED_SPRITE_MAP : SPRITE_MAP;
         NinePatch.render(spriteMap, position.getX(), position.getY(), size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
         if (itemStackLike != null) {
-            itemStackLike.render(matrices, mouseX, mouseY, delta);
+            render(vertexConsumers -> itemStackLike.render(matrices, mouseX, mouseY, delta, vertexConsumers));
         }
     }
 

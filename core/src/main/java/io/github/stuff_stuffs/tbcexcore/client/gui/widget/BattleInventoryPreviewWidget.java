@@ -13,7 +13,6 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Util;
@@ -95,31 +94,32 @@ public class BattleInventoryPreviewWidget extends AbstractWidget {
         final double y = position.getY();
         final double width = this.width.getAsDouble();
         final double height = this.height.getAsDouble();
-        final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-        matrices.push();
-        final double scale = Math.min(width, height * (1 - infoFraction));
-        matrices.translate(x + width / 2, y + height * (1 - infoFraction) / 2, 0);
-        matrices.scale((float) scale * 0.5f, (float) scale * 0.5f, 1);
-        matrices.multiply(rotation.toFloatQuat());
-        final ItemStackInfo info = stackSupplier.get();
-        renderItem(matrices, delta, info, immediate);
-        matrices.pop();
+        render(vertexConsumers -> {
+            matrices.push();
+            final double scale = Math.min(width, height * (1 - infoFraction));
+            matrices.translate(x + width / 2, y + height * (1 - infoFraction) / 2, 0);
+            matrices.scale((float) scale * 0.5f, (float) scale * 0.5f, 1);
+            matrices.multiply(rotation.toFloatQuat());
+            final ItemStackInfo info = stackSupplier.get();
+            renderItem(matrices, delta, info, vertexConsumers);
+            matrices.pop();
 
-        if (lastMillis != 0) {
-            final long current = Util.getMeasuringTimeMs();
-            final double seconds = (current - lastMillis) / 1000.0;
-            final double speed = 0.05;
-            if (rotating) {
-                rotation = rotation.multiply(new DoubleQuaternion(new Vec3d(0, 1, 0), (speed * seconds) * 360, true));
+            if (lastMillis != 0) {
+                final long current = Util.getMeasuringTimeMs();
+                final double seconds = (current - lastMillis) / 1000.0;
+                final double speed = 0.05;
+                if (rotating) {
+                    rotation = rotation.multiply(new DoubleQuaternion(new Vec3d(0, 1, 0), (speed * seconds) * 360, true));
+                }
+                lastMillis = current;
+            } else {
+                lastMillis = Util.getMeasuringTimeMs();
             }
-            lastMillis = current;
-        } else {
-            lastMillis = Util.getMeasuringTimeMs();
-        }
-        matrices.push();
-        renderInfo(matrices, x, y, width, height, info, immediate);
-        matrices.pop();
-        immediate.draw();
+
+            matrices.push();
+            renderInfo(matrices, x, y, width, height, info, vertexConsumers);
+            matrices.pop();
+        });
     }
 
     private void renderInfo(final MatrixStack matrices, final double x, double y, final double width, final double height, @Nullable final ItemStackInfo stackInfo, final VertexConsumerProvider vertexConsumers) {

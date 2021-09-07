@@ -160,6 +160,14 @@ public class InventorySlotsWidget extends AbstractWidget {
             }
         }
         NinePatch.renderEnd(bufferBuilder);
+
+        render(vertexConsumers -> {
+            for (ItemStackLike[] itemStackLikes : inventory) {
+                for (ItemStackLike itemStackLike : itemStackLikes) {
+                    itemStackLike.render(matrices, mouseX, mouseY, delta, vertexConsumers);
+                }
+            }
+        });
     }
 
     @Override
