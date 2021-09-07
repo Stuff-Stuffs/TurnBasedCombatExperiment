@@ -12,13 +12,10 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
@@ -98,13 +95,14 @@ public class BattleInventoryPreviewWidget extends AbstractWidget {
         final double y = position.getY();
         final double width = this.width.getAsDouble();
         final double height = this.height.getAsDouble();
+        final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
         matrices.push();
         final double scale = Math.min(width, height * (1 - infoFraction));
         matrices.translate(x + width / 2, y + height * (1 - infoFraction) / 2, 0);
         matrices.scale((float) scale * 0.5f, (float) scale * 0.5f, 1);
         matrices.multiply(rotation.toFloatQuat());
         final ItemStackInfo info = stackSupplier.get();
-        renderItem(matrices, delta, info);
+        renderItem(matrices, delta, info, immediate);
         matrices.pop();
 
         if (lastMillis != 0) {
@@ -119,23 +117,24 @@ public class BattleInventoryPreviewWidget extends AbstractWidget {
             lastMillis = Util.getMeasuringTimeMs();
         }
         matrices.push();
-        renderInfo(matrices, x, y, width, height, info);
+        renderInfo(matrices, x, y, width, height, info, immediate);
         matrices.pop();
+        immediate.draw();
     }
 
-    private void renderInfo(final MatrixStack matrices, final double x, double y, final double width, final double height, @Nullable final ItemStackInfo stackInfo) {
+    private void renderInfo(final MatrixStack matrices, final double x, double y, final double width, final double height, @Nullable final ItemStackInfo stackInfo, final VertexConsumerProvider vertexConsumers) {
         if (stackInfo != null) {
             y += height - (height * infoFraction);
             matrices.translate(0, 0, 1);
-            renderFitText(matrices, stackInfo.stack.getItem().getName(), x + getHorizontalPixel(), y+getVerticalPixel(), width - 2 * getHorizontalPixel(), height * infoFraction * 0.25 - 2 * getVerticalPixel(), true, -1);
+            renderFitText(matrices, stackInfo.stack.getItem().getName(), x + getHorizontalPixel(), y + getVerticalPixel(), width - 2 * getHorizontalPixel(), height * infoFraction * 0.25 - 2 * getVerticalPixel(), true, -1, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
             matrices.translate(0, 0, -1);
             renderTooltipBackground(x, y, width, height * infoFraction * 0.25, matrices);
             renderTooltipBackground(x, y + height * infoFraction * 0.25, width, height * infoFraction * 0.75, matrices);
-            renderTextLines(matrices, stackInfo.stack.getItem().getTooltip(), x + getHorizontalPixel(), y + height * infoFraction * 0.25 + getVerticalPixel(), width-2*getHorizontalPixel(), height * infoFraction * 0.75 - 2 * getVerticalPixel(), false, false, -1);
+            renderTextLines(matrices, stackInfo.stack.getItem().getTooltip(), x + getHorizontalPixel(), y + height * infoFraction * 0.25 + getVerticalPixel(), width - 2 * getHorizontalPixel(), height * infoFraction * 0.75 - 2 * getVerticalPixel(), false, false, -1, vertexConsumers);
         }
     }
 
-    private void renderItem(final MatrixStack matrices, final float delta, @Nullable final ItemStackInfo stackInfo) {
+    private void renderItem(final MatrixStack matrices, final float delta, @Nullable final ItemStackInfo stackInfo, final VertexConsumerProvider vertexConsumers) {
         if (stackInfo != null) {
             final BattleParticipantStateView participantState = battleStateView.getParticipant(stackInfo.location.map(BattleParticipantInventoryHandle::handle, Pair::getFirst));
             if (participantState == null) {
@@ -143,10 +142,7 @@ public class BattleInventoryPreviewWidget extends AbstractWidget {
             }
             final BattleParticipantItemStack stack = stackInfo.stack;
             final BattleParticipantItemRenderer renderer = BattleRendererRegistry.getItemRenderer(stack.getItem().getType());
-            final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-            final VertexConsumerProvider.Immediate vertexConsumers = VertexConsumerProvider.immediate(buffer);
             renderer.render(stack, participantState, matrices, vertexConsumers, delta);
-            vertexConsumers.draw();
         }
     }
 

@@ -6,13 +6,13 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -121,7 +121,9 @@ public class PressableButtonWidget extends AbstractWidget {
 
         final boolean shadow = !(state == ButtonState.INACTIVE || state == ButtonState.HELD);
         final Text text = message.get();
-        renderFitTextWrap(matrices, text, positionX + 2 *  getHorizontalPixel(), positionY, width - 4 * getHorizontalPixel(), height, shadow, -1);
+        final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
+        renderFitTextWrap(matrices, text, positionX + 2 * getHorizontalPixel(), positionY, width - 4 * getHorizontalPixel(), height, shadow, -1, immediate);
+        immediate.draw();
 
         if (state == ButtonState.HOVERED) {
             matrices.translate(0, 0, 1);

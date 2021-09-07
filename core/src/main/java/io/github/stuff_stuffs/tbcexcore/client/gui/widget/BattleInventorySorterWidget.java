@@ -230,14 +230,16 @@ public class BattleInventorySorterWidget extends AbstractWidget {
         buffer.end();
         BufferRenderer.draw(buffer);
 
+        VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
         for (int i = 0; i < sorts.size(); i++) {
-            renderDecorations(sorts.get(i), matrices, i, hoverIndex);
+            renderDecorations(sorts.get(i), matrices, i, hoverIndex, immediate);
         }
+        immediate.draw();
 
         matrices.pop();
     }
 
-    private void renderDecorations(final Sort sort, final MatrixStack matrices, final int index, final int hoverIndex) {
+    private void renderDecorations(final Sort sort, final MatrixStack matrices, final int index, final int hoverIndex, VertexConsumerProvider vertexConsumers) {
         final float offsetX = (float) position.getX();
         final float offsetY = (float) position.getY();
         final double startX = offsetX + borderThickness + index * entryWidth + index * horizontalSpacing;
@@ -249,7 +251,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
         final double offset = width.getAsDouble() / 8;
         final double scale = Math.max(offset - dist, 0) / offset;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
-        renderFitText(matrices, sort.getName(), startX, y, (endX - startX) * scale, (height.getAsDouble() - 2 * borderThickness) * scale, shadow, ClientUtil.tweakComponent(-1, 3, scale));
+        renderFitText(matrices, sort.getName(), startX, y, (endX - startX) * scale, (height.getAsDouble() - 2 * borderThickness) * scale, shadow, ClientUtil.tweakComponent(-1, 3, scale), vertexConsumers);
     }
 
     private void renderInfo(final Sort category, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {

@@ -9,7 +9,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vector4f;
 
 import java.util.List;
 
@@ -88,8 +87,8 @@ public abstract class AbstractWidget implements Widget {
                 if (scale < textScale) {
                     textScale = scale;
                 }
-                if(componentWidth*textScale>width) {
-                    width = componentWidth* textScale;
+                if (componentWidth * textScale > width) {
+                    width = componentWidth * textScale;
                 }
             }
             width += 4 * verticalPixel * borderThickness;
@@ -101,7 +100,7 @@ public abstract class AbstractWidget implements Widget {
             final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 
             double offset = 0;
-            for (TooltipComponent tooltipComponent : components) {
+            for (final TooltipComponent tooltipComponent : components) {
                 matrices.push();
                 matrices.translate(0, offset, 0);
                 matrices.translate(x + 2 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, 0);
@@ -113,7 +112,7 @@ public abstract class AbstractWidget implements Widget {
 
             immediate.draw();
             offset = 0;
-            for (TooltipComponent tooltipComponent : components) {
+            for (final TooltipComponent tooltipComponent : components) {
                 matrices.push();
                 matrices.translate(0, offset, 0);
                 matrices.translate(x + 2 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, 0);
@@ -170,19 +169,19 @@ public abstract class AbstractWidget implements Widget {
         return Math.min(hSize, vSize);
     }
 
-    public void renderText(final MatrixStack matrices, final Text text, final boolean center, final boolean shadow, final int colour) {
-        renderText(matrices, text.asOrderedText(), center, shadow, colour);
+    public void renderText(final MatrixStack matrices, final Text text, final boolean center, final boolean shadow, final int colour, VertexConsumerProvider vertexConsumers) {
+        renderText(matrices, text.asOrderedText(), center, shadow, colour, vertexConsumers);
     }
 
-    public void renderText(final MatrixStack matrices, final OrderedText text, final boolean center, final boolean shadow, final int colour) {
+    public void renderText(final MatrixStack matrices, final OrderedText text, final boolean center, final boolean shadow, final int colour, VertexConsumerProvider vertexConsumers) {
+        renderText(matrices, text, center, shadow, colour, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
+    }
+
+    public void renderText(final MatrixStack matrices, final OrderedText text, final boolean center, final boolean shadow, final int colour, final int backgroundColour, final int light, final VertexConsumerProvider vertexConsumer) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         if (center) {
             final float middle = textRenderer.getWidth(text) / 2.0f;
-            if (shadow) {
-                textRenderer.draw(matrices, text, -middle, 0, colour);
-            } else {
-                textRenderer.drawWithShadow(matrices, text, -middle, 0, colour);
-            }
+            textRenderer.draw(text, -middle, 0, colour, shadow, matrices.peek().getModel(), vertexConsumer, false, backgroundColour, light);
         } else {
             if (shadow) {
                 textRenderer.draw(matrices, text, 0, 0, colour);
@@ -192,7 +191,11 @@ public abstract class AbstractWidget implements Widget {
         }
     }
 
-    public void renderFitText(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
+    public void renderFitText(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, int colour, final VertexConsumerProvider vertexConsumers) {
+        renderFitText(matrices, text, x, y, maxWidth, maxHeight, shadow, colour, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
+    }
+
+    public void renderFitText(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour, final int backgroundColour, final int light, final VertexConsumerProvider vertexConsumers) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final double scale = getTextScale(textRenderer.getWidth(text), maxWidth, maxHeight);
         matrices.push();
@@ -200,23 +203,27 @@ public abstract class AbstractWidget implements Widget {
         final double centerX = x + maxWidth / 2.0;
         matrices.translate(centerX, y + offset, 0);
         matrices.scale((float) scale, (float) scale, (float) scale);
-        renderText(matrices, text, true, shadow, colour);
+        renderText(matrices, text.asOrderedText(), true, shadow, colour, backgroundColour, light, vertexConsumers);
         matrices.pop();
     }
 
-    public void renderFitTextWrap(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour) {
+    public void renderFitTextWrap(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour, final VertexConsumerProvider vertexConsumers) {
+        renderFitTextWrap(matrices, text, x, y, maxWidth, maxHeight, shadow, colour, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
+    }
+
+    public void renderFitTextWrap(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour, final int backgroundColour, final int light, final VertexConsumerProvider vertexConsumers) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final int textWidth = textRenderer.getWidth(text);
         final double textScale = getTextScale(textWidth, 100, maxHeight);
-        final double width = textWidth*textScale;
-        final int maxLines = (int) Math.floor(width / (maxWidth*2));
+        final double width = textWidth * textScale;
+        final int maxLines = (int) Math.floor(width / (maxWidth * 2));
         if (maxLines > 1) {
-            final List<OrderedText> lines = textRenderer.wrapLines(text, (int) Math.floor(2*maxWidth/textScale));
+            final List<OrderedText> lines = textRenderer.wrapLines(text, (int) Math.floor(2 * maxWidth / textScale));
             double minScale = Double.MAX_VALUE;
             for (final OrderedText line : lines) {
                 minScale = Math.min(getTextScale(textRenderer.getWidth(line), maxWidth, maxHeight / lines.size()), minScale);
             }
-            double centerOffset = maxHeight/2-(lines.size() * minScale * textRenderer.fontHeight)/2;
+            final double centerOffset = maxHeight / 2 - (lines.size() * minScale * textRenderer.fontHeight) / 2;
             for (int j = 0; j < lines.size(); j++) {
                 final OrderedText line = lines.get(j);
                 matrices.push();
@@ -224,15 +231,19 @@ public abstract class AbstractWidget implements Widget {
                 final double centerX = x + maxWidth / 2.0;
                 matrices.translate(centerX, y + centerOffset + offset, 0);
                 matrices.scale((float) minScale, (float) minScale, (float) minScale);
-                renderText(matrices, line, true, shadow, colour);
+                renderText(matrices, line, true, shadow, colour, backgroundColour, light, vertexConsumers);
                 matrices.pop();
             }
         } else {
-            renderFitText(matrices, text, x, y, maxWidth, maxHeight, shadow, colour);
+            renderFitText(matrices, text, x, y, maxWidth, maxHeight, shadow, colour, backgroundColour, light, vertexConsumers);
         }
     }
 
-    public void renderTextLines(final MatrixStack matrices, final List<? extends Text> texts, final double x, final double y, final double maxWidth, final double maxHeight, final boolean center, final boolean shadow, final int colour) {
+    public void renderTextLines(final MatrixStack matrices, final List<? extends Text> texts, final double x, final double y, final double maxWidth, final double maxHeight, final boolean center, final boolean shadow, final int colour, VertexConsumerProvider vertexConsumers) {
+        renderTextLines(matrices, texts, x, y, maxWidth, maxHeight, center, shadow, colour, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
+    }
+
+    public void renderTextLines(final MatrixStack matrices, final List<? extends Text> texts, final double x, final double y, final double maxWidth, final double maxHeight, final boolean center, final boolean shadow, final int colour, final int backgroundColour, final int light, final VertexConsumerProvider vertexConsumers) {
         if (texts.size() == 0) {
             return;
         }
@@ -255,7 +266,7 @@ public abstract class AbstractWidget implements Widget {
             matrices.push();
             matrices.translate(centerX, y + offset, 0);
             matrices.scale((float) minScale, (float) minScale, (float) minScale);
-            renderText(matrices, text, center, shadow, colour);
+            renderText(matrices, text.asOrderedText(), center, shadow, colour, backgroundColour, light, vertexConsumers);
             matrices.pop();
         }
     }

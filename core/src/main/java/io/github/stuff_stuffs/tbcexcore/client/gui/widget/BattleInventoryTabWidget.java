@@ -32,7 +32,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     private double pos = 0;
     private int selectedIndex = 0;
 
-    public BattleInventoryTabWidget(final WidgetPosition position, final List<ItemStackInfo> stacks, final double borderThickness, final double entryHeight, final double verticalSpacing, final DoubleSupplier width, final DoubleSupplier height, final IntConsumer onSelect, DoubleSelect doubleSelect) {
+    public BattleInventoryTabWidget(final WidgetPosition position, final List<ItemStackInfo> stacks, final double borderThickness, final double entryHeight, final double verticalSpacing, final DoubleSupplier width, final DoubleSupplier height, final IntConsumer onSelect, final DoubleSelect doubleSelect) {
         this.position = position;
         this.stacks = stacks;
         this.borderThickness = borderThickness;
@@ -142,24 +142,26 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         }
         buffer.end();
         BufferRenderer.draw(buffer);
+        final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
         for (int i = 0; i < stacks.size(); i++) {
-            renderDecorations(stacks.get(i), matrices, i, hoverIndex);
+            renderDecorations(stacks.get(i), matrices, i, hoverIndex, immediate);
         }
+        immediate.draw();
         matrices.pop();
         ScissorStack.pop();
     }
 
-    private void renderDecorations(final ItemStackInfo info, final MatrixStack matrices, final int index, final int hoverIndex) {
+    private void renderDecorations(final ItemStackInfo info, final MatrixStack matrices, final int index, final int hoverIndex, final VertexConsumerProvider vertexConsumers) {
         final float offsetX = (float) position.getX();
         final float offsetY = (float) position.getY();
         final double maxWidth = ((width.getAsDouble() - 2 * borderThickness) / (double) COLUMN_COUNT);
         final double y = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
         final Text name = info.stack.getItem().getName();
-        renderFitTextWrap(matrices, name, offsetX + borderThickness, y, maxWidth, entryHeight, shadow, -1);
-        renderFitTextWrap(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, shadow, -1);
-        renderFitTextWrap(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, -1);
-        renderFitTextWrap(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, info.stack.getItem().getRarity().getRarity().getColour());
+        renderFitTextWrap(matrices, name, offsetX + borderThickness, y, maxWidth, entryHeight, shadow, -1, vertexConsumers);
+        renderFitTextWrap(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, shadow, -1, vertexConsumers);
+        renderFitTextWrap(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, -1, vertexConsumers);
+        renderFitTextWrap(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, info.stack.getItem().getRarity().getRarity().getColour(), vertexConsumers);
     }
 
     private void renderInfo(final ItemStackInfo info, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
@@ -189,28 +191,28 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final double offsetX = position.getX();
         final double offsetY = position.getY();
         if (keyCode == GLFW.GLFW_KEY_UP) {
-            int index = selectedIndex - 1;
+            final int index = selectedIndex - 1;
             final double startX = (offsetX + borderThickness);
             final double endX = (offsetX + width.getAsDouble() - borderThickness);
             final double startY = (offsetY + borderThickness + selectedIndex * entryHeight + index * verticalSpacing);
             final double endY = (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
             pos = Math.min(Math.max(pos - entryHeight, 0), getListHeight() - (offsetY - 2 * borderThickness));
-            setSelectedIndex(index, (startX+endX)/2, (startY+endY)/2);
+            setSelectedIndex(index, (startX + endX) / 2, (startY + endY) / 2);
         } else if (keyCode == GLFW.GLFW_KEY_DOWN) {
-            int index = selectedIndex + 1;
+            final int index = selectedIndex + 1;
             final double startX = (offsetX + borderThickness);
             final double endX = (offsetX + width.getAsDouble() - borderThickness);
             final double startY = (offsetY + borderThickness + selectedIndex * entryHeight + index * verticalSpacing);
             final double endY = (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
             pos = Math.min(Math.max(pos + entryHeight, 0), getListHeight() - (offsetY - 2 * borderThickness));
-            setSelectedIndex(index, (startX+endX)/2, (startY+endY)/2);
+            setSelectedIndex(index, (startX + endX) / 2, (startY + endY) / 2);
         } else if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
-            int index = selectedIndex;
+            final int index = selectedIndex;
             final double startX = (offsetX + borderThickness);
             final double endX = (offsetX + width.getAsDouble() - borderThickness);
             final double startY = (offsetY + borderThickness + selectedIndex * entryHeight + index * verticalSpacing);
             final double endY = (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
-            setSelectedIndex(index, (startX+endX)/2, (startY+endY)/2);
+            setSelectedIndex(index, (startX + endX) / 2, (startY + endY) / 2);
         } else {
             return false;
         }
