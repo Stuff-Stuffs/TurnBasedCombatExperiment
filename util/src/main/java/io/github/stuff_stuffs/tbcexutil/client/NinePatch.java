@@ -25,6 +25,7 @@ public final class NinePatch {
 
     public static BufferBuilder renderSetup() {
         RenderSystem.enableBlend();
+        RenderSystem.enableDepthTest();
         RenderSystem.enableTexture();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
