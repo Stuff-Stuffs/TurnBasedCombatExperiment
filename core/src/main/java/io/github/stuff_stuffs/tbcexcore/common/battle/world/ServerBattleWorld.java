@@ -9,6 +9,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexcore.common.network.PlayerJoinBattleSender;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
+import it.unimi.dsi.fastutil.bytes.ByteArrays;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -25,6 +26,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,9 +44,10 @@ public final class ServerBattleWorld implements BattleWorld {
     private static final long TIME_OUT = 20 * 60 * 5;
     private static final String VERSION = "0.0";
     private final Path directory;
+    private final Path metaFile;
     private final Map<BattleHandle, Battle> activeBattles;
     private final Object2LongMap<BattleHandle> lastAccess;
-    private int nextId = 0;
+    private int nextId;
     private long tickCount = 0;
 
     public ServerBattleWorld(final Path directory) {
@@ -59,6 +62,19 @@ public final class ServerBattleWorld implements BattleWorld {
         if (!Files.isDirectory(directory)) {
             throw new RuntimeException("Cannot create tbcex_battle_world directory or already exists as file");
         }
+        metaFile = directory.resolve("central.tbcex_battle_meta");
+        if(Files.isRegularFile(metaFile)) {
+            try(InputStream metaStream = Files.newInputStream(metaFile, StandardOpenOption.READ)) {
+                ByteBuffer buffer = ByteBuffer.allocate(256);
+                buffer.put(metaStream.readAllBytes());
+                buffer.position(0);
+                nextId = buffer.getInt();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            nextId = 0;
+        }
         activeBattles = new Object2ReferenceOpenHashMap<>();
         lastAccess = new Object2LongOpenHashMap<>();
     }
@@ -71,15 +87,6 @@ public final class ServerBattleWorld implements BattleWorld {
         }
         lastAccess.put(handle, tickCount);
         return battle;
-    }
-
-    public BattleHandle createBattle(final Collection<BattleEntity> entities, final BattleBounds bounds) {
-        final BattleHandle handle = createBattle(bounds);
-        final Battle battle = activeBattles.get(handle);
-        for (final BattleEntity entity : entities) {
-            join(handle, entity);
-        }
-        return handle;
     }
 
     public void join(final BattleHandle handle, final BattleEntity entity) {
@@ -123,6 +130,14 @@ public final class ServerBattleWorld implements BattleWorld {
     public void save() {
         for (final BattleHandle handle : activeBattles.keySet()) {
             save(handle);
+        }
+        try(OutputStream metaStream = Files.newOutputStream(metaFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            ByteBuffer buffer = ByteBuffer.allocate(256);
+            buffer.putInt(nextId);
+            metaStream.write(buffer.array());
+        } catch (IOException e) {
+            //TODO
+            throw new RuntimeException();
         }
     }
 
