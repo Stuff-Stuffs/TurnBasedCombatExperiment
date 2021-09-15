@@ -30,20 +30,6 @@ public abstract class TBCExScreen extends Screen {
         }
     }
 
-    public double getWidth() {
-        if (width > height) {
-            return width / (double) height;
-        }
-        return 1;
-    }
-
-    public double getHeight() {
-        if (width < height) {
-            return height / (double) width;
-        }
-        return 1;
-    }
-
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
         return widget.mouseClicked(transformMouseX(mouseX), transformMouseY(mouseY), button);
@@ -103,7 +89,7 @@ public abstract class TBCExScreen extends Screen {
     @Override
     public void render(final MatrixStack matrices, final int mouseX, final int mouseY, final float delta) {
         final Window window = MinecraftClient.getInstance().getWindow();
-        final Matrix4f prevProjection = RenderSystem.getProjectionMatrix();
+        RenderSystem.backupProjectionMatrix();
         final Matrix4f matrix4f = Matrix4f.projectionMatrix(0.0F, window.getFramebufferWidth(), 0.0F, window.getFramebufferHeight(), 1000.0F, 3000.0F);
         RenderSystem.setProjectionMatrix(matrix4f);
         matrices.push();
@@ -117,7 +103,6 @@ public abstract class TBCExScreen extends Screen {
         }
         widget.render(matrices, transformMouseX(mouseX), transformMouseY(mouseY), delta);
         matrices.pop();
-
-        RenderSystem.setProjectionMatrix(prevProjection);
+        RenderSystem.restoreProjectionMatrix();
     }
 }

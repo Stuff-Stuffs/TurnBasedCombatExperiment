@@ -1,3 +1,7 @@
 dependencies {
     implementation project(':util')
 }
+
+loom {
+    accessWidenerPath = file("src/main/resources/TBCExGui.accesswidener")
+}

@@ -1,10 +1,13 @@
 package io.github.stuff_stuffs.tbcexgui.client;
 
+import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
+import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.ButtonState;
 import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.util.Identifier;
@@ -28,12 +31,18 @@ public class TBCExGuiClient implements ClientModInitializer {
                 }
             }
             base = new Identifier("tbcexgui", "gui/hotbar/single");
-            for (NinePatch.Part part : NinePatch.Part.values()) {
+            for (final NinePatch.Part part : NinePatch.Part.values()) {
                 registry.register(part.append(base));
             }
             base = new Identifier("tbcexgui", "gui/hotbar/single/selected");
-            for (NinePatch.Part part : NinePatch.Part.values()) {
+            for (final NinePatch.Part part : NinePatch.Part.values()) {
                 registry.register(part.append(base));
+            }
+        });
+        ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+            ScreenEvents.beforeRender(screen).register((s, matrices, mouseX, mouseY, tickDelta) -> TooltipRenderer.clear());
+            if (screen instanceof TBCExScreen) {
+                ScreenEvents.afterRender(screen).register((s, matrices, mouseX, mouseY, tickDelta) -> TooltipRenderer.renderAll());
             }
         });
     }

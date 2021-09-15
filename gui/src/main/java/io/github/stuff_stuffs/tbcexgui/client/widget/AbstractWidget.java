@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.client.MinecraftClient;
@@ -19,8 +20,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class AbstractWidget implements Widget {
-    private static final Map<RenderLayer, BufferBuilder> GUI_BUFFERS;
-    private static final BufferBuilder FALLBACK_BUFFER;
+    public static final Map<RenderLayer, BufferBuilder> GUI_BUFFERS;
+    public static final BufferBuilder FALLBACK_BUFFER;
     private double screenWidth, screenHeight;
     private int pixelWidth, pixelHeight;
     private double verticalPixel = 1 / 480d;
@@ -85,102 +86,61 @@ public abstract class AbstractWidget implements Widget {
         return pixelHeight;
     }
 
-    protected void renderTooltip(final MatrixStack matrices, final List<? extends TooltipComponent> components, final double x, final double y, final boolean move) {
-        if (!components.isEmpty()) {
-            final double borderThickness = 0.5;
-            final MinecraftClient client = MinecraftClient.getInstance();
-            final TextRenderer textRenderer = client.textRenderer;
-            double textScale = Double.MAX_VALUE;
-            double width = 0;
-            double height = 0;
-            for (final TooltipComponent component : components) {
-                final int componentHeight = component.getHeight();
-                final int componentWidth = component.getWidth(textRenderer);
-                height += componentHeight;
-                final double scale = getTextScale(componentWidth, 100, 1 / 48.0);
-                if (scale < textScale) {
-                    textScale = scale;
-                }
-                if (componentWidth * textScale > width) {
-                    width = componentWidth * textScale;
-                }
-            }
-            width += 4 * verticalPixel * borderThickness;
-            height *= textScale;
-            height += 4 * verticalPixel * borderThickness;
-            matrices.push();
-            renderTooltipBackground(x, y, width, height, matrices);
-
-            final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-
-            double offset = 0;
-            for (final TooltipComponent tooltipComponent : components) {
-                matrices.push();
-                matrices.translate(0, offset, 0);
-                matrices.translate(x + 2 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, 0);
-                matrices.scale((float) textScale, (float) textScale, 1);
-                tooltipComponent.drawText(textRenderer, 0, 0, matrices.peek().getModel(), immediate);
-                offset += tooltipComponent.getHeight() * textScale;
-                matrices.pop();
-            }
-
-            immediate.draw();
-            offset = 0;
-            for (final TooltipComponent tooltipComponent : components) {
-                matrices.push();
-                matrices.translate(0, offset, 0);
-                matrices.translate(x + 2 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, 0);
-                matrices.scale((float) textScale, (float) textScale, 1);
-                tooltipComponent.drawItems(textRenderer, 0, 0, matrices, client.getItemRenderer(), 0, client.getTextureManager());
-                offset += tooltipComponent.getHeight() * textScale;
-                matrices.pop();
-            }
-        }
-        matrices.pop();
+    protected void renderTooltip(final MatrixStack matrices, final List<TooltipComponent> components, final double x, final double y) {
+        TooltipRenderer.render(components, x, y, horizontalPixel, verticalPixel, pixelWidth, pixelHeight, matrices.peek().getModel());
     }
 
     public void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices) {
-        final double borderThickness = 0.5;
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder bufferBuilder = tessellator.getBuffer();
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder buffer = tessellator.getBuffer();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        final int background = 0xF0100010;
+        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
-        //center
-        RenderUtil.renderRectangle(matrices, x, y + 1 * verticalPixel * borderThickness, width, height - 2 * verticalPixel * borderThickness, background, bufferBuilder);
-        //background sides
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, background, bufferBuilder);
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + height - verticalPixel * borderThickness, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, background, bufferBuilder);
-        //purple top and bottom
-        final int topPurple = 0x505000FF;
-        final int bottomPurple = 0x5028007F;
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + verticalPixel * borderThickness, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, topPurple, bufferBuilder);
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + height - 2 * verticalPixel * borderThickness, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, bottomPurple, bufferBuilder);
-        //purple sides
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, horizontalPixel * borderThickness, height - 4 * verticalPixel * borderThickness, topPurple, bottomPurple, topPurple, bottomPurple, bufferBuilder);
-        RenderUtil.renderRectangle(matrices, x + width - 2 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, horizontalPixel * borderThickness, height - 4 * verticalPixel * borderThickness, topPurple, bottomPurple, topPurple, bottomPurple, bufferBuilder);
+        renderTooltipBackground(x, y, width, height, matrices, horizontalPixel, verticalPixel, buffer);
 
         RenderSystem.enableDepthTest();
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        bufferBuilder.end();
-        BufferRenderer.draw(bufferBuilder);
+        buffer.end();
+        BufferRenderer.draw(buffer);
 
         RenderSystem.disableBlend();
         RenderSystem.enableTexture();
     }
 
-    public double getTextScale(final int textWidth, final double maxWidth, final double maxHeight) {
+    public static void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices, double horizontalPixel, double verticalPixel, VertexConsumer vertexConsumer) {
+        final double borderThickness = 0.5;
+        final int background = 0xF0100010;
+
+        //center
+        RenderUtil.renderRectangle(matrices, x, y + 1 * verticalPixel * borderThickness, width, height - 2 * verticalPixel * borderThickness, background, vertexConsumer);
+        //background sides
+        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, background, vertexConsumer);
+        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + height - verticalPixel * borderThickness, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, background, vertexConsumer);
+        //purple top and bottom
+        final int topPurple = 0x505000FF;
+        final int bottomPurple = 0x5028007F;
+        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + verticalPixel * borderThickness, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, topPurple, vertexConsumer);
+        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + height - 2 * verticalPixel * borderThickness, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, bottomPurple, vertexConsumer);
+        //purple sides
+        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, horizontalPixel * borderThickness, height - 4 * verticalPixel * borderThickness, topPurple, bottomPurple, topPurple, bottomPurple, vertexConsumer);
+        RenderUtil.renderRectangle(matrices, x + width - 2 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, horizontalPixel * borderThickness, height - 4 * verticalPixel * borderThickness, topPurple, bottomPurple, topPurple, bottomPurple, vertexConsumer);
+    }
+
+    public static double getTextScale(final int textWidth, final double maxWidth, final double maxHeight, double pixelWidth, double pixelHeight, double horizontalPixel, double verticalPixel) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final double scaleFactor = MinecraftClient.getInstance().getWindow().getScaleFactor();
-        final double hScale = (textWidth * 4 / (double) pixelWidth) * scaleFactor;
+        final double hScale = (textWidth * 4 / pixelWidth) * scaleFactor;
         final double hSize = (maxWidth / hScale) * horizontalPixel;
-        final double vScale = (textRenderer.fontHeight * 2 / (double) pixelHeight) * scaleFactor;
+        final double vScale = (textRenderer.fontHeight * 2 / pixelHeight) * scaleFactor;
         final double vSize = (maxHeight / vScale) * verticalPixel;
 
         return Math.min(hSize, vSize);
+    }
+
+    public double getTextScale(final int textWidth, final double maxWidth, final double maxHeight) {
+        return getTextScale(textWidth, maxWidth, maxHeight, pixelWidth, pixelHeight, horizontalPixel, verticalPixel);
     }
 
     public void renderText(final MatrixStack matrices, final Text text, final boolean center, final boolean shadow, final int colour, VertexConsumerProvider vertexConsumers) {

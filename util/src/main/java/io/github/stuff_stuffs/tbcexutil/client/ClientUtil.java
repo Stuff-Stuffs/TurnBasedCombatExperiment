@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import io.github.stuff_stuffs.tbcexutil.mixin.AccessorGameRenderer;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
@@ -27,7 +28,7 @@ public final class ClientUtil implements ClientModInitializer {
 
     public static Vec3d getMouseVector() {
         final MinecraftClient client = MinecraftClient.getInstance();
-        final double fov = Math.toRadians(client.options.fov);
+        final double fov = Math.toRadians(((AccessorGameRenderer)client.gameRenderer).callGetFov(client.gameRenderer.getCamera(), 0.5f, true));
         final Vec3f vec3f = new Vec3f((float) (client.getWindow().getFramebufferWidth() / 2d - client.mouse.getX()), (float) (client.getWindow().getFramebufferHeight() / 2d - client.mouse.getY()), (client.getWindow().getFramebufferHeight() / 2f) / ((float) Math.tan(fov / 2d)));
         final Quaternion rotation = client.gameRenderer.getCamera().getRotation();
         vec3f.rotate(rotation);

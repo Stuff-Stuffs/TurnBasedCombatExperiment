@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.tbcextest.common;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
@@ -80,7 +79,7 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
                     }
                 }, (battleStateView, user, target) -> {
 
-                }), battleState, handle);
+                }, List.of(TooltipComponent.of(new LiteralText("equip lol").asOrderedText()))), battleState, handle);
             }
         };
         final ParticipantAction action2 = new ParticipantAction() {
@@ -108,7 +107,7 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
                     }
                 }, (battleStateView, user, target) -> {
 
-                }), battleState, handle);
+                }, List.of(TooltipComponent.of(new LiteralText("use it").asOrderedText()))), battleState, handle);
             }
         };
         return List.of(action1,action2);

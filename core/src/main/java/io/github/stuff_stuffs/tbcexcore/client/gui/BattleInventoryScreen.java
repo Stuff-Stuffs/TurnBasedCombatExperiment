@@ -45,7 +45,8 @@ public class BattleInventoryScreen extends TBCExScreen {
     @Override
     public void tick() {
         super.tick();
-        if (!init) {
+        final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
+        if (!init && battle != null) {
             init = true;
             final RootPanelWidget widget = (RootPanelWidget) this.widget;
             final List<ItemStackInfo> infos = new ArrayList<>();
@@ -54,10 +55,10 @@ public class BattleInventoryScreen extends TBCExScreen {
             final SuppliedWidgetPosition tabPosition = new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 1 / 4.0, () -> startY.getAsDouble() + widget.getScreenHeight() * 1 / 8.0, () -> 0);
             inventoryWidget = new BattleInventoryTabWidget(tabPosition, infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 7 / 8.0, this::select, (index, mouseX, mouseY) -> {
                 if (index >= 0 && index < infos.size()) {
-                    final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
                     final BattleParticipantStateView participantState;
-                    if (battle != null) {
-                        participantState = battle.getState().getParticipant(handle);
+                    final Battle b = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
+                    if (b != null) {
+                        participantState = b.getState().getParticipant(handle);
                     } else {
                         throw new RuntimeException();
                     }
@@ -65,10 +66,10 @@ public class BattleInventoryScreen extends TBCExScreen {
                         throw new RuntimeException();
                     }
                     final Either<BattleParticipantInventoryHandle, Pair<BattleParticipantHandle, BattleEquipmentSlot>> location = infos.get(index).location;
-                    List<ParticipantAction> actions = new ArrayList<>();
-                    actions.addAll(location.map(h -> participantState.getItemStack(h).getItem().getActions(battle.getState(), participantState, h), p -> participantState.getEquipment(p.getSecond()).getActions(battle.getState(), participantState)));
+                    final List<ParticipantAction> actions = new ArrayList<>();
+                    actions.addAll(location.map(h -> participantState.getItemStack(h).getItem().getActions(b.getState(), participantState, h), p -> participantState.getEquipment(p.getSecond()).getActions(b.getState(), participantState)));
                     if (actions.size() > 0) {
-                        selectionWidget = new BattleInventoryActionSelectionWidget(WidgetPosition.of(mouseX, mouseY, 10), battle.getState(), handle, actions);
+                        selectionWidget = new BattleInventoryActionSelectionWidget(WidgetPosition.of(mouseX, mouseY, 10), b.getState(), handle, actions);
                         if (selectionWidgetHandle != null) {
                             widget.removeWidget(selectionWidgetHandle);
                         }
@@ -100,7 +101,7 @@ public class BattleInventoryScreen extends TBCExScreen {
             navigationWidget.setSelectedIndex(0);
             infos.addAll(navigationWidget.getFiltered());
 
-            previewWidget = new BattleInventoryPreviewWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 5 / 8.0, startY, () -> 0), () -> widget.getScreenWidth() * 3 / 8.0, widget::getScreenHeight, 0.45, ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId()).getState(), () -> {
+            previewWidget = new BattleInventoryPreviewWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 5 / 8.0, startY, () -> 0), () -> widget.getScreenWidth() * 3 / 8.0, widget::getScreenHeight, 0.45, battle.getState(), () -> {
                 if (selected.intValue() >= 0 && selected.intValue() < infos.size()) {
                     return infos.get(selected.intValue());
                 }
@@ -112,7 +113,9 @@ public class BattleInventoryScreen extends TBCExScreen {
             widget.addWidget(navigationWidget);
             widget.addWidget(previewWidget);
         }
-        inventoryWidget.tick();
+        if (init) {
+            inventoryWidget.tick();
+        }
     }
 
     private void select(final int index) {

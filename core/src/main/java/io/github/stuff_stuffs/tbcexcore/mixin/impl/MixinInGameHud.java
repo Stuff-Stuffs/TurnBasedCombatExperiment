@@ -3,10 +3,13 @@ package io.github.stuff_stuffs.tbcexcore.mixin.impl;
 import io.github.stuff_stuffs.tbcexcore.client.gui.BattleHud;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
+import io.github.stuff_stuffs.tbcexcore.mixin.api.HudSupplier;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Mouse;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.hud.SpectatorHud;
 import net.minecraft.client.util.math.MatrixStack;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(InGameHud.class)
-public abstract class MixinInGameHud {
+public abstract class MixinInGameHud implements HudSupplier {
     @Unique
     private BattleHud hud;
 
@@ -75,7 +78,8 @@ public abstract class MixinInGameHud {
     @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/SpectatorHud;render(Lnet/minecraft/client/util/math/MatrixStack;F)V"))
     private void redirectSpectatorRendering(final SpectatorHud spectatorHud, final MatrixStack matrices, final float tickDelta) {
         if (hud != null) {
-            hud.render(matrices, tickDelta);
+            final Mouse mouse = client.mouse;
+            hud.render(matrices, mouse.getX() * (double) client.getWindow().getScaledWidth() / (double) client.getWindow().getWidth(), mouse.getY() * (double) client.getWindow().getScaledHeight() / (double) client.getWindow().getHeight(), tickDelta);
         } else {
             spectatorHud.render(matrices);
         }
@@ -104,5 +108,10 @@ public abstract class MixinInGameHud {
         } else {
             hud = null;
         }
+    }
+
+    @Override
+    public @Nullable BattleHud getBattleHud() {
+        return hud;
     }
 }

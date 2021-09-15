@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexcore.mixin.impl;
+package io.github.stuff_stuffs.tbcexutil.mixin;
 
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;

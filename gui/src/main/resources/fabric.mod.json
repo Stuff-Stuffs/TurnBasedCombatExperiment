@@ -20,6 +20,7 @@
   "mixins": [
     "TBCExGui.mixins.json"
   ],
+  "accessWidener": "TBCExGui.accesswidener",
   "depends": {
     "fabricloader": ">=0.11.3",
     "fabric": "*",

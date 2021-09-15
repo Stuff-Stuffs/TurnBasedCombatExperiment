@@ -9,6 +9,7 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.ParentWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.PressableButtonWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.BasicPanelWidget;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
                             0.15,
                             action::getName,
                             action::getTooltip,
-                            () -> BattleActionScreen.open(action.createInstance(battleState, handle))
+                            () -> MinecraftClient.getInstance().setScreen(new BattleActionScreen(action.createInstance(battleState, handle)))
                     )
             );
             index++;
@@ -42,7 +43,7 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
     }
 
     @Override
-    public void resize(double width, double height, int pixelWidth, int pixelHeight) {
+    public void resize(final double width, final double height, final int pixelWidth, final int pixelHeight) {
         super.resize(width, height, pixelWidth, pixelHeight);
         panel.resize(width, height, pixelWidth, pixelHeight);
     }
