@@ -112,7 +112,7 @@ public class PressableButtonWidget extends AbstractWidget {
 
         final boolean shadow = !(state == ButtonState.INACTIVE || state == ButtonState.HELD);
         final Text text = message.get();
-        render(vertexConsumers -> renderFitTextWrap(matrices, text, positionX + 2 * getHorizontalPixel(), positionY, width - 4 * getHorizontalPixel(), height, shadow, -1, vertexConsumers));
+        render(vertexConsumers -> renderFitTextWrap(matrices, text, positionX + 1 * getHorizontalPixel(), positionY + 1 * getVerticalPixel(), width - 2 * getHorizontalPixel(), height - 2 * getVerticalPixel(), shadow, -1, vertexConsumers));
 
         if (state == ButtonState.HOVERED) {
             matrices.translate(0, 0, 1);

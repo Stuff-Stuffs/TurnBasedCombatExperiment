@@ -43,6 +43,11 @@ public class BattleInventoryScreen extends TBCExScreen {
     }
 
     @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
+    @Override
     public void tick() {
         super.tick();
         final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());

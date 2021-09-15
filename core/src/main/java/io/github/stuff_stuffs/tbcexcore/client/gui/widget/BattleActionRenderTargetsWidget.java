@@ -47,8 +47,8 @@ public class BattleActionRenderTargetsWidget extends AbstractWidget {
         this.actionInstance = actionInstance;
         targeted = OptionalEither.neither();
         widget = new HidingPanel();
-        ParentWidget parentWidget = new BasicPanelWidget(new SuppliedWidgetPosition(() -> -(getScreenWidth()-1)/2, () -> -(getScreenHeight()-1)/2, () -> 1), () -> false, () -> 1, 0.15, 0.125);
-        parentWidget.addWidget(new PressableButtonWidget(new SuppliedWidgetPosition(() -> -(getScreenWidth()-1)/2 + 0.005, () -> -(getScreenHeight()-1)/2 + 0.005, () -> 1), () -> 1, () -> true, 0.14, 0.115, () -> new LiteralText("Confirm (Press enter)"), Collections::emptyList, this::activate));
+        ParentWidget parentWidget = new BasicPanelWidget(new SuppliedWidgetPosition(() -> -(getScreenWidth()-1)/2, () -> -(getScreenHeight()-1)/2, () -> 1), () -> false, () -> 2, 0.15, 0.125);
+        parentWidget.addWidget(new PressableButtonWidget(new SuppliedWidgetPosition(() -> -(getScreenWidth()-1)/2 + 0.025, () -> -(getScreenHeight()-1)/2 + 0.025, () -> 1), () -> 2, () -> true, 0.1, 0.075, () -> new LiteralText("Confirm (Press enter)"), Collections::emptyList, this::activate));
         widget.addWidget(parentWidget);
         widget.resize(getScreenWidth(), getScreenHeight(), getPixelWidth(), getPixelHeight());
     }

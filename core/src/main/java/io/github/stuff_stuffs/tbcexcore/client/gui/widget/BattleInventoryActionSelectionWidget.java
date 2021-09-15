@@ -20,13 +20,13 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
 
     public BattleInventoryActionSelectionWidget(final WidgetPosition position, final BattleStateView battleState, final BattleParticipantHandle handle, final List<ParticipantAction> actions) {
         this.position = position;
-        panel = new BasicPanelWidget(position, () -> false, () -> 4, 0.25, 0.15 * actions.size() + 0.15);
+        panel = new BasicPanelWidget(position, () -> false, () -> 2, 0.25, 0.15 * actions.size() + 0.05);
         int index = 0;
         for (final ParticipantAction action : actions) {
             panel.addWidget(
                     new PressableButtonWidget(
                             WidgetPosition.combine(
-                                    WidgetPosition.of(0.025, index * 0.15 + 0.15, 0),
+                                    WidgetPosition.of(0.025, index * 0.15 + 0.025, 0),
                                     position
                             ),
                             () -> 4,
