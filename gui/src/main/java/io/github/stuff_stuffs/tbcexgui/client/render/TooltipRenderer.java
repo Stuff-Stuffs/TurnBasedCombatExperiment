@@ -27,7 +27,7 @@ public final class TooltipRenderer {
         final Window window = MinecraftClient.getInstance().getWindow();
         final Matrix4f proj = Matrix4f.projectionMatrix(0, window.getFramebufferWidth(), 0, window.getFramebufferHeight(), 1000, 3000);
         RenderSystem.setProjectionMatrix(proj);
-        final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(AbstractWidget.GUI_BUFFERS, AbstractWidget.FALLBACK_BUFFER);
+        final VertexConsumerProvider.Immediate immediate = GuiRenderLayers.getVertexConsumer();
         for (final TooltipData data : TOOLTIP_DATAS) {
             render(data, immediate);
         }

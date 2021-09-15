@@ -1,8 +1,9 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
-import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
@@ -100,15 +101,16 @@ public class CycleButton<T> extends AbstractWidget {
             state = ButtonState.INACTIVE;
         }
 
-        NinePatch.render(SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
 
         final boolean shadow = !(state == ButtonState.INACTIVE);
         final Text text = messageFactory.apply(currentState);
 
-        render(vertexConsumers -> renderFitTextWrap(matrices, text, positionX + getHorizontalPixel(), positionY + getVerticalPixel(), width - 2 * getHorizontalPixel(), height - 2 * getHorizontalPixel(), shadow, -1, vertexConsumers));
+        render(vertexConsumers -> {
+            NinePatch.render(SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
+            renderFitTextWrap(matrices, text, positionX + getHorizontalPixel(), positionY + getVerticalPixel(), width - 2 * getHorizontalPixel(), height - 2 * getHorizontalPixel(), shadow, -1, vertexConsumers);
+        });
 
         if (state == ButtonState.HOVERED) {
-            matrices.translate(0, 0, 1);
             renderTooltip(matrices, tooltipFactory.apply(currentState), mouseX, mouseY);
         }
     }

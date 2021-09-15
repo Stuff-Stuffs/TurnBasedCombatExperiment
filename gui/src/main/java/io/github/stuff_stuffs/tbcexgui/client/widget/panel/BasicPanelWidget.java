@@ -1,9 +1,10 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.panel;
 
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractParentWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.BasicWidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
-import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
+import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
@@ -61,7 +62,7 @@ public class BasicPanelWidget extends AbstractParentWidget {
             reloadSpriteMap();
             RELOAD_SPRITE_MAP = false;
         }
-        NinePatch.render(SPRITE_MAP, combined.getX(), combined.getY(), panelWidth, panelHeight, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
+        render(vertexConsumers -> NinePatch.render(SPRITE_MAP, combined.getX(), combined.getY(), panelWidth, panelHeight, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER)));
         super.render(matrices, mouseX, mouseY, delta);
     }
 

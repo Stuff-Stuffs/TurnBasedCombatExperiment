@@ -1,27 +1,21 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.FontStorage;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 
 import java.util.List;
-import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class AbstractWidget implements Widget {
-    public static final Map<RenderLayer, BufferBuilder> GUI_BUFFERS;
-    public static final BufferBuilder FALLBACK_BUFFER;
     private double screenWidth, screenHeight;
     private int pixelWidth, pixelHeight;
     private double verticalPixel = 1 / 480d;
@@ -56,8 +50,8 @@ public abstract class AbstractWidget implements Widget {
         }
     }
 
-    public void render(Consumer<VertexConsumerProvider> renderer) {
-        final VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(GUI_BUFFERS, FALLBACK_BUFFER);
+    public void render(final Consumer<VertexConsumerProvider> renderer) {
+        final VertexConsumerProvider.Immediate immediate = GuiRenderLayers.getVertexConsumer();
         renderer.accept(immediate);
         immediate.draw();
     }
@@ -91,8 +85,8 @@ public abstract class AbstractWidget implements Widget {
     }
 
     public void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices) {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder buffer = tessellator.getBuffer();
+        final Tessellator tessellator = Tessellator.getInstance();
+        final BufferBuilder buffer = tessellator.getBuffer();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 
@@ -109,7 +103,7 @@ public abstract class AbstractWidget implements Widget {
         RenderSystem.enableTexture();
     }
 
-    public static void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices, double horizontalPixel, double verticalPixel, VertexConsumer vertexConsumer) {
+    public static void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices, final double horizontalPixel, final double verticalPixel, final VertexConsumer vertexConsumer) {
         final double borderThickness = 0.5;
         final int background = 0xF0100010;
 
@@ -128,7 +122,7 @@ public abstract class AbstractWidget implements Widget {
         RenderUtil.renderRectangle(matrices, x + width - 2 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, horizontalPixel * borderThickness, height - 4 * verticalPixel * borderThickness, topPurple, bottomPurple, topPurple, bottomPurple, vertexConsumer);
     }
 
-    public static double getTextScale(final int textWidth, final double maxWidth, final double maxHeight, double pixelWidth, double pixelHeight, double horizontalPixel, double verticalPixel) {
+    public static double getTextScale(final int textWidth, final double maxWidth, final double maxHeight, final double pixelWidth, final double pixelHeight, final double horizontalPixel, final double verticalPixel) {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         final double scaleFactor = MinecraftClient.getInstance().getWindow().getScaleFactor();
         final double hScale = (textWidth * 4 / pixelWidth) * scaleFactor;
@@ -143,11 +137,11 @@ public abstract class AbstractWidget implements Widget {
         return getTextScale(textWidth, maxWidth, maxHeight, pixelWidth, pixelHeight, horizontalPixel, verticalPixel);
     }
 
-    public void renderText(final MatrixStack matrices, final Text text, final boolean center, final boolean shadow, final int colour, VertexConsumerProvider vertexConsumers) {
+    public void renderText(final MatrixStack matrices, final Text text, final boolean center, final boolean shadow, final int colour, final VertexConsumerProvider vertexConsumers) {
         renderText(matrices, text.asOrderedText(), center, shadow, colour, vertexConsumers);
     }
 
-    public void renderText(final MatrixStack matrices, final OrderedText text, final boolean center, final boolean shadow, final int colour, VertexConsumerProvider vertexConsumers) {
+    public void renderText(final MatrixStack matrices, final OrderedText text, final boolean center, final boolean shadow, final int colour, final VertexConsumerProvider vertexConsumers) {
         renderText(matrices, text, center, shadow, colour, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
     }
 
@@ -161,7 +155,7 @@ public abstract class AbstractWidget implements Widget {
         }
     }
 
-    public void renderFitText(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, int colour, final VertexConsumerProvider vertexConsumers) {
+    public void renderFitText(final MatrixStack matrices, final Text text, final double x, final double y, final double maxWidth, final double maxHeight, final boolean shadow, final int colour, final VertexConsumerProvider vertexConsumers) {
         renderFitText(matrices, text, x, y, maxWidth, maxHeight, shadow, colour, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
     }
 
@@ -210,7 +204,7 @@ public abstract class AbstractWidget implements Widget {
         }
     }
 
-    public void renderTextLines(final MatrixStack matrices, final List<? extends Text> texts, final double x, final double y, final double maxWidth, final double maxHeight, final boolean center, final boolean shadow, final int colour, VertexConsumerProvider vertexConsumers) {
+    public void renderTextLines(final MatrixStack matrices, final List<? extends Text> texts, final double x, final double y, final double maxWidth, final double maxHeight, final boolean center, final boolean shadow, final int colour, final VertexConsumerProvider vertexConsumers) {
         renderTextLines(matrices, texts, x, y, maxWidth, maxHeight, center, shadow, colour, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
     }
 
@@ -240,34 +234,5 @@ public abstract class AbstractWidget implements Widget {
             renderText(matrices, text.asOrderedText(), center, shadow, colour, backgroundColour, light, vertexConsumers);
             matrices.pop();
         }
-    }
-
-    static {
-        GUI_BUFFERS = new Reference2ReferenceOpenHashMap<>();
-        RenderLayer renderLayer = RenderLayer.getText(Style.DEFAULT_FONT_ID);
-        BufferBuilder builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        GUI_BUFFERS.put(renderLayer, builder);
-
-        renderLayer = RenderLayer.getTextSeeThrough(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        GUI_BUFFERS.put(renderLayer,builder);
-
-        renderLayer = RenderLayer.getTextPolygonOffset(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        GUI_BUFFERS.put(renderLayer,builder);
-
-        renderLayer = RenderLayer.getTextIntensity(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        GUI_BUFFERS.put(renderLayer, builder);
-
-        renderLayer = RenderLayer.getTextIntensitySeeThrough(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        GUI_BUFFERS.put(renderLayer,builder);
-
-        renderLayer = RenderLayer.getTextIntensityPolygonOffset(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        GUI_BUFFERS.put(renderLayer,builder);
-
-        FALLBACK_BUFFER = new BufferBuilder(4096);
     }
 }

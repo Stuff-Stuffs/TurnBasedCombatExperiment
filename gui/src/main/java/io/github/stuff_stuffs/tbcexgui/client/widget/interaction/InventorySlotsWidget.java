@@ -1,13 +1,14 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.ItemStackLike;
-import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -115,10 +116,9 @@ public class InventorySlotsWidget extends AbstractWidget {
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
         final Rect2d[][] areas = getAreas();
-        for (int i = 0; i < areas.length; i++) {
-            final Rect2d[] row = areas[i];
-            for (int j = 0; j < row.length; j++) {
-                if (row[j].isIn(mouseX, mouseY)) {
+        for (final Rect2d[] row : areas) {
+            for (final Rect2d rect2d : row) {
+                if (rect2d.isIn(mouseX, mouseY)) {
                     handler.onDrag(this, mouseX, mouseY, deltaX, deltaY);
                     return true;
                 }
@@ -151,19 +151,17 @@ public class InventorySlotsWidget extends AbstractWidget {
         final double x = position.getX();
         final double y = position.getY();
 
-        final BufferBuilder bufferBuilder = NinePatch.renderSetup();
-        for (int i = 0; i < inventory.length; i++) {
-            final ItemStackLike[] row = inventory[i];
-            for (int j = 0; j < row.length; j++) {
-                final Map<NinePatch.Part, Sprite> spriteMap = (i == selectedX && j == selectedY) ? SELECTED_SPRITE_MAP : SPRITE_MAP;
-                NinePatch.renderMain(spriteMap, x + i * size, y + j * size, size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth, 0xFFFFFFFF, matrices, bufferBuilder);
-            }
-        }
-        NinePatch.renderEnd(bufferBuilder);
-
         render(vertexConsumers -> {
-            for (ItemStackLike[] itemStackLikes : inventory) {
-                for (ItemStackLike itemStackLike : itemStackLikes) {
+            final VertexConsumer positionColour = vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER);
+            for (int i = 0; i < inventory.length; i++) {
+                final ItemStackLike[] row = inventory[i];
+                for (int j = 0; j < row.length; j++) {
+                    final Map<NinePatch.Part, Sprite> spriteMap = (i == selectedX && j == selectedY) ? SELECTED_SPRITE_MAP : SPRITE_MAP;
+                    NinePatch.render(spriteMap, x + i * size, y + j * size, size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth, 0xFFFFFFFF, matrices, positionColour);
+                }
+            }
+            for (final ItemStackLike[] itemStackLikes : inventory) {
+                for (final ItemStackLike itemStackLike : itemStackLikes) {
                     itemStackLike.render(matrices, mouseX, mouseY, delta, vertexConsumers);
                 }
             }

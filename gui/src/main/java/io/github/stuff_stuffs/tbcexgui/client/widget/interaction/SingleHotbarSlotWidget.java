@@ -1,9 +1,10 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.ItemStackLike;
-import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
+import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
@@ -100,10 +101,12 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
             RELOAD_SPRITE_MAP = false;
         }
         final Map<NinePatch.Part, Sprite> spriteMap = selected.getAsBoolean() ? SELECTED_SPRITE_MAP : SPRITE_MAP;
-        NinePatch.render(spriteMap, position.getX(), position.getY(), size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices);
-        if (itemStackLike != null) {
-            render(vertexConsumers -> itemStackLike.render(matrices, mouseX, mouseY, delta, vertexConsumers));
-        }
+        render(vertexConsumers -> {
+            NinePatch.render(spriteMap, position.getX(), position.getY(), size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
+            if(itemStackLike!=null) {
+                itemStackLike.render(matrices, mouseX, mouseY, delta, vertexConsumers);
+            }
+        });
     }
 
     @Override

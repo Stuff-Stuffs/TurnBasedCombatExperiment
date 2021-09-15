@@ -1,9 +1,7 @@
-package io.github.stuff_stuffs.tbcexutil.client;
+package io.github.stuff_stuffs.tbcexgui.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
@@ -13,30 +11,11 @@ import java.util.Map;
 import static io.github.stuff_stuffs.tbcexutil.client.RenderUtil.renderRectangle;
 
 public final class NinePatch {
-    public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final MatrixStack matrices) {
-        render(spriteMap, x, y, width, height, pixelWidth, pixelHeight, borderWidth, 0xffffffff, matrices);
+    public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final MatrixStack matrices, final VertexConsumer consumer) {
+        render(spriteMap, x, y, width, height, pixelWidth, pixelHeight, borderWidth, 0xffffffff, matrices, consumer);
     }
 
-    public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final int colour, final MatrixStack matrices) {
-        final BufferBuilder bufferBuilder = renderSetup();
-        renderMain(spriteMap, x, y, width, height, pixelWidth, pixelHeight, borderWidth, colour, matrices, bufferBuilder);
-        renderEnd(bufferBuilder);
-    }
-
-    public static BufferBuilder renderSetup() {
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableTexture();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-        RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0f);
-        final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
-        return bufferBuilder;
-    }
-
-    public static void renderMain(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final int colour, final MatrixStack matrices, final VertexConsumer consumer) {
+    public static void render(final Map<Part, Sprite> spriteMap, final double x, final double y, final double width, final double height, final double pixelWidth, final double pixelHeight, final double borderWidth, final int colour, final MatrixStack matrices, final VertexConsumer consumer) {
         //top left
         renderRectangle(
                 matrices,
@@ -137,11 +116,6 @@ public final class NinePatch {
                 colour,
                 consumer
         );
-    }
-
-    public static void renderEnd(final BufferBuilder bufferBuilder) {
-        bufferBuilder.end();
-        BufferRenderer.draw(bufferBuilder);
     }
 
     public enum Part {

@@ -1,12 +1,14 @@
 package io.github.stuff_stuffs.tbcexgui.client;
 
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.ButtonState;
-import io.github.stuff_stuffs.tbcexutil.client.NinePatch;
+import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.texture.SpriteAtlasTexture;
@@ -45,5 +47,6 @@ public class TBCExGuiClient implements ClientModInitializer {
                 ScreenEvents.afterRender(screen).register((s, matrices, mouseX, mouseY, tickDelta) -> TooltipRenderer.renderAll());
             }
         });
+        WorldRenderEvents.END.register(context -> GuiRenderLayers.updateBuffers());
     }
 }
