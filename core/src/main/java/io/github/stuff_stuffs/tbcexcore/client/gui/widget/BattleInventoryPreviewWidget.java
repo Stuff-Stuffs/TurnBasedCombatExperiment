@@ -18,6 +18,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -56,7 +57,7 @@ public class BattleInventoryPreviewWidget extends AbstractWidget {
         final double width = this.width.getAsDouble();
         final double height = this.height.getAsDouble();
         final Rect2d rect = new Rect2d(x, y, x + width, y + height);
-        if (rect.isIn(mouseX, mouseY) && button == 1) {
+        if (rect.isIn(mouseX, mouseY) && button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             rotating = !rotating;
             return true;
         }
