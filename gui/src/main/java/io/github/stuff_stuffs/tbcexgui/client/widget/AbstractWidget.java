@@ -84,23 +84,8 @@ public abstract class AbstractWidget implements Widget {
         TooltipRenderer.render(components, x, y, horizontalPixel, verticalPixel, pixelWidth, pixelHeight, matrices.peek().getModel());
     }
 
-    public void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices) {
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder buffer = tessellator.getBuffer();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-
-        renderTooltipBackground(x, y, width, height, matrices, horizontalPixel, verticalPixel, buffer);
-
-        RenderSystem.enableDepthTest();
-        RenderSystem.disableTexture();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        buffer.end();
-        BufferRenderer.draw(buffer);
-
-        RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
+    public void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
+        renderTooltipBackground(x, y, width, height, matrices, horizontalPixel, verticalPixel, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
     }
 
     public static void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices, final double horizontalPixel, final double verticalPixel, final VertexConsumer vertexConsumer) {
