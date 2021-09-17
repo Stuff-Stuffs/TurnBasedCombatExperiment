@@ -5,6 +5,7 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 
 public final class DoubleQuaternion {
+    public static final DoubleQuaternion IDENTITY = new DoubleQuaternion();
     public final double x;
     public final double y;
     public final double z;

@@ -17,17 +17,6 @@ public final class MathUtil {
     private MathUtil() {
     }
 
-    public static Vec3d rightFromAngles(final double yaw) {
-        return new Vec3d(Math.cos(Math.toRadians(yaw)), 0, -Math.sin(Math.toRadians(yaw)));
-    }
-
-    public static Vec3d cross(final Vec3d l, final Vec3d r) {
-        final double x = l.y * r.z - l.z * r.y;
-        final double y = l.z * r.x - l.x * r.z;
-        final double z = l.x * r.y - l.y * r.x;
-        return new Vec3d(x, y, z);
-    }
-
     public static HitResult rayCastBlock(final Vec3d start, final Vec3d end, final World world, final RaycastContext.ShapeType shapeType) {
         return rayCast(start, end, pos -> {
             final BlockState state = world.getBlockState(pos);
@@ -130,4 +119,16 @@ public final class MathUtil {
         }
         return null;
     }
+
+    //@SuppressWarnings("PointlessBitwiseExpression")
+    //public static Vec2d[] projectObb(final Vec3d transformedEyePos, final Vec3d[] localVertices, final Vec3d[] worldVertices) {
+    //    //@formatter:off
+    //    final int pos = ((transformedEyePos.x < localVertices[0].x ? 1 : 0) << 0)
+    //                  + ((transformedEyePos.x > localVertices[7].x ? 1 : 0) << 1)
+    //                  + ((transformedEyePos.y < localVertices[0].y ? 1 : 0) << 2)
+    //                  + ((transformedEyePos.y > localVertices[7].y ? 1 : 0) << 3)
+    //                  + ((transformedEyePos.z < localVertices[0].z ? 1 : 0) << 4)
+    //                  + ((transformedEyePos.z > localVertices[7].z ? 1 : 0) << 5);
+    //    //@formatter:on
+    //}
 }

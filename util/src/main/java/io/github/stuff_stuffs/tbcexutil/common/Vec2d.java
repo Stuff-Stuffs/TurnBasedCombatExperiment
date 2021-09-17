@@ -22,7 +22,7 @@ public class Vec2d {
         return new Vec2d(x * factor, y * factor);
     }
 
-    public double cross(final Vec2d o) {
+    public double dot(final Vec2d o) {
         return x * o.x + y * o.y;
     }
 }

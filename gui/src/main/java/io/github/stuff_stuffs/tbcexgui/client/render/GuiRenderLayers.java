@@ -31,7 +31,6 @@ public final class GuiRenderLayers extends RenderLayer {
         return immediate;
     }
 
-    //TODO is this really necessary?
     public static void updateBuffers() {
         if (POSITION_COLOUR_TEXTURE_LAYER.cacheSize() != LAST_BUFFER_COUNT) {
             GUI_BUFFERS.forEach((r, b) -> b.clear());
@@ -64,6 +63,7 @@ public final class GuiRenderLayers extends RenderLayer {
             builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
             GuiRenderLayers.GUI_BUFFERS.put(renderLayer, builder);
 
+            //TODO is this really necessary?
             for (final Map.Entry<Identifier, RenderLayer> entry : POSITION_COLOUR_TEXTURE_LAYER) {
                 renderLayer = entry.getValue();
                 GuiRenderLayers.GUI_BUFFERS.put(renderLayer, new BufferBuilder(renderLayer.getExpectedBufferSize()));
