@@ -32,7 +32,7 @@ public class BattleInventoryScreen extends TBCExScreen {
     private BattleInventoryPreviewWidget previewWidget;
     private BattleInventoryActionSelectionWidget selectionWidget;
     private WidgetHandle selectionWidgetHandle;
-    private final MutableInt selected = new MutableInt(-1);
+    private final MutableInt selected = new MutableInt(0);
     private final World world;
     private boolean init = false;
 

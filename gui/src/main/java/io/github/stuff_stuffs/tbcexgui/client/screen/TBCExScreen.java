@@ -39,6 +39,7 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
+        //TODO sensitivity
         return widget.mouseDragged(transformMouseX(mouseX), transformMouseY(mouseY), button, deltaX / width, deltaY / height);
     }
 
@@ -49,6 +50,7 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
+        //TODO sensitivity
         return widget.mouseScrolled(transformMouseX(mouseX), transformMouseY(mouseY), transformMouseY(amount));
     }
 
