@@ -21,6 +21,7 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     protected void init() {
+        super.init();
         final Window window = MinecraftClient.getInstance().getWindow();
         width = window.getFramebufferWidth();
         height = window.getFramebufferHeight();
