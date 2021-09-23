@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.tbcexgui.client.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Mouse;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
@@ -101,7 +102,12 @@ public abstract class TBCExScreen extends Screen {
             matrices.scale(1, width / (float) height, 1);
             matrices.translate(0, (height / (double) width - 1) / 2d, 0);
         }
-        widget.render(matrices, transformMouseX(mouseX), transformMouseY(mouseY), delta);
+        final Mouse mouse = MinecraftClient.getInstance().mouse;
+        if (mouse.isCursorLocked()) {
+            widget.render(matrices, 0.5, 0.5, delta);
+        } else {
+            widget.render(matrices, transformMouseX(mouseX), transformMouseY(mouseY), delta);
+        }
         matrices.pop();
         RenderSystem.setProjectionMatrix(prevProjection);
     }
