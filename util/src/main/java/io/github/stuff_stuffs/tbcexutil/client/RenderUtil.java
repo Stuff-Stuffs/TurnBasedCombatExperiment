@@ -4,7 +4,6 @@ import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
 public final class RenderUtil {
@@ -13,11 +12,10 @@ public final class RenderUtil {
     }
 
     public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final Sprite sprite, final int topLeftColour, final int bottomLeftColour, final int topRightColour, final int bottomRightColour, final VertexConsumer consumer) {
-        final Matrix4f model = matrices.peek().getModel();
-        colour(consumer.vertex(model, (float) (x + width), (float) y, 0), topRightColour).texture(sprite.getMaxU(), sprite.getMinV()).next();
-        colour(consumer.vertex(model, (float) x, (float) y, 0), topLeftColour).texture(sprite.getMinU(), sprite.getMinV()).next();
-        colour(consumer.vertex(model, (float) x, (float) (y + height), 0), bottomLeftColour).texture(sprite.getMinU(), sprite.getMaxV()).next();
-        colour(consumer.vertex(model, (float) (x + width), (float) (y + height), 0), bottomRightColour).texture(sprite.getMaxU(), sprite.getMaxV()).next();
+        colour(position(consumer, x + width, y, 0, matrices), topRightColour).texture(sprite.getMaxU(), sprite.getMinV()).next();
+        colour(position(consumer, x, y, 0, matrices), topLeftColour).texture(sprite.getMinU(), sprite.getMinV()).next();
+        colour(position(consumer, x, y + height, 0, matrices), bottomLeftColour).texture(sprite.getMinU(), sprite.getMaxV()).next();
+        colour(position(consumer, x + width, y + height, 0, matrices), bottomRightColour).texture(sprite.getMaxU(), sprite.getMaxV()).next();
     }
 
     public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final int colour, final VertexConsumer consumer) {
@@ -25,11 +23,10 @@ public final class RenderUtil {
     }
 
     public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final int topLeftColour, final int bottomLeftColour, final int topRightColour, final int bottomRightColour, final VertexConsumer consumer) {
-        final Matrix4f model = matrices.peek().getModel();
-        colour(consumer.vertex(model, (float) (x + width), (float) y, 0), topRightColour).next();
-        colour(consumer.vertex(model, (float) x, (float) y, 0), topLeftColour).next();
-        colour(consumer.vertex(model, (float) x, (float) (y + height), 0), bottomLeftColour).next();
-        colour(consumer.vertex(model, (float) (x + width), (float) (y + height), 0), bottomRightColour).next();
+        colour(position(consumer, x + width, y, 0, matrices), topRightColour).next();
+        colour(position(consumer, x, y, 0, matrices), topLeftColour).next();
+        colour(position(consumer, x, y + height, 0, matrices), bottomLeftColour).next();
+        colour(position(consumer, x + width, y + height, 0, matrices), bottomRightColour).next();
     }
 
     public static VertexConsumer colour(final VertexConsumer vertexConsumer, final int colour) {
@@ -44,9 +41,13 @@ public final class RenderUtil {
     private RenderUtil() {
     }
 
-    public static VertexConsumer position(final VertexConsumer vertexConsumer, final Vec3d pos, final MatrixStack matrices) {
-        vertexConsumer.vertex(matrices.peek().getModel(), (float) pos.x, (float) pos.y, (float) pos.z);
+    public static VertexConsumer position(final VertexConsumer vertexConsumer, final double x, final double y, final double z, final MatrixStack matrices) {
+        vertexConsumer.vertex(matrices.peek().getModel(), (float) x, (float) y, (float) z);
         return vertexConsumer;
+    }
+
+    public static VertexConsumer position(final VertexConsumer vertexConsumer, final Vec3d pos, final MatrixStack matrices) {
+        return position(vertexConsumer, pos.x, pos.y, pos.z, matrices);
     }
 
     public static VertexConsumer uv(final VertexConsumer vertexConsumer, final Vec2d uv) {

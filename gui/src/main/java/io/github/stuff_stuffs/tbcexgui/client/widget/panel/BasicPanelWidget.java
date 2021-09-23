@@ -1,13 +1,14 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.panel;
 
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractParentWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.BasicWidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
-import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -62,12 +63,12 @@ public class BasicPanelWidget extends AbstractParentWidget {
             reloadSpriteMap();
             RELOAD_SPRITE_MAP = false;
         }
-        render(vertexConsumers -> NinePatch.render(SPRITE_MAP, combined.getX(), combined.getY(), panelWidth, panelHeight, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER)));
+        render(vertexConsumers -> NinePatch.render(SPRITE_MAP, combined.getX(), combined.getY(), panelWidth, panelHeight, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE))));
         super.render(matrices, mouseX, mouseY, delta);
     }
 
     private static void reloadSpriteMap() {
-        Identifier base = new Identifier("tbcexgui", "gui/panel");
+        final Identifier base = new Identifier("tbcexgui", "gui/panel");
         for (final NinePatch.Part part : NinePatch.Part.values()) {
             SPRITE_MAP.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.append(base)));
         }

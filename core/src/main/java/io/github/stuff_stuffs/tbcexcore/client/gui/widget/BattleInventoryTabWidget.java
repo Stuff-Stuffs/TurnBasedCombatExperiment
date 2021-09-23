@@ -137,6 +137,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         matrices.push();
         matrices.translate(0, -pos, 0);
         final int hoverIndex = findHoverIndex(mouseX, mouseY + pos);
+
         for (int i = 0; i < stacks.size(); i++) {
             renderInfo(stacks.get(i), buffer, matrices, i, hoverIndex);
         }
@@ -165,7 +166,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         renderFitTextWrap(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, info.stack.getItem().getRarity().getRarity().getColour(), vertexConsumers);
     }
 
-    private void renderInfo(final ItemStackInfo info, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
+    private void renderInfo(final ItemStackInfo info, final VertexConsumer vertexConsumer, final MatrixStack matrices, final int index, final int hoverIndex) {
         final double offsetX = position.getX();
         final double offsetY = position.getY();
         final Matrix4f model = matrices.peek().getModel();
@@ -177,10 +178,10 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         if (hoverIndex == index || selectedIndex == index) {
             backgroundColour |= 0xFF000000;
         }
-        RenderUtil.colour(buffer.vertex(model, endX, startY, 0), backgroundColour).next();
-        RenderUtil.colour(buffer.vertex(model, startX, startY, 0), backgroundColour).next();
-        RenderUtil.colour(buffer.vertex(model, startX, endY, 0), backgroundColour).next();
-        RenderUtil.colour(buffer.vertex(model, endX, endY, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, endX, startY, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, endY, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, endX, endY, 0), backgroundColour).next();
     }
 
     private static int getBackgroundColour(final int index) {

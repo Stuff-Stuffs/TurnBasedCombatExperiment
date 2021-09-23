@@ -1,8 +1,10 @@
 package io.github.stuff_stuffs.tbcexgui.client.hud;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.ParentWidget;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;

@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.Stack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vector4f;
@@ -64,9 +63,9 @@ public final class ScissorStack {
             RenderSystem.disableScissor();
         } else {
             final Entry entry = STACK.top();
-            int h = MinecraftClient.getInstance().getWindow().getFramebufferHeight();
-            final int height = (h-entry.minY) - (h-entry.maxY);
-            RenderSystem.enableScissor(entry.minX, h-entry.maxY, entry.maxX-entry.minX, height);
+            final int h = MinecraftClient.getInstance().getWindow().getFramebufferHeight();
+            final int height = (h - entry.minY) - (h - entry.maxY);
+            RenderSystem.enableScissor(entry.minX, h - entry.maxY, entry.maxX - entry.minX, height);
         }
     }
 

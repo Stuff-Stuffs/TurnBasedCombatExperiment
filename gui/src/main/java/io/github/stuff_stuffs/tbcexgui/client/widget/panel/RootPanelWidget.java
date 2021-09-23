@@ -7,9 +7,10 @@ import net.minecraft.client.util.math.MatrixStack;
 public class RootPanelWidget extends AbstractParentWidget {
     private static final WidgetPosition ROOT = WidgetPosition.of(0, 0, 0);
 
-    public RootPanelWidget () {
-        this.setFocused(true);
+    public RootPanelWidget() {
+        setFocused(true);
     }
+
     @Override
     public WidgetPosition getWidgetPosition() {
         return ROOT;

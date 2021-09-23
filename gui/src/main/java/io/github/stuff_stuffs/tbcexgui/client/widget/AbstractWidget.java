@@ -1,21 +1,29 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
-import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public abstract class AbstractWidget implements Widget {
+    private static final Map<NinePatch.Part, Sprite> TOOLTIP_SPRITE_MAP;
+    private static boolean RELOAD_SPRITE_MAP = true;
     private double screenWidth, screenHeight;
     private int pixelWidth, pixelHeight;
     private double verticalPixel = 1 / 480d;
@@ -84,27 +92,23 @@ public abstract class AbstractWidget implements Widget {
         TooltipRenderer.render(components, x, y, horizontalPixel, verticalPixel, pixelWidth, pixelHeight, matrices.peek().getModel());
     }
 
-    public void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
-        renderTooltipBackground(x, y, width, height, matrices, horizontalPixel, verticalPixel, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
+    public void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {
+        renderTooltipBackground(x, y, width, height, matrices, horizontalPixel, verticalPixel, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, true)));
     }
 
     public static void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices, final double horizontalPixel, final double verticalPixel, final VertexConsumer vertexConsumer) {
-        final double borderThickness = 0.5;
-        final int background = 0xF0100010;
+        if (RELOAD_SPRITE_MAP) {
+            reloadSpriteMap();
+            RELOAD_SPRITE_MAP = false;
+        }
+        NinePatch.render(TOOLTIP_SPRITE_MAP, x, y, width, height, horizontalPixel, verticalPixel, 2, matrices, vertexConsumer);
+    }
 
-        //center
-        RenderUtil.renderRectangle(matrices, x, y + 1 * verticalPixel * borderThickness, width, height - 2 * verticalPixel * borderThickness, background, vertexConsumer);
-        //background sides
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, background, vertexConsumer);
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + height - verticalPixel * borderThickness, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, background, vertexConsumer);
-        //purple top and bottom
-        final int topPurple = 0x505000FF;
-        final int bottomPurple = 0x5028007F;
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + verticalPixel * borderThickness, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, topPurple, vertexConsumer);
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + height - 2 * verticalPixel * borderThickness, width - 2 * horizontalPixel * borderThickness, verticalPixel * borderThickness, bottomPurple, vertexConsumer);
-        //purple sides
-        RenderUtil.renderRectangle(matrices, x + 1 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, horizontalPixel * borderThickness, height - 4 * verticalPixel * borderThickness, topPurple, bottomPurple, topPurple, bottomPurple, vertexConsumer);
-        RenderUtil.renderRectangle(matrices, x + width - 2 * horizontalPixel * borderThickness, y + 2 * verticalPixel * borderThickness, horizontalPixel * borderThickness, height - 4 * verticalPixel * borderThickness, topPurple, bottomPurple, topPurple, bottomPurple, vertexConsumer);
+    private static void reloadSpriteMap() {
+        final Identifier base = new Identifier("tbcexgui", "gui/tooltip");
+        for (final NinePatch.Part part : NinePatch.Part.values()) {
+            TOOLTIP_SPRITE_MAP.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.append(base)));
+        }
     }
 
     public static double getTextScale(final int textWidth, final double maxWidth, final double maxHeight, final double pixelWidth, final double pixelHeight, final double horizontalPixel, final double verticalPixel) {
@@ -219,5 +223,9 @@ public abstract class AbstractWidget implements Widget {
             renderText(matrices, text.asOrderedText(), center, shadow, colour, backgroundColour, light, vertexConsumers);
             matrices.pop();
         }
+    }
+
+    static {
+        TOOLTIP_SPRITE_MAP = new EnumMap<>(NinePatch.Part.class);
     }
 }

@@ -112,7 +112,7 @@ public class PressableButtonWidget extends AbstractWidget {
         final boolean shadow = !(state == ButtonState.INACTIVE || state == ButtonState.HELD);
         final Text text = message.get();
         render(vertexConsumers -> {
-            NinePatch.render(PressableButtonWidget.SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
+            NinePatch.render(PressableButtonWidget.SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)));
             renderFitTextWrap(matrices, text, positionX + 1 * getHorizontalPixel(), positionY + 1 * getVerticalPixel(), width - 2 * getHorizontalPixel(), height - 2 * getVerticalPixel(), shadow, -1, vertexConsumers);
         });
 

@@ -93,12 +93,12 @@ public class BattleInventoryScreen extends TBCExScreen {
                 }
             });
 
-            sorterWidget = new BattleInventorySorterWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 1 / 4.0, startY, () -> 0), () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 1 / 8.0, 1 / 128.0, 1 / 8.0, 1 / 128.0, BattleInventorySorterWidget.DEFAULTS, i -> {
+            sorterWidget = new BattleInventorySorterWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 1 / 4.0, startY, () -> 1), () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 1 / 8.0, 1 / 128.0, 1 / 8.0, 1 / 128.0, BattleInventorySorterWidget.DEFAULTS, i -> {
                 sorterWidget.sort(infos);
                 inventoryWidget.resetSelectedIndex();
             });
 
-            navigationWidget = new BattleInventoryFilterWidget(new SuppliedWidgetPosition(startX, startY, () -> 0), () -> widget.getScreenWidth() * 1 / 4.0, widget::getScreenHeight, 1 / 128.0, 1 / 16.0, 1 / 128.0, world, handle, BattleInventoryFilterWidget.DEFAULTS, value -> {
+            navigationWidget = new BattleInventoryFilterWidget(new SuppliedWidgetPosition(startX, startY, () -> 3), () -> widget.getScreenWidth() * 1 / 4.0, widget::getScreenHeight, 1 / 128.0, 1 / 16.0, 1 / 128.0, world, handle, BattleInventoryFilterWidget.DEFAULTS, value -> {
                 infos.clear();
                 infos.addAll(navigationWidget.getFiltered());
                 inventoryWidget.resetSelectedIndex();
@@ -106,7 +106,7 @@ public class BattleInventoryScreen extends TBCExScreen {
             navigationWidget.setSelectedIndex(0);
             infos.addAll(navigationWidget.getFiltered());
 
-            previewWidget = new BattleInventoryPreviewWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 5 / 8.0, startY, () -> 0), () -> widget.getScreenWidth() * 3 / 8.0, widget::getScreenHeight, 0.45, battle.getState(), () -> {
+            previewWidget = new BattleInventoryPreviewWidget(new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 5 / 8.0, startY, () -> 2), () -> widget.getScreenWidth() * 3 / 8.0, widget::getScreenHeight, 0.45, battle.getState(), () -> {
                 if (selected.intValue() >= 0 && selected.intValue() < infos.size()) {
                     return infos.get(selected.intValue());
                 }

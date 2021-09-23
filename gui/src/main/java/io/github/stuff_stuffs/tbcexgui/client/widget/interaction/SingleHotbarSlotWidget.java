@@ -1,13 +1,14 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.ItemStackLike;
-import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -30,7 +31,7 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
     private final Handler handler;
     private @Nullable ItemStackLike itemStackLike;
 
-    public SingleHotbarSlotWidget(final WidgetPosition position, final double size, final DoubleSupplier borderWidth, final BooleanSupplier selected, Handler handler, @Nullable final ItemStackLike itemStackLike) {
+    public SingleHotbarSlotWidget(final WidgetPosition position, final double size, final DoubleSupplier borderWidth, final BooleanSupplier selected, final Handler handler, @Nullable final ItemStackLike itemStackLike) {
         this.position = position;
         this.size = size;
         this.borderWidth = borderWidth;
@@ -102,7 +103,7 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
         }
         final Map<NinePatch.Part, Sprite> spriteMap = selected.getAsBoolean() ? SELECTED_SPRITE_MAP : SPRITE_MAP;
         render(vertexConsumers -> {
-            NinePatch.render(spriteMap, position.getX(), position.getY(), size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
+            NinePatch.render(spriteMap, position.getX(), position.getY(), size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)));
             if(itemStackLike!=null) {
                 itemStackLike.render(matrices, mouseX, mouseY, delta, vertexConsumers);
             }
@@ -115,16 +116,16 @@ public class SingleHotbarSlotWidget extends AbstractWidget {
     }
 
     public interface Handler {
-        default void onClick(SingleHotbarSlotWidget widget, int button, double x, double y) {
+        default void onClick(final SingleHotbarSlotWidget widget, final int button, final double x, final double y) {
         }
 
-        default void onRelease(SingleHotbarSlotWidget widget, int button, double x, double y) {
+        default void onRelease(final SingleHotbarSlotWidget widget, final int button, final double x, final double y) {
         }
 
-        default void onScroll(SingleHotbarSlotWidget widget, double amount, double x, double y){
+        default void onScroll(final SingleHotbarSlotWidget widget, final double amount, final double x, final double y) {
         }
 
-        default void onFocusChange(boolean focused){
+        default void onFocusChange(final boolean focused) {
         }
     }
 

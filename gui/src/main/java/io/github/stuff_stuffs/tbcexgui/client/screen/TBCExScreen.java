@@ -20,7 +20,7 @@ public abstract class TBCExScreen extends Screen {
 
     @Override
     protected void init() {
-        Window window = MinecraftClient.getInstance().getWindow();
+        final Window window = MinecraftClient.getInstance().getWindow();
         width = window.getFramebufferWidth();
         height = window.getFramebufferHeight();
         if (width > height) {
@@ -65,9 +65,9 @@ public abstract class TBCExScreen extends Screen {
     }
 
     private double transformMouseX(final double mouseX) {
-        Window window = MinecraftClient.getInstance().getWindow();
-        int width = window.getScaledWidth();
-        int height = window.getScaledHeight();
+        final Window window = MinecraftClient.getInstance().getWindow();
+        final int width = window.getScaledWidth();
+        final int height = window.getScaledHeight();
         if (width > height) {
             final double v = mouseX - (width / 2.0) + (height / 2.0);
             return v / height;
@@ -76,9 +76,9 @@ public abstract class TBCExScreen extends Screen {
     }
 
     private double transformMouseY(final double mouseY) {
-        Window window = MinecraftClient.getInstance().getWindow();
-        int width = window.getScaledWidth();
-        int height = window.getScaledHeight();
+        final Window window = MinecraftClient.getInstance().getWindow();
+        final int width = window.getScaledWidth();
+        final int height = window.getScaledHeight();
         if (width < height) {
             final double v = mouseY - (height / 2.0) + (width / 2.0);
             return v / width;
@@ -89,7 +89,7 @@ public abstract class TBCExScreen extends Screen {
     @Override
     public void render(final MatrixStack matrices, final int mouseX, final int mouseY, final float delta) {
         final Window window = MinecraftClient.getInstance().getWindow();
-        RenderSystem.backupProjectionMatrix();
+        final Matrix4f prevProjection = RenderSystem.getProjectionMatrix();
         final Matrix4f matrix4f = Matrix4f.projectionMatrix(0.0F, window.getFramebufferWidth(), 0.0F, window.getFramebufferHeight(), 1000.0F, 3000.0F);
         RenderSystem.setProjectionMatrix(matrix4f);
         matrices.push();
@@ -103,6 +103,6 @@ public abstract class TBCExScreen extends Screen {
         }
         widget.render(matrices, transformMouseX(mouseX), transformMouseY(mouseY), delta);
         matrices.pop();
-        RenderSystem.restoreProjectionMatrix();
+        RenderSystem.setProjectionMatrix(prevProjection);
     }
 }

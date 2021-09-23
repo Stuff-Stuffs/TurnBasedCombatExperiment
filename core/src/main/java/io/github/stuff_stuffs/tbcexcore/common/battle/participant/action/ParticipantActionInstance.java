@@ -2,12 +2,13 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
-import io.github.stuff_stuffs.tbcexutil.common.EitherList;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetInstance;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetType;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -15,17 +16,19 @@ public final class ParticipantActionInstance {
     private final ParticipantActionInfo info;
     private final BattleStateView battleState;
     private final BattleParticipantHandle user;
-    private final EitherList<BlockPos, BattleParticipantHandle> list;
-    private Set<BattleParticipantHandle> acceptableHandles;
-    private Set<BlockPos> acceptablePositions;
+    private final List<TargetInstance> list;
     private TargetType nextTargetType;
 
     public ParticipantActionInstance(final ParticipantActionInfo info, final BattleStateView battleState, final BattleParticipantHandle user) {
         this.info = info;
         this.battleState = battleState;
         this.user = user;
-        list = new EitherList<>();
+        list = new ArrayList<>();
         update();
+    }
+
+    public BattleParticipantHandle getUser() {
+        return user;
     }
 
     public @Nullable TargetType getNextType() {
@@ -48,64 +51,33 @@ public final class ParticipantActionInstance {
         return info.getDescription(battleState, user, list);
     }
 
-    public Iterable<BlockPos> getValidTargetPositions() {
-        return info.getValidTargetPositions(battleState, user, list);
-    }
-
-    public Iterable<BattleParticipantHandle> getValidTargetParticipants() {
-        return info.getValidTargetParticipants(battleState, user, list);
-    }
-
-    public void acceptPosition(final BlockPos pos) {
-        if (acceptablePositions != null) {
-            if (acceptablePositions.contains(pos)) {
-                list.addLeft(pos);
-                update();
-            } else {
-                throw new RuntimeException();
-            }
+    public void accept(final TargetInstance instance) {
+        if (instance.getType().equals(nextTargetType)) {
+            list.add(instance);
+            update();
         } else {
-            throw new RuntimeException();
-        }
-    }
-
-    public void acceptParticipant(final BattleParticipantHandle pos) {
-        if (acceptableHandles != null) {
-            if (acceptableHandles.contains(pos)) {
-                list.addRight(pos);
-                update();
-            } else {
-                throw new RuntimeException();
-            }
-        } else {
+            //TODO
             throw new RuntimeException();
         }
     }
 
     private void update() {
         nextTargetType = info.getNextTargetType(list);
-        if (getNextType() == null) {
-            acceptableHandles = null;
-            acceptablePositions = null;
-        } else {
-            switch (getNextType()) {
-                case ANY -> {
-                    acceptableHandles = info.getValidTargetParticipants(battleState, user, list);
-                    acceptablePositions = info.getValidTargetPositions(battleState, user, list);
-                }
-                case POSITION -> {
-                    acceptableHandles = null;
-                    acceptablePositions = info.getValidTargetPositions(battleState, user, list);
-                }
-                case PARTICIPANT -> {
-                    acceptableHandles = info.getValidTargetParticipants(battleState, user, list);
-                    acceptablePositions = null;
-                }
-                default -> {
-                    acceptableHandles = null;
-                    acceptablePositions = null;
-                }
-            }
+    }
+
+    public void render(@Nullable final TargetInstance targeted, final float tickDelta) {
+        final Set<TargetType> types = new ObjectOpenHashSet<>();
+        for (final TargetInstance instance : list) {
+            types.add(instance.getType());
+        }
+        if (targeted != null) {
+            types.add(targeted.getType());
+        }
+        for (final TargetType type : types) {
+            type.render(targeted, list, user, battleState, tickDelta);
+        }
+        if (nextTargetType != null) {
+            nextTargetType.render(targeted, list, user, battleState, tickDelta);
         }
     }
 }

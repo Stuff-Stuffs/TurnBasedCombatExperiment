@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;
@@ -43,6 +44,7 @@ public final class TooltipRenderer {
     private static void render(final TooltipData data, final VertexConsumerProvider.Immediate vertexConsumers) {
         final MatrixStack matrices = new MatrixStack();
         matrices.method_34425(data.matrix);
+        matrices.translate(0,0,400);
         final double borderThickness = 0.5;
         final MinecraftClient client = MinecraftClient.getInstance();
         final TextRenderer textRenderer = client.textRenderer;
@@ -64,7 +66,7 @@ public final class TooltipRenderer {
         width += 4 * data.verticalPixel * borderThickness;
         height *= textScale;
         height += 4 * data.verticalPixel * borderThickness;
-        AbstractWidget.renderTooltipBackground(data.x, data.y, width, height, matrices, data.horizontalPixel, data.verticalPixel, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
+        AbstractWidget.renderTooltipBackground(data.x, data.y, width, height, matrices, data.horizontalPixel, data.verticalPixel, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, true)));
 
         double offset = 0;
         for (final TooltipComponent tooltipComponent : data.components) {

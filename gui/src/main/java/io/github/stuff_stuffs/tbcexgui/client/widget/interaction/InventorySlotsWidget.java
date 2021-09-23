@@ -152,7 +152,7 @@ public class InventorySlotsWidget extends AbstractWidget {
         final double y = position.getY();
 
         render(vertexConsumers -> {
-            final VertexConsumer positionColour = vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER);
+            final VertexConsumer positionColour = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE));
             for (int i = 0; i < inventory.length; i++) {
                 final ItemStackLike[] row = inventory[i];
                 for (int j = 0; j < row.length; j++) {

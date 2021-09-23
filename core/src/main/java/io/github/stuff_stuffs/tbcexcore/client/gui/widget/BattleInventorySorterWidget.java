@@ -239,7 +239,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
         matrices.pop();
     }
 
-    private void renderDecorations(final Sort sort, final MatrixStack matrices, final int index, final int hoverIndex, VertexConsumerProvider vertexConsumers) {
+    private void renderDecorations(final Sort sort, final MatrixStack matrices, final int index, final int hoverIndex, final VertexConsumerProvider vertexConsumers) {
         final float offsetX = (float) position.getX();
         final float offsetY = (float) position.getY();
         final double startX = offsetX + borderThickness + index * entryWidth + index * horizontalSpacing;
@@ -254,7 +254,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
         renderFitText(matrices, sort.getName(), startX, y, (endX - startX) * scale, (height.getAsDouble() - 2 * borderThickness) * scale, shadow, ClientUtil.tweakComponent(-1, 3, scale), vertexConsumers);
     }
 
-    private void renderInfo(final Sort category, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
+    private void renderInfo(final Sort category, final VertexConsumer vertexConsumer, final MatrixStack matrices, final int index, final int hoverIndex) {
         final double offsetX = position.getX();
         final double offsetY = position.getY();
         final Matrix4f model = matrices.peek().getModel();
@@ -274,10 +274,10 @@ public class BattleInventorySorterWidget extends AbstractWidget {
             backgroundColour |= 0xFF000000;
         }
         backgroundColour = ClientUtil.tweakComponent(backgroundColour, 3, scale);
-        RenderUtil.colour(buffer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour).next();
-        RenderUtil.colour(buffer.vertex(model, startX, startY, 0), backgroundColour).next();
-        RenderUtil.colour(buffer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour).next();
-        RenderUtil.colour(buffer.vertex(model, startX + xLen * scale, startY + yLen * scale, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY + yLen * scale, 0), backgroundColour).next();
     }
 
     private static int getBackgroundColour(final int index) {

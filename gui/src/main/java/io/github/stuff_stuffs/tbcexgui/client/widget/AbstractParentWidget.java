@@ -4,6 +4,7 @@ import io.github.stuff_stuffs.tbcexutil.common.IdSupplier;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceMap;
 import it.unimi.dsi.fastutil.ints.Int2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +53,7 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
         widgetById.put(id, wrappedWidget);
         sorted.add(wrappedWidget);
         sorted.sort(COMPARATOR);
-        widget.resize(getScreenWidth(),getScreenHeight(),getPixelWidth(),getPixelHeight());
+        widget.resize(getScreenWidth(), getScreenHeight(), getPixelWidth(), getPixelHeight());
         return new WidgetHandle(id, thisId);
     }
 
@@ -73,7 +74,7 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
             final WrappedWidget widget = sorted.get(i);
             if (widget.widget.mouseClicked(mouseX, mouseY, button)) {
                 if (isFocused) {
-                    if(focusedWidget!=null&&!(focusedWidget.widget==widget.widget)) {
+                    if (focusedWidget != null && !(focusedWidget.widget == widget.widget)) {
                         focusedWidget.widget.setFocused(false);
                     }
                     focusedWidget = widget;
@@ -84,7 +85,7 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
                 return true;
             }
         }
-        if (focusedWidget!=null) {
+        if (focusedWidget != null) {
             focusedWidget.widget.setFocused(false);
             focusedWidget = null;
         }
@@ -129,8 +130,8 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
     }
 
     @Override
-    public boolean keyPress(int keyCode, int scanCode, int modifiers) {
-        if(isFocused&&focusedWidget!=null) {
+    public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
+        if (isFocused && focusedWidget != null) {
             return focusedWidget.widget.keyPress(keyCode, scanCode, modifiers);
         }
         return false;
@@ -147,7 +148,10 @@ public abstract class AbstractParentWidget extends AbstractWidget implements Par
     @Override
     public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final float delta) {
         for (final WrappedWidget widget : sorted) {
+            matrices.push();
+            matrices.translate(0,0,widget.widget.getWidgetPosition().getZ());
             widget.widget.render(matrices, mouseX, mouseY, delta);
+            matrices.pop();
         }
     }
 

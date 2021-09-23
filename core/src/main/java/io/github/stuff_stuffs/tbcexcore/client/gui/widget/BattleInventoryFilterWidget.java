@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
@@ -256,7 +257,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         renderFitText(matrices, category.getName(), offsetX + borderThickness, y, maxWidth * scale, entryHeight * scale, shadow, ClientUtil.tweakComponent(-1, 3, scale), vertexConsumers);
     }
 
-    private void renderInfo(final Category category, final BufferBuilder buffer, final MatrixStack matrices, final int index, final int hoverIndex) {
+    private void renderInfo(final Category category, final VertexConsumer vertexConsumer, final MatrixStack matrices, final int index, final int hoverIndex) {
         final double offsetX = position.getX();
         final double offsetY = position.getY();
         final Matrix4f model = matrices.peek().getModel();
@@ -276,10 +277,10 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
             backgroundColour |= 0xFF000000;
         }
         backgroundColour = ClientUtil.tweakComponent(backgroundColour, 3, scale);
-        RenderUtil.colour(buffer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour).next();
-        RenderUtil.colour(buffer.vertex(model, startX, startY, 0), backgroundColour).next();
-        RenderUtil.colour(buffer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour).next();
-        RenderUtil.colour(buffer.vertex(model, startX + xLen * scale, startY + yLen * scale, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY + yLen * scale, 0), backgroundColour).next();
     }
 
     private static int getBackgroundColour(final int index) {

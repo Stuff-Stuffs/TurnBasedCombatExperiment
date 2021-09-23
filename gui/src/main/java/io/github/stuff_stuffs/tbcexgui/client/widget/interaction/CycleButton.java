@@ -106,7 +106,7 @@ public class CycleButton<T> extends AbstractWidget {
         final Text text = messageFactory.apply(currentState);
 
         render(vertexConsumers -> {
-            NinePatch.render(SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
+            NinePatch.render(SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)));
             renderFitTextWrap(matrices, text, positionX + getHorizontalPixel(), positionY + getVerticalPixel(), width - 2 * getHorizontalPixel(), height - 2 * getHorizontalPixel(), shadow, -1, vertexConsumers);
         });
 
