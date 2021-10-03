@@ -23,8 +23,11 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattlePa
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStatModifiers;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStats;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
+import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -36,28 +39,34 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             Team.CODEC.fieldOf("team").forGetter(state -> state.team),
             BattleParticipantInventory.CODEC.fieldOf("inventory").forGetter(state -> state.inventory),
             BattleParticipantStats.CODEC.fieldOf("stats").forGetter(state -> state.stats),
+            BattleParticipantBounds.CODEC.fieldOf("bounds").forGetter(state -> state.bounds),
             Codec.DOUBLE.fieldOf("health").forGetter(state -> state.health),
-            BlockPos.CODEC.fieldOf("pos").forGetter(state -> state.pos)
+            BlockPos.CODEC.fieldOf("pos").forGetter(state -> state.pos),
+            HorizontalDirection.CODEC.fieldOf("facing").forGetter(state -> state.facing)
     ).apply(instance, BattleParticipantState::new));
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
     private final Team team;
     private final BattleParticipantInventory inventory;
     private final BattleParticipantStats stats;
+    private BattleParticipantBounds bounds;
     private boolean valid = false;
     private double health;
+    private HorizontalDirection facing;
     private BlockPos pos;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health, final BlockPos pos) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final BattleParticipantBounds bounds, final double health, final BlockPos pos, final HorizontalDirection facing) {
         this.handle = handle;
         this.team = team;
+        this.bounds = bounds;
         eventMap = new EventMap();
         registerEvents();
         this.inventory = inventory;
         this.stats = stats;
         this.health = health;
         this.pos = pos;
+        this.facing = facing;
     }
 
 
@@ -69,7 +78,21 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         registerEvents();
         inventory = new BattleParticipantInventory(entity);
         stats = new BattleParticipantStats(entity);
+        bounds = entity.getBounds();
         health = entity.tbcex_getCurrentHealth();
+        Direction bestDir = Direction.NORTH;
+        double best = Double.NEGATIVE_INFINITY;
+        final Vec3d facingVec = ((Entity) entity).getRotationVec(1);
+        for (final Direction direction : Direction.values()) {
+            if (direction.getAxis() != Direction.Axis.Y) {
+                final double cur = new Vec3d(direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ()).dotProduct(facingVec);
+                if (cur > best) {
+                    bestDir = direction;
+                    best = cur;
+                }
+            }
+        }
+        facing = HorizontalDirection.fromDirection(bestDir);
     }
 
     private void registerEvents() {
@@ -233,7 +256,9 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         if (!valid) {
             throw new RuntimeException();
         }
-        this.pos = battleState.getBounds().getNearest(pos);
+        final BlockPos newPos = battleState.getBounds().getNearest(pos);
+        bounds = bounds.offset(newPos.getX() - pos.getX(), newPos.getY() - pos.getY(), newPos.getZ() - pos.getZ());
+        this.pos = newPos;
     }
 
     public @Nullable BattleDamagePacket damage(final BattleDamagePacket packet) {
@@ -258,6 +283,25 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     @Override
     public BlockPos getPos() {
         return pos;
+    }
+
+    @Override
+    public HorizontalDirection getFacing() {
+        return facing;
+    }
+
+    public void setFacing(final HorizontalDirection facing) {
+        this.facing = facing;
+    }
+
+    @Override
+    public BattleParticipantBounds getBounds() {
+        return getBounds(facing);
+    }
+
+    @Override
+    public BattleParticipantBounds getBounds(final HorizontalDirection facing) {
+        return bounds.withRotation(facing);
     }
 
     public void leave() {

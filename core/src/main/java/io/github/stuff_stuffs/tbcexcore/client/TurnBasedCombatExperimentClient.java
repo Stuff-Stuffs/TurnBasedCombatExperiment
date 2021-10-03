@@ -3,16 +3,14 @@ package io.github.stuff_stuffs.tbcexcore.client;
 import io.github.stuff_stuffs.tbcexcore.client.network.ClientNetwork;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
 import io.github.stuff_stuffs.tbcexcore.client.render.Render;
-import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
+import io.github.stuff_stuffs.tbcexcore.client.render.debug.BattleParticipantBoundsDebugRenderer;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.ClientBattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
@@ -56,22 +54,23 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
                 }
             }
         }, DebugRenderers.Stage.POST_ENTITY);
+        DebugRenderers.register("battle_particpant_bounds", BattleParticipantBoundsDebugRenderer.INSTANCE, DebugRenderers.Stage.POST_ENTITY);
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
-            VertexConsumerProvider vertexConsumers = context.consumers();
-            MatrixStack matrices = context.matrixStack();
-            Camera camera = context.camera();
-            VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.LINES);
-            double x = camera.getPos().x;
-            double y = camera.getPos().y;
-            double z = camera.getPos().z;
-            for (BoxInfo info : BOX_INFOS) {
-                WorldRenderer.drawBox(matrices, vertexConsumer, info.x0-x, info.y0-y, info.z0-z, info.x1-x, info.y1-y, info.z1-z, (float)info.r, (float)info.g, (float)info.b, (float)info.a);
+            final VertexConsumerProvider vertexConsumers = context.consumers();
+            final MatrixStack matrices = context.matrixStack();
+            final Camera camera = context.camera();
+            final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.LINES);
+            final double x = camera.getPos().x;
+            final double y = camera.getPos().y;
+            final double z = camera.getPos().z;
+            for (final BoxInfo info : BOX_INFOS) {
+                WorldRenderer.drawBox(matrices, vertexConsumer, info.x0 - x, info.y0 - y, info.z0 - z, info.x1 - x, info.y1 - y, info.z1 - z, (float) info.r, (float) info.g, (float) info.b, (float) info.a);
             }
             BOX_INFOS.clear();
         });
     }
 
-    public static void addBoxInfo(BoxInfo boxInfo) {
+    public static void addBoxInfo(final BoxInfo boxInfo) {
         BOX_INFOS.add(boxInfo);
     }
 }

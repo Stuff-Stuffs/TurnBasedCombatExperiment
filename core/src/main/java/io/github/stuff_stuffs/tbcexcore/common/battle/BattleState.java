@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle;
 
+import com.google.common.collect.Iterators;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
@@ -15,6 +16,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
 import java.util.Map;
 
 public final class BattleState implements BattleStateView {
@@ -138,5 +140,10 @@ public final class BattleState implements BattleStateView {
     @Override
     public BattleBounds getBounds() {
         return bounds;
+    }
+
+    @Override
+    public Iterator<BattleParticipantHandle> getParticipants() {
+        return Iterators.unmodifiableIterator(participants.keySet().iterator());
     }
 }

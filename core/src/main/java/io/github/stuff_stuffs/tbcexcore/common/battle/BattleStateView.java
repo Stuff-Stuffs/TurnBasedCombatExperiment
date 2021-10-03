@@ -11,6 +11,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
+
 public interface BattleStateView {
     EventKey<PreParticipantJoinEvent.Mut, PreParticipantJoinEvent> PRE_PARTICIPANT_JOIN_EVENT = new EventKey<>(PreParticipantJoinEvent.Mut.class, PreParticipantJoinEvent.class);
     EventKey<PostParticipantJoinEvent.Mut, PostParticipantJoinEvent> POST_PARTICIPANT_JOIN_EVENT = new EventKey<>(PostParticipantJoinEvent.Mut.class, PostParticipantJoinEvent.class);
@@ -28,4 +30,6 @@ public interface BattleStateView {
     <T, V> EventHolder<T, V> getEvent(EventKey<T, V> key);
 
     BattleBounds getBounds();
+
+    Iterator<BattleParticipantHandle> getParticipants();
 }

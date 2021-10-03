@@ -11,35 +11,35 @@ import java.util.Collection;
 import java.util.Map;
 
 public final class DebugRenderers {
-    private static final Map<String, Pair<DebugRender, Stage>> DEBUG_RENDERS_UNINIT = new Object2ReferenceOpenHashMap<>();
-    private static final Map<String, Pair<DebugRender, Stage>> DEBUG_RENDERS = new Object2ReferenceOpenHashMap<>();
+    private static final Map<String, Pair<DebugRenderer, Stage>> DEBUG_RENDERS_UNINIT = new Object2ReferenceOpenHashMap<>();
+    private static final Map<String, Pair<DebugRenderer, Stage>> DEBUG_RENDERS = new Object2ReferenceOpenHashMap<>();
     private static final Object2BooleanMap<String> TOGGLES = new Object2BooleanOpenHashMap<>();
 
     private DebugRenderers() {
     }
 
     public static void init() {
-        for (final Map.Entry<String, Pair<DebugRender, Stage>> entry : DEBUG_RENDERS_UNINIT.entrySet()) {
-            if(DEBUG_RENDERS.put(entry.getKey(), entry.getValue())!=null) {
+        for (final Map.Entry<String, Pair<DebugRenderer, Stage>> entry : DEBUG_RENDERS_UNINIT.entrySet()) {
+            if (DEBUG_RENDERS.put(entry.getKey(), entry.getValue()) != null) {
                 throw new RuntimeException("Duplicate debug renderers");
             }
             TOGGLES.put(entry.getKey(), false);
             final String name = entry.getKey();
-            final DebugRender debugRender = entry.getValue().getFirst();
+            final DebugRenderer debugRenderer = entry.getValue().getFirst();
             switch (entry.getValue().getSecond()) {
                 case POST_ENTITY -> WorldRenderEvents.AFTER_ENTITIES.register(context -> {
                     if (TOGGLES.getBoolean(name)) {
-                        debugRender.render(context);
+                        debugRenderer.render(context);
                     }
                 });
                 case POST_TRANSLUCENT -> WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
                     if (TOGGLES.getBoolean(name)) {
-                        debugRender.render(context);
+                        debugRenderer.render(context);
                     }
                 });
                 case PRE_DEBUG -> WorldRenderEvents.BEFORE_DEBUG_RENDER.register(context -> {
                     if (TOGGLES.getBoolean(name)) {
-                        debugRender.render(context);
+                        debugRenderer.render(context);
                     }
                 });
             }
@@ -47,8 +47,8 @@ public final class DebugRenderers {
         DEBUG_RENDERS_UNINIT.clear();
     }
 
-    public static void register(final String name, final DebugRender debugRender, final Stage stage) {
-        if (DEBUG_RENDERS_UNINIT.put(name, new Pair<>(debugRender, stage)) != null || DEBUG_RENDERS.containsKey(name)) {
+    public static void register(final String name, final DebugRenderer debugRenderer, final Stage stage) {
+        if (DEBUG_RENDERS_UNINIT.put(name, new Pair<>(debugRenderer, stage)) != null || DEBUG_RENDERS.containsKey(name)) {
             throw new RuntimeException("Duplicate named debug renderers");
         }
     }
@@ -58,14 +58,14 @@ public final class DebugRenderers {
     }
 
     public static void set(final String renderer, final boolean on) {
-        if(DEBUG_RENDERS_UNINIT.containsKey(renderer)) {
+        if (DEBUG_RENDERS_UNINIT.containsKey(renderer)) {
             init();
         }
         TOGGLES.put(renderer, on);
     }
 
-    public static boolean get(String renderer) {
-        if(DEBUG_RENDERS_UNINIT.containsKey(renderer)) {
+    public static boolean get(final String renderer) {
+        if (DEBUG_RENDERS_UNINIT.containsKey(renderer)) {
             init();
         }
         return TOGGLES.getBoolean(renderer);

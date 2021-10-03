@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.*;
@@ -82,6 +83,8 @@ public final class CodecUtil {
             ).build(prefix);
         }
     };
+
+    public static final Codec<Box> BOX_CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.DOUBLE.fieldOf("minX").forGetter(b -> b.minX), Codec.DOUBLE.fieldOf("minY").forGetter(b -> b.minY), Codec.DOUBLE.fieldOf("minZ").forGetter(b -> b.minZ), Codec.DOUBLE.fieldOf("maxX").forGetter(b -> b.maxX), Codec.DOUBLE.fieldOf("maxY").forGetter(b -> b.maxY), Codec.DOUBLE.fieldOf("maxZ").forGetter(b -> b.maxZ)).apply(instance, Box::new));
 
     private CodecUtil() {
     }
