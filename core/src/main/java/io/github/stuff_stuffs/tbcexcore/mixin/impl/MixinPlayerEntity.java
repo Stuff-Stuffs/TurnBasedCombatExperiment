@@ -4,7 +4,7 @@ import com.google.common.collect.Iterables;
 import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantBounds;
+import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;

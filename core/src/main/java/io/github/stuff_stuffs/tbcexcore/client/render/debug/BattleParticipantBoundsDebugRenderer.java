@@ -2,7 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.client.render.debug;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantBounds;
+import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.ClientBattleWorld;

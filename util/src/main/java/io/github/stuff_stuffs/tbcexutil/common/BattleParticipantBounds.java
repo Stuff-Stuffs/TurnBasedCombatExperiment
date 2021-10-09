@@ -1,11 +1,8 @@
-package io.github.stuff_stuffs.tbcexcore.common.battle.participant;
+package io.github.stuff_stuffs.tbcexutil.common;
 
 import com.google.common.collect.Iterators;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
-import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
-import io.github.stuff_stuffs.tbcexutil.common.HorizontalRotation;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
@@ -55,7 +52,7 @@ public final class BattleParticipantBounds implements Iterable<BattleParticipant
         for (final Part part : parts.values()) {
             builder.add(part.name, part.box.offset(x, y, z));
         }
-        return builder.build(new Vec3d(x, y, z));
+        return builder.build(new Vec3d(x + center.x, y + center.y, z + center.z));
     }
 
     public BattleParticipantBounds withCenter(final double x, final double y, final double z) {

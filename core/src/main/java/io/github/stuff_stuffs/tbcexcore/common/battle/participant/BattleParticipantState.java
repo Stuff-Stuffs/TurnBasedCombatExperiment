@@ -23,6 +23,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattlePa
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStatModifiers;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStats;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
+import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
