@@ -16,6 +16,7 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.SuppliedWidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetHandle;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.LiteralText;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -121,6 +122,11 @@ public class BattleInventoryScreen extends TBCExScreen {
         if (init) {
             inventoryWidget.tick();
         }
+    }
+
+    @Override
+    public void onClose() {
+        MinecraftClient.getInstance().setScreen(new BattleMenuScreen(handle, world));
     }
 
     private void select(final int index) {

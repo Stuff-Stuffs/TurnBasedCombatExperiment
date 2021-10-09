@@ -1,5 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.client.render;
 
+import net.minecraft.util.math.Box;
+
 public final class BoxInfo {
     public final double x0, y0, z0;
     public final double x1, y1, z1;
@@ -16,5 +18,9 @@ public final class BoxInfo {
         this.g = g;
         this.b = b;
         this.a = a;
+    }
+
+    public BoxInfo(final Box box, final double r, final double g, final double b, final double a) {
+        this(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, r, g, b, a);
     }
 }

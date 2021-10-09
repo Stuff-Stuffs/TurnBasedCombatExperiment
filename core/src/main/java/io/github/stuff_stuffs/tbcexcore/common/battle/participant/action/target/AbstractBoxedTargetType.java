@@ -43,7 +43,7 @@ public abstract class AbstractBoxedTargetType<T> implements TargetType {
         return closest;
     }
 
-    private static double minDistSq(final Vec3d pos, final Box box) {
+    protected static double minDistSq(final Vec3d pos, final Box box) {
         final Vec3d center = box.getCenter();
         final Direction.AxisDirection x = pos.x >= center.x ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE;
         final Direction.AxisDirection y = pos.y >= center.y ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE;

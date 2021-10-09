@@ -257,7 +257,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             throw new RuntimeException();
         }
         final BlockPos newPos = battleState.getBounds().getNearest(pos);
-        bounds = bounds.offset(newPos.getX() - pos.getX(), newPos.getY() - pos.getY(), newPos.getZ() - pos.getZ());
+        bounds = bounds.withCenter(newPos.getX(), newPos.getY(), newPos.getZ());
         this.pos = newPos;
     }
 

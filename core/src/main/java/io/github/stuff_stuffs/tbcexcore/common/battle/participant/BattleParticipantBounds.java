@@ -55,7 +55,11 @@ public final class BattleParticipantBounds implements Iterable<BattleParticipant
         for (final Part part : parts.values()) {
             builder.add(part.name, part.box.offset(x, y, z));
         }
-        return builder.build();
+        return builder.build(new Vec3d(x, y, z));
+    }
+
+    public BattleParticipantBounds withCenter(final double x, final double y, final double z) {
+        return offset(-center.x, -center.y, -center.z).offset(x, y, z);
     }
 
     public BattleParticipantBounds withRotation(final HorizontalDirection dir) {
