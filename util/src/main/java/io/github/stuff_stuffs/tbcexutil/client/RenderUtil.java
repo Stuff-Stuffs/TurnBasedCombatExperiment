@@ -4,6 +4,7 @@ import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class RenderUtil {
@@ -52,5 +53,12 @@ public final class RenderUtil {
 
     public static VertexConsumer uv(final VertexConsumer vertexConsumer, final Vec2d uv) {
         return vertexConsumer.texture((float) uv.x, (float) uv.y);
+    }
+
+    public static VertexConsumer lineNormal(final VertexConsumer vertexConsumer, final Vec3d first, final Vec3d second, final MatrixStack matrices) {
+        Vec3d norm = second.subtract(first);
+        norm = norm.multiply(MathHelper.fastInverseSqrt(norm.lengthSquared()));
+        vertexConsumer.normal(matrices.peek().getNormal(), (float) norm.x, (float) norm.y, (float) norm.z);
+        return vertexConsumer;
     }
 }

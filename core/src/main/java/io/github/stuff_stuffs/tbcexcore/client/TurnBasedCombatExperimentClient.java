@@ -11,6 +11,7 @@ import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
@@ -24,10 +25,12 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class TurnBasedCombatExperimentClient implements ClientModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("TBCExClient");
     private static final List<BoxInfo> BOX_INFOS = new ArrayList<>();
+    private static final List<Consumer<WorldRenderContext>> RENDER_PRIMITIVES = new ArrayList<>();
 
     @Override
     public void onInitializeClient() {
@@ -63,14 +66,25 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
             final double x = camera.getPos().x;
             final double y = camera.getPos().y;
             final double z = camera.getPos().z;
+            matrices.push();
+            matrices.translate(-x,-y,-z);
             for (final BoxInfo info : BOX_INFOS) {
-                WorldRenderer.drawBox(matrices, vertexConsumer, info.x0 - x, info.y0 - y, info.z0 - z, info.x1 - x, info.y1 - y, info.z1 - z, (float) info.r, (float) info.g, (float) info.b, (float) info.a);
+                WorldRenderer.drawBox(matrices, vertexConsumer, info.x0, info.y0, info.z0, info.x1, info.y1, info.z1, (float) info.r, (float) info.g, (float) info.b, (float) info.a);
             }
+            for (final Consumer<WorldRenderContext> renderPrimitive : RENDER_PRIMITIVES) {
+                renderPrimitive.accept(context);
+            }
+            matrices.pop();
             BOX_INFOS.clear();
+            RENDER_PRIMITIVES.clear();
         });
     }
 
     public static void addBoxInfo(final BoxInfo boxInfo) {
         BOX_INFOS.add(boxInfo);
+    }
+
+    public static void addRenderPrimitive(final Consumer<WorldRenderContext> primitive) {
+        RENDER_PRIMITIVES.add(primitive);
     }
 }

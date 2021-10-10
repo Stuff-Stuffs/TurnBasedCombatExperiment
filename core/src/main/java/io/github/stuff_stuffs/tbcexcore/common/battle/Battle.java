@@ -48,9 +48,13 @@ public final class Battle {
         return timeline;
     }
 
+    public BattleBounds getBounds() {
+        return bounds;
+    }
+
     public void push(final BattleAction<?> action) {
         final BattleParticipantHandle currentTurn = state.getCurrentTurn();
-        if(action.getActor().isUniversal()||action.getActor().equals(currentTurn)) {
+        if (action.getActor().isUniversal() || action.getActor().equals(currentTurn)) {
             action.applyToState(state);
             timeline.push(action);
         } else {

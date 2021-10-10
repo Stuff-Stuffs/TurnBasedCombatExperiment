@@ -25,11 +25,11 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if(super.mouseClicked(mouseX, mouseY, button)) {
+    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
+        if (super.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
-        if(button== GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             locked = !locked;
             passEvents = locked;
             return true;

@@ -48,6 +48,9 @@ public final class BattleParticipantBounds implements Iterable<BattleParticipant
     }
 
     public BattleParticipantBounds offset(final double x, final double y, final double z) {
+        if (x == 0 && y == 0 && z == 0) {
+            return this;
+        }
         final Builder builder = builder();
         for (final Part part : parts.values()) {
             builder.add(part.name, part.box.offset(x, y, z));

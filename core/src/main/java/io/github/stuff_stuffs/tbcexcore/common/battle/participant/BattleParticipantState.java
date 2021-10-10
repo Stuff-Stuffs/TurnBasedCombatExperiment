@@ -79,7 +79,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         registerEvents();
         inventory = new BattleParticipantInventory(entity);
         stats = new BattleParticipantStats(entity);
-        bounds = entity.getBounds();
+        bounds = entity.getBounds().withCenter(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         health = entity.tbcex_getCurrentHealth();
         Direction bestDir = Direction.NORTH;
         double best = Double.NEGATIVE_INFINITY;
@@ -258,7 +258,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             throw new RuntimeException();
         }
         final BlockPos newPos = battleState.getBounds().getNearest(pos);
-        bounds = bounds.withCenter(newPos.getX(), newPos.getY(), newPos.getZ());
+        bounds = bounds.withCenter(newPos.getX() + 0.5, newPos.getY(), newPos.getZ() + 0.5);
         this.pos = newPos;
     }
 

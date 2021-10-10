@@ -14,6 +14,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -77,7 +78,7 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
 
     @Override
     public BattleParticipantBounds getBounds() {
-        return BattleParticipantBounds.builder().add(TurnBasedCombatExperiment.createId("body"), new Box(-0.5, 0, -0.5, 0.5, 1.5, 0.5)).add(TurnBasedCombatExperiment.createId("head"), new Box(-0.25, 1.5, -0.25, 0.25, 2, 0.25)).build();
+        return BattleParticipantBounds.builder().add(TurnBasedCombatExperiment.createId("body"), new Box(0, 0, 0, 1, 1.5, 1)).add(TurnBasedCombatExperiment.createId("head"), new Box(0.25, 1.5, 0.25, 0.75, 2, 0.75)).build(new Vec3d(0.5, 0, 0.5));
     }
 
     @Override
