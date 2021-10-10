@@ -33,7 +33,10 @@ import java.util.function.Consumer;
 public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen {
     private final BattleParticipantHandle handle;
     private final World world;
+    private List<Path> paths = null;
+    private List<EndPoint> endPoints = null;
     private boolean init = false;
+    private boolean foundPaths = false;
     private boolean locked = false;
 
     protected BattleMoveScreen(final BattleParticipantHandle handle, final World world) {
@@ -48,6 +51,27 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
         if (!init) {
             init = true;
             final ParentWidget widget = (ParentWidget) this.widget;
+        }
+        if(!foundPaths) {
+            final Pather pather = new DjikstraPather();
+            final BattleWorld world = ((BattleWorldSupplier) this.world).tbcex_getBattleWorld();
+            if (world == null) {
+                throw new RuntimeException();
+            }
+            final Battle battle = world.getBattle(handle.battleId());
+            if (battle == null) {
+                throw new RuntimeException();
+            }
+            final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
+            if (participant == null) {
+                return;
+            }
+            foundPaths = true;
+            paths = pather.getPaths(participant.getPos(), participant.getFacing(), participant.getBounds(), battle.getBounds().getBox(), this.world, MovementType.LAND);
+            endPoints = paths.stream().map(p -> {
+                final Movement last = p.getMovements().get(p.getMovements().size() - 1);
+                return new EndPoint(last.getStartPos(), last.getEndPos(), last);
+            }).toList();
         }
     }
 
@@ -72,52 +96,55 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
     @Override
     public void render(final MatrixStack matrices, final int mouseX, final int mouseY, final float delta) {
         super.render(matrices, mouseX, mouseY, delta);
-        final Pather pather = new PatherImpl();
-        final BattleWorld world = ((BattleWorldSupplier) this.world).tbcex_getBattleWorld();
-        if (world == null) {
-            throw new RuntimeException();
-        }
-        final Battle battle = world.getBattle(handle.battleId());
-        if (battle == null) {
-            throw new RuntimeException();
-        }
-        final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
-        if (participant == null) {
-            return;
-        }
-        final List<Path> paths = pather.getPaths(participant.getPos(), participant.getFacing(), participant.getBounds(), battle.getBounds().getBox(), this.world, List.of(BasicMovements.values()));
-        final List<EndPoint> endPoints = paths.stream().map(p -> {
-            final Movement last = p.getMovements().get(p.getMovements().size() - 1);
-            return new EndPoint(last.getStartPos(), last.getEndPos(), last);
-        }).toList();
-        final Vec3d mouseVector = ClientUtil.getMouseVector();
-        final Vec3d eyePos = MinecraftClient.getInstance().cameraEntity.getClientCameraPosVec(delta);
-        final Vec3d endPos = eyePos.add(mouseVector.multiply(64));
-        double closestDist = Double.POSITIVE_INFINITY;
-        EndPoint closest = null;
-        for (final EndPoint endPoint : endPoints) {
-            final Optional<Vec3d> raycast = endPoint.box.raycast(eyePos, endPos);
-            if (raycast.isPresent()) {
-                final double sq = raycast.get().squaredDistanceTo(eyePos);
-                if (sq < closestDist) {
-                    closest = endPoint;
-                    closestDist = sq;
+        if(foundPaths) {
+            final Pather pather = new DjikstraPather();
+            final BattleWorld world = ((BattleWorldSupplier) this.world).tbcex_getBattleWorld();
+            if (world == null) {
+                throw new RuntimeException();
+            }
+            final Battle battle = world.getBattle(handle.battleId());
+            if (battle == null) {
+                throw new RuntimeException();
+            }
+            final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
+            if (participant == null) {
+                return;
+            }
+            foundPaths = true;
+            paths = pather.getPaths(participant.getPos(), participant.getFacing(), participant.getBounds(), battle.getBounds().getBox(), this.world, MovementType.LAND);
+            endPoints = paths.stream().map(p -> {
+                final Movement last = p.getMovements().get(p.getMovements().size() - 1);
+                return new EndPoint(last.getStartPos(), last.getEndPos(), last);
+            }).toList();
+            final Vec3d mouseVector = ClientUtil.getMouseVector();
+            final Vec3d eyePos = MinecraftClient.getInstance().cameraEntity.getClientCameraPosVec(delta);
+            final Vec3d endPos = eyePos.add(mouseVector.multiply(64));
+            double closestDist = Double.POSITIVE_INFINITY;
+            EndPoint closest = null;
+            for (final EndPoint endPoint : endPoints) {
+                final Optional<Vec3d> raycast = endPoint.box.raycast(eyePos, endPos);
+                if (raycast.isPresent()) {
+                    final double sq = raycast.get().squaredDistanceTo(eyePos);
+                    if (sq < closestDist) {
+                        closest = endPoint;
+                        closestDist = sq;
+                    }
                 }
             }
-        }
-        for (int i = 0; i < endPoints.size(); i++) {
-            final EndPoint endPoint = endPoints.get(i);
-            final double r;
-            final double g;
-            if (endPoint == closest) {
-                r = 0;
-                g = 1;
-                TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(paths.get(i)));
-            } else {
-                r = 1;
-                g = 0;
+            for (int i = 0; i < endPoints.size(); i++) {
+                final EndPoint endPoint = endPoints.get(i);
+                final double r;
+                final double g;
+                if (endPoint == closest) {
+                    r = 0;
+                    g = 1;
+                    TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(endPoint.box, r, g, 0, 1));
+                    TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(paths.get(i)));
+                } else {
+                    r = 1;
+                    g = 0;
+                }
             }
-            TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(endPoint.box, r, g, 0, 1));
         }
     }
 

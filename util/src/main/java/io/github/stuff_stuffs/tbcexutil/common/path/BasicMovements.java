@@ -3,22 +3,17 @@ package io.github.stuff_stuffs.tbcexutil.common.path;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import io.github.stuff_stuffs.tbcexutil.common.WorldShapeCache;
-import net.minecraft.util.function.BooleanBiFunction;
 import net.minecraft.util.math.*;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-
-import static net.minecraft.util.math.MathHelper.ceil;
-import static net.minecraft.util.math.MathHelper.floor;
 
 public enum BasicMovements implements MovementType {
     FALL {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
-            final double groundHeight = getGroundHeight(bounds.offset(0, -1, 0), cache);
-            if (groundHeight < 1 && !doesCollideWith(bounds.offset(0, -0.01, 0), cache)) {
+            final double groundHeight = MovementType.getGroundHeight(bounds.offset(0, -1, 0), cache);
+            if (groundHeight < 1 && !MovementType.doesCollideWith(bounds.offset(0, -0.01, 0), cache)) {
+                boolean validEnding = MovementType.doesCollideWith(bounds.offset(0, -2, 0), cache);
                 return new Movement() {
                     @Override
                     public double getCost() {
@@ -49,6 +44,11 @@ public enum BasicMovements implements MovementType {
                     public HorizontalDirection getRotation(final double t) {
                         return dir;
                     }
+
+                    @Override
+                    public boolean isValidEnding() {
+                        return validEnding;
+                    }
                 };
             }
             return null;
@@ -56,7 +56,7 @@ public enum BasicMovements implements MovementType {
     }, WALK_NORTH {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
-            if (doesCollideWith(bounds.offset(0, -1, 0), cache) && !doesCollideWith(bounds.offset(0, 0, -1), cache) && doesCollideWith(bounds.offset(0, -1, -1), cache)) {
+            if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, -1), cache) && MovementType.doesCollideWith(bounds.offset(0, -1, -1), cache)) {
                 return createSimple(pos, pos.add(0, 0, -1), dir, HorizontalDirection.NORTH);
             }
             return null;
@@ -65,7 +65,7 @@ public enum BasicMovements implements MovementType {
     WALK_SOUTH {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
-            if (doesCollideWith(bounds.offset(0, -1, 0), cache) && !doesCollideWith(bounds.offset(0, 0, 1), cache) && doesCollideWith(bounds.offset(0, -1, 1), cache)) {
+            if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, 1), cache) && MovementType.doesCollideWith(bounds.offset(0, -1, 1), cache)) {
                 return createSimple(pos, pos.add(0, 0, 1), dir, HorizontalDirection.SOUTH);
             }
             return null;
@@ -73,7 +73,7 @@ public enum BasicMovements implements MovementType {
     }, WALK_EAST {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
-            if (doesCollideWith(bounds.offset(0, -1, 0), cache) && !doesCollideWith(bounds.offset(1, 0, 0), cache) && doesCollideWith(bounds.offset(1, -1, 0), cache)) {
+            if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(1, 0, 0), cache) && MovementType.doesCollideWith(bounds.offset(1, -1, 0), cache)) {
                 return createSimple(pos, pos.add(1, 0, 0), dir, HorizontalDirection.EAST);
             }
             return null;
@@ -81,7 +81,7 @@ public enum BasicMovements implements MovementType {
     }, WALK_WEST {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
-            if (doesCollideWith(bounds.offset(0, -1, 0), cache) && !doesCollideWith(bounds.offset(-1, 0, 0), cache) && doesCollideWith(bounds.offset(-1, -1, 0), cache)) {
+            if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(-1, 0, 0), cache) && MovementType.doesCollideWith(bounds.offset(-1, -1, 0), cache)) {
                 return createSimple(pos, pos.add(-1, 0, 0), dir, HorizontalDirection.EAST);
             }
             return null;
@@ -124,55 +124,5 @@ public enum BasicMovements implements MovementType {
                 return t < length / 2 ? startDir : endDir;
             }
         };
-    }
-
-    private static boolean doesCollideWith(final BattleParticipantBounds bounds, final WorldShapeCache cache) {
-        for (final BattleParticipantBounds.Part part : bounds) {
-            final Box box = part.box;
-            final int minX = floor(box.minX);
-            final int minY = floor(box.minY);
-            final int minZ = floor(box.minZ);
-            final int maxX = ceil(box.maxX);
-            final int maxY = ceil(box.maxY);
-            final int maxZ = ceil(box.maxZ);
-            for (int i = minX; i <= maxX; i++) {
-                for (int j = minY; j <= maxY; j++) {
-                    for (int k = minZ; k <= maxZ; k++) {
-                        final VoxelShape shape = cache.getShape(i, j, k);
-                        if (VoxelShapes.matchesAnywhere(shape.offset(i, j, k), VoxelShapes.cuboid(box), BooleanBiFunction.AND)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public static double getGroundHeight(final BattleParticipantBounds bounds, final WorldShapeCache cache) {
-        double dist = 0;
-        for (final BattleParticipantBounds.Part part : bounds) {
-            final Box box = part.box;
-            final int minX = floor(box.minX);
-            final int minY = floor(box.minY);
-            final int minZ = floor(box.minZ);
-            final int maxX = ceil(box.maxX);
-            final int maxY = ceil(box.maxY);
-            final int maxZ = ceil(box.maxZ);
-            for (int i = minX; i <= maxX; i++) {
-                for (int j = minY; j <= maxY; j++) {
-                    for (int k = minZ; k <= maxZ; k++) {
-                        final VoxelShape shape = cache.getShape(i, j, k);
-                        if (!shape.isEmpty()) {
-                            final double v = shape.calculateMaxDistance(Direction.Axis.Y, box, Double.POSITIVE_INFINITY);
-                            if (v != Double.POSITIVE_INFINITY && v > 0) {
-                                dist = Math.max(dist, v);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return dist;
     }
 }
