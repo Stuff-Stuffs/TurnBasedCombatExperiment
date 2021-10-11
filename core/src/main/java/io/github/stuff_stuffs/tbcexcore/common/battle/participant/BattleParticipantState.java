@@ -9,10 +9,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.MutableEventHolder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PostDamageEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PostEquipmentChangeEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PreDamageEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PreEquipmentChangeEvent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventory;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
@@ -128,6 +125,21 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         eventMap.register(POST_DAMAGE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_DAMAGE_EVENT, view -> view::onDamage, events -> (state, damagePacket) -> {
             for (final PostDamageEvent.Mut event : events) {
                 event.onDamage(state, damagePacket);
+            }
+        }));
+        eventMap.register(PRE_MOVE_EVENT, new MutableEventHolder.BasicEventHolder<>(PRE_MOVE_EVENT, view -> (battleParticipantStateView, pos, path) -> {
+            view.onMove(battleParticipantStateView, pos, path);
+            return false;
+        }, events -> (battleParticipantState, pos, path) -> {
+            boolean canceled = false;
+            for (final PreMoveEvent.Mut event : events) {
+                canceled |= event.onMove(battleParticipantState, pos, path);
+            }
+            return canceled;
+        }));
+        eventMap.register(POST_MOVE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_MOVE_EVENT, view -> view::onMove, events -> (battleParticipantState, path) -> {
+            for (final PostMoveEvent.Mut event : events) {
+                event.onMove(battleParticipantState, path);
             }
         }));
     }

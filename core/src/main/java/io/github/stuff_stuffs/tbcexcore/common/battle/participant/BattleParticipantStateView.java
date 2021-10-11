@@ -4,10 +4,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PostDamageEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PostEquipmentChangeEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PreDamageEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.PreEquipmentChangeEvent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
@@ -25,6 +22,8 @@ public interface BattleParticipantStateView {
     EventKey<PostEquipmentChangeEvent.Mut, PostEquipmentChangeEvent> POST_EQUIPMENT_CHANGE_EVENT = new EventKey<>(PostEquipmentChangeEvent.Mut.class, PostEquipmentChangeEvent.class);
     EventKey<PreDamageEvent.Mut, PreDamageEvent> PRE_DAMAGE_EVENT = new EventKey<>(PreDamageEvent.Mut.class, PreDamageEvent.class);
     EventKey<PostDamageEvent.Mut, PostDamageEvent> POST_DAMAGE_EVENT = new EventKey<>(PostDamageEvent.Mut.class, PostDamageEvent.class);
+    EventKey<PreMoveEvent.Mut, PreMoveEvent> PRE_MOVE_EVENT = new EventKey<>(PreMoveEvent.Mut.class, PreMoveEvent.class);
+    EventKey<PostMoveEvent.Mut, PostMoveEvent> POST_MOVE_EVENT = new EventKey<>(PostMoveEvent.Mut.class, PostMoveEvent.class);
 
     BattleStateView getBattleState();
 
