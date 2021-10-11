@@ -12,7 +12,7 @@ public final class ParticipantRotateAction extends BattleAction<ParticipantRotat
     private final HorizontalRotation rotation;
 
     public ParticipantRotateAction(final BattleParticipantHandle actor, final HorizontalRotation rotation) {
-        super(actor);
+        super(actor, 0.5);
         this.rotation = rotation;
     }
 
@@ -24,6 +24,7 @@ public final class ParticipantRotateAction extends BattleAction<ParticipantRotat
             throw new RuntimeException();
         }
         participantState.setFacing(rotation.rotate(participantState.getFacing()));
+        participantState.getEnergyTracker().use(energyCost);
     }
 
     @Override

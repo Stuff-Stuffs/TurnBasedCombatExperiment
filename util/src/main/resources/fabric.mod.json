@@ -12,6 +12,9 @@
   "entrypoints": {
     "client": [
       "io.github.stuff_stuffs.tbcexutil.client.ClientUtil"
+    ],
+    "main": [
+      "io.github.stuff_stuffs.tbcexutil.common.TBCExUtil"
     ]
   },
   "mixins": [

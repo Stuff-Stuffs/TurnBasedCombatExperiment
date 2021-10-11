@@ -8,7 +8,7 @@ public final class EndTurnBattleAction extends BattleAction<EndTurnBattleAction>
     public static final Codec<EndTurnBattleAction> CODEC = BattleParticipantHandle.CODEC.xmap(EndTurnBattleAction::new, BattleAction::getActor);
 
     public EndTurnBattleAction(final BattleParticipantHandle actor) {
-        super(actor);
+        super(actor, 0);
     }
 
     @Override

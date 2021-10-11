@@ -120,6 +120,11 @@ public final class BattleState implements BattleStateView {
     public void advanceTurn() {
         if (turnChooser.valid()) {
             turnChooser.advance();
+            final BattleParticipantState state = participants.get(turnChooser.getCurrentTurn());
+            if (state == null) {
+                throw new RuntimeException();
+            }
+            state.getEnergyTracker().reset();
         }
     }
 

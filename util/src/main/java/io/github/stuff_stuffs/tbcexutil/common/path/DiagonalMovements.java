@@ -1,5 +1,8 @@
 package io.github.stuff_stuffs.tbcexutil.common.path;
 
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import io.github.stuff_stuffs.tbcexutil.common.WorldShapeCache;
@@ -15,7 +18,7 @@ public enum DiagonalMovements implements MovementType {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && MovementType.doesCollideWith(bounds.offset(1, -1, -1), cache) && !MovementType.doesCollideWith(bounds.offset(1, 0, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, -1), cache) && !MovementType.doesCollideWith(bounds.offset(1, 0, -1), cache)) {
-                return DiagonalMovements.create(pos, pos.add(1, 0, -1), dir, HorizontalDirection.NORTH, HorizontalDirection.EAST);
+                return DiagonalMovements.create(pos, pos.add(1, 0, -1), dir, HorizontalDirection.NORTH, HorizontalDirection.EAST, NORTH_EAST);
             }
             return null;
         }
@@ -24,7 +27,7 @@ public enum DiagonalMovements implements MovementType {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && MovementType.doesCollideWith(bounds.offset(-1, -1, -1), cache) && !MovementType.doesCollideWith(bounds.offset(-1, 0, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, -1), cache) && !MovementType.doesCollideWith(bounds.offset(-1, 0, -1), cache)) {
-                return DiagonalMovements.create(pos, pos.add(-1, 0, -1), dir, HorizontalDirection.NORTH, HorizontalDirection.EAST);
+                return DiagonalMovements.create(pos, pos.add(-1, 0, -1), dir, HorizontalDirection.NORTH, HorizontalDirection.WEST, NORTH_WEST);
             }
             return null;
         }
@@ -33,7 +36,7 @@ public enum DiagonalMovements implements MovementType {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && MovementType.doesCollideWith(bounds.offset(1, -1, 1), cache) && !MovementType.doesCollideWith(bounds.offset(1, 0, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, 1), cache) && !MovementType.doesCollideWith(bounds.offset(1, 0, 1), cache)) {
-                return DiagonalMovements.create(pos, pos.add(1, 0, 1), dir, HorizontalDirection.NORTH, HorizontalDirection.EAST);
+                return DiagonalMovements.create(pos, pos.add(1, 0, 1), dir, HorizontalDirection.NORTH, HorizontalDirection.EAST, SOUTH_EAST);
             }
             return null;
         }
@@ -42,60 +45,121 @@ public enum DiagonalMovements implements MovementType {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && MovementType.doesCollideWith(bounds.offset(-1, -1, 1), cache) && !MovementType.doesCollideWith(bounds.offset(-1, 0, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, 1), cache) && !MovementType.doesCollideWith(bounds.offset(-1, 0, 1), cache)) {
-                return DiagonalMovements.create(pos, pos.add(-1, 0, 1), dir, HorizontalDirection.NORTH, HorizontalDirection.EAST);
+                return DiagonalMovements.create(pos, pos.add(-1, 0, 1), dir, HorizontalDirection.NORTH, HorizontalDirection.EAST, SOUTH_WEST);
             }
             return null;
         }
     };
 
-    private static Movement create(final BlockPos start, final BlockPos end, final HorizontalDirection startDir, final HorizontalDirection first, final HorizontalDirection second) {
-        final BlockPos delta = end.subtract(start);
-        final double lengthSq = delta.getX() * delta.getX() + delta.getY() * delta.getY() + delta.getZ() * delta.getZ();
-        final double length = lengthSq * MathHelper.fastInverseSqrt(lengthSq);
-        return new Movement() {
-            @Override
-            public double getCost() {
-                return length;
-            }
+    @Override
+    public <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
+        final Simple simple = (Simple) movement;
+        final RecordBuilder<T> builder = ops.mapBuilder();
+        builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, simple.start));
+        builder.add("end_pos", BlockPos.CODEC.encodeStart(ops, simple.end));
+        builder.add("start_dir", HorizontalDirection.CODEC.encodeStart(ops, simple.startDir));
+        builder.add("first", HorizontalDirection.CODEC.encodeStart(ops, simple.first));
+        builder.add("second", HorizontalDirection.CODEC.encodeStart(ops, simple.second));
+        return builder.build(ops.empty()).getOrThrow(false, s -> {
+            throw new RuntimeException(s);
+        });
+    }
 
-            @Override
-            public BlockPos getStartPos() {
-                return start;
-            }
+    @Override
+    public <T> Movement deserialize(final DynamicOps<T> ops, final T serialized) {
+        final MapLike<T> mapLike = ops.getMap(serialized).getOrThrow(false, s -> {
+            throw new RuntimeException(s);
+        });
+        final BlockPos startPos = BlockPos.CODEC.parse(ops, mapLike.get("start_pos")).getOrThrow(false, s -> {
+            throw new RuntimeException(s);
+        });
+        final BlockPos endPos = BlockPos.CODEC.parse(ops, mapLike.get("end_pos")).getOrThrow(false, s -> {
+            throw new RuntimeException(s);
+        });
+        final HorizontalDirection startDir = HorizontalDirection.CODEC.parse(ops, mapLike.get("start_dir")).getOrThrow(false, s -> {
+            throw new RuntimeException(s);
+        });
+        final HorizontalDirection first = HorizontalDirection.CODEC.parse(ops, mapLike.get("first")).getOrThrow(false, s -> {
+            throw new RuntimeException(s);
+        });
+        final HorizontalDirection second = HorizontalDirection.CODEC.parse(ops, mapLike.get("second")).getOrThrow(false, s -> {
+            throw new RuntimeException(s);
+        });
+        return new Simple(startPos, endPos, startDir, first, second, this);
+    }
 
-            @Override
-            public BlockPos getEndPos() {
-                return end;
-            }
+    private static Movement create(final BlockPos start, final BlockPos end, final HorizontalDirection startDir, final HorizontalDirection first, final HorizontalDirection second, final MovementType self) {
+        return new Simple(start, end, startDir, first, second, self);
+    }
 
-            @Override
-            public double getLength() {
-                return length;
-            }
+    private static final class Simple implements Movement {
+        private static final double LENGTH = Math.sqrt(2);
+        private final BlockPos start;
+        private final BlockPos end;
+        private final BlockPos delta;
+        private final HorizontalDirection startDir;
+        private final HorizontalDirection first;
+        private final HorizontalDirection second;
+        private final MovementType type;
 
-            @Override
-            public Vec3d interpolate(final Vec3d start, double t) {
-                t = t / length;
-                return start.add(delta.getX() * t, delta.getY() * t, delta.getZ() * t);
-            }
+        private Simple(final BlockPos start, final BlockPos end, final HorizontalDirection startDir, final HorizontalDirection first, final HorizontalDirection second, final MovementType type) {
+            this.start = start;
+            this.end = end;
+            this.startDir = startDir;
+            delta = end.subtract(start);
+            this.first = first;
+            this.second = second;
+            this.type = type;
+        }
 
-            @Override
-            public HorizontalDirection getRotation(double t) {
-                t /= length;
-                if (t < 0.5) {
-                    return startDir;
-                }
-                if (startDir == first) {
-                    return first;
-                }
-                if (startDir == second) {
-                    return second;
-                }
-                if (first.ordinal() < second.ordinal()) {
-                    return first;
-                }
+
+        @Override
+        public double getCost() {
+            return LENGTH;
+        }
+
+        @Override
+        public BlockPos getStartPos() {
+            return start;
+        }
+
+        @Override
+        public BlockPos getEndPos() {
+            return end;
+        }
+
+        @Override
+        public double getLength() {
+            return LENGTH;
+        }
+
+        @Override
+        public Vec3d interpolate(final Vec3d start, double t) {
+            t = t / LENGTH;
+            return start.add(delta.getX() * t, delta.getY() * t, delta.getZ() * t);
+        }
+
+        @Override
+        public HorizontalDirection getRotation(double t) {
+            t /= LENGTH;
+            if (t < 0.5) {
+                return startDir;
+            }
+            if (startDir == first) {
+                return first;
+            }
+            if (startDir == second) {
                 return second;
             }
-        };
+            if (first.ordinal() < second.ordinal()) {
+                return first;
+            }
+            return second;
+        }
+
+        @Override
+        public MovementType getType() {
+            return type;
+        }
     }
 }

@@ -11,13 +11,14 @@ public final class TeleportBattleAction extends BattleAction<TeleportBattleActio
     public static final Codec<TeleportBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleParticipantHandle.CODEC.fieldOf("actor").forGetter(action -> action.actor),
             BattleParticipantHandle.CODEC.fieldOf("target").forGetter(action -> action.target),
-            BlockPos.CODEC.fieldOf("pos").forGetter(action -> action.pos)
+            BlockPos.CODEC.fieldOf("pos").forGetter(action -> action.pos),
+            Codec.DOUBLE.fieldOf("energyCost").forGetter(action -> action.energyCost)
     ).apply(instance, TeleportBattleAction::new));
     private final BattleParticipantHandle target;
     private final BlockPos pos;
 
-    public TeleportBattleAction(final BattleParticipantHandle actor, final BattleParticipantHandle target, final BlockPos pos) {
-        super(actor);
+    public TeleportBattleAction(final BattleParticipantHandle actor, final BattleParticipantHandle target, final BlockPos pos, final double energyCost) {
+        super(actor, energyCost);
         this.target = target;
         this.pos = pos;
     }
@@ -29,6 +30,7 @@ public final class TeleportBattleAction extends BattleAction<TeleportBattleActio
             throw new RuntimeException();
         }
         participant.setPos(pos);
+        participant.getEnergyTracker().use(energyCost);
     }
 
     @Override

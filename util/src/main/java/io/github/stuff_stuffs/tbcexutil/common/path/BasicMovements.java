@@ -1,9 +1,15 @@
 package io.github.stuff_stuffs.tbcexutil.common.path;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import io.github.stuff_stuffs.tbcexutil.common.WorldShapeCache;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,116 +19,310 @@ public enum BasicMovements implements MovementType {
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             final double groundHeight = MovementType.getGroundHeight(bounds.offset(0, -1, 0), cache);
             if (groundHeight < 1 && !MovementType.doesCollideWith(bounds.offset(0, -0.01, 0), cache)) {
-                boolean validEnding = MovementType.doesCollideWith(bounds.offset(0, -2, 0), cache);
-                return new Movement() {
-                    @Override
-                    public double getCost() {
-                        return 0.1;
-                    }
-
-                    @Override
-                    public BlockPos getStartPos() {
-                        return pos;
-                    }
-
-                    @Override
-                    public BlockPos getEndPos() {
-                        return pos.offset(Direction.DOWN);
-                    }
-
-                    @Override
-                    public double getLength() {
-                        return 1 - groundHeight;
-                    }
-
-                    @Override
-                    public Vec3d interpolate(final Vec3d start, final double t) {
-                        return start.add(0, -1 * t, 0);
-                    }
-
-                    @Override
-                    public HorizontalDirection getRotation(final double t) {
-                        return dir;
-                    }
-
-                    @Override
-                    public boolean isValidEnding() {
-                        return validEnding;
-                    }
-                };
+                final boolean validEnding = MovementType.doesCollideWith(bounds.offset(0, -2, 0), cache);
+                return new Fall(pos, dir, validEnding);
             }
             return null;
+        }
+
+        @Override
+        public <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
+            if (movement.getType() != FALL) {
+                throw new RuntimeException();
+            }
+            final Fall fall = (Fall) movement;
+            final RecordBuilder<T> builder = ops.mapBuilder();
+            builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, fall.getStartPos()));
+            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, fall.direction));
+            builder.add("valid_ending", Codec.BOOL.encodeStart(ops, fall.validEnding));
+            return builder.build(ops.empty()).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+        }
+
+        @Override
+        public <T> Movement deserialize(final DynamicOps<T> ops, final T serialized) {
+            final MapLike<T> mapLike = ops.getMap(serialized).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final BlockPos startPos = BlockPos.CODEC.parse(ops, mapLike.get("start_pos")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final boolean validEnding = Codec.BOOL.parse(ops, mapLike.get("valid_ending")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return new Fall(startPos, direction, validEnding);
         }
     }, WALK_NORTH {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, -1), cache) && MovementType.doesCollideWith(bounds.offset(0, -1, -1), cache)) {
-                return createSimple(pos, pos.add(0, 0, -1), dir, HorizontalDirection.NORTH);
+                return createSimple(pos, pos.add(0, 0, -1), HorizontalDirection.NORTH, WALK_NORTH);
             }
             return null;
+        }
+
+        @Override
+        public <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
+            if (movement.getType() != WALK_NORTH) {
+                throw new RuntimeException();
+            }
+            final Simple simple = (Simple) movement;
+            final RecordBuilder<T> builder = ops.mapBuilder();
+            builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, simple.start));
+            builder.add("end_pos", BlockPos.CODEC.encodeStart(ops, simple.end));
+            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, simple.direction));
+            return builder.build(ops.empty()).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+        }
+
+        @Override
+        public <T> Movement deserialize(final DynamicOps<T> ops, final T serialized) {
+            final MapLike<T> mapLike = ops.getMap(serialized).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final BlockPos startPos = BlockPos.CODEC.parse(ops, mapLike.get("start_pos")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final BlockPos endPos = BlockPos.CODEC.parse(ops, mapLike.get("end_pos")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return new Simple(startPos, endPos, direction, WALK_NORTH);
         }
     },
     WALK_SOUTH {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, 1), cache) && MovementType.doesCollideWith(bounds.offset(0, -1, 1), cache)) {
-                return createSimple(pos, pos.add(0, 0, 1), dir, HorizontalDirection.SOUTH);
+                return createSimple(pos, pos.add(0, 0, 1), HorizontalDirection.SOUTH, WALK_SOUTH);
             }
             return null;
+        }
+
+        @Override
+        public <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
+            if (movement.getType() != WALK_NORTH) {
+                throw new RuntimeException();
+            }
+            final Simple simple = (Simple) movement;
+            final RecordBuilder<T> builder = ops.mapBuilder();
+            builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, simple.start));
+            builder.add("end_pos", BlockPos.CODEC.encodeStart(ops, simple.end));
+            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, simple.direction));
+            return builder.build(ops.empty()).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+        }
+
+        @Override
+        public <T> Movement deserialize(final DynamicOps<T> ops, final T serialized) {
+            final MapLike<T> mapLike = ops.getMap(serialized).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final BlockPos startPos = BlockPos.CODEC.parse(ops, mapLike.get("start_pos")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final BlockPos endPos = BlockPos.CODEC.parse(ops, mapLike.get("end_pos")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return new Simple(startPos, endPos, direction, WALK_SOUTH);
         }
     }, WALK_EAST {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(1, 0, 0), cache) && MovementType.doesCollideWith(bounds.offset(1, -1, 0), cache)) {
-                return createSimple(pos, pos.add(1, 0, 0), dir, HorizontalDirection.EAST);
+                return createSimple(pos, pos.add(1, 0, 0), HorizontalDirection.EAST, WALK_EAST);
             }
             return null;
+        }
+
+        @Override
+        public <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
+            if (movement.getType() != WALK_NORTH) {
+                throw new RuntimeException();
+            }
+            final Simple simple = (Simple) movement;
+            final RecordBuilder<T> builder = ops.mapBuilder();
+            builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, simple.start));
+            builder.add("end_pos", BlockPos.CODEC.encodeStart(ops, simple.end));
+            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, simple.direction));
+            return builder.build(ops.empty()).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+        }
+
+        @Override
+        public <T> Movement deserialize(final DynamicOps<T> ops, final T serialized) {
+            final MapLike<T> mapLike = ops.getMap(serialized).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final BlockPos startPos = BlockPos.CODEC.parse(ops, mapLike.get("start_pos")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final BlockPos endPos = BlockPos.CODEC.parse(ops, mapLike.get("end_pos")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return new Simple(startPos, endPos, direction, WALK_EAST);
         }
     }, WALK_WEST {
         @Override
         public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(-1, 0, 0), cache) && MovementType.doesCollideWith(bounds.offset(-1, -1, 0), cache)) {
-                return createSimple(pos, pos.add(-1, 0, 0), dir, HorizontalDirection.EAST);
+                return createSimple(pos, pos.add(-1, 0, 0), HorizontalDirection.EAST, WALK_WEST);
             }
             return null;
         }
+
+        @Override
+        public <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
+            if (movement.getType() != WALK_NORTH) {
+                throw new RuntimeException();
+            }
+            final Simple simple = (Simple) movement;
+            final RecordBuilder<T> builder = ops.mapBuilder();
+            builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, simple.start));
+            builder.add("end_pos", BlockPos.CODEC.encodeStart(ops, simple.end));
+            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, simple.direction));
+            return builder.build(ops.empty()).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+        }
+
+        @Override
+        public <T> Movement deserialize(final DynamicOps<T> ops, final T serialized) {
+            final MapLike<T> mapLike = ops.getMap(serialized).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final BlockPos startPos = BlockPos.CODEC.parse(ops, mapLike.get("start_pos")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final BlockPos endPos = BlockPos.CODEC.parse(ops, mapLike.get("end_pos")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
+                throw new RuntimeException(s);
+            });
+            return new Simple(startPos, endPos, direction, WALK_WEST);
+        }
     };
 
-    private static Movement createSimple(final BlockPos start, final BlockPos end, final HorizontalDirection startDir, final HorizontalDirection endDir) {
-        final BlockPos delta = end.subtract(start);
-        final double lengthSq = delta.getX() * delta.getX() + delta.getY() * delta.getY() + delta.getZ() * delta.getZ();
-        final double length = lengthSq * MathHelper.fastInverseSqrt(lengthSq);
-        return new Movement() {
-            @Override
-            public double getCost() {
-                return length;
-            }
+    private static Movement createSimple(final BlockPos start, final BlockPos end, final HorizontalDirection endDir, final MovementType type) {
+        return new Simple(start, end, endDir, type);
+    }
 
-            @Override
-            public BlockPos getStartPos() {
-                return start;
-            }
+    private static final class Simple implements Movement {
+        private final BlockPos start;
+        private final BlockPos end;
+        private final BlockPos delta;
+        private final HorizontalDirection direction;
+        private final MovementType type;
 
-            @Override
-            public BlockPos getEndPos() {
-                return end;
-            }
+        private Simple(final BlockPos start, final BlockPos end, final HorizontalDirection direction, final MovementType type) {
+            this.start = start;
+            this.end = end;
+            this.direction = direction;
+            this.type = type;
+            delta = end.subtract(start);
+        }
 
-            @Override
-            public double getLength() {
-                return length;
-            }
+        @Override
+        public double getCost() {
+            return 1;
+        }
 
-            @Override
-            public Vec3d interpolate(final Vec3d start, double t) {
-                t = t / length;
-                return start.add(delta.getX() * t, delta.getY() * t, delta.getZ() * t);
-            }
+        @Override
+        public BlockPos getStartPos() {
+            return start;
+        }
 
-            @Override
-            public HorizontalDirection getRotation(final double t) {
-                return t < length / 2 ? startDir : endDir;
-            }
-        };
+        @Override
+        public BlockPos getEndPos() {
+            return end;
+        }
+
+        @Override
+        public double getLength() {
+            return 1;
+        }
+
+        @Override
+        public Vec3d interpolate(final Vec3d start, final double t) {
+            return start.add(delta.getX() * t, delta.getY() * t, delta.getZ() * t);
+        }
+
+        @Override
+        public HorizontalDirection getRotation(final double t) {
+            return direction;
+        }
+
+        @Override
+        public MovementType getType() {
+            return type;
+        }
+    }
+
+    private static final class Fall implements Movement {
+        private final BlockPos start;
+        private final HorizontalDirection direction;
+        private final boolean validEnding;
+
+        private Fall(final BlockPos start, final HorizontalDirection direction, final boolean validEnding) {
+            this.start = start;
+            this.direction = direction;
+            this.validEnding = validEnding;
+        }
+
+        @Override
+        public double getCost() {
+            return 4;
+        }
+
+        @Override
+        public BlockPos getStartPos() {
+            return start;
+        }
+
+        @Override
+        public BlockPos getEndPos() {
+            return start.down();
+        }
+
+        @Override
+        public double getLength() {
+            return 1;
+        }
+
+        @Override
+        public Vec3d interpolate(final Vec3d start, final double t) {
+            return start.add(0, -1 * t, 0);
+        }
+
+        @Override
+        public HorizontalDirection getRotation(final double t) {
+            return direction;
+        }
+
+        @Override
+        public boolean isValidEnding() {
+            return validEnding;
+        }
+
+        @Override
+        public MovementType getType() {
+            return FALL;
+        }
     }
 }

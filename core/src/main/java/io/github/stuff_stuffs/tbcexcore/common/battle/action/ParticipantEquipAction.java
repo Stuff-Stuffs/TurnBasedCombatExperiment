@@ -15,13 +15,14 @@ public final class ParticipantEquipAction extends BattleAction<ParticipantEquipA
     public static final Codec<ParticipantEquipAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleParticipantHandle.CODEC.fieldOf("actor").forGetter(BattleAction::getActor),
             BattleEquipmentSlot.REGISTRY.fieldOf("slot").forGetter(action -> action.slot),
-            BattleParticipantInventoryHandle.CODEC.fieldOf("equipment").forGetter(action -> action.handle)
+            BattleParticipantInventoryHandle.CODEC.fieldOf("equipment").forGetter(action -> action.handle),
+            Codec.DOUBLE.fieldOf("energyCost").forGetter(action -> action.energyCost)
     ).apply(instance, ParticipantEquipAction::new));
     private final BattleEquipmentSlot slot;
     private final BattleParticipantInventoryHandle handle;
 
-    public ParticipantEquipAction(final BattleParticipantHandle actor, final BattleEquipmentSlot slot, final BattleParticipantInventoryHandle handle) {
-        super(actor);
+    public ParticipantEquipAction(final BattleParticipantHandle actor, final BattleEquipmentSlot slot, final BattleParticipantInventoryHandle handle, final double energyCost) {
+        super(actor, energyCost);
         this.slot = slot;
         this.handle = handle;
     }
@@ -43,6 +44,7 @@ public final class ParticipantEquipAction extends BattleAction<ParticipantEquipA
             return;
         }
         participant.takeItems(handle, 1);
+        participant.getEnergyTracker().use(energyCost);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexutil.common.path;
 
+import com.mojang.serialization.DynamicOps;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import io.github.stuff_stuffs.tbcexutil.common.WorldShapeCache;
@@ -22,6 +23,10 @@ import static net.minecraft.util.math.MathHelper.floor;
 
 public interface MovementType {
     @Nullable Movement modify(BattleParticipantBounds bounds, HorizontalDirection dir, BlockPos pos, Box pathBounds, World world, WorldShapeCache cache);
+
+    <T> T serialize(DynamicOps<T> ops, Movement movement);
+
+    <T> Movement deserialize(DynamicOps<T> ops, T serialized);
 
     List<MovementType> LAND = Util.make(new ArrayList<>(), l -> {
         Collections.addAll(l, BasicMovements.values());

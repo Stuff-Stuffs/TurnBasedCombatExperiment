@@ -5,9 +5,11 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 
 public abstract class BattleAction<SELF extends BattleAction<SELF>> {
     protected final BattleParticipantHandle actor;
+    protected final double energyCost;
 
-    protected BattleAction(final BattleParticipantHandle actor) {
+    protected BattleAction(final BattleParticipantHandle actor, double energyCost) {
         this.actor = actor;
+        this.energyCost = energyCost;
     }
 
     public BattleParticipantHandle getActor() {

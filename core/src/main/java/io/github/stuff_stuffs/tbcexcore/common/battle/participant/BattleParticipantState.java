@@ -43,13 +43,15 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             BattleParticipantBounds.CODEC.fieldOf("bounds").forGetter(state -> state.bounds),
             Codec.DOUBLE.fieldOf("health").forGetter(state -> state.health),
             BlockPos.CODEC.fieldOf("pos").forGetter(state -> state.pos),
-            HorizontalDirection.CODEC.fieldOf("facing").forGetter(state -> state.facing)
+            HorizontalDirection.CODEC.fieldOf("facing").forGetter(state -> state.facing),
+            Codec.DOUBLE.fieldOf("energyRemaining").forGetter(state -> state.energyTracker.getEnergyRemaining())
     ).apply(instance, BattleParticipantState::new));
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
     private final Team team;
     private final BattleParticipantInventory inventory;
     private final BattleParticipantStats stats;
+    private final EnergyTracker energyTracker;
     private BattleParticipantBounds bounds;
     private boolean valid = false;
     private double health;
@@ -57,7 +59,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private BlockPos pos;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final BattleParticipantBounds bounds, final double health, final BlockPos pos, final HorizontalDirection facing) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final BattleParticipantBounds bounds, final double health, final BlockPos pos, final HorizontalDirection facing, final double energyRemaining) {
         this.handle = handle;
         this.team = team;
         this.bounds = bounds;
@@ -68,6 +70,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         this.health = health;
         this.pos = pos;
         this.facing = facing;
+        energyTracker = new EnergyTracker(this, energyRemaining);
     }
 
 
@@ -94,6 +97,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             }
         }
         facing = HorizontalDirection.fromDirection(bestDir);
+        energyTracker = new EnergyTracker(this, getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT));
     }
 
     private void registerEvents() {
@@ -247,9 +251,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public double getStat(final BattleParticipantStat stat) {
-        if (!valid) {
-            throw new RuntimeException();
-        }
         return stats.calculate(stat, battleState, this);
     }
 
@@ -303,6 +304,10 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     @Override
     public BattleParticipantBounds getBounds(final HorizontalDirection facing) {
         return bounds.withRotation(facing);
+    }
+
+    public EnergyTracker getEnergyTracker() {
+        return energyTracker;
     }
 
     public void leave() {

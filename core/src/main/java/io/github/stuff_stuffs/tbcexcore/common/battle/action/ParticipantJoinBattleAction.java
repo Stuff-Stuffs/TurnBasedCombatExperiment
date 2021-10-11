@@ -15,7 +15,7 @@ public final class ParticipantJoinBattleAction extends BattleAction<ParticipantJ
     private final BattleParticipantState participantState;
 
     public ParticipantJoinBattleAction(final BattleParticipantHandle actor, final BattleParticipantState participantState) {
-        super(actor);
+        super(actor, 0);
         this.participantState = participantState;
     }
 
