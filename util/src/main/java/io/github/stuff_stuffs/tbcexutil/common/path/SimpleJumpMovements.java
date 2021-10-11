@@ -86,57 +86,7 @@ public enum SimpleJumpMovements implements MovementType {
     };
 
     private static Movement create(final BlockPos start, final BlockPos end, final HorizontalDirection dir, final boolean validEnding, final MovementType self) {
-        final BlockPos delta = end.subtract(start);
-        final double lengthSq = delta.getX() * delta.getX() + delta.getY() * delta.getY() + delta.getZ() * delta.getZ();
-        final double length = lengthSq * MathHelper.fastInverseSqrt(lengthSq);
-        return new Movement() {
-            @Override
-            public double getCost() {
-                return length;
-            }
-
-            @Override
-            public BlockPos getStartPos() {
-                return start;
-            }
-
-            @Override
-            public BlockPos getEndPos() {
-                return end;
-            }
-
-            @Override
-            public double getLength() {
-                return length;
-            }
-
-            @Override
-            public Vec3d interpolate(final Vec3d start, double t) {
-                t = t / length;
-                final double tY;
-                if (delta.getY() > 0) {
-                    tY = 1 - ((1 - t) * (1 - t));
-                } else {
-                    tY = t * t;
-                }
-                return start.add(delta.getX() * t, delta.getY() * tY, delta.getZ() * t);
-            }
-
-            @Override
-            public HorizontalDirection getRotation(final double t) {
-                return dir;
-            }
-
-            @Override
-            public boolean isValidEnding() {
-                return validEnding;
-            }
-
-            @Override
-            public MovementType getType() {
-                return self;
-            }
-        };
+        return new Simple(start, end, dir, validEnding, self);
     }
 
     @Override

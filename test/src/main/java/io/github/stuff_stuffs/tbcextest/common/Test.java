@@ -1,14 +1,20 @@
 package io.github.stuff_stuffs.tbcextest.common;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleParticipantItemRenderer;
 import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.action.EndTurnBattleAction;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.ServerBattleWorld;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
+import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcextest.common.entity.EntityTypes;
 import net.fabricmc.api.ModInitializer;
@@ -65,5 +71,25 @@ public class Test implements ModInitializer {
             }
             return 0;
         })));
+        dispatcher.register(CommandManager.literal("battleAdvance").executes(new Command<ServerCommandSource>() {
+            @Override
+            public int run(final CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+                final Entity entity = context.getSource().getEntityOrThrow();
+                if (entity instanceof BattleAwareEntity battleAware) {
+                    final BattleHandle handle = battleAware.tbcex_getCurrentBattle();
+                    if (handle == null) {
+                        throw new RuntimeException("Entity not in battle tried to advance battle");
+                    }
+                    final Battle battle = ((BattleWorldSupplier) entity.world).tbcex_getBattleWorld().getBattle(handle);
+                    if (battle == null) {
+                        throw new RuntimeException("Unknown battle");
+                    }
+                    battle.push(new EndTurnBattleAction(BattleParticipantHandle.UNIVERSAL.apply(handle)));
+                } else {
+                    throw new RuntimeException("Non battle aware entity tried to advance battle");
+                }
+                return 0;
+            }
+        }));
     }
 }

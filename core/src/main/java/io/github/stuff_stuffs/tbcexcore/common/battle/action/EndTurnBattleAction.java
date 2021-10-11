@@ -1,11 +1,12 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.action;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 
 public final class EndTurnBattleAction extends BattleAction<EndTurnBattleAction> {
-    public static final Codec<EndTurnBattleAction> CODEC = BattleParticipantHandle.CODEC.xmap(EndTurnBattleAction::new, BattleAction::getActor);
+    public static final Codec<EndTurnBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(BattleParticipantHandle.CODEC.fieldOf("actor").forGetter(action -> action.actor)).apply(instance, EndTurnBattleAction::new));
 
     public EndTurnBattleAction(final BattleParticipantHandle actor) {
         super(actor, 0);

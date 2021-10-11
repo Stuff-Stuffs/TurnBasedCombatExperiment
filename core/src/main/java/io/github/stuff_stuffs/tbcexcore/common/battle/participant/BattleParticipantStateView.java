@@ -12,6 +12,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equi
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,4 +53,6 @@ public interface BattleParticipantStateView {
     BattleParticipantBounds getBounds();
 
     BattleParticipantBounds getBounds(HorizontalDirection facing);
+
+    Text getName();
 }

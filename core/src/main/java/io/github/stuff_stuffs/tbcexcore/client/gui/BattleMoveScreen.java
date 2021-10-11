@@ -1,8 +1,10 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
 import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
+import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.action.ParticipantMoveBattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleWorld;
@@ -38,6 +40,7 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
     private boolean init = false;
     private boolean foundPaths = false;
     private boolean locked = false;
+    private BlockPos lastPos;
 
     protected BattleMoveScreen(final BattleParticipantHandle handle, final World world) {
         super(new LiteralText("Move"), new RootPanelWidget());
@@ -52,7 +55,7 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
             init = true;
             final ParentWidget widget = (ParentWidget) this.widget;
         }
-        if(!foundPaths) {
+        if (!foundPaths) {
             final Pather pather = new DjikstraPather();
             final BattleWorld world = ((BattleWorldSupplier) this.world).tbcex_getBattleWorld();
             if (world == null) {
@@ -66,6 +69,7 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
             if (participant == null) {
                 return;
             }
+            lastPos = participant.getPos();
             foundPaths = true;
             paths = pather.getPaths(participant.getPos(), participant.getFacing(), participant.getBounds(), battle.getBounds().getBox(), this.world, MovementType.LAND);
             endPoints = paths.stream().map(p -> {
@@ -84,6 +88,35 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
             locked = !locked;
             passEvents = locked;
             return true;
+        } else if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+            if (foundPaths) {
+                final Vec3d mouseVector = ClientUtil.getMouseVector();
+                final Vec3d eyePos = MinecraftClient.getInstance().cameraEntity.getClientCameraPosVec(1);
+                final Vec3d endPos = eyePos.add(mouseVector.multiply(64));
+                double closestDist = Double.POSITIVE_INFINITY;
+                EndPoint closest = null;
+                Path closestPath = null;
+                for (int i = 0; i < endPoints.size(); i++) {
+                    final EndPoint endPoint = endPoints.get(i);
+                    final Optional<Vec3d> raycast = endPoint.box.raycast(eyePos, endPos);
+                    if (raycast.isPresent()) {
+                        final double sq = raycast.get().squaredDistanceTo(eyePos);
+                        if (sq < closestDist) {
+                            closest = endPoint;
+                            closestDist = sq;
+                            closestPath = paths.get(i);
+                        }
+                    }
+                }
+                if (closest != null) {
+                    final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
+                    if (battle == null) {
+                        //TODO
+                        throw new RuntimeException();
+                    }
+                    BattleActionSender.send(handle.battleId(), new ParticipantMoveBattleAction(handle, closestPath));
+                }
+            }
         }
         return false;
     }
@@ -96,26 +129,19 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
     @Override
     public void render(final MatrixStack matrices, final int mouseX, final int mouseY, final float delta) {
         super.render(matrices, mouseX, mouseY, delta);
-        if(foundPaths) {
-            final Pather pather = new DjikstraPather();
-            final BattleWorld world = ((BattleWorldSupplier) this.world).tbcex_getBattleWorld();
-            if (world == null) {
-                throw new RuntimeException();
-            }
+        final BattleWorld world = ((BattleWorldSupplier) this.world).tbcex_getBattleWorld();
+        if (world != null) {
             final Battle battle = world.getBattle(handle.battleId());
-            if (battle == null) {
-                throw new RuntimeException();
+            if (battle != null) {
+                final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
+                if (participant != null) {
+                    if (!participant.getPos().equals(lastPos)) {
+                        foundPaths = false;
+                    }
+                }
             }
-            final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
-            if (participant == null) {
-                return;
-            }
-            foundPaths = true;
-            paths = pather.getPaths(participant.getPos(), participant.getFacing(), participant.getBounds(), battle.getBounds().getBox(), this.world, MovementType.LAND);
-            endPoints = paths.stream().map(p -> {
-                final Movement last = p.getMovements().get(p.getMovements().size() - 1);
-                return new EndPoint(last.getStartPos(), last.getEndPos(), last);
-            }).toList();
+        }
+        if (foundPaths) {
             final Vec3d mouseVector = ClientUtil.getMouseVector();
             final Vec3d eyePos = MinecraftClient.getInstance().cameraEntity.getClientCameraPosVec(delta);
             final Vec3d endPos = eyePos.add(mouseVector.multiply(64));

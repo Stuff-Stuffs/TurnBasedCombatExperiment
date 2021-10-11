@@ -108,7 +108,7 @@ public enum BasicMovements implements MovementType {
 
         @Override
         public <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
-            if (movement.getType() != WALK_NORTH) {
+            if (movement.getType() != WALK_SOUTH) {
                 throw new RuntimeException();
             }
             final Simple simple = (Simple) movement;
@@ -148,7 +148,7 @@ public enum BasicMovements implements MovementType {
 
         @Override
         public <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
-            if (movement.getType() != WALK_NORTH) {
+            if (movement.getType() != WALK_EAST) {
                 throw new RuntimeException();
             }
             final Simple simple = (Simple) movement;
@@ -188,7 +188,7 @@ public enum BasicMovements implements MovementType {
 
         @Override
         public <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
-            if (movement.getType() != WALK_NORTH) {
+            if (movement.getType() != WALK_WEST) {
                 throw new RuntimeException();
             }
             final Simple simple = (Simple) movement;
