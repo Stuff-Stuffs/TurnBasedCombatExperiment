@@ -79,8 +79,8 @@ public class BattleHudEnergyWidget extends AbstractWidget {
                 RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x, y + height, z, matrices), 0xFFFFFFFF), 0, (color.ordinal() * 5) / 256.0).next();
 
                 RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x, y, z, matrices), 0xFFFFFFFF), 0, 5/256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x + width, y, z, matrices), 0xFFFFFFFF), 182/256.0*percent, 5/256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x + width, y + height, z, matrices), 0xFFFFFFFF), 182 / 256.0*percent, (color.ordinal() * 5+5) / 256.0).next();
+                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x + width*percent, y, z, matrices), 0xFFFFFFFF), 182/256.0*percent, 5/256.0).next();
+                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x + width*percent, y + height, z, matrices), 0xFFFFFFFF), 182 / 256.0*percent, (color.ordinal() * 5+5) / 256.0).next();
                 RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x, y + height, z, matrices), 0xFFFFFFFF), 0, (color.ordinal() * 5+5) / 256.0).next();
             });
         }

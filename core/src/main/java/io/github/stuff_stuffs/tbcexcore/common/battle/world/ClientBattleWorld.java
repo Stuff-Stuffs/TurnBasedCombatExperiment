@@ -42,18 +42,21 @@ public final class ClientBattleWorld implements BattleWorld, Iterable<Battle> {
             RequestBattleSender.send(handle, battle == null ? 0 : battle.getTimeline().getSize(), battle != null);
         }
         requestedUpdates.clear();
+        for (final Battle battle : battleMap.values()) {
+            battle.tick();
+        }
     }
 
-    public void addBattle(final BattleHandle handle, final BattleBounds bounds) {
+    public void addBattle(final BattleHandle handle, final BattleBounds bounds, final int turnTimerRemaining, final int turnTimerMax) {
         final Battle battle = battleMap.get(handle);
         if (battle != null) {
             LOGGER.error("Attempt to add already existing battle: {}", handle);
         } else {
-            battleMap.put(handle, new Battle(handle, bounds));
+            battleMap.put(handle, new Battle(handle, bounds, turnTimerRemaining, turnTimerMax));
         }
     }
 
-    public void update(final BattleHandle handle, final int beforeSize, final List<BattleAction<?>> actions) {
+    public void update(final BattleHandle handle, final int beforeSize, final List<BattleAction<?>> actions, int turnTimerRemaining, int turnTimerMax) {
         final Battle battle = battleMap.get(handle);
         if (battle == null) {
             LOGGER.error("Battle: {}, with size: {}, not found", handle, beforeSize);
@@ -61,7 +64,7 @@ public final class ClientBattleWorld implements BattleWorld, Iterable<Battle> {
             if (battle.getTimeline().getSize() < beforeSize) {
                 LOGGER.error("Battle {}, has smaller size {}, than expected {}", handle, battle.getTimeline().getSize(), beforeSize);
             } else {
-                battle.trimAndAppend(beforeSize, actions);
+                battle.trimAndAppend(beforeSize, actions, turnTimerRemaining, turnTimerMax);
             }
         }
     }

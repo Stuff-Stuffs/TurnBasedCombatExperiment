@@ -3,12 +3,14 @@ package io.github.stuff_stuffs.tbcexcore.common.battle;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
+import io.github.stuff_stuffs.tbcexcore.common.battle.action.EndTurnBattleAction;
+import io.github.stuff_stuffs.tbcexcore.common.battle.event.battle.AdvanceTurnEvent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 
 import java.util.List;
 
-public final class Battle {
+public final class Battle implements AdvanceTurnEvent {
     public static final Codec<Battle> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleHandle.CODEC.fieldOf("handle").forGetter(battle -> battle.handle),
             BattleTimeline.CODEC.fieldOf("timeline").forGetter(battle -> battle.timeline),
@@ -18,20 +20,21 @@ public final class Battle {
     private final BattleHandle handle;
     private final BattleTimeline timeline;
     private final BattleBounds bounds;
+    private TurnTimer timer;
 
     private Battle(final BattleHandle handle, final BattleTimeline timeline, final BattleBounds bounds) {
         this.timeline = timeline;
         this.handle = handle;
-        state = new BattleState(this.handle, bounds);
+        state = createState(handle, bounds, 20 * 30, 20 * 30);
         this.bounds = bounds;
         for (final BattleAction<?> action : timeline) {
             action.applyToState(state);
         }
     }
 
-    public Battle(final BattleHandle handle, final BattleBounds bounds) {
+    public Battle(final BattleHandle handle, final BattleBounds bounds, final int turnTimerRemaining, final int turnTimerMax) {
         this.handle = handle;
-        state = new BattleState(this.handle, bounds);
+        state = createState(handle, bounds, turnTimerRemaining, turnTimerMax);
         this.bounds = bounds;
         timeline = new BattleTimeline();
     }
@@ -63,14 +66,41 @@ public final class Battle {
         }
     }
 
-    public void trimAndAppend(final int size, final List<BattleAction<?>> actions) {
+    public void trimAndAppend(final int size, final List<BattleAction<?>> actions, final int turnTimerRemaining, final int turnTimerMax) {
         timeline.trim(size);
         for (final BattleAction<?> action : actions) {
             timeline.push(action);
         }
-        state = new BattleState(handle, bounds);
+        state = createState(handle, bounds, turnTimerRemaining, turnTimerMax);
         for (final BattleAction<?> action : timeline) {
             action.applyToState(state);
         }
+        timer = new TurnTimer(turnTimerMax, turnTimerRemaining);
+    }
+
+    private BattleState createState(final BattleHandle handle, final BattleBounds bounds, final int turnTimerRemaining, final int turnTimerMax) {
+        final BattleState battleState = new BattleState(handle, bounds);
+        battleState.getEvent(BattleStateView.ADVANCE_TURN_EVENT).register(this);
+        timer = new TurnTimer(turnTimerMax, turnTimerRemaining);
+        return battleState;
+    }
+
+    @Override
+    public void onAdvanceTurn(final BattleStateView battleState, final BattleParticipantHandle current) {
+        timer = new TurnTimer(20 * 30, 20 * 30);
+    }
+
+    public void tick() {
+        if (timer.tick()) {
+            push(new EndTurnBattleAction(BattleParticipantHandle.UNIVERSAL.apply(handle)));
+        }
+    }
+
+    public int getTurnTimerRemaining() {
+        return timer.getRemaining();
+    }
+
+    public int getTurnTimerMax() {
+        return timer.getMax();
     }
 }

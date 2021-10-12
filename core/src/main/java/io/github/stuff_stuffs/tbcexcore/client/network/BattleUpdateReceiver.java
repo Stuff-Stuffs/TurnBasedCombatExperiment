@@ -37,6 +37,8 @@ public final class BattleUpdateReceiver {
         try {
             final BattleHandle handle = new BattleHandle(buf.readVarInt());
             final boolean existing = buf.readBoolean();
+            int turnTimerRemaining = buf.readVarInt();
+            int turnTimerMax = buf.readVarInt();
             BattleBounds bounds = null;
             if (!existing) {
                 bounds = new BattleBounds(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
@@ -52,9 +54,9 @@ public final class BattleUpdateReceiver {
             }
             final ClientBattleWorld battleWorld = ((ClientBattleWorldSupplier) minecraftClient.world).tbcex_getBattleWorld();
             if (!existing) {
-                battleWorld.addBattle(handle, bounds);
+                battleWorld.addBattle(handle, bounds, turnTimerRemaining, turnTimerMax);
             }
-            battleWorld.update(handle, trimmedSize, actions);
+            battleWorld.update(handle, trimmedSize, actions, turnTimerRemaining, turnTimerMax);
         } catch (final IOException e) {
             LOGGER.error("Error reading nbt in BattleAction decoding: {}", e.getMessage());
         } catch (final DecoderException e) {

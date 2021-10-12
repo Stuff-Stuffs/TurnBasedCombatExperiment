@@ -139,6 +139,9 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
                         foundPaths = false;
                     }
                 }
+                if(!handle.equals(battle.getState().getCurrentTurn())) {
+                    MinecraftClient.getInstance().setScreen(null);
+                }
             }
         }
         if (foundPaths) {
@@ -166,9 +169,6 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
                     g = 1;
                     TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(endPoint.box, r, g, 0, 1));
                     TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(paths.get(i)));
-                } else {
-                    r = 1;
-                    g = 0;
                 }
             }
         }

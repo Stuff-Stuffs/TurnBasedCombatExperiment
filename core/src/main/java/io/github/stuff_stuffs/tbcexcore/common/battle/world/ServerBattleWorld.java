@@ -106,7 +106,7 @@ public final class ServerBattleWorld implements BattleWorld {
 
     public BattleHandle createBattle(final BattleBounds bounds) {
         final BattleHandle handle = new BattleHandle(nextId++);
-        final Battle battle = new Battle(handle, bounds);
+        final Battle battle = new Battle(handle, bounds, 20 * 30, 20 * 30);
         activeBattles.put(handle, battle);
         lastAccess.put(handle, tickCount);
         return handle;
@@ -117,6 +117,8 @@ public final class ServerBattleWorld implements BattleWorld {
         for (final BattleHandle entry : activeBattles.keySet()) {
             if (tickCount - lastAccess.getOrDefault(entry, tickCount) >= TIME_OUT) {
                 toRemove.add(entry);
+            } else {
+                activeBattles.get(entry).tick();
             }
         }
         for (final BattleHandle battleHandle : toRemove) {

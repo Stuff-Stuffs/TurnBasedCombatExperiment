@@ -27,6 +27,8 @@ public final class BattleUpdateSender {
         try {
             buf.writeVarInt(handle.id());
             buf.writeBoolean(existing);
+            buf.writeVarInt(battle.getTurnTimerRemaining());
+            buf.writeVarInt(battle.getTurnTimerMax());
             if (!existing) {
                 battle.getState().getBounds().asStream().forEach(buf::writeInt);
             }

@@ -25,12 +25,14 @@ public final class BattleActionReceiver {
     private static void receive(final MinecraftServer minecraftServer, final ServerPlayerEntity entity, final ServerPlayNetworkHandler serverPlayNetworkHandler, final PacketByteBuf packetByteBuf, final PacketSender packetSender) {
         final BattleHandle handle = packetByteBuf.decode(BattleHandle.CODEC);
         final BattleAction<?> action = packetByteBuf.decode(BattleActionRegistry.CODEC);
-        final Battle battle = ((BattleWorldSupplier) entity.world).tbcex_getBattleWorld().getBattle(handle);
-        if (battle == null) {
-            LoggerUtil.LOGGER.error("Missing battle {}", handle);
-        } else {
-            //TODO turn verification
-            battle.push(action);
-        }
+        minecraftServer.execute(() -> {
+            final Battle battle = ((BattleWorldSupplier) entity.world).tbcex_getBattleWorld().getBattle(handle);
+            if (battle == null) {
+                LoggerUtil.LOGGER.error("Missing battle {}", handle);
+            } else {
+                //TODO turn verification
+                battle.push(action);
+            }
+        });
     }
 }

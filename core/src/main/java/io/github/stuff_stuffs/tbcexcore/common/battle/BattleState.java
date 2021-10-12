@@ -5,10 +5,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.MutableEventHolder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.battle.PostParticipantJoinEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.battle.PostParticipantLeaveEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.battle.PreParticipantJoinEvent;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.battle.PreParticipantLeaveEvent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.event.battle.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.turnchooser.TurnChooser;
@@ -75,6 +72,11 @@ public final class BattleState implements BattleStateView {
                 event.onParticipantLeave(battleState, participantState);
             }
         }));
+        eventMap.register(ADVANCE_TURN_EVENT, new MutableEventHolder.BasicEventHolder<>(ADVANCE_TURN_EVENT, view -> view::onAdvanceTurn, events -> ((battleState, current) -> {
+            for (final AdvanceTurnEvent.Mut event : events) {
+                event.onAdvanceTurn(battleState, current);
+            }
+        })));
     }
 
     @Override
@@ -125,6 +127,7 @@ public final class BattleState implements BattleStateView {
                 throw new RuntimeException();
             }
             state.getEnergyTracker().reset();
+            getEvent(ADVANCE_TURN_EVENT).invoker().onAdvanceTurn(this, turnChooser.getCurrentTurn());
         }
     }
 
