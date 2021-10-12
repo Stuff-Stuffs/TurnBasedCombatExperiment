@@ -52,7 +52,11 @@ public final class RenderUtil {
     }
 
     public static VertexConsumer uv(final VertexConsumer vertexConsumer, final Vec2d uv) {
-        return vertexConsumer.texture((float) uv.x, (float) uv.y);
+        return uv(vertexConsumer, uv.x, uv.y);
+    }
+
+    public static VertexConsumer uv(final VertexConsumer vertexConsumer, final double u, final double v) {
+        return vertexConsumer.texture((float) u, (float) v);
     }
 
     public static VertexConsumer lineNormal(final VertexConsumer vertexConsumer, final Vec3d first, final Vec3d second, final MatrixStack matrices) {

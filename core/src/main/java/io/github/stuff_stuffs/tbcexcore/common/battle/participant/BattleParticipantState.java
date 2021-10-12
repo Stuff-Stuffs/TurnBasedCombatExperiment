@@ -60,7 +60,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private BlockPos pos;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final BattleParticipantBounds bounds, final double health, final BlockPos pos, final HorizontalDirection facing, final double energyRemaining, Text name) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final BattleParticipantBounds bounds, final double health, final BlockPos pos, final HorizontalDirection facing, final double energyRemaining, final Text name) {
         this.handle = handle;
         this.team = team;
         this.bounds = bounds;
@@ -100,7 +100,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         }
         facing = HorizontalDirection.fromDirection(bestDir);
         energyTracker = new EnergyTracker(this, getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT));
-        name = ((Entity)entity).getDisplayName();
+        name = ((Entity) entity).getDisplayName();
     }
 
     private void registerEvents() {
@@ -331,6 +331,11 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     public EnergyTracker getEnergyTracker() {
         return energyTracker;
+    }
+
+    @Override
+    public double getEnergy() {
+        return energyTracker.getEnergyRemaining();
     }
 
     public void leave() {

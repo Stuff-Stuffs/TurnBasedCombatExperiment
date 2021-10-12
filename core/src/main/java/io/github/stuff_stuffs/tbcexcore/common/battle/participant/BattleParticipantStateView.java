@@ -55,4 +55,6 @@ public interface BattleParticipantStateView {
     BattleParticipantBounds getBounds(HorizontalDirection facing);
 
     Text getName();
+
+    double getEnergy();
 }
