@@ -122,6 +122,9 @@ public class BattleInventoryScreen extends TBCExScreen {
         if (init) {
             inventoryWidget.tick();
         }
+        if (battle == null || !handle.equals(battle.getState().getCurrentTurn())) {
+            MinecraftClient.getInstance().setScreen(null);
+        }
     }
 
     @Override

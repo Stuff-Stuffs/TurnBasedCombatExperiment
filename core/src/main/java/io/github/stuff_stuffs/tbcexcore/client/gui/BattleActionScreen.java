@@ -1,7 +1,10 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleActionRenderTargetsWidget;
+import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
+import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.screen.MouseLockableScreen;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
 import io.github.stuff_stuffs.tbcexgui.client.widget.ParentWidget;
@@ -12,13 +15,15 @@ import net.minecraft.text.LiteralText;
 import org.lwjgl.glfw.GLFW;
 
 public class BattleActionScreen extends TBCExScreen implements MouseLockableScreen {
-    private boolean init = false;
+    private final BattleParticipantHandle handle;
     private final ParticipantActionInstance actionInstance;
     private final Screen prevScreen;
+    private boolean init = false;
     private boolean locked = false;
 
-    public BattleActionScreen(final ParticipantActionInstance actionInstance) {
+    public BattleActionScreen(BattleParticipantHandle handle, final ParticipantActionInstance actionInstance) {
         super(new LiteralText("Battle Action"), new RootPanelWidget());
+        this.handle = handle;
         this.actionInstance = actionInstance;
         prevScreen = MinecraftClient.getInstance().currentScreen;
         passEvents = true;
@@ -49,11 +54,18 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
             final ParentWidget root = (ParentWidget) widget;
             root.addWidget(new BattleActionRenderTargetsWidget(actionInstance));
         }
+        Battle battle = ((BattleWorldSupplier)MinecraftClient.getInstance().world).tbcex_getBattleWorld().getBattle(handle.battleId());
+        if(battle==null || !handle.equals(battle.getState().getCurrentTurn())) {
+            MinecraftClient.getInstance().setScreen(null);
+        }
     }
 
     @Override
     public void onClose() {
         MinecraftClient.getInstance().setScreen(prevScreen);
+        if(prevScreen!=null) {
+            prevScreen.tick();
+        }
     }
 
     @Override

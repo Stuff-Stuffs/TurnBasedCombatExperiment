@@ -35,7 +35,7 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
                             0.15,
                             action::getName,
                             action::getTooltip,
-                            () -> MinecraftClient.getInstance().setScreen(new BattleActionScreen(action.createInstance(battleState, handle)))
+                            () -> MinecraftClient.getInstance().setScreen(new BattleActionScreen(handle, action.createInstance(battleState, handle)))
                     )
             );
             index++;
