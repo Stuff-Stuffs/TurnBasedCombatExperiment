@@ -33,10 +33,11 @@ public final class ParticipantMoveBattleAction extends BattleAction<ParticipantM
             if (move) {
                 break;
             }
-            participant.getEnergyTracker().use(path.getCost());
-            participant.setPos(movement.getEndPos());
-            participant.setFacing(movement.getRotation(movement.getLength()));
-            participant.getEvent(BattleParticipantStateView.POST_MOVE_EVENT).invoker().onMove(participant, path);
+            if (participant.getEnergyTracker().use(path.getCost())) {
+                participant.setPos(movement.getEndPos());
+                participant.setFacing(movement.getRotation(movement.getLength()));
+                participant.getEvent(BattleParticipantStateView.POST_MOVE_EVENT).invoker().onMove(participant, path);
+            }
         }
     }
 

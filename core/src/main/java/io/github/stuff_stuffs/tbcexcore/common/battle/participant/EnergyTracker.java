@@ -15,12 +15,12 @@ public final class EnergyTracker {
         this.energyRemaining = energyRemaining;
     }
 
-    public void use(final double amount) {
-        energyRemaining -= amount;
-        if (energyRemaining < 0) {
-            //TODO
-            throw new RuntimeException();
+    public boolean use(final double amount) {
+        if (energyRemaining >= amount) {
+            energyRemaining -= amount;
+            return true;
         }
+        return false;
     }
 
     public void reset() {

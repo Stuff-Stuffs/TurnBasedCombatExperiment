@@ -39,12 +39,13 @@ public final class ParticipantEquipAction extends BattleAction<ParticipantEquipA
             LoggerUtil.LOGGER.error("Cannot equip non equipment item {}", handle);
             return;
         }
-        if (!participant.equip(slot, itemStack)) {
-            LoggerUtil.LOGGER.error("Cannot equip equipment: {} onto participant {} in battle {}", handle, participant, state.getHandle());
-            return;
+        if(participant.getEnergyTracker().use(energyCost)) {
+            if (!participant.equip(slot, itemStack)) {
+                LoggerUtil.LOGGER.error("Cannot equip equipment: {} onto participant {} in battle {}", handle, participant, state.getHandle());
+                return;
+            }
+            participant.takeItems(handle, 1);
         }
-        participant.takeItems(handle, 1);
-        participant.getEnergyTracker().use(energyCost);
     }
 
     @Override

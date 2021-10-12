@@ -162,11 +162,9 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
             }
             for (int i = 0; i < endPoints.size(); i++) {
                 final EndPoint endPoint = endPoints.get(i);
-                final double r;
-                final double g;
                 if (endPoint == closest) {
-                    r = 0;
-                    g = 1;
+                    final double r = 0;
+                    final double g = 1;
                     TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(endPoint.box, r, g, 0, 1));
                     TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(paths.get(i)));
                 }

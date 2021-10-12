@@ -29,8 +29,9 @@ public final class TeleportBattleAction extends BattleAction<TeleportBattleActio
         if (participant == null) {
             throw new RuntimeException();
         }
-        participant.setPos(pos);
-        participant.getEnergyTracker().use(energyCost);
+        if(participant.getEnergyTracker().use(energyCost)) {
+            participant.setPos(pos);
+        }
     }
 
     @Override

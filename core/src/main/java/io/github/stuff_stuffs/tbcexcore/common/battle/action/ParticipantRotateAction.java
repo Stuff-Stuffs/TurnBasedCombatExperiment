@@ -23,8 +23,9 @@ public final class ParticipantRotateAction extends BattleAction<ParticipantRotat
             //TODO
             throw new RuntimeException();
         }
-        participantState.setFacing(rotation.rotate(participantState.getFacing()));
-        participantState.getEnergyTracker().use(energyCost);
+        if(participantState.getEnergyTracker().use(energyCost)) {
+            participantState.setFacing(rotation.rotate(participantState.getFacing()));
+        }
     }
 
     @Override
