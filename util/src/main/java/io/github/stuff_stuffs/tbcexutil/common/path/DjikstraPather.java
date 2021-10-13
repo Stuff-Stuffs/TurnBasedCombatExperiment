@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexutil.common.path;
 
+import com.google.common.collect.AbstractIterator;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import io.github.stuff_stuffs.tbcexutil.common.WorldShapeCache;
@@ -10,12 +11,11 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class DjikstraPather implements Pather {
+    public static final DjikstraPather INSTANCE = new DjikstraPather();
+
     private static final class Node implements Comparable<Node> {
         private final double euclid;
         private @Nullable Node prev;
@@ -46,8 +46,11 @@ public final class DjikstraPather implements Pather {
         }
     }
 
+    private DjikstraPather() {
+    }
+
     @Override
-    public List<Path> getPaths(final BlockPos startPos, final HorizontalDirection startDir, final BattleParticipantBounds bounds, final Box pathBounds, final World world, final Collection<MovementType> movementTypes) {
+    public List<Path> getPaths(final BlockPos startPos, final HorizontalDirection startDir, final BattleParticipantBounds bounds, final Box pathBounds, final World world, final Collection<MovementType> movementTypes, final Collection<PathProcessor> processors) {
         final PathHeap<Node> queue = new PathHeap<>(128);
         final Map<BlockPos, Node> nodes = new Object2ReferenceOpenHashMap<>(128);
         final Node start = new Node(startPos, null, startPos, null, 0);
@@ -63,6 +66,29 @@ public final class DjikstraPather implements Pather {
                 if (movement != null) {
                     final Node next = nodes.computeIfAbsent(movement.getEndPos(), pos -> {
                         final Node n = new Node(startPos, node, pos, movement, node.cost + movement.getCost());
+                        double cost = node.cost;
+                        if (!processors.isEmpty()) {
+                            for (final PathProcessor processor : processors) {
+                                final Iterator<Movement> reverse = new AbstractIterator<>() {
+                                    private Node cur = n;
+
+                                    @Override
+                                    protected Movement computeNext() {
+                                        final Node c = cur;
+                                        if (c != null && c.movement != null) {
+                                            cur = c.prev;
+                                            return c.movement;
+                                        }
+                                        return endOfData();
+                                    }
+                                };
+                                cost += processor.getCost(reverse, bounds.offset(n.pos.getX() - node.pos.getX(), n.pos.getY() - node.pos.getY(), n.pos.getZ() - node.pos.getZ()), world, shapeCache);
+                                if (cost <= 0 || cost == Double.POSITIVE_INFINITY) {
+                                    break;
+                                }
+                            }
+                        }
+                        n.cost = node.cost + cost;
                         if (pathBounds.contains(n.pos.getX(), n.pos.getY(), n.pos.getZ())) {
                             queue.enqueue(n);
                             return n;
@@ -70,18 +96,45 @@ public final class DjikstraPather implements Pather {
                             return null;
                         }
                     });
-                    if (next != null && node.cost + movement.getCost() < next.cost) {
-                        next.cost = node.cost + movement.getCost();
-                        next.movement = movement;
-                        next.prev = node;
-                        queue.decreasePriority(next);
+                    if (next != null && next.prev != node) {
+                        double cost = movement.getCost();
+                        if (!processors.isEmpty()) {
+                            for (final PathProcessor processor : processors) {
+                                final Iterator<Movement> reverse = new AbstractIterator<>() {
+                                    private Node cur = next;
+
+                                    @Override
+                                    protected Movement computeNext() {
+                                        final Node c = cur;
+                                        if (c != null && c.movement != null) {
+                                            cur = c.prev;
+                                            return c.movement;
+                                        }
+                                        return endOfData();
+                                    }
+                                };
+                                cost += processor.getCost(reverse, bounds.offset(next.pos.getX() - node.pos.getX(), next.pos.getY() - node.pos.getY(), next.pos.getZ() - node.pos.getZ()), world, shapeCache);
+                                if (cost <= 0 || cost == Double.POSITIVE_INFINITY) {
+                                    if (cost <= 0) {
+                                        cost = Double.POSITIVE_INFINITY;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        if (!(cost <= 0) && node.cost + cost < next.cost) {
+                            next.cost = node.cost + cost;
+                            next.movement = movement;
+                            next.prev = node;
+                            queue.decreasePriority(next);
+                        }
                     }
                 }
             }
         }
         final List<Path> paths = new ArrayList<>(nodes.size());
         for (Node node : nodes.values()) {
-            if (node.prev != null && node.movement.isValidEnding()) {
+            if (node.prev != null && node.movement.isValidEnding() && node.cost != Double.POSITIVE_INFINITY) {
                 final List<Movement> movements = new ArrayList<>(16);
                 while (node.prev != null) {
                     movements.add(0, node.movement);

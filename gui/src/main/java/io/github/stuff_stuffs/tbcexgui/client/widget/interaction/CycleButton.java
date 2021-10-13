@@ -57,9 +57,13 @@ public class CycleButton<T> extends AbstractWidget {
         final Rect2d rect = new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height);
         final boolean in = rect.isIn(mouseX, mouseY);
         if (in) {
-            currentState = successor.apply(currentState);
+            click();
         }
         return in;
+    }
+
+    public void click() {
+        currentState = successor.apply(currentState);
     }
 
     @Override
@@ -113,6 +117,10 @@ public class CycleButton<T> extends AbstractWidget {
         if (state == ButtonState.HOVERED) {
             renderTooltip(matrices, tooltipFactory.apply(currentState), mouseX, mouseY);
         }
+    }
+
+    public T getCurrentState() {
+        return currentState;
     }
 
     @Override

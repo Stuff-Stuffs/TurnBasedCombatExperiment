@@ -14,6 +14,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+
 public enum SimpleJumpMovements implements MovementType {
     NORTH_JUMP {
         @Override
@@ -123,6 +125,7 @@ public enum SimpleJumpMovements implements MovementType {
     }
 
     private static final class Simple implements Movement {
+        private static final Set<MovementFlag> FALL_FLAGS = Set.of(MovementFlag.FALL, MovementFlag.FALL_RESET_TAKE_DAMAGE);
         private final BlockPos start;
         private final BlockPos end;
         private final BlockPos delta;
@@ -187,6 +190,11 @@ public enum SimpleJumpMovements implements MovementType {
         @Override
         public MovementType getType() {
             return type;
+        }
+
+        @Override
+        public Set<MovementFlag> getFlags() {
+            return start.getY() - end.getY() == 1 ? FALL_FLAGS : Movement.super.getFlags();
         }
     }
 }

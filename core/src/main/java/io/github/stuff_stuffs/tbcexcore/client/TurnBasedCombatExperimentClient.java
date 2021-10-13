@@ -11,16 +11,20 @@ import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import it.unimi.dsi.fastutil.HashCommon;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.*;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +33,8 @@ import java.util.function.Consumer;
 
 public class TurnBasedCombatExperimentClient implements ClientModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("TBCExClient");
+    //TODO https://github.com/FabricMC/fabric/issues/1772
+    public static final KeyBinding ALT_MODE_KEYBINDING = KeyBindingHelper.registerKeyBinding(new KeyBinding("tbcex.alt_mod_key", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_INSERT, "tbcex"));
     private static final List<BoxInfo> BOX_INFOS = new ArrayList<>();
     private static final List<Consumer<WorldRenderContext>> RENDER_PRIMITIVES = new ArrayList<>();
 
@@ -67,7 +73,7 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
             final double y = camera.getPos().y;
             final double z = camera.getPos().z;
             matrices.push();
-            matrices.translate(-x,-y,-z);
+            matrices.translate(-x, -y, -z);
             for (final BoxInfo info : BOX_INFOS) {
                 WorldRenderer.drawBox(matrices, vertexConsumer, info.x0, info.y0, info.z0, info.x1, info.y1, info.z1, (float) info.r, (float) info.g, (float) info.b, (float) info.a);
             }

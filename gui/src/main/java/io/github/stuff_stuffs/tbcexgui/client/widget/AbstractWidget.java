@@ -170,7 +170,7 @@ public abstract class AbstractWidget implements Widget {
         final double textScale = getTextScale(textWidth, 100, maxHeight);
         final double width = textWidth * textScale;
         //TODO better heuristic
-        final int maxLines = (int) Math.floor(width / (maxWidth * 3));
+        final int maxLines = (int) Math.floor(width / (maxWidth * 6));
         if (maxLines > 1) {
             final List<OrderedText> lines = textRenderer.wrapLines(text, (int) Math.floor(3 * maxWidth / textScale));
             double minScale = Double.MAX_VALUE;

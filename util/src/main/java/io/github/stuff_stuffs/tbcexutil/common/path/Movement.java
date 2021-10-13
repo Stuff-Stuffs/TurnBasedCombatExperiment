@@ -6,6 +6,8 @@ import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.Set;
+
 public interface Movement {
     Codec<Movement> CODEC = new Codec<>() {
         @Override
@@ -15,7 +17,7 @@ public interface Movement {
 
         @Override
         public <T> DataResult<T> encode(final Movement input, final DynamicOps<T> ops, final T prefix) {
-            if(prefix!=ops.empty()) {
+            if (prefix != ops.empty()) {
                 throw new RuntimeException("Non empty prefix");
             }
             return DataResult.success(serialize(ops, input));
@@ -36,6 +38,10 @@ public interface Movement {
 
     default boolean isValidEnding() {
         return true;
+    }
+
+    default Set<MovementFlag> getFlags() {
+        return Set.of();
     }
 
     MovementType getType();

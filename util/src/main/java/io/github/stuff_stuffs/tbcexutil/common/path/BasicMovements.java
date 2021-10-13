@@ -13,6 +13,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Set;
+
 public enum BasicMovements implements MovementType {
     FALL {
         @Override
@@ -275,6 +277,7 @@ public enum BasicMovements implements MovementType {
     }
 
     private static final class Fall implements Movement {
+        private static final Set<MovementFlag> FLAGS = Set.of(MovementFlag.FALL);
         private final BlockPos start;
         private final HorizontalDirection direction;
         private final boolean validEnding;
@@ -323,6 +326,11 @@ public enum BasicMovements implements MovementType {
         @Override
         public MovementType getType() {
             return FALL;
+        }
+
+        @Override
+        public Set<MovementFlag> getFlags() {
+            return FLAGS;
         }
     }
 }
