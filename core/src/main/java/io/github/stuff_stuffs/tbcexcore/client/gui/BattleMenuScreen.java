@@ -22,41 +22,31 @@ public class BattleMenuScreen extends TBCExScreen {
     private final BattleParticipantHandle handle;
     private final World world;
     private final BattleHudContext context;
-    private boolean init = false;
 
-
-    public BattleMenuScreen(final BattleParticipantHandle handle, final World world, BattleHudContext context) {
+    public BattleMenuScreen(final BattleParticipantHandle handle, final World world, final BattleHudContext context) {
         super(new LiteralText("battle_menu_screen"), new RootPanelWidget());
         this.handle = handle;
         this.world = world;
         this.context = context;
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        if (!init) {
-            init = true;
-            final ParentWidget widget = (ParentWidget) this.widget;
-            final int widgetCount = 2;
-            BooleanSupplier isTurn = () -> {
-                Battle battle = ((BattleWorldSupplier)world).tbcex_getBattleWorld().getBattle(handle.battleId());
-                if(battle==null) {
-                    return false;
-                }
-                final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
-                if(participant==null) {
-                    return false;
-                }
-                return handle.equals(battle.getState().getCurrentTurn());
-            };
-            final WidgetPosition panelPos = WidgetPosition.of(0.5 - 0.08, 0.5 - (widgetCount * 0.1) - 0.05, 1);
-            final BasicPanelWidget panelWidget = new BasicPanelWidget(panelPos, () -> false, () -> 1, 0.16, widgetCount * 0.1 + 0.05);
-            final PressableButtonWidget inventoryWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.025, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Inventory"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleInventoryScreen(handle, context, world)));
-            final PressableButtonWidget movementWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.1375, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Move"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleMoveScreen(handle, world, context)));
-            widget.addWidget(panelWidget);
-            panelWidget.addWidget(inventoryWidget);
-            panelWidget.addWidget(movementWidget);
-        }
+        final ParentWidget widget = (ParentWidget) this.widget;
+        final int widgetCount = 2;
+        final BooleanSupplier isTurn = () -> {
+            final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
+            if (battle == null) {
+                return false;
+            }
+            final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
+            if (participant == null) {
+                return false;
+            }
+            return handle.equals(battle.getState().getCurrentTurn());
+        };
+        final WidgetPosition panelPos = WidgetPosition.of(0.5 - 0.08, 0.5 - (widgetCount * 0.1) - 0.05, 1);
+        final BasicPanelWidget panelWidget = new BasicPanelWidget(panelPos, () -> false, () -> 1, 0.16, widgetCount * 0.1 + 0.05);
+        final PressableButtonWidget inventoryWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.025, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Inventory"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleInventoryScreen(handle, context, world)));
+        final PressableButtonWidget movementWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.1375, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Move"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleMoveScreen(handle, world, context)));
+        widget.addWidget(panelWidget);
+        panelWidget.addWidget(inventoryWidget);
+        panelWidget.addWidget(movementWidget);
     }
 }
