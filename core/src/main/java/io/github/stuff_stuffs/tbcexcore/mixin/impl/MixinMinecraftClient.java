@@ -4,6 +4,7 @@ import io.github.stuff_stuffs.tbcexcore.client.gui.BattleMenuScreen;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
+import io.github.stuff_stuffs.tbcexcore.mixin.api.HudSupplier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -25,7 +26,7 @@ public abstract class MixinMinecraftClient {
             final PlayerEntity player = client.player;
             final BattleHandle battleHandle = ((BattleAwareEntity) player).tbcex_getCurrentBattle();
             if (battleHandle != null) {
-                setScreen(new BattleMenuScreen(new BattleParticipantHandle(battleHandle, player.getUuid()), player.world));
+                setScreen(new BattleMenuScreen(new BattleParticipantHandle(battleHandle, player.getUuid()), player.world, ((HudSupplier)MinecraftClient.getInstance().inGameHud).getBattleHud().getContext()));
                 return;
             }
         }

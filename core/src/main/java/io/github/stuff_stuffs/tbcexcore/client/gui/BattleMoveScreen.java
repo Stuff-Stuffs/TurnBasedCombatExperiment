@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
 import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
+import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleMoveWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexgui.client.screen.MouseLockableScreen;
@@ -24,6 +25,7 @@ import java.util.function.DoubleSupplier;
 public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen {
     private final BattleParticipantHandle handle;
     private final World world;
+    private final BattleHudContext hudContext;
     private final PathContext context;
     private final HidingPanel options;
     private final CycleButton<Boolean> fallDamageOption;
@@ -31,10 +33,11 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
     private boolean locked = false;
     private boolean altMode = false;
 
-    protected BattleMoveScreen(final BattleParticipantHandle handle, final World world) {
+    public BattleMoveScreen(final BattleParticipantHandle handle, final World world, BattleHudContext hudContext) {
         super(new LiteralText("Move"), new RootPanelWidget());
         this.handle = handle;
         this.world = world;
+        this.hudContext = hudContext;
         context = new PathContext();
         passEvents = true;
 
@@ -54,7 +57,7 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
         optionsPanel.addWidget(fallDamageOption);
         widget.addWidget(options);
         options.addWidget(optionsPanel);
-        widget.addWidget(new BattleMoveWidget(handle, world, context));
+        widget.addWidget(new BattleMoveWidget(handle, world, context, this.hudContext));
     }
 
     @Override

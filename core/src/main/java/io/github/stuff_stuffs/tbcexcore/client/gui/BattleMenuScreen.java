@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
+import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
@@ -20,13 +21,15 @@ import java.util.function.BooleanSupplier;
 public class BattleMenuScreen extends TBCExScreen {
     private final BattleParticipantHandle handle;
     private final World world;
+    private final BattleHudContext context;
     private boolean init = false;
 
 
-    public BattleMenuScreen(final BattleParticipantHandle handle, final World world) {
+    public BattleMenuScreen(final BattleParticipantHandle handle, final World world, BattleHudContext context) {
         super(new LiteralText("battle_menu_screen"), new RootPanelWidget());
         this.handle = handle;
         this.world = world;
+        this.context = context;
     }
 
     @Override
@@ -49,8 +52,8 @@ public class BattleMenuScreen extends TBCExScreen {
             };
             final WidgetPosition panelPos = WidgetPosition.of(0.5 - 0.08, 0.5 - (widgetCount * 0.1) - 0.05, 1);
             final BasicPanelWidget panelWidget = new BasicPanelWidget(panelPos, () -> false, () -> 1, 0.16, widgetCount * 0.1 + 0.05);
-            final PressableButtonWidget inventoryWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.025, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Inventory"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleInventoryScreen(handle, world)));
-            final PressableButtonWidget movementWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.1375, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Move"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleMoveScreen(handle, world)));
+            final PressableButtonWidget inventoryWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.025, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Inventory"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleInventoryScreen(handle, context, world)));
+            final PressableButtonWidget movementWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.1375, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Move"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleMoveScreen(handle, world, context)));
             widget.addWidget(panelWidget);
             panelWidget.addWidget(inventoryWidget);
             panelWidget.addWidget(movementWidget);

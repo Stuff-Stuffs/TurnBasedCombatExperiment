@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.client.gui;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
+import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.*;
 import io.github.stuff_stuffs.tbcexcore.client.util.ItemStackInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
@@ -27,6 +28,7 @@ import java.util.function.DoubleSupplier;
 
 public class BattleInventoryScreen extends TBCExScreen {
     private final BattleParticipantHandle handle;
+    private final BattleHudContext hudContext;
     private BattleInventoryFilterWidget navigationWidget;
     private BattleInventorySorterWidget sorterWidget;
     private BattleInventoryTabWidget inventoryWidget;
@@ -37,9 +39,10 @@ public class BattleInventoryScreen extends TBCExScreen {
     private final World world;
     private boolean init = false;
 
-    public BattleInventoryScreen(final BattleParticipantHandle handle, final World world) {
+    public BattleInventoryScreen(final BattleParticipantHandle handle, BattleHudContext hudContext, final World world) {
         super(new LiteralText("Battle Inventory"), new RootPanelWidget());
         this.handle = handle;
+        this.hudContext = hudContext;
         this.world = world;
     }
 
@@ -129,7 +132,7 @@ public class BattleInventoryScreen extends TBCExScreen {
 
     @Override
     public void onClose() {
-        MinecraftClient.getInstance().setScreen(new BattleMenuScreen(handle, world));
+        MinecraftClient.getInstance().setScreen(new BattleMenuScreen(handle, world, hudContext));
     }
 
     private void select(final int index) {

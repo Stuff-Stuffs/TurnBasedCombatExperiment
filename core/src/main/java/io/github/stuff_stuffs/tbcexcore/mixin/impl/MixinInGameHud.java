@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.mixin.impl;
 
-import io.github.stuff_stuffs.tbcexcore.client.gui.BattleHud;
+import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHud;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.HudSupplier;

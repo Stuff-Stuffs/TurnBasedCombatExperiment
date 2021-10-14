@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
 import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
 import io.github.stuff_stuffs.tbcexcore.client.gui.BattleMoveScreen;
+import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
 import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
@@ -38,16 +39,18 @@ public class BattleMoveWidget extends AbstractWidget {
     private final BattleParticipantHandle handle;
     private final World world;
     private final BattleMoveScreen.PathContext context;
+    private final BattleHudContext hudContext;
     private BlockPos lastPos = null;
     private List<Path> paths = null;
     private List<EndPoint> endPoints = null;
     private boolean foundPaths = false;
     private boolean fallDamagePaths = false;
 
-    public BattleMoveWidget(final BattleParticipantHandle handle, final World world, final BattleMoveScreen.PathContext context) {
+    public BattleMoveWidget(final BattleParticipantHandle handle, final World world, final BattleMoveScreen.PathContext context, final BattleHudContext hudContext) {
         this.handle = handle;
         this.world = world;
         this.context = context;
+        this.hudContext = hudContext;
     }
 
     @Override
@@ -165,6 +168,7 @@ public class BattleMoveWidget extends AbstractWidget {
                 final double g = 1;
                 TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(closest.box, r, g, 0, 1));
                 TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(paths.get(index)));
+                hudContext.setPotentialActionCost(paths.get(index).getCost());
             }
         }
     }
