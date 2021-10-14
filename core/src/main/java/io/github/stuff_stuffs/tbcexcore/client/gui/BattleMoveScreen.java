@@ -43,11 +43,11 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
 
         options = new HidingPanel();
         final ParentWidget widget = (ParentWidget) this.widget;
-        final DoubleSupplier left = () -> (Math.max(width / height, 1) - 1) / -2.0;
-        final DoubleSupplier top = () -> (Math.max(height / width, 1) - 1) / -2.0;
+        final DoubleSupplier left = () -> (Math.max(width / (double)height, 1) - 1) / -2.0;
+        final DoubleSupplier top = () -> (Math.max(height / (double)width, 1) - 1) / -2.0;
         final SuppliedWidgetPosition optionsPanelPos = new SuppliedWidgetPosition(left, top, () -> 10);
-        final BasicPanelWidget optionsPanel = new BasicPanelWidget(optionsPanelPos, () -> false, () -> 1, 0.125, 0.25);
-        fallDamageOption = new CycleButton<>(WidgetPosition.combine(optionsPanelPos, WidgetPosition.of(0.005, 0.005, 1)), () -> 1, () -> true, 0.115, 0.25, false, b -> !b, b -> {
+        final BasicPanelWidget optionsPanel = new BasicPanelWidget(optionsPanelPos, () -> false, () -> 1, 0.275, 0.25);
+        fallDamageOption = new CycleButton<>(WidgetPosition.combine(optionsPanelPos, WidgetPosition.of(0.005, 0.005, 1)), () -> 1, () -> true, 0.265, 0.075, false, b -> !b, b -> {
             if (b) {
                 return new LiteralText("Fall damage paths enabled");
             } else {
