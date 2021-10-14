@@ -35,7 +35,6 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("TBCExClient");
     //TODO https://github.com/FabricMC/fabric/issues/1772
     public static final KeyBinding ALT_MODE_KEYBINDING = KeyBindingHelper.registerKeyBinding(new KeyBinding("tbcex.alt_mod_key", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_INSERT, "tbcex"));
-    private static final List<BoxInfo> BOX_INFOS = new ArrayList<>();
     private static final List<Consumer<WorldRenderContext>> RENDER_PRIMITIVES = new ArrayList<>();
 
     @Override
@@ -65,29 +64,23 @@ public class TurnBasedCombatExperimentClient implements ClientModInitializer {
         }, DebugRenderers.Stage.POST_ENTITY);
         DebugRenderers.register("battle_particpant_bounds", BattleParticipantBoundsDebugRenderer.INSTANCE, DebugRenderers.Stage.POST_ENTITY);
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
-            final VertexConsumerProvider vertexConsumers = context.consumers();
             final MatrixStack matrices = context.matrixStack();
             final Camera camera = context.camera();
-            final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.LINES);
             final double x = camera.getPos().x;
             final double y = camera.getPos().y;
             final double z = camera.getPos().z;
             matrices.push();
             matrices.translate(-x, -y, -z);
-            for (final BoxInfo info : BOX_INFOS) {
-                WorldRenderer.drawBox(matrices, vertexConsumer, info.x0, info.y0, info.z0, info.x1, info.y1, info.z1, (float) info.r, (float) info.g, (float) info.b, (float) info.a);
-            }
             for (final Consumer<WorldRenderContext> renderPrimitive : RENDER_PRIMITIVES) {
                 renderPrimitive.accept(context);
             }
             matrices.pop();
-            BOX_INFOS.clear();
             RENDER_PRIMITIVES.clear();
         });
     }
 
-    public static void addBoxInfo(final BoxInfo boxInfo) {
-        BOX_INFOS.add(boxInfo);
+    public static void addBoxInfo(final BoxInfo box) {
+        RENDER_PRIMITIVES.add(context -> WorldRenderer.drawBox(context.matrixStack(), context.consumers().getBuffer(RenderLayer.LINES), box.x0, box.y0, box.z0, box.x1, box.y1, box.z1, (float) box.r, (float) box.g, (float) box.b, (float) box.a));
     }
 
     public static void addRenderPrimitive(final Consumer<WorldRenderContext> primitive) {
