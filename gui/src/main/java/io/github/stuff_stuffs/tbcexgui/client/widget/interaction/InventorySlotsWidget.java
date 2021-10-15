@@ -6,6 +6,7 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.ItemStackLike;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumer;
@@ -157,7 +158,7 @@ public class InventorySlotsWidget extends AbstractWidget {
                 final ItemStackLike[] row = inventory[i];
                 for (int j = 0; j < row.length; j++) {
                     final Map<NinePatch.Part, Sprite> spriteMap = (i == selectedX && j == selectedY) ? SELECTED_SPRITE_MAP : SPRITE_MAP;
-                    NinePatch.render(spriteMap, x + i * size, y + j * size, size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth, 0xFFFFFFFF, matrices, positionColour);
+                    NinePatch.render(spriteMap, x + i * size, y + j * size, size, size, getHorizontalPixel(), getVerticalPixel(), borderWidth, IntRgbColour.WHITE, 255, matrices, positionColour);
                 }
             }
             for (final ItemStackLike[] itemStackLikes : inventory) {

@@ -7,6 +7,8 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
+import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -160,10 +162,10 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final double y = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
         final Text name = info.stack.getItem().getName();
-        renderFitTextWrap(matrices, name, offsetX + borderThickness, y, maxWidth, entryHeight, shadow, -1, vertexConsumers);
-        renderFitTextWrap(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, shadow, -1, vertexConsumers);
-        renderFitTextWrap(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, -1, vertexConsumers);
-        renderFitTextWrap(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, info.stack.getItem().getRarity().getRarity().getColour(), vertexConsumers);
+        renderFitTextWrap(matrices, name, offsetX + borderThickness, y, maxWidth, entryHeight, shadow, IntRgbColour.WHITE, 255, vertexConsumers);
+        renderFitTextWrap(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, shadow, IntRgbColour.WHITE, 255, vertexConsumers);
+        renderFitTextWrap(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, IntRgbColour.WHITE, 255, vertexConsumers);
+        renderFitTextWrap(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, new IntRgbColour(info.stack.getItem().getRarity().getRarity().getColour()), 255, vertexConsumers);
     }
 
     private void renderInfo(final ItemStackInfo info, final VertexConsumer vertexConsumer, final MatrixStack matrices, final int index, final int hoverIndex) {
@@ -174,18 +176,21 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final float endX = (float) (offsetX + width.getAsDouble() - borderThickness);
         final float startY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing);
         final float endY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
-        int backgroundColour = getBackgroundColour(index);
+        final Colour backgroundColour = getBackgroundColour(index);
+        final int alpha;
         if (hoverIndex == index || selectedIndex == index) {
-            backgroundColour |= 0xFF000000;
+            alpha = 0xFF;
+        } else {
+            alpha = 0x77;
         }
-        RenderUtil.colour(vertexConsumer.vertex(model, endX, startY, 0), backgroundColour).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX, endY, 0), backgroundColour).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, endX, endY, 0), backgroundColour).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, endX, startY, 0), backgroundColour, alpha).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour, alpha).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, endY, 0), backgroundColour, alpha).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, endX, endY, 0), backgroundColour, alpha).next();
     }
 
-    private static int getBackgroundColour(final int index) {
-        return (index & 1) == 0 ? 0x77111111 : 0x77222222;
+    private static Colour getBackgroundColour(final int index) {
+        return (index & 1) == 0 ? BattleInventoryFilterWidget.FIRST_BACKGROUND_COLOUR : BattleInventoryFilterWidget.SECOND_BACKGROUND_COLOUR;
     }
 
     @Override

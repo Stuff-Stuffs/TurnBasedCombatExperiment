@@ -41,7 +41,6 @@ public class Test implements ModInitializer {
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_item"), TEST_ITEM_TYPE);
         EntityTypes.init();
         CommandRegistrationCallback.EVENT.register(Test::register);
-        BattleRendererRegistry.addItemRenderer(TEST_ITEM_TYPE, new BattleParticipantItemRenderer.DefaultRenderer());
     }
 
     private static void register(final CommandDispatcher<ServerCommandSource> dispatcher, final boolean dedicated) {

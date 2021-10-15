@@ -5,6 +5,7 @@ import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.texture.Sprite;
@@ -111,7 +112,7 @@ public class CycleButton<T> extends AbstractWidget {
 
         render(vertexConsumers -> {
             NinePatch.render(SPRITE_MAP.get(state), positionX, positionY, width, height, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)));
-            renderFitTextWrap(matrices, text, positionX + getHorizontalPixel(), positionY + getVerticalPixel(), width - 2 * getHorizontalPixel(), height - 2 * getHorizontalPixel(), shadow, -1, vertexConsumers);
+            renderFitTextWrap(matrices, text, positionX + getHorizontalPixel(), positionY + getVerticalPixel(), width - 2 * getHorizontalPixel(), height - 2 * getHorizontalPixel(), shadow, IntRgbColour.WHITE, 255, vertexConsumers);
         });
 
         if (state == ButtonState.HOVERED) {

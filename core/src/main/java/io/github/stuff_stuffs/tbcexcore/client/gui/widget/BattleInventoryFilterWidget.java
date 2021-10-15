@@ -10,12 +10,13 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
-import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
+import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -32,6 +33,9 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntConsumer;
 
 public class BattleInventoryFilterWidget extends AbstractWidget {
+    public static final Colour FIRST_BACKGROUND_COLOUR = new IntRgbColour(0x00111111);
+    public static final Colour SECOND_BACKGROUND_COLOUR = new IntRgbColour(0x00222222);
+
     public static final List<Category> DEFAULTS = Util.make(new ArrayList<>(), list -> {
         list.add(new Category() {
             @Override
@@ -254,7 +258,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         final double offset = height.getAsDouble() / 4;
         final double scale = Math.max(offset - dist, 0) / offset;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
-        renderFitText(matrices, category.getName(), offsetX + borderThickness, y, maxWidth * scale, entryHeight * scale, shadow, ClientUtil.tweakComponent(-1, 3, scale), vertexConsumers);
+        renderFitText(matrices, category.getName(), offsetX + borderThickness, y, maxWidth * scale, entryHeight * scale, shadow, IntRgbColour.WHITE, (int) Math.round(255 * scale), vertexConsumers);
     }
 
     private void renderInfo(final Category category, final VertexConsumer vertexConsumer, final MatrixStack matrices, final int index, final int hoverIndex) {
@@ -272,19 +276,22 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         dist *= dist * dist;
         final float offset = ((float) height.getAsDouble()) / 4f;
         final float scale = Math.max(offset - dist, 0) / offset;
-        int backgroundColour = getBackgroundColour(index);
+        final Colour backgroundColour = getBackgroundColour(index);
+        int alpha;
         if (hoverIndex == index || selectedIndex == index) {
-            backgroundColour |= 0xFF000000;
+            alpha = 0xFF;
+        } else {
+            alpha = 0x77;
         }
-        backgroundColour = ClientUtil.tweakComponent(backgroundColour, 3, scale);
-        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY + yLen * scale, 0), backgroundColour).next();
+        alpha = Math.round(alpha * scale);
+        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour, alpha).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour, alpha).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour, alpha).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY + yLen * scale, 0), backgroundColour, alpha).next();
     }
 
-    private static int getBackgroundColour(final int index) {
-        return (index & 1) == 0 ? 0x77111111 : 0x77222222;
+    private static Colour getBackgroundColour(final int index) {
+        return (index & 1) == 0 ? FIRST_BACKGROUND_COLOUR : SECOND_BACKGROUND_COLOUR;
     }
 
     @Override

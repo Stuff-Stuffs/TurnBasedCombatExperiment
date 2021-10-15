@@ -11,6 +11,8 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
+import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -251,7 +253,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
         final double offset = width.getAsDouble() / 8;
         final double scale = Math.max(offset - dist, 0) / offset;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
-        renderFitText(matrices, sort.getName(), startX, y, (endX - startX) * scale, (height.getAsDouble() - 2 * borderThickness) * scale, shadow, ClientUtil.tweakComponent(-1, 3, scale), vertexConsumers);
+        renderFitText(matrices, sort.getName(), startX, y, (endX - startX) * scale, (height.getAsDouble() - 2 * borderThickness) * scale, shadow, IntRgbColour.WHITE, 255, vertexConsumers);
     }
 
     private void renderInfo(final Sort category, final VertexConsumer vertexConsumer, final MatrixStack matrices, final int index, final int hoverIndex) {
@@ -269,21 +271,23 @@ public class BattleInventorySorterWidget extends AbstractWidget {
         dist *= dist * dist;
         final float offset = ((float) width.getAsDouble()) / 8f;
         final float scale = Math.max(offset - dist, 0) / offset;
-        int backgroundColour = getBackgroundColour(index);
+        final Colour backgroundColour = getBackgroundColour(index);
+        int alpha;
         if (hoverIndex == index || selectedIndex == index) {
-            backgroundColour |= 0xFF000000;
+            alpha = 0xFF;
+        } else {
+            alpha = 0x77;
         }
-        backgroundColour = ClientUtil.tweakComponent(backgroundColour, 3, scale);
-        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY + yLen * scale, 0), backgroundColour).next();
+        alpha = Math.round(alpha * scale);
+        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour, alpha).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour, alpha).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour, alpha).next();
+        RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY + yLen * scale, 0), backgroundColour, alpha).next();
     }
 
-    private static int getBackgroundColour(final int index) {
-        return (index & 1) == 0 ? 0x77111111 : 0x77222222;
+    private static Colour getBackgroundColour(final int index) {
+        return (index & 1) == 0 ? BattleInventoryFilterWidget.FIRST_BACKGROUND_COLOUR : BattleInventoryFilterWidget.SECOND_BACKGROUND_COLOUR;
     }
-
 
     @Override
     public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {

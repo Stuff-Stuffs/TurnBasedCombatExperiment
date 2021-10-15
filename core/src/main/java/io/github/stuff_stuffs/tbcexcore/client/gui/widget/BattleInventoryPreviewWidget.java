@@ -12,6 +12,7 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.common.DoubleQuaternion;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
@@ -127,12 +128,12 @@ public class BattleInventoryPreviewWidget extends AbstractWidget {
         if (stackInfo != null) {
             y += height - (height * infoFraction);
             matrices.translate(0, 0, 1);
-            renderFitText(matrices, stackInfo.stack.getItem().getName(), x + getHorizontalPixel(), y + getVerticalPixel(), width - 2 * getHorizontalPixel(), height * infoFraction * 0.25 - 2 * getVerticalPixel(), true, -1, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
+            renderFitText(matrices, stackInfo.stack.getItem().getName(), x + getHorizontalPixel(), y + getVerticalPixel(), width - 2 * getHorizontalPixel(), height * infoFraction * 0.25 - 2 * getVerticalPixel(), true, IntRgbColour.WHITE, 255, IntRgbColour.BLACK, 0, LightmapTextureManager.MAX_LIGHT_COORDINATE, vertexConsumers);
             matrices.translate(0, 0, -1);
             renderTooltipBackground(x, y, width, height * infoFraction * 0.25, matrices, vertexConsumers);
             renderTooltipBackground(x, y + height * infoFraction * 0.25, width, height * infoFraction * 0.75, matrices, vertexConsumers);
             matrices.translate(0, 0, 1);
-            renderTextLines(matrices, stackInfo.stack.getItem().getTooltip(), x + getHorizontalPixel(), y + height * infoFraction * 0.25 + getVerticalPixel(), width - 2 * getHorizontalPixel(), height * infoFraction * 0.75 - 2 * getVerticalPixel(), false, false, -1, vertexConsumers);
+            renderTextLines(matrices, stackInfo.stack.getItem().getTooltip(), x + getHorizontalPixel(), y + height * infoFraction * 0.25 + getVerticalPixel(), width - 2 * getHorizontalPixel(), height * infoFraction * 0.75 - 2 * getVerticalPixel(), false, false, IntRgbColour.WHITE, 255, vertexConsumers);
             matrices.translate(0, 0, -1);
         }
     }

@@ -1,33 +1,40 @@
 package io.github.stuff_stuffs.tbcexutil.client;
 
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
+import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public final class RenderUtil {
-    public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final Sprite sprite, final int colour, final VertexConsumer consumer) {
-        renderRectangle(matrices, x, y, width, height, sprite, colour, colour, colour, colour, consumer);
+    public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final Sprite sprite, final Colour colour, final int alpha, final VertexConsumer consumer) {
+        renderRectangle(matrices, x, y, width, height, sprite, colour, alpha, colour, alpha, colour, alpha, colour, alpha, consumer);
     }
 
-    public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final Sprite sprite, final int topLeftColour, final int bottomLeftColour, final int topRightColour, final int bottomRightColour, final VertexConsumer consumer) {
-        colour(position(consumer, x + width, y, 0, matrices), topRightColour).texture(sprite.getMaxU(), sprite.getMinV()).next();
-        colour(position(consumer, x, y, 0, matrices), topLeftColour).texture(sprite.getMinU(), sprite.getMinV()).next();
-        colour(position(consumer, x, y + height, 0, matrices), bottomLeftColour).texture(sprite.getMinU(), sprite.getMaxV()).next();
-        colour(position(consumer, x + width, y + height, 0, matrices), bottomRightColour).texture(sprite.getMaxU(), sprite.getMaxV()).next();
+    public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final Sprite sprite, final Colour topLeftColour, final int topLeftAlpha, final Colour bottomLeftColour, final int bottomLeftAlpha, final Colour topRightColour, final int topRightAlpha, final Colour bottomRightColour, final int bottomRightAlpha, final VertexConsumer consumer) {
+        colour(position(consumer, x + width, y, 0, matrices), topRightColour, topRightAlpha).texture(sprite.getMaxU(), sprite.getMinV()).next();
+        colour(position(consumer, x, y, 0, matrices), topLeftColour, topLeftAlpha).texture(sprite.getMinU(), sprite.getMinV()).next();
+        colour(position(consumer, x, y + height, 0, matrices), bottomLeftColour, bottomLeftAlpha).texture(sprite.getMinU(), sprite.getMaxV()).next();
+        colour(position(consumer, x + width, y + height, 0, matrices), bottomRightColour, bottomRightAlpha).texture(sprite.getMaxU(), sprite.getMaxV()).next();
     }
 
-    public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final int colour, final VertexConsumer consumer) {
-        renderRectangle(matrices, x, y, width, height, colour, colour, colour, colour, consumer);
+    public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final Colour colour, final int alpha, final VertexConsumer consumer) {
+        renderRectangle(matrices, x, y, width, height, colour, alpha, colour, alpha, colour, alpha, colour, alpha, consumer);
     }
 
-    public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final int topLeftColour, final int bottomLeftColour, final int topRightColour, final int bottomRightColour, final VertexConsumer consumer) {
-        colour(position(consumer, x + width, y, 0, matrices), topRightColour).next();
-        colour(position(consumer, x, y, 0, matrices), topLeftColour).next();
-        colour(position(consumer, x, y + height, 0, matrices), bottomLeftColour).next();
-        colour(position(consumer, x + width, y + height, 0, matrices), bottomRightColour).next();
+    public static void renderRectangle(final MatrixStack matrices, final double x, final double y, final double width, final double height, final Colour topLeftColour, final int topLeftAlpha, final Colour bottomLeftColour, final int bottomLeftAlpha, final Colour topRightColour, final int topRightAlpha, final Colour bottomRightColour, final int bottomRightAlpha, final VertexConsumer consumer) {
+        colour(position(consumer, x + width, y, 0, matrices), topRightColour, topRightAlpha).next();
+        colour(position(consumer, x, y, 0, matrices), topLeftColour, topLeftAlpha).next();
+        colour(position(consumer, x, y + height, 0, matrices), bottomLeftColour, bottomLeftAlpha).next();
+        colour(position(consumer, x + width, y + height, 0, matrices), bottomRightColour, bottomRightAlpha).next();
+    }
+
+    public static VertexConsumer colour(final VertexConsumer vertexConsumer, final Colour colour, final int a) {
+        return colour(vertexConsumer, colour.pack(a));
     }
 
     public static VertexConsumer colour(final VertexConsumer vertexConsumer, final int colour) {
@@ -64,5 +71,18 @@ public final class RenderUtil {
         norm = norm.multiply(MathHelper.fastInverseSqrt(norm.lengthSquared()));
         vertexConsumer.normal(matrices.peek().getNormal(), (float) norm.x, (float) norm.y, (float) norm.z);
         return vertexConsumer;
+    }
+
+    public static void drawBox(final MatrixStack matrices, final VertexConsumer vertexConsumer, final Box box, final Colour colour) {
+        drawBox(matrices, vertexConsumer, box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, colour);
+    }
+
+    public static void drawBox(final MatrixStack matrices, final VertexConsumer vertexConsumer, final double x1, final double y1, final double z1, final double x2, final double y2, final double z2, final Colour colour) {
+        final int c = colour.pack(255);
+        final float red = ((c >> 16) & 0xFF) / 255.0F;
+        final float green = ((c >> 8) & 0xFF) / 255.0F;
+        final float blue = (c & 0xFF) / 255.0F;
+        final float alpha = ((c >> 24) & 0xFF) / 255.0F;
+        WorldRenderer.drawBox(matrices, vertexConsumer, x1, y1, z1, x2, y2, z2, red, green, blue, alpha, red, green, blue);
     }
 }

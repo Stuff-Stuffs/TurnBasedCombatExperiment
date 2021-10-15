@@ -16,6 +16,8 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
+import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
+import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import io.github.stuff_stuffs.tbcexutil.common.path.Movement;
 import io.github.stuff_stuffs.tbcexutil.common.path.MovementType;
 import io.github.stuff_stuffs.tbcexutil.common.path.Path;
@@ -35,7 +37,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class BattleMoveWidget extends AbstractWidget {
+    public static final Colour PATH_COLOUR = new IntRgbColour(0, 255, 0);
     private static final WidgetPosition ROOT = WidgetPosition.of(0, 0, 0);
+
     private final BattleParticipantHandle handle;
     private final World world;
     private final BattleMoveScreen.PathContext context;
@@ -182,13 +186,13 @@ public class BattleMoveWidget extends AbstractWidget {
                 Vec3d prev = start;
                 for (int i = 0; i < 7; i++) {
                     final Vec3d next = movement.interpolate(start, movement.getLength() * i / 8.0);
-                    RenderUtil.lineNormal(RenderUtil.colour(RenderUtil.position(vertexConsumer, prev, matrices), 0xFF00FF00), prev, next, matrices).next();
-                    RenderUtil.lineNormal(RenderUtil.colour(RenderUtil.position(vertexConsumer, next, matrices), 0xFF00FF00), prev, next, matrices).next();
+                    RenderUtil.lineNormal(RenderUtil.colour(RenderUtil.position(vertexConsumer, prev, matrices), PATH_COLOUR, 255), prev, next, matrices).next();
+                    RenderUtil.lineNormal(RenderUtil.colour(RenderUtil.position(vertexConsumer, next, matrices), PATH_COLOUR, 255), prev, next, matrices).next();
                     prev = next;
                 }
                 final Vec3d next = movement.interpolate(start, movement.getLength());
-                RenderUtil.lineNormal(RenderUtil.colour(RenderUtil.position(vertexConsumer, prev, matrices), 0xFF00FF00), prev, next, matrices).next();
-                RenderUtil.lineNormal(RenderUtil.colour(RenderUtil.position(vertexConsumer, next, matrices), 0xFF00FF00), prev, next, matrices).next();
+                RenderUtil.lineNormal(RenderUtil.colour(RenderUtil.position(vertexConsumer, prev, matrices), PATH_COLOUR, 255), prev, next, matrices).next();
+                RenderUtil.lineNormal(RenderUtil.colour(RenderUtil.position(vertexConsumer, next, matrices), PATH_COLOUR, 255), prev, next, matrices).next();
             }
         };
     }
