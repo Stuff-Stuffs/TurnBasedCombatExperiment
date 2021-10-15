@@ -10,6 +10,8 @@ import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
+import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
+import io.github.stuff_stuffs.tbcexutil.common.colour.HsvColour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumer;
@@ -74,55 +76,50 @@ public class BattleHudEnergyWidget extends AbstractWidget {
             }
             final double percent = Math.min(participant.getEnergy() / participant.getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT), 1);
             final double percentPartial = Math.min(Math.max(participant.getEnergy() - context.getPotentialActionCost(), 0) / participant.getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT), 1);
-            final BossBar.Color color;
-            if (percent > 3 / 4.0) {
-                color = BossBar.Color.BLUE;
-            } else if (percent > 2 / 4.0) {
-                color = BossBar.Color.GREEN;
-            } else if (percent > 1 / 4.0) {
-                color = BossBar.Color.YELLOW;
-            } else {
-                color = BossBar.Color.RED;
-            }
+            final Colour colour = new HsvColour((float) MathHelper.lerp(percent, 0, 244),1,1);
 
-            final BossBar.Color colorPartial;
-            if (percentPartial > 3 / 4.0) {
-                colorPartial = BossBar.Color.BLUE;
-            } else if (percentPartial > 2 / 4.0) {
-                colorPartial = BossBar.Color.GREEN;
-            } else if (percentPartial > 1 / 4.0) {
-                colorPartial = BossBar.Color.YELLOW;
-            } else {
-                colorPartial = BossBar.Color.RED;
-            }
+            final Colour colourPartial = new HsvColour((float) MathHelper.lerp(percentPartial, 0, 244),1,1);
             render(vertexConsumers -> {
                 final double x = position.getX();
                 final double y = position.getY();
                 final double z = position.getZ();
                 final VertexConsumer opaque = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(new Identifier("minecraft", "textures/gui/bars.png"), true));
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), IntRgbColour.WHITE, 255), 0, (color.ordinal() * 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0, (color.ordinal() * 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y + height, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0, (color.ordinal() * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), IntRgbColour.WHITE, 255), 0, (color.ordinal() * 10 + 5) / 256.0).next();
+
                 if (percent != percentPartial) {
                     final double time = (MinecraftClient.getInstance().world.getTime() + delta) / 10.0;
                     final double tweaker = (MathHelper.sin((float) time) + 1) / 2.0;
                     final int tweakedAlpha = (int) Math.round(tweaker * 255);
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), IntRgbColour.WHITE, tweakedAlpha), 0, (color.ordinal() * 10 + 5) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y, z, matrices), IntRgbColour.WHITE, tweakedAlpha), 182 / 256.0 * percent, (color.ordinal() * 10 + 5) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y + height, z, matrices), IntRgbColour.WHITE, tweakedAlpha), 182 / 256.0 * percent, (color.ordinal() * 10 + 10) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), IntRgbColour.WHITE, tweakedAlpha), 0, (color.ordinal() * 10 + 10) / 256.0).next();
-
                     final int tweakedAlphaInv = 255 - tweakedAlpha;
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), IntRgbColour.WHITE, tweakedAlphaInv), 0, (colorPartial.ordinal() * 10 + 5) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percentPartial, y, z, matrices), IntRgbColour.WHITE, tweakedAlphaInv), 182 / 256.0 * percentPartial, (colorPartial.ordinal() * 10 + 5) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percentPartial, y + height, z, matrices), IntRgbColour.WHITE, tweakedAlphaInv), 182 / 256.0 * percentPartial, (colorPartial.ordinal() * 10 + 10) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), IntRgbColour.WHITE, tweakedAlphaInv), 0, (colorPartial.ordinal() * 10 + 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colour, 255), 0, (6 * 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y, z, matrices), colour, 255), 182 / 256.0, (6 * 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y + height, z, matrices), colour, 255), 182 / 256.0, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
+
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colourPartial, tweakedAlphaInv), 0, (6 * 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y, z, matrices), colourPartial, tweakedAlphaInv), 182 / 256.0, (6 * 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y + height, z, matrices), colourPartial, tweakedAlphaInv), 182 / 256.0, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colourPartial, tweakedAlphaInv), 0, (6 * 10 + 5) / 256.0).next();
+
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colour, tweakedAlpha), 0, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y, z, matrices), colour, tweakedAlpha), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y + height, z, matrices), colour, tweakedAlpha), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colour, tweakedAlpha), 0, (6 * 10 + 10) / 256.0).next();
+
+
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colourPartial, tweakedAlphaInv), 0, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percentPartial, y, z, matrices), colourPartial, tweakedAlphaInv), 182 / 256.0 * percentPartial, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percentPartial, y + height, z, matrices), colourPartial, tweakedAlphaInv), 182 / 256.0 * percentPartial, (6 * 10 + 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colourPartial, tweakedAlphaInv), 0, (6 * 10 + 10) / 256.0).next();
                 } else {
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), IntRgbColour.WHITE, 255), 0, (color.ordinal() * 10 + 5) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0 * percent, (color.ordinal() * 10 + 5) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y + height, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0 * percent, (color.ordinal() * 10 + 10) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), IntRgbColour.WHITE, 255), 0, (color.ordinal() * 10 + 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), IntRgbColour.WHITE, 255), 0, (6 * 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0, (6 * 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y + height, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), IntRgbColour.WHITE, 255), 0, (6 * 10 + 5) / 256.0).next();
+
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y, z, matrices), colour, 255), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y + height, z, matrices), colour, 255), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colour, 255), 0, (6 * 10 + 10) / 256.0).next();
                 }
             });
         }
