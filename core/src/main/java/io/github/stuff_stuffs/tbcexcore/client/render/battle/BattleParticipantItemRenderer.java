@@ -17,12 +17,17 @@ public interface BattleParticipantItemRenderer {
     void render(BattleParticipantItemStack stack, BattleParticipantStateView battleParticipantState, MatrixStack matrices, VertexConsumerProvider vertexConsumers, float tickDelta);
 
     class DefaultRenderer implements BattleParticipantItemRenderer {
+        public static final DefaultRenderer INSTANCE = new DefaultRenderer();
+
+        private DefaultRenderer() {
+        }
+
         @Override
-        public void render(BattleParticipantItemStack stack, BattleParticipantStateView battleParticipantState, MatrixStack matrices, VertexConsumerProvider vertexConsumers, float tickDelta) {
+        public void render(final BattleParticipantItemStack stack, final BattleParticipantStateView battleParticipantState, final MatrixStack matrices, final VertexConsumerProvider vertexConsumers, final float tickDelta) {
             final Iterator<ItemStack> iterator = BattleParticipantItemType.toItemStack(stack).iterator();
-            if(iterator.hasNext()) {
-                ItemStack itemStack = iterator.next();
-                MinecraftClient.getInstance().getItemRenderer().renderItem(itemStack, ModelTransformation.Mode.FIXED, LightmapTextureManager.pack(15,15), OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, battleParticipantState.getHandle().participantId().hashCode());
+            if (iterator.hasNext()) {
+                final ItemStack itemStack = iterator.next();
+                MinecraftClient.getInstance().getItemRenderer().renderItem(itemStack, ModelTransformation.Mode.FIXED, LightmapTextureManager.pack(15, 15), OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, battleParticipantState.getHandle().participantId().hashCode());
             }
         }
     }

@@ -18,12 +18,7 @@ public final class BattleRendererRegistry {
     }
 
     public static BattleParticipantItemRenderer getItemRenderer(final BattleParticipantItemType type) {
-        final BattleParticipantItemRenderer renderer = BATTLE_ITEM_RENDERER_MAP.get(type);
-        if (renderer == null) {
-            //TODO
-            throw new RuntimeException();
-        }
-        return renderer;
+         return BATTLE_ITEM_RENDERER_MAP.getOrDefault(type, BattleParticipantItemRenderer.DefaultRenderer.INSTANCE);
     }
 
     private BattleRendererRegistry() {
