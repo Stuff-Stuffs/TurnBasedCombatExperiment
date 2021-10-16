@@ -66,7 +66,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         this.bounds = bounds;
         this.name = name;
         eventMap = new EventMap();
-        registerEvents();
+        BattleParticipantEvents.setup(eventMap);
         this.inventory = inventory;
         this.stats = stats;
         this.health = health;
@@ -81,7 +81,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         pos = ((Entity) entity).getBlockPos();
         team = entity.getTeam();
         eventMap = new EventMap();
-        registerEvents();
+        BattleParticipantEvents.setup(eventMap);
         inventory = new BattleParticipantInventory(entity);
         stats = new BattleParticipantStats(entity);
         bounds = entity.getBounds().withCenter(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
@@ -101,53 +101,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         facing = HorizontalDirection.fromDirection(bestDir);
         energyTracker = new EnergyTracker(this, getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT));
         name = ((Entity) entity).getDisplayName();
-    }
-
-    private void registerEvents() {
-        eventMap.register(PRE_EQUIPMENT_CHANGE_EVENT, new MutableEventHolder.BasicEventHolder<>(PRE_EQUIPMENT_CHANGE_EVENT, view -> (state, slot, oldEquipment, newEquipment) -> {
-            view.onEquipmentChange(state, slot, oldEquipment, newEquipment);
-            return false;
-        }, events -> (state, slot, oldEquipment, newEquipment) -> {
-            boolean canceled = false;
-            for (final PreEquipmentChangeEvent.Mut event : events) {
-                canceled |= event.onEquipmentChange(state, slot, oldEquipment, newEquipment);
-            }
-            return canceled;
-        }));
-        eventMap.register(POST_EQUIPMENT_CHANGE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_EQUIPMENT_CHANGE_EVENT, view -> view::onEquipmentChange, events -> (state, slot, oldEquipment, newEquipment) -> {
-            for (final PostEquipmentChangeEvent.Mut event : events) {
-                event.onEquipmentChange(state, slot, oldEquipment, newEquipment);
-            }
-        }));
-        eventMap.register(PRE_DAMAGE_EVENT, new MutableEventHolder.BasicEventHolder<>(PRE_DAMAGE_EVENT, view -> (state, damagePacket) -> {
-            view.onDamage(state, damagePacket);
-            return damagePacket;
-        }, events -> (state, damagePacket) -> {
-            for (final PreDamageEvent.Mut event : events) {
-                damagePacket = event.onDamage(state, damagePacket);
-            }
-            return damagePacket;
-        }));
-        eventMap.register(POST_DAMAGE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_DAMAGE_EVENT, view -> view::onDamage, events -> (state, damagePacket) -> {
-            for (final PostDamageEvent.Mut event : events) {
-                event.onDamage(state, damagePacket);
-            }
-        }));
-        eventMap.register(PRE_MOVE_EVENT, new MutableEventHolder.BasicEventHolder<>(PRE_MOVE_EVENT, view -> (battleParticipantStateView, pos, path) -> {
-            view.onMove(battleParticipantStateView, pos, path);
-            return false;
-        }, events -> (battleParticipantState, pos, path) -> {
-            boolean canceled = false;
-            for (final PreMoveEvent.Mut event : events) {
-                canceled |= event.onMove(battleParticipantState, pos, path);
-            }
-            return canceled;
-        }));
-        eventMap.register(POST_MOVE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_MOVE_EVENT, view -> view::onMove, events -> (battleParticipantState, path) -> {
-            for (final PostMoveEvent.Mut event : events) {
-                event.onMove(battleParticipantState, path);
-            }
-        }));
     }
 
     public void setBattleState(final BattleState battleState) {

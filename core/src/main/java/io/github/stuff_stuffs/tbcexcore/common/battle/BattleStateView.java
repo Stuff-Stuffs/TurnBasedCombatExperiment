@@ -11,11 +11,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 
 public interface BattleStateView {
-    EventKey<PreParticipantJoinEvent.Mut, PreParticipantJoinEvent> PRE_PARTICIPANT_JOIN_EVENT = new EventKey<>(PreParticipantJoinEvent.Mut.class, PreParticipantJoinEvent.class);
-    EventKey<PostParticipantJoinEvent.Mut, PostParticipantJoinEvent> POST_PARTICIPANT_JOIN_EVENT = new EventKey<>(PostParticipantJoinEvent.Mut.class, PostParticipantJoinEvent.class);
-    EventKey<PreParticipantLeaveEvent.Mut, PreParticipantLeaveEvent> PRE_PARTICIPANT_LEAVE_EVENT = new EventKey<>(PreParticipantLeaveEvent.Mut.class, PreParticipantLeaveEvent.class);
-    EventKey<AdvanceTurnEvent.Mut, AdvanceTurnEvent> ADVANCE_TURN_EVENT = new EventKey<>(AdvanceTurnEvent.Mut.class, AdvanceTurnEvent.class);
-    EventKey<PostParticipantLeaveEvent.Mut, PostParticipantLeaveEvent> POST_PARTICIPANT_LEAVE_EVENT = new EventKey<>(PostParticipantLeaveEvent.Mut.class, PostParticipantLeaveEvent.class);
+    EventKey<PreParticipantJoinEvent.Mut, PreParticipantJoinEvent> PRE_PARTICIPANT_JOIN_EVENT = EventKey.get(PreParticipantJoinEvent.Mut.class, PreParticipantJoinEvent.class);
+    EventKey<PostParticipantJoinEvent.Mut, PostParticipantJoinEvent> POST_PARTICIPANT_JOIN_EVENT = EventKey.get(PostParticipantJoinEvent.Mut.class, PostParticipantJoinEvent.class);
+    EventKey<PreParticipantLeaveEvent.Mut, PreParticipantLeaveEvent> PRE_PARTICIPANT_LEAVE_EVENT = EventKey.get(PreParticipantLeaveEvent.Mut.class, PreParticipantLeaveEvent.class);
+    EventKey<AdvanceTurnEvent.Mut, AdvanceTurnEvent> ADVANCE_TURN_EVENT = EventKey.get(AdvanceTurnEvent.Mut.class, AdvanceTurnEvent.class);
+    EventKey<PostParticipantLeaveEvent.Mut, PostParticipantLeaveEvent> POST_PARTICIPANT_LEAVE_EVENT = EventKey.get(PostParticipantLeaveEvent.Mut.class, PostParticipantLeaveEvent.class);
 
     BattleHandle getHandle();
 

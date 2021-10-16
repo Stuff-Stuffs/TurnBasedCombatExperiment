@@ -5,7 +5,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.MutableEventHolder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.battle.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.turnchooser.TurnChooser;
@@ -26,7 +25,7 @@ public final class BattleState implements BattleStateView {
 
     public BattleState(final BattleHandle handle, final BattleBounds bounds) {
         eventMap = new EventMap();
-        registerEvents();
+        BattleEvents.setup(eventMap);
 
         this.handle = handle;
         this.bounds = bounds;
@@ -39,44 +38,6 @@ public final class BattleState implements BattleStateView {
     @Override
     public BattleHandle getHandle() {
         return handle;
-    }
-
-    private void registerEvents() {
-        eventMap.register(PRE_PARTICIPANT_JOIN_EVENT, new MutableEventHolder.BasicEventHolder<>(PRE_PARTICIPANT_JOIN_EVENT, view -> (battleState, participant) -> {
-            view.onParticipantJoin(battleState, participant);
-            return false;
-        }, events -> (battleState, participant) -> {
-            boolean canceled = false;
-            for (final PreParticipantJoinEvent.Mut event : events) {
-                canceled |= event.onParticipantJoin(battleState, participant);
-            }
-            return canceled;
-        }));
-        eventMap.register(POST_PARTICIPANT_JOIN_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_PARTICIPANT_JOIN_EVENT, view -> view::onParticipantJoin, events -> (battleState, participant) -> {
-            for (final PostParticipantJoinEvent.Mut event : events) {
-                event.onParticipantJoin(battleState, participant);
-            }
-        }));
-        eventMap.register(PRE_PARTICIPANT_LEAVE_EVENT, new MutableEventHolder.BasicEventHolder<>(PRE_PARTICIPANT_LEAVE_EVENT, view -> (battleState, participantState) -> {
-            view.onParticipantLeave(battleState, participantState);
-            return false;
-        }, events -> (battleState, participantState) -> {
-            boolean canceled = false;
-            for (final PreParticipantLeaveEvent.Mut event : events) {
-                canceled |= event.onParticipantLeave(battleState, participantState);
-            }
-            return canceled;
-        }));
-        eventMap.register(POST_PARTICIPANT_LEAVE_EVENT, new MutableEventHolder.BasicEventHolder<>(POST_PARTICIPANT_LEAVE_EVENT, view -> view::onParticipantLeave, events -> (battleState, participantState) -> {
-            for (final PostParticipantLeaveEvent.Mut event : events) {
-                event.onParticipantLeave(battleState, participantState);
-            }
-        }));
-        eventMap.register(ADVANCE_TURN_EVENT, new MutableEventHolder.BasicEventHolder<>(ADVANCE_TURN_EVENT, view -> view::onAdvanceTurn, events -> ((battleState, current) -> {
-            for (final AdvanceTurnEvent.Mut event : events) {
-                event.onAdvanceTurn(battleState, current);
-            }
-        })));
     }
 
     @Override

@@ -22,7 +22,7 @@ public interface MutableEventHolder<T, V> extends EventHolder<T, V> {
         private T invoker;
 
         public BasicEventHolder(final EventKey<T, V> key, final Function<Collection<T>, T> factory) {
-            clazz = key.type();
+            clazz = key.getType();
             this.factory = factory;
             viewConverter = null;
             events = new Int2ReferenceLinkedOpenHashMap<>();
@@ -31,7 +31,7 @@ public interface MutableEventHolder<T, V> extends EventHolder<T, V> {
 
         public BasicEventHolder(final EventKey<T, V> key, @Nullable final Function<V, T> viewConverter, final Function<Collection<T>, T> factory) {
             this.viewConverter = viewConverter;
-            clazz = key.type();
+            clazz = key.getType();
             events = new Int2ReferenceLinkedOpenHashMap<>();
             this.factory = factory;
             invoker = factory.apply(events.values());
@@ -86,7 +86,7 @@ public interface MutableEventHolder<T, V> extends EventHolder<T, V> {
 
         public SortedEventHolder(final EventKey<T, V> key, @Nullable final Function<V, T> viewConverter, final Function<Collection<T>, T> factory, final Comparator<? super T> comparator) {
             events = new Int2ReferenceLinkedOpenHashMap<>();
-            clazz = key.type();
+            clazz = key.getType();
             this.viewConverter = viewConverter;
             this.comparator = comparator;
             sorted = new ReferenceArrayList<>();
