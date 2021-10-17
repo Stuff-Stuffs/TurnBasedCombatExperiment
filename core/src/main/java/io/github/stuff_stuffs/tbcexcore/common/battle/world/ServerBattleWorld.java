@@ -4,8 +4,6 @@ import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.ParticipantJoinBattleAction;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexcore.common.network.PlayerJoinBattleSender;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
@@ -13,7 +11,6 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
@@ -90,7 +87,7 @@ public final class ServerBattleWorld implements BattleWorld {
     public void join(final BattleHandle handle, final BattleEntity entity) {
         final Battle battle = getBattle(handle);
         if (battle != null) {
-            battle.push(new ParticipantJoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(handle), new BattleParticipantState(new BattleParticipantHandle(handle, ((Entity) entity).getUuid()), entity)));
+            battle.push(ParticipantJoinBattleAction.create(entity, battle));
             if (entity instanceof BattleAwareEntity battleAware) {
                 battleAware.tbcex_setCurrentBattle(handle);
                 if (entity instanceof ServerPlayerEntity player) {

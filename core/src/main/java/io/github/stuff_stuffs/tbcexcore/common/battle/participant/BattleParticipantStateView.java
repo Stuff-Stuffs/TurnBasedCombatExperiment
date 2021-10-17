@@ -5,6 +5,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.*;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponentKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
@@ -57,4 +59,8 @@ public interface BattleParticipantStateView {
     Text getName();
 
     double getEnergy();
+
+    boolean hasComponent(ParticipantComponentKey<?, ?> key);
+
+    <View extends ParticipantComponent> @Nullable View getComponent(ParticipantComponentKey<?, View> key);
 }

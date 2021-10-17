@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import java.util.Map;
 
 public final class EventKey<Mut, View> {
-    private static final Map<Pair<Class<?>, Class<?>>, EventKey<?, ?>> cache = new Object2ReferenceOpenHashMap<>();
+    private static final Map<Pair<Class<?>, Class<?>>, EventKey<?, ?>> CACHE = new Object2ReferenceOpenHashMap<>();
     private final Class<Mut> type;
     private final Class<View> viewType;
 
@@ -29,6 +29,6 @@ public final class EventKey<Mut, View> {
     }
 
     public static <Mut, View> EventKey<Mut, View> get(final Class<Mut> mut, final Class<View> view) {
-        return (EventKey<Mut, View>) cache.computeIfAbsent(Pair.of(mut, view), pair -> new EventKey<>(pair.getFirst(), pair.getSecond()));
+        return (EventKey<Mut, View>) CACHE.computeIfAbsent(Pair.of(mut, view), pair -> new EventKey<>(pair.getFirst(), pair.getSecond()));
     }
 }

@@ -5,6 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantInfoComponent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantEquipmentItem;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
@@ -39,12 +41,17 @@ public final class ParticipantEquipAction extends BattleAction<ParticipantEquipA
             LoggerUtil.LOGGER.error("Cannot equip non equipment item {}", handle);
             return;
         }
-        if(participant.getEnergyTracker().use(energyCost)) {
-            if (!participant.equip(slot, itemStack)) {
+        final ParticipantInfoComponent component = participant.getMutComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if(component==null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        if(component.useEnergy(energyCost)) {
+            if (!component.equip(slot, itemStack)) {
                 LoggerUtil.LOGGER.error("Cannot equip equipment: {} onto participant {} in battle {}", handle, participant, state.getHandle());
                 return;
             }
-            participant.takeItems(handle, 1);
+            component.takeItems(handle, 1);
         }
     }
 

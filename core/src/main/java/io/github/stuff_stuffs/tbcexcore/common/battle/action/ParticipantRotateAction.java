@@ -5,6 +5,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantInfoComponent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantPosComponent;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalRotation;
 
 public final class ParticipantRotateAction extends BattleAction<ParticipantRotateAction> {
@@ -23,8 +26,14 @@ public final class ParticipantRotateAction extends BattleAction<ParticipantRotat
             //TODO
             throw new RuntimeException();
         }
-        if(participantState.getEnergyTracker().use(energyCost)) {
-            participantState.setFacing(rotation.rotate(participantState.getFacing()));
+        final ParticipantInfoComponent infoComponent = participantState.getMutComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        final ParticipantPosComponent posComponent = participantState.getMutComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
+        if (infoComponent == null || posComponent == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        if (infoComponent.useEnergy(energyCost)) {
+            posComponent.setFacing(rotation.rotate(participantState.getFacing()));
         }
     }
 

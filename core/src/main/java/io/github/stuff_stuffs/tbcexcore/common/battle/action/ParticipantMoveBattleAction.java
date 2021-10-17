@@ -6,6 +6,9 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantInfoComponent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantPosComponent;
 import io.github.stuff_stuffs.tbcexutil.common.path.Movement;
 import io.github.stuff_stuffs.tbcexutil.common.path.Path;
 
@@ -28,14 +31,20 @@ public final class ParticipantMoveBattleAction extends BattleAction<ParticipantM
         if (participant == null) {
             throw new RuntimeException();
         }
+        final ParticipantInfoComponent infoComponent = participant.getMutComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        final ParticipantPosComponent posComponent = participant.getMutComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
+        if (posComponent == null || infoComponent == null) {
+            //TODO
+            throw new RuntimeException();
+        }
         for (final Movement movement : path.getMovements()) {
             final boolean move = participant.getEvent(BattleParticipantStateView.PRE_MOVE_EVENT).invoker().onMove(participant, movement.getEndPos(), path);
             if (move) {
                 break;
             }
-            if (participant.getEnergyTracker().use(movement.getCost())) {
-                participant.setPos(movement.getEndPos());
-                participant.setFacing(movement.getRotation(movement.getLength()));
+            if (infoComponent.useEnergy(movement.getCost())) {
+                posComponent.setPos(movement.getEndPos());
+                posComponent.setFacing(movement.getRotation(movement.getLength()));
                 participant.getEvent(BattleParticipantStateView.POST_MOVE_EVENT).invoker().onMove(participant, path);
             } else {
                 return;

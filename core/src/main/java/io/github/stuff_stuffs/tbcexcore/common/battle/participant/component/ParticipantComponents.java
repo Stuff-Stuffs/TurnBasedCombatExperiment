@@ -1,0 +1,92 @@
+package io.github.stuff_stuffs.tbcexcore.common.battle.participant.component;
+
+import com.mojang.serialization.Codec;
+import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventory;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStats;
+import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
+import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
+import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
+import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.minecraft.entity.Entity;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
+public final class ParticipantComponents {
+    public static final Registry<Type<?, ?>> REGISTRY = FabricRegistryBuilder.createSimple((Class<Type<?, ?>>) (Object) Type.class, TurnBasedCombatExperiment.createId("participant_component")).buildAndRegister();
+
+    public static final Type<ParticipantPosComponent, ParticipantPosComponentView> POS_COMPONENT_TYPE = new Type<>((entity, battleStateView) -> {
+        final BlockPos pos = ((Entity) entity).getBlockPos();
+        final BattleParticipantBounds bounds = entity.getBounds().withCenter(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        Direction bestDir = Direction.NORTH;
+        double best = Double.NEGATIVE_INFINITY;
+        final Vec3d facingVec = ((Entity) entity).getRotationVec(1);
+        for (final Direction direction : Direction.values()) {
+            if (direction.getAxis() != Direction.Axis.Y) {
+                final double cur = new Vec3d(direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ()).dotProduct(facingVec);
+                if (cur > best) {
+                    bestDir = direction;
+                    best = cur;
+                }
+            }
+        }
+        final HorizontalDirection facing = HorizontalDirection.fromDirection(bestDir);
+        return new ParticipantPosComponent(pos, bounds, facing);
+    }, ParticipantPosComponent.CODEC, ParticipantComponentKey.get(ParticipantPosComponent.class, ParticipantPosComponentView.class), Set.of());
+
+    public static final Type<ParticipantInfoComponent, ParticipantInfoComponentView> INFO_COMPONENT_TYPE = new Type<>((entity, battleParticipantStateView) -> {
+        final Text name = ((Entity) entity).getDisplayName();
+        final BattleParticipantInventory inventory = new BattleParticipantInventory(entity);
+        final BattleParticipantStats stats = new BattleParticipantStats(entity);
+        final double health = entity.tbcex_getCurrentHealth();
+        return new ParticipantInfoComponent(name, inventory, stats, health);
+    }, ParticipantInfoComponent.CODEC, ParticipantComponentKey.get(ParticipantInfoComponent.class, ParticipantInfoComponentView.class), Set.of());
+
+    public static final class Type<Mut extends View, View extends ParticipantComponent> {
+        public final BiFunction<BattleEntity, BattleParticipantStateView, @Nullable Mut> extractor;
+        public final Codec<ParticipantComponent> codec;
+        public final ParticipantComponentKey<Mut, View> key;
+        public final Set<ParticipantComponentKey<?, ?>> requiredComponents;
+
+        public Type(final BiFunction<BattleEntity, BattleParticipantStateView, @Nullable Mut> extractor, final Codec<Mut> codec, final ParticipantComponentKey<Mut, View> key, final Set<ParticipantComponentKey<?, ?>> requiredComponents) {
+            this.extractor = extractor;
+            this.codec = codec.xmap(Function.identity(), component -> (Mut) component);
+            this.key = key;
+            this.requiredComponents = requiredComponents;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof Type<?, ?> type)) {
+                return false;
+            }
+
+            return key.equals(type.key);
+        }
+
+        @Override
+        public int hashCode() {
+            return key.hashCode();
+        }
+    }
+
+    private ParticipantComponents() {
+    }
+
+    public static void init() {
+        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("info"), INFO_COMPONENT_TYPE);
+        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("pos"), POS_COMPONENT_TYPE);
+    }
+}

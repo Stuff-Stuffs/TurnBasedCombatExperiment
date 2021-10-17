@@ -1,118 +1,118 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
-import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamagePacket;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.MutableEventHolder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventory;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStatModifier;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStatModifiers;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStats;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
-import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
-import net.minecraft.entity.Entity;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.stream.StreamSupport;
+import java.util.List;
+import java.util.Map;
 
 public final class BattleParticipantState implements BattleParticipantStateView {
     public static final Codec<BattleParticipantState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleParticipantHandle.CODEC.fieldOf("handle").forGetter(state -> state.handle),
             Team.CODEC.fieldOf("team").forGetter(state -> state.team),
-            BattleParticipantInventory.CODEC.fieldOf("inventory").forGetter(state -> state.inventory),
-            BattleParticipantStats.CODEC.fieldOf("stats").forGetter(state -> state.stats),
-            BattleParticipantBounds.CODEC.fieldOf("bounds").forGetter(state -> state.bounds),
-            Codec.DOUBLE.fieldOf("health").forGetter(state -> state.health),
-            BlockPos.CODEC.fieldOf("pos").forGetter(state -> state.pos),
-            HorizontalDirection.CODEC.fieldOf("facing").forGetter(state -> state.facing),
-            Codec.DOUBLE.fieldOf("energyRemaining").forGetter(state -> state.energyTracker.getEnergyRemaining()),
-            CodecUtil.TEXT_CODEC.fieldOf("name").forGetter(state -> state.name),
-            ParticipantRestoreData.CODEC.fieldOf("restoreData").forGetter(state -> state.restoreData)
+            ParticipantRestoreData.CODEC.fieldOf("restoreData").forGetter(state -> state.restoreData),
+            Codec.list(ParticipantComponent.CODEC).xmap(l -> {
+                Map<ParticipantComponents.Type<?, ?>, ParticipantComponent> components = new Reference2ReferenceOpenHashMap<>();
+                for (Pair<ParticipantComponents.Type<?, ?>, ParticipantComponent> pair : l) {
+                    components.put(pair.getFirst(), pair.getSecond());
+                }
+                return components;
+            }, BattleParticipantState::getComponentStream).fieldOf("components").forGetter(state -> state.componentsByType)
     ).apply(instance, BattleParticipantState::new));
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
     private final Team team;
-    private final BattleParticipantInventory inventory;
-    private final BattleParticipantStats stats;
-    private final EnergyTracker energyTracker;
-    private final Text name;
     private final ParticipantRestoreData restoreData;
-    private BattleParticipantBounds bounds;
-    private boolean valid = false;
-    private double health;
-    private HorizontalDirection facing;
-    private BlockPos pos;
+    private final Map<ParticipantComponents.Type<?, ?>, ParticipantComponent> componentsByType;
+    private final Map<ParticipantComponentKey<?, ?>, ParticipantComponent> componentsByKey;
+    private boolean valid;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final BattleParticipantBounds bounds, final double health, final BlockPos pos, final HorizontalDirection facing, final double energyRemaining, final Text name, final ParticipantRestoreData restoreData) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final ParticipantRestoreData restoreData, final Map<ParticipantComponents.Type<?, ?>, ParticipantComponent> componentsByType) {
         this.handle = handle;
         this.team = team;
-        this.bounds = bounds;
-        this.name = name;
         this.restoreData = restoreData;
+        this.componentsByType = componentsByType;
+        componentsByKey = new Reference2ReferenceOpenHashMap<>();
+        for (final Map.Entry<ParticipantComponents.Type<?, ?>, ParticipantComponent> entry : componentsByType.entrySet()) {
+            componentsByKey.put(entry.getKey().key, entry.getValue());
+        }
         eventMap = new EventMap();
-        BattleParticipantEvents.setup(eventMap);
-        this.inventory = inventory;
-        this.stats = stats;
-        this.health = health;
-        this.pos = pos;
-        this.facing = facing;
-        energyTracker = new EnergyTracker(this, energyRemaining);
+        valid = false;
     }
 
 
-    public BattleParticipantState(final BattleParticipantHandle handle, final BattleEntity entity) {
+    public BattleParticipantState(final BattleParticipantHandle handle, final BattleEntity entity, final BattleState battle) {
         this.handle = handle;
-        pos = ((Entity) entity).getBlockPos();
         team = entity.getTeam();
         restoreData = new ParticipantRestoreData(handle.battleId(), entity);
         eventMap = new EventMap();
+        valid = true;
+        battleState = battle;
+        componentsByKey = new Reference2ReferenceOpenHashMap<>();
+        componentsByType = new Reference2ReferenceOpenHashMap<>();
+        boolean lastAdded = true;
         BattleParticipantEvents.setup(eventMap);
-        inventory = new BattleParticipantInventory(entity);
-        stats = new BattleParticipantStats(entity);
-        bounds = entity.getBounds().withCenter(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-        health = entity.tbcex_getCurrentHealth();
-        Direction bestDir = Direction.NORTH;
-        double best = Double.NEGATIVE_INFINITY;
-        final Vec3d facingVec = ((Entity) entity).getRotationVec(1);
-        for (final Direction direction : Direction.values()) {
-            if (direction.getAxis() != Direction.Axis.Y) {
-                final double cur = new Vec3d(direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ()).dotProduct(facingVec);
-                if (cur > best) {
-                    bestDir = direction;
-                    best = cur;
+        while (lastAdded) {
+            lastAdded = false;
+            for (final ParticipantComponents.Type<?, ?> type : ParticipantComponents.REGISTRY) {
+                if(componentsByType.containsKey(type)) {
+                    continue;
+                }
+                boolean acceptable = true;
+                for (final ParticipantComponentKey<?, ?> key : type.requiredComponents) {
+                    if (!componentsByKey.containsKey(key)) {
+                        acceptable = false;
+                        break;
+                    }
+                }
+                if (acceptable) {
+                    final ParticipantComponent apply = type.extractor.apply(entity, this);
+                    if (apply != null) {
+                        componentsByType.put(type, apply);
+                        componentsByKey.put(type.key, apply);
+                        apply.init(this);
+                        lastAdded = true;
+                    }
                 }
             }
         }
-        facing = HorizontalDirection.fromDirection(bestDir);
-        energyTracker = new EnergyTracker(this, getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT));
-        name = ((Entity) entity).getDisplayName();
     }
 
     public void setBattleState(final BattleState battleState) {
-        if (this.battleState != null) {
-            throw new RuntimeException("Tried to set battle of participant already in battle");
+        if (!valid) {
+            if (this.battleState != null) {
+                throw new RuntimeException("Tried to set battle of participant already in battle");
+            }
+            BattleParticipantEvents.setup(eventMap);
+            this.battleState = battleState;
+            valid = true;
+            for (final ParticipantComponent component : componentsByKey.values()) {
+                component.init(this);
+            }
         }
-        this.battleState = battleState;
-        inventory.initEvents(this);
-        valid = true;
     }
 
     @Override
@@ -138,13 +138,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         return eventMap.get(key);
     }
 
-    public boolean equip(final BattleEquipmentSlot slot, final BattleParticipantItemStack equipment) {
-        if (!valid) {
-            throw new RuntimeException();
-        }
-        return inventory.equip(this, slot, equipment);
-    }
-
     @Override
     public Team getTeam() {
         if (!valid) {
@@ -163,142 +156,153 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     @Override
     public @Nullable BattleParticipantItemStack getItemStack(final BattleParticipantInventoryHandle handle) {
-        if (!valid) {
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
             throw new RuntimeException();
         }
-        if (handle.handle().equals(this.handle)) {
-            return inventory.get(handle.id());
-        } else {
-            throw new RuntimeException();
-        }
-    }
-
-    public BattleParticipantInventoryHandle giveItems(final BattleParticipantItemStack stack) {
-        if (!valid) {
-            throw new RuntimeException();
-        }
-        return new BattleParticipantInventoryHandle(handle, inventory.give(stack));
-    }
-
-    public @Nullable BattleParticipantItemStack takeItems(final BattleParticipantInventoryHandle handle, final int amount) {
-        if (!valid) {
-            throw new RuntimeException();
-        }
-        if (handle.handle().equals(this.handle)) {
-            return inventory.take(handle.id(), amount);
-        } else {
-            throw new RuntimeException();
-        }
-    }
-
-    @Override
-    public @Nullable BattleEquipment getEquipment(final BattleEquipmentSlot slot) {
-        return inventory.getEquipment(slot);
+        return component.getItemStack(handle);
     }
 
     @Override
     public @Nullable BattleParticipantItemStack getEquipmentStack(final BattleEquipmentSlot slot) {
-        return inventory.getEquipmentStack(slot);
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        return component.getEquipmentStack(slot);
     }
 
     @Override
     public Iterator<BattleParticipantInventoryHandle> getInventoryIterator() {
-        if (!valid) {
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
             throw new RuntimeException();
         }
-        return StreamSupport.stream(inventory.spliterator(), false).map(entry -> new BattleParticipantInventoryHandle(handle, entry.getIntKey())).iterator();
-    }
-
-    public BattleParticipantStatModifiers.Handle addStatModifier(final BattleParticipantStat stat, final BattleParticipantStatModifier modifier) {
-        if (!valid) {
-            throw new RuntimeException();
-        }
-        final BattleParticipantStatModifiers.Handle handle = stats.modify(stat, modifier);
-        final double maxHealth = stats.calculate(BattleParticipantStat.MAX_HEALTH_STAT, battleState, this);
-        if (maxHealth < 0) {
-            health = 0;
-        } else {
-            health = Math.min(health, maxHealth);
-        }
-        return handle;
+        return component.getInventoryIterator();
     }
 
     @Override
     public double getStat(final BattleParticipantStat stat) {
-        return stats.calculate(stat, battleState, this);
-    }
-
-    public void setPos(final BlockPos pos) {
-        if (!valid) {
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
             throw new RuntimeException();
         }
-        final BlockPos newPos = battleState.getBounds().getNearest(pos);
-        bounds = bounds.withCenter(newPos.getX() + 0.5, newPos.getY(), newPos.getZ() + 0.5);
-        this.pos = newPos;
-    }
-
-    public @Nullable BattleDamagePacket damage(final BattleDamagePacket packet) {
-        if (!valid) {
-            throw new RuntimeException();
-        }
-        final BattleDamagePacket processed = getEvent(PRE_DAMAGE_EVENT).invoker().onDamage(this, packet);
-        if (processed.getTotalDamage() > 0.0001) {
-            health -= processed.getTotalDamage();
-            health = Math.max(health, 0);
-            getEvent(POST_DAMAGE_EVENT).invoker().onDamage(this, packet);
-            return processed;
-        }
-        return null;
+        return component.getStat(stat);
     }
 
     @Override
     public double getHealth() {
-        return health;
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        return component.getHealth();
     }
 
     @Override
     public BlockPos getPos() {
-        return pos;
+        final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        return component.getPos();
+    }
+
+    @Override
+    public BattleEquipment getEquipment(final BattleEquipmentSlot slot) {
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        return component.getEquipment(slot);
     }
 
     @Override
     public HorizontalDirection getFacing() {
-        return facing;
-    }
-
-    public void setFacing(final HorizontalDirection facing) {
-        this.facing = facing;
+        final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        return component.getFacing();
     }
 
     @Override
     public BattleParticipantBounds getBounds() {
-        return getBounds(facing);
+        final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        return component.getBounds();
     }
 
     @Override
     public BattleParticipantBounds getBounds(final HorizontalDirection facing) {
-        return bounds.withRotation(facing);
+        final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        return component.getBounds(facing);
     }
 
     @Override
     public Text getName() {
-        return name;
-    }
-
-    public EnergyTracker getEnergyTracker() {
-        return energyTracker;
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        return component.getName();
     }
 
     @Override
     public double getEnergy() {
-        return energyTracker.getEnergyRemaining();
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        return component.getEnergy();
     }
 
     public void leave() {
         if (!valid) {
             throw new RuntimeException();
         }
+        for (final ParticipantComponent component : componentsByKey.values()) {
+            component.deinitEvents();
+        }
         valid = false;
-        inventory.uninitEvents();
+    }
+
+    @Override
+    public boolean hasComponent(final ParticipantComponentKey<?, ?> key) {
+        return componentsByKey.containsKey(key);
+    }
+
+    @Override
+    public <View extends ParticipantComponent> @Nullable View getComponent(final ParticipantComponentKey<?, View> key) {
+        return (View) componentsByKey.get(key);
+    }
+
+    public <Mut extends View, View extends ParticipantComponent> @Nullable Mut getMutComponent(final ParticipantComponentKey<Mut, View> key) {
+        return (Mut) componentsByKey.get(key);
+    }
+
+    private static List<Pair<ParticipantComponents.Type<?, ?>, ParticipantComponent>> getComponentStream(final Map<ParticipantComponents.Type<?, ?>, ParticipantComponent> map) {
+        final List<Pair<ParticipantComponents.Type<?, ?>, ParticipantComponent>> componentList = new ArrayList<>(map.size());
+        for (final Map.Entry<ParticipantComponents.Type<?, ?>, ParticipantComponent> entry : map.entrySet()) {
+            componentList.add(Pair.of(entry.getKey(), entry.getValue()));
+        }
+        return componentList;
     }
 }

@@ -162,7 +162,7 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         equipmentState.initEvents(state);
     }
 
-    public void uninitEvents() {
+    public void deinitEvents() {
         equipmentState.uninitEvents();
     }
 }

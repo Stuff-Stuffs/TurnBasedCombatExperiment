@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.common;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleActionRegistry;
 import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamageType;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexcore.common.network.Network;
@@ -25,5 +26,6 @@ public class TurnBasedCombatExperiment implements ModInitializer {
         BattleActionRegistry.init();
         BattleParticipantStat.init();
         BattleEquipmentSlot.init();
+        ParticipantComponents.init();
     }
 }

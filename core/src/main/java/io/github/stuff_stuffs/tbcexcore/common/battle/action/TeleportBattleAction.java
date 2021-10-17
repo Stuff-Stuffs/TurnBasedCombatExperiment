@@ -5,6 +5,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantInfoComponent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantPosComponent;
 import net.minecraft.util.math.BlockPos;
 
 public final class TeleportBattleAction extends BattleAction<TeleportBattleAction> {
@@ -29,8 +32,14 @@ public final class TeleportBattleAction extends BattleAction<TeleportBattleActio
         if (participant == null) {
             throw new RuntimeException();
         }
-        if(participant.getEnergyTracker().use(energyCost)) {
-            participant.setPos(pos);
+        final ParticipantInfoComponent infoComponent = participant.getMutComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        final ParticipantPosComponent posComponent = participant.getMutComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
+        if (infoComponent == null || posComponent == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        if (infoComponent.useEnergy(energyCost)) {
+            posComponent.setPos(pos);
         }
     }
 

@@ -2,10 +2,13 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.action;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
+import net.minecraft.entity.Entity;
 
 public final class ParticipantJoinBattleAction extends BattleAction<ParticipantJoinBattleAction> {
     public static final Codec<ParticipantJoinBattleAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -31,5 +34,11 @@ public final class ParticipantJoinBattleAction extends BattleAction<ParticipantJ
     @Override
     public BattleActionRegistry.Type<ParticipantJoinBattleAction> getType() {
         return BattleActionRegistry.PARTICIPANT_JOIN_BATTLE_ACTION;
+    }
+
+    public static BattleAction<?> create(BattleEntity entity, Battle battle) {
+        BattleParticipantHandle handle = new BattleParticipantHandle(battle.getHandle(), ((Entity)entity).getUuid());
+        BattleParticipantState state = new BattleParticipantState(handle, entity, (BattleState) battle.getState());
+        return new ParticipantJoinBattleAction(BattleParticipantHandle.UNIVERSAL.apply(battle.getHandle()), state);
     }
 }

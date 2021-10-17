@@ -7,6 +7,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.MutableEventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantPosComponent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.turnchooser.TurnChooser;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -49,7 +51,12 @@ public final class BattleState implements BattleStateView {
         if (!state.getHandle().battleId().equals(handle)) {
             throw new RuntimeException();
         }
-        state.setPos(bounds.getNearest(state.getPos()));
+        final ParticipantPosComponent posComponent = state.getMutComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
+        if (posComponent == null) {
+            //TODO
+            throw new RuntimeException();
+        }
+        posComponent.setPos(bounds.getNearest(state.getPos()));
         if (participants.containsKey(state.getHandle())) {
             throw new RuntimeException("Duplicate handles attempted to join battle");
         }
@@ -83,11 +90,6 @@ public final class BattleState implements BattleStateView {
     public void advanceTurn() {
         if (turnChooser.valid()) {
             turnChooser.advance();
-            final BattleParticipantState state = participants.get(turnChooser.getCurrentTurn());
-            if (state == null) {
-                throw new RuntimeException();
-            }
-            state.getEnergyTracker().reset();
             getEvent(ADVANCE_TURN_EVENT).invoker().onAdvanceTurn(this, turnChooser.getCurrentTurn());
         }
     }
