@@ -9,7 +9,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.MutableEventHolder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventory;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
@@ -44,7 +43,8 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             BlockPos.CODEC.fieldOf("pos").forGetter(state -> state.pos),
             HorizontalDirection.CODEC.fieldOf("facing").forGetter(state -> state.facing),
             Codec.DOUBLE.fieldOf("energyRemaining").forGetter(state -> state.energyTracker.getEnergyRemaining()),
-            CodecUtil.TEXT_CODEC.fieldOf("name").forGetter(state -> state.name)
+            CodecUtil.TEXT_CODEC.fieldOf("name").forGetter(state -> state.name),
+            ParticipantRestoreData.CODEC.fieldOf("restoreData").forGetter(state -> state.restoreData)
     ).apply(instance, BattleParticipantState::new));
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
@@ -53,6 +53,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private final BattleParticipantStats stats;
     private final EnergyTracker energyTracker;
     private final Text name;
+    private final ParticipantRestoreData restoreData;
     private BattleParticipantBounds bounds;
     private boolean valid = false;
     private double health;
@@ -60,11 +61,12 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private BlockPos pos;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final BattleParticipantBounds bounds, final double health, final BlockPos pos, final HorizontalDirection facing, final double energyRemaining, final Text name) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final BattleParticipantBounds bounds, final double health, final BlockPos pos, final HorizontalDirection facing, final double energyRemaining, final Text name, final ParticipantRestoreData restoreData) {
         this.handle = handle;
         this.team = team;
         this.bounds = bounds;
         this.name = name;
+        this.restoreData = restoreData;
         eventMap = new EventMap();
         BattleParticipantEvents.setup(eventMap);
         this.inventory = inventory;
@@ -80,6 +82,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         this.handle = handle;
         pos = ((Entity) entity).getBlockPos();
         team = entity.getTeam();
+        restoreData = new ParticipantRestoreData(handle.battleId(), entity);
         eventMap = new EventMap();
         BattleParticipantEvents.setup(eventMap);
         inventory = new BattleParticipantInventory(entity);

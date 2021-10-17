@@ -9,7 +9,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexcore.common.network.PlayerJoinBattleSender;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
-import it.unimi.dsi.fastutil.bytes.ByteArrays;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -31,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -63,13 +61,13 @@ public final class ServerBattleWorld implements BattleWorld {
             throw new RuntimeException("Cannot create tbcex_battle_world directory or already exists as file");
         }
         metaFile = directory.resolve("central.tbcex_battle_meta");
-        if(Files.isRegularFile(metaFile)) {
-            try(InputStream metaStream = Files.newInputStream(metaFile, StandardOpenOption.READ)) {
-                ByteBuffer buffer = ByteBuffer.allocate(256);
+        if (Files.isRegularFile(metaFile)) {
+            try (final InputStream metaStream = Files.newInputStream(metaFile, StandardOpenOption.READ)) {
+                final ByteBuffer buffer = ByteBuffer.allocate(256);
                 buffer.put(metaStream.readAllBytes());
                 buffer.position(0);
                 nextId = buffer.getInt();
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
             }
         } else {
@@ -133,11 +131,11 @@ public final class ServerBattleWorld implements BattleWorld {
         for (final BattleHandle handle : activeBattles.keySet()) {
             save(handle);
         }
-        try(OutputStream metaStream = Files.newOutputStream(metaFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
-            ByteBuffer buffer = ByteBuffer.allocate(256);
+        try (final OutputStream metaStream = Files.newOutputStream(metaFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            final ByteBuffer buffer = ByteBuffer.allocate(256);
             buffer.putInt(nextId);
             metaStream.write(buffer.array());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             //TODO
             throw new RuntimeException();
         }
@@ -191,7 +189,7 @@ public final class ServerBattleWorld implements BattleWorld {
                 metaStream.write(VERSION.getBytes(StandardCharsets.UTF_8));
                 Battle.CODEC.encodeStart(NbtOps.INSTANCE, battle).result().ifPresentOrElse(element -> {
                     try {
-                        NbtCompound nbtCompound = new NbtCompound();
+                        final NbtCompound nbtCompound = new NbtCompound();
                         nbtCompound.put("data", element);
                         NbtIo.writeCompressed(nbtCompound, battleStream);
                     } catch (final IOException e) {
