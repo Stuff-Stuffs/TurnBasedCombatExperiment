@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant;
 
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
@@ -12,6 +11,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import net.minecraft.text.Text;
@@ -27,6 +27,7 @@ public interface BattleParticipantStateView {
     EventKey<PostDamageEvent.Mut, PostDamageEvent> POST_DAMAGE_EVENT = EventKey.get(PostDamageEvent.Mut.class, PostDamageEvent.class);
     EventKey<PreMoveEvent.Mut, PreMoveEvent> PRE_MOVE_EVENT = EventKey.get(PreMoveEvent.Mut.class, PreMoveEvent.class);
     EventKey<PostMoveEvent.Mut, PostMoveEvent> POST_MOVE_EVENT = EventKey.get(PostMoveEvent.Mut.class, PostMoveEvent.class);
+    EventKey<DeathEvent.Mut, DeathEvent> DEATH_EVENT = EventKey.get(DeathEvent.Mut.class, DeathEvent.class);
 
     BattleStateView getBattleState();
 

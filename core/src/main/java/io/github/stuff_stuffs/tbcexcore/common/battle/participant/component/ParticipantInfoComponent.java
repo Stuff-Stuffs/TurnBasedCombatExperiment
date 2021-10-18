@@ -2,7 +2,6 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamagePacket;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventListenerHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
@@ -16,6 +15,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattlePa
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStatModifier;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStatModifiers;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStats;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -143,10 +143,14 @@ public final class ParticipantInfoComponent extends AbstractParticipantComponent
 
     public @Nullable BattleDamagePacket damage(final BattleDamagePacket packet) {
         final BattleDamagePacket processed = state.getEvent(BattleParticipantStateView.PRE_DAMAGE_EVENT).invoker().onDamage(state, packet);
-        if (processed.getTotalDamage() > 0.0001) {
+        if (processed.getTotalDamage() > 0) {
             health -= processed.getTotalDamage();
             health = Math.max(health, 0);
             state.getEvent(BattleParticipantStateView.POST_DAMAGE_EVENT).invoker().onDamage(state, packet);
+            if (health == 0) {
+                state.getEvent(BattleParticipantStateView.DEATH_EVENT).invoker().onDeath(state);
+                state.getBattleState().leave(state.getHandle());
+            }
             return processed;
         }
         return null;
