@@ -6,7 +6,7 @@
   "description": "",
   "authors": [],
   "contact": {},
-  "license": "MIT",
+  "license": "LGPL-3.0",
   "icon": "assets/TurnBasedCombatExperiment/icon.png",
   "environment": "*",
   "depends": {
