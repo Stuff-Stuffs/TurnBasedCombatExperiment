@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.turnchooser;
 
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 
 import java.util.ArrayList;

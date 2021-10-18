@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
 import io.github.stuff_stuffs.tbcexcore.client.gui.BattleActionScreen;
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;

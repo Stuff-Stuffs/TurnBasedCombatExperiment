@@ -30,11 +30,12 @@ public interface BattleEntity {
 
     @Nullable ItemStack tbcex_getEquipped(BattleEquipmentSlot slot);
 
-    default boolean onBattleJoin(final BattleHandle handle) {
+    boolean tbcex_shouldSaveToTag();
+
+    default void onBattleJoin(final BattleHandle handle) {
         ((Entity) this).remove(Entity.RemovalReason.DISCARDED);
-        return true;
     }
 
-    default void onBattleEnd(final BattleTimelineView actions) {
+    default void onBattleEnd(final BattleHandle handle) {
     }
 }

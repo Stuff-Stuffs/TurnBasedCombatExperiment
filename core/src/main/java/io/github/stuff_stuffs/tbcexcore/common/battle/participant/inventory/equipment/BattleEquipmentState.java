@@ -42,7 +42,7 @@ public final class BattleEquipmentState {
                 map.remove(slot);
             }
             if (old != null) {
-                old.uninitEvents();
+                old.deinitEvents();
             }
             state.getEvent(BattleParticipantStateView.POST_EQUIPMENT_CHANGE_EVENT).invoker().onEquipmentChange(state, slot, old, equipment);
             return true;
@@ -64,9 +64,9 @@ public final class BattleEquipmentState {
         }
     }
 
-    public void uninitEvents() {
+    public void deinitEvents() {
         for (final BattleEquipment equipment : map.values()) {
-            equipment.uninitEvents();
+            equipment.deinitEvents();
         }
     }
 }

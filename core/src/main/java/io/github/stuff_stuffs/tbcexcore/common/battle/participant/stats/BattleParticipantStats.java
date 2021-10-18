@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats;
 
 import com.mojang.serialization.Codec;
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import it.unimi.dsi.fastutil.objects.Reference2DoubleMap;

@@ -3,7 +3,7 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
@@ -32,7 +32,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public static final Codec<BattleParticipantState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleParticipantHandle.CODEC.fieldOf("handle").forGetter(state -> state.handle),
             Team.CODEC.fieldOf("team").forGetter(state -> state.team),
-            ParticipantRestoreData.CODEC.fieldOf("restoreData").forGetter(state -> state.restoreData),
             Codec.list(ParticipantComponent.CODEC).xmap(l -> {
                 Map<ParticipantComponents.Type<?, ?>, ParticipantComponent> components = new Reference2ReferenceOpenHashMap<>();
                 for (Pair<ParticipantComponents.Type<?, ?>, ParticipantComponent> pair : l) {
@@ -44,16 +43,14 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     private final EventMap eventMap;
     private final BattleParticipantHandle handle;
     private final Team team;
-    private final ParticipantRestoreData restoreData;
     private final Map<ParticipantComponents.Type<?, ?>, ParticipantComponent> componentsByType;
     private final Map<ParticipantComponentKey<?, ?>, ParticipantComponent> componentsByKey;
     private boolean valid;
     private BattleState battleState;
 
-    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final ParticipantRestoreData restoreData, final Map<ParticipantComponents.Type<?, ?>, ParticipantComponent> componentsByType) {
+    private BattleParticipantState(final BattleParticipantHandle handle, final Team team, final Map<ParticipantComponents.Type<?, ?>, ParticipantComponent> componentsByType) {
         this.handle = handle;
         this.team = team;
-        this.restoreData = restoreData;
         this.componentsByType = componentsByType;
         componentsByKey = new Reference2ReferenceOpenHashMap<>();
         for (final Map.Entry<ParticipantComponents.Type<?, ?>, ParticipantComponent> entry : componentsByType.entrySet()) {
@@ -67,7 +64,6 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public BattleParticipantState(final BattleParticipantHandle handle, final BattleEntity entity, final BattleState battle) {
         this.handle = handle;
         team = entity.getTeam();
-        restoreData = new ParticipantRestoreData(handle.battleId(), entity);
         eventMap = new EventMap();
         valid = true;
         battleState = battle;

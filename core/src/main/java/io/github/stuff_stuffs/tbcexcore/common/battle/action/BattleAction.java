@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.action;
 
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 
 public abstract class BattleAction<SELF extends BattleAction<SELF>> {

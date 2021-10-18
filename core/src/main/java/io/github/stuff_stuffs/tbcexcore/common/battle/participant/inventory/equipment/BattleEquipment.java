@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment;
 
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
@@ -20,7 +20,7 @@ public interface BattleEquipment {
 
     void initEvents(BattleParticipantState state);
 
-    void uninitEvents();
+    void deinitEvents();
 
     BattleEquipmentType getType();
 }

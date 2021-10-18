@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -17,6 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -50,6 +52,15 @@ public final class ParticipantComponents {
         final double health = entity.tbcex_getCurrentHealth();
         return new ParticipantInfoComponent(name, inventory, stats, health);
     }, ParticipantInfoComponent.CODEC, ParticipantComponentKey.get(ParticipantInfoComponent.class, ParticipantInfoComponentView.class), Set.of());
+
+    public static final Type<ParticipantRestoreComponent, ParticipantRestoreComponent> RESTORE_COMPONENT_TYPE = new Type<>((entity, battleParticipantStateView) -> {
+        if (entity.tbcex_shouldSaveToTag()) {
+            NbtCompound compound = new NbtCompound();
+            ((Entity) entity).saveNbt(compound);
+            return new ParticipantRestoreComponent(Optional.of(compound), ((Entity) entity).getPos());
+        }
+        return new ParticipantRestoreComponent(Optional.empty(), ((Entity) entity).getPos());
+    }, ParticipantRestoreComponent.CODEC, ParticipantComponentKey.get(ParticipantRestoreComponent.class, ParticipantRestoreComponent.class), Set.of());
 
     public static final class Type<Mut extends View, View extends ParticipantComponent> {
         public final BiFunction<BattleEntity, BattleParticipantStateView, @Nullable Mut> extractor;
@@ -88,5 +99,6 @@ public final class ParticipantComponents {
     public static void init() {
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("info"), INFO_COMPONENT_TYPE);
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("pos"), POS_COMPONENT_TYPE);
+        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("restore"), RESTORE_COMPONENT_TYPE);
     }
 }

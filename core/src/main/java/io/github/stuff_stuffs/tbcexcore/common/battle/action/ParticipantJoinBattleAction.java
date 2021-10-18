@@ -3,7 +3,7 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.action;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;

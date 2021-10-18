@@ -5,6 +5,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamageType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComponents;
 import io.github.stuff_stuffs.tbcexcore.common.network.Network;
 import io.github.stuff_stuffs.tbcexutil.common.LoggerUtil;
 import net.fabricmc.api.ModInitializer;
@@ -27,5 +28,6 @@ public class TurnBasedCombatExperiment implements ModInitializer {
         BattleParticipantStat.init();
         BattleEquipmentSlot.init();
         ParticipantComponents.init();
+        BattleComponents.init();
     }
 }

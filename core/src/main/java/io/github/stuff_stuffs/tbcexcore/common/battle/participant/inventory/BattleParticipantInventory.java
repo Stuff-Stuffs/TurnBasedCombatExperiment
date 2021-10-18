@@ -29,9 +29,9 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
     private final Map<BattleEquipmentSlot, BattleParticipantItemStack> equipment;
     private final BattleEquipmentState equipmentState;
 
-    private BattleParticipantInventory(final Map<String, BattleParticipantItemStack> map, final Map<BattleEquipmentSlot, BattleParticipantItemStack> equipment, BattleEquipmentState equipmentState) {
+    private BattleParticipantInventory(final Map<String, BattleParticipantItemStack> map, final Map<BattleEquipmentSlot, BattleParticipantItemStack> equipment, final BattleEquipmentState equipmentState) {
         stacks = new Int2ReferenceOpenHashMap<>(map.size());
-        for (Map.Entry<String, BattleParticipantItemStack> entry : map.entrySet()) {
+        for (final Map.Entry<String, BattleParticipantItemStack> entry : map.entrySet()) {
             stacks.put(Integer.parseInt(entry.getKey(), 16), entry.getValue());
         }
         this.equipment = new Reference2ObjectOpenHashMap<>(equipment);
@@ -46,24 +46,24 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
                 giveStack(battleItem.toBattleItem(itemStack));
             }
         }
+        equipmentState = new BattleEquipmentState(entity);
         for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
             final ItemStack itemStack = entity.tbcex_getEquipped(slot);
-            if (itemStack!=null && itemStack.getItem() instanceof BattleItem battleItem) {
+            if (itemStack != null && itemStack.getItem() instanceof BattleItem battleItem) {
                 equipment.put(slot, battleItem.toBattleItem(itemStack));
             }
         }
-        equipmentState = new BattleEquipmentState(entity);
     }
 
     private Map<String, BattleParticipantItemStack> createStackMap() {
-        Map<String, BattleParticipantItemStack> stackMap = new Object2ObjectOpenHashMap<>(stacks.size());
-        for (Int2ReferenceMap.Entry<BattleParticipantItemStack> entry : stacks.int2ReferenceEntrySet()) {
+        final Map<String, BattleParticipantItemStack> stackMap = new Object2ObjectOpenHashMap<>(stacks.size());
+        for (final Int2ReferenceMap.Entry<BattleParticipantItemStack> entry : stacks.int2ReferenceEntrySet()) {
             stackMap.put(Integer.toString(entry.getIntKey(), 16), entry.getValue());
         }
         return stackMap;
     }
 
-    private void giveStack(BattleParticipantItemStack stack) {
+    private void giveStack(final BattleParticipantItemStack stack) {
         int i = 0;
         while (true) {
             if (!stacks.containsKey(i)) {
@@ -154,15 +154,24 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         return equipmentState.get(slot);
     }
 
-    public @Nullable BattleParticipantItemStack getEquipmentStack(BattleEquipmentSlot slot) {
+    public @Nullable BattleParticipantItemStack getEquipmentStack(final BattleEquipmentSlot slot) {
         return equipment.get(slot);
     }
 
-    public void initEvents(BattleParticipantState state) {
+    public void initEvents(final BattleParticipantState state) {
+        for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
+            final BattleParticipantItemStack stack = equipment.get(slot);
+            if (stack.getItem() instanceof BattleParticipantEquipmentItem equipmentItem) {
+                final BattleEquipment instance = equipmentItem.createEquipmentInstance(stack);
+                if (instance.validSlot(slot)) {
+                    equipmentState.equip(state, slot, instance);
+                }
+            }
+        }
         equipmentState.initEvents(state);
     }
 
     public void deinitEvents() {
-        equipmentState.uninitEvents();
+        equipmentState.deinitEvents();
     }
 }

@@ -1,6 +1,7 @@
-package io.github.stuff_stuffs.tbcexcore.common.battle;
+package io.github.stuff_stuffs.tbcexcore.common.battle.state;
 
 import com.google.common.collect.Iterators;
+import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
@@ -9,9 +10,14 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantPosComponent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComponent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComponentKey;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComponents;
 import io.github.stuff_stuffs.tbcexcore.common.battle.turnchooser.TurnChooser;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -23,7 +29,10 @@ public final class BattleState implements BattleStateView {
     private final EventMap eventMap;
     private final BattleBounds bounds;
     private final TurnChooser turnChooser;
+    private final Map<BattleComponents.Type<?, ?>, BattleComponent> componentsByType;
+    private final Map<BattleComponentKey<?, ?>, BattleComponent> componentsByKey;
     private boolean ended;
+    private World world;
 
     public BattleState(final BattleHandle handle, final BattleBounds bounds) {
         eventMap = new EventMap();
@@ -35,6 +44,34 @@ public final class BattleState implements BattleStateView {
         ended = false;
 
         turnChooser = new TurnChooser(this);
+
+        componentsByKey = new Reference2ReferenceOpenHashMap<>();
+        componentsByType = new Reference2ReferenceOpenHashMap<>();
+        boolean lastAdded = true;
+        while (lastAdded) {
+            lastAdded = false;
+            for (final BattleComponents.Type<?, ?> type : BattleComponents.REGISTRY) {
+                if (componentsByType.containsKey(type)) {
+                    continue;
+                }
+                boolean acceptable = true;
+                for (final BattleComponentKey<?, ?> key : type.requiredComponents) {
+                    if (!componentsByKey.containsKey(key)) {
+                        acceptable = false;
+                        break;
+                    }
+                }
+                if (acceptable) {
+                    final BattleComponent apply = type.extractor.apply(this);
+                    if (apply != null) {
+                        componentsByType.put(type, apply);
+                        componentsByKey.put(type.key, apply);
+                        apply.init(this);
+                        lastAdded = true;
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -109,6 +146,15 @@ public final class BattleState implements BattleStateView {
     }
 
     @Override
+    public <View extends BattleComponent> @Nullable View getComponent(final BattleComponentKey<?, View> key) {
+        return (View) componentsByKey.get(key);
+    }
+
+    public <Mut extends View, View extends BattleComponent> @Nullable Mut getMutComponent(final BattleComponentKey<Mut, View> key) {
+        return (Mut) componentsByKey.get(key);
+    }
+
+    @Override
     public BattleBounds getBounds() {
         return bounds;
     }
@@ -116,5 +162,13 @@ public final class BattleState implements BattleStateView {
     @Override
     public Iterator<BattleParticipantHandle> getParticipants() {
         return Iterators.unmodifiableIterator(participants.keySet().iterator());
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
+    }
+
+    public World getWorld() {
+        return world;
     }
 }

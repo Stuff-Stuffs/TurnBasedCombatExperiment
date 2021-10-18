@@ -6,7 +6,10 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.EndTurnBattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.battle.AdvanceTurnEvent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
+import net.minecraft.world.World;
 
 import java.util.List;
 
@@ -20,6 +23,7 @@ public final class Battle implements AdvanceTurnEvent {
     private final BattleHandle handle;
     private final BattleTimeline timeline;
     private final BattleBounds bounds;
+    private World world;
     private TurnTimer timer;
 
     private Battle(final BattleHandle handle, final BattleTimeline timeline, final BattleBounds bounds) {
@@ -37,6 +41,11 @@ public final class Battle implements AdvanceTurnEvent {
         state = createState(handle, bounds, turnTimerRemaining, turnTimerMax);
         this.bounds = bounds;
         timeline = new BattleTimeline();
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
+        state.setWorld(world);
     }
 
     public BattleHandle getHandle() {

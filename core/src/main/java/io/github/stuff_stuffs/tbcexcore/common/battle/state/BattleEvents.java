@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexcore.common.battle;
+package io.github.stuff_stuffs.tbcexcore.common.battle.state;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;

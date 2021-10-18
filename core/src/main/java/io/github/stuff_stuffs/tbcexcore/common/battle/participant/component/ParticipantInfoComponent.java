@@ -2,7 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamagePacket;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventListenerHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;

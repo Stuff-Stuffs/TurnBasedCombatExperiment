@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleParticipantItemRenderer;
 import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
 import io.github.stuff_stuffs.tbcexcore.client.util.ItemStackInfo;
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;

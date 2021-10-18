@@ -113,7 +113,6 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
     }
 
     @Override
-    public boolean onBattleJoin(final BattleHandle handle) {
-        return false;
+    public void onBattleJoin(final BattleHandle handle) {
     }
 }
