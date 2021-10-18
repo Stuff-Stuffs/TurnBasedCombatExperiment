@@ -59,6 +59,7 @@ public final class ParticipantComponents {
             ((Entity) entity).saveNbt(compound);
             return new ParticipantRestoreComponent(Optional.of(compound), ((Entity) entity).getPos());
         }
+        entity.onBattleJoin(battleParticipantStateView.getBattleState().getHandle());
         return new ParticipantRestoreComponent(Optional.empty(), ((Entity) entity).getPos());
     }, ParticipantRestoreComponent.CODEC, ParticipantComponentKey.get(ParticipantRestoreComponent.class, ParticipantRestoreComponent.class), Set.of());
 
