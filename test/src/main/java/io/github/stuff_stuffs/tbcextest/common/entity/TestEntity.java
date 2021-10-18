@@ -141,4 +141,9 @@ public class TestEntity extends LivingEntity implements BattleEntity {
     public @Nullable ItemStack tbcex_getEquipped(final BattleEquipmentSlot slot) {
         return null;
     }
+
+    @Override
+    public boolean tbcex_shouldSaveToTag() {
+        return true;
+    }
 }

@@ -6,7 +6,8 @@
   "mixins": [
   ],
   "client": [
-    "AccessorGameRenderer"
+    "AccessorGameRenderer",
+    "MixinKeyBindingRegistryImpl"
   ],
   "injectors": {
     "defaultRequire": 1
