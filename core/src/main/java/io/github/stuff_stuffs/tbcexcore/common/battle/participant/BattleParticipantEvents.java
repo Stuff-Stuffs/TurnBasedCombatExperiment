@@ -1,5 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
@@ -8,18 +10,21 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.event.MutableEventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.participant.*;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.chunk.BiMapPalette;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
 public final class BattleParticipantEvents {
     private static final Map<Identifier, Pair<EventKey<?, ?>, EventFactory<?, ?>>> EVENT_FACTORIES = new Object2ReferenceOpenHashMap<>();
+    private static final BiMap<Identifier, EventKey<?,?>> IDENTIFIER_EVENT_MAPPING = HashBiMap.create();
 
     public static <View, Mut> void register(final Identifier id, final EventKey<Mut, View> key, final EventFactory<Mut, View> factory) {
-        if (EVENT_FACTORIES.put(id, Pair.of(key, factory)) != null) {
+        if (IDENTIFIER_EVENT_MAPPING.put(id, key) != null) {
             //TODO
             throw new RuntimeException();
         }
+        EVENT_FACTORIES.put(id, Pair.of(key, factory));
     }
 
     public static @Nullable EventKey<?, ?> getKey(final Identifier id) {

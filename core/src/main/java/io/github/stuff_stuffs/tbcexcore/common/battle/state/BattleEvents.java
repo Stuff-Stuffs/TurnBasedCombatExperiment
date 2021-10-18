@@ -1,5 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.state;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
@@ -13,12 +15,14 @@ import java.util.Map;
 
 public final class BattleEvents {
     private static final Map<Identifier, Pair<EventKey<?, ?>, Factory<?, ?>>> EVENT_FACTORIES = new Object2ReferenceOpenHashMap<>();
+    private static final BiMap<Identifier, EventKey<?, ?>> IDENTIFIER_EVENT_MAPPING = HashBiMap.create();
 
     public static <Mut, View> void register(final Identifier id, final EventKey<Mut, View> key, final Factory<Mut, View> factory) {
-        if (EVENT_FACTORIES.put(id, Pair.of(key, factory)) != null) {
+        if (IDENTIFIER_EVENT_MAPPING.put(id, key) != null) {
             //TODO
             throw new RuntimeException();
         }
+        EVENT_FACTORIES.put(id, Pair.of(key, factory));
     }
 
     public static EventKey<?, ?> getKey(final Identifier id) {
