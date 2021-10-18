@@ -70,12 +70,8 @@ public class BattleHudEnergyWidget extends AbstractWidget {
             return;
         }
         if (handle.equals(battle.getState().getCurrentTurn())) {
-            final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
-            if (participant == null) {
-                return;
-            }
-            final double percent = Math.min(participant.getEnergy() / participant.getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT), 1);
-            final double percentPartial = Math.min(Math.max(participant.getEnergy() - context.getPotentialActionCost(), 0) / participant.getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT), 1);
+            final double percent = Math.min(context.getEnergy() / context.getMaxEnergy(), 1);
+            final double percentPartial = Math.min(Math.max(context.getEnergy() - context.getPotentialActionCost(), 0) / context.getMaxEnergy(), 1);
             final Colour colour = new HsvColour((float) MathHelper.lerp(percent, 0, 244),1,1);
 
             final Colour colourPartial = new HsvColour((float) MathHelper.lerp(percentPartial, 0, 244),1,1);

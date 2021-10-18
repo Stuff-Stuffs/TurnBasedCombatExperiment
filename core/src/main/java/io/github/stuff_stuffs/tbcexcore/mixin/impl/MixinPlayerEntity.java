@@ -115,4 +115,9 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
     @Override
     public void onBattleJoin(final BattleHandle handle) {
     }
+
+    @Override
+    public boolean tbcex_shouldSaveToTag() {
+        return false;
+    }
 }

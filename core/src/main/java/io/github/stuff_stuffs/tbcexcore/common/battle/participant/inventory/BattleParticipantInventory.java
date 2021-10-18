@@ -161,7 +161,7 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
     public void initEvents(final BattleParticipantState state) {
         for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
             final BattleParticipantItemStack stack = equipment.get(slot);
-            if (stack.getItem() instanceof BattleParticipantEquipmentItem equipmentItem) {
+            if (stack!=null && stack.getItem() instanceof BattleParticipantEquipmentItem equipmentItem) {
                 final BattleEquipment instance = equipmentItem.createEquipmentInstance(stack);
                 if (instance.validSlot(slot)) {
                     equipmentState.equip(state, slot, instance);

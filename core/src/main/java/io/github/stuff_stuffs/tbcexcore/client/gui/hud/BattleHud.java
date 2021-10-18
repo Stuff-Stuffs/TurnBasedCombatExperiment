@@ -2,8 +2,12 @@ package io.github.stuff_stuffs.tbcexcore.client.gui.hud;
 
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.hud.BattleHudCurrentTurnWidget;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.hud.BattleHudEnergyWidget;
+import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
+import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.hud.TBCExHud;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
@@ -38,7 +42,7 @@ public final class BattleHud extends TBCExHud {
         context.setPotentialActionCost(0);
     }
 
-    private static final class ContextImpl implements BattleHudContext {
+    private final class ContextImpl implements BattleHudContext {
         private double potentialActionCost = 0;
 
         @Override
@@ -49,6 +53,32 @@ public final class BattleHud extends TBCExHud {
         @Override
         public double getPotentialActionCost() {
             return potentialActionCost;
+        }
+
+        @Override
+        public double getEnergy() {
+            Battle battle = ((BattleWorldSupplier)entity.world).tbcex_getBattleWorld().getBattle(handle);
+            if(battle==null) {
+                return 0;
+            }
+            BattleParticipantStateView participant = battle.getState().getParticipant(new BattleParticipantHandle(handle, entity.getUuid()));
+            if(participant==null) {
+                return 0;
+            }
+            return participant.getEnergy();
+        }
+
+        @Override
+        public double getMaxEnergy() {
+            Battle battle = ((BattleWorldSupplier)entity.world).tbcex_getBattleWorld().getBattle(handle);
+            if(battle==null) {
+                return 0;
+            }
+            BattleParticipantStateView participant = battle.getState().getParticipant(new BattleParticipantHandle(handle, entity.getUuid()));
+            if(participant==null) {
+                return 0;
+            }
+            return participant.getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT);
         }
     }
 }

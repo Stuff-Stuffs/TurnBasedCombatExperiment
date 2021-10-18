@@ -1,5 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
 import io.github.stuff_stuffs.tbcexcore.client.gui.BattleMoveScreen;
 import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
@@ -17,18 +19,18 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
+import io.github.stuff_stuffs.tbcexutil.common.colour.FloatRgbColour;
+import io.github.stuff_stuffs.tbcexutil.common.colour.HsvColour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import io.github.stuff_stuffs.tbcexutil.common.path.Movement;
 import io.github.stuff_stuffs.tbcexutil.common.path.MovementType;
 import io.github.stuff_stuffs.tbcexutil.common.path.Path;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.gl.VertexBuffer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
 
@@ -47,6 +49,7 @@ public class BattleMoveWidget extends AbstractWidget {
     private BlockPos lastPos = null;
     private List<Path> paths = null;
     private List<EndPoint> endPoints = null;
+    private VertexBuffer vertexBuffer;
     private boolean foundPaths = false;
     private boolean fallDamagePaths = false;
 
@@ -55,6 +58,7 @@ public class BattleMoveWidget extends AbstractWidget {
         this.world = world;
         this.context = context;
         this.hudContext = hudContext;
+        vertexBuffer = new VertexBuffer();
     }
 
     @Override
@@ -146,6 +150,35 @@ public class BattleMoveWidget extends AbstractWidget {
                 final Movement last = p.getMovements().get(p.getMovements().size() - 1);
                 return new EndPoint(last.getStartPos(), last.getEndPos(), last);
             }).toList();
+            final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+            bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+            final MatrixStack matrixStack = new MatrixStack();
+            for (int i = 0; i < endPoints.size(); i++) {
+                final EndPoint endPoint = endPoints.get(i);
+                final double cost = paths.get(i).getCost();
+                if(cost>hudContext.getEnergy()) {
+                    continue;
+                }
+                final float percent = (float) Math.min(Math.max(hudContext.getEnergy() - cost, 0) / hudContext.getMaxEnergy(), 1);
+                final FloatRgbColour colour = new FloatRgbColour(new HsvColour(MathHelper.lerp(percent, 0, 244), 1, 1).pack(255));
+                matrixStack.push();
+                final Vec3d center = endPoint.box.getCenter();
+                matrixStack.translate(center.x, center.y, center.z);
+                for (final Direction direction : Direction.values()) {
+                    matrixStack.push();
+                    matrixStack.multiply(direction.getRotationQuaternion());
+                    matrixStack.translate(0, 0.25, 0);
+                    final Matrix4f model = matrixStack.peek().getModel();
+                    bufferBuilder.vertex(model, -0.25f, 0, -0.25f).color(colour.r, colour.g, colour.b, 0.25f).next();
+                    bufferBuilder.vertex(model, -0.25f, 0, 0.25f).color(colour.r, colour.g, colour.b, 0.25f).next();
+                    bufferBuilder.vertex(model, 0.25f, 0, 0.25f).color(colour.r, colour.g, colour.b, 0.25f).next();
+                    bufferBuilder.vertex(model, 0.25f, 0, -0.25f).color(colour.r, colour.g, colour.b, 0.25f).next();
+                    matrixStack.pop();
+                }
+                matrixStack.pop();
+            }
+            bufferBuilder.end();
+            vertexBuffer.submitUpload(bufferBuilder);
         }
         if (foundPaths) {
             final Vec3d mouseVector = ClientUtil.getMouseVector();
@@ -168,12 +201,21 @@ public class BattleMoveWidget extends AbstractWidget {
                 }
             }
             if (closest != null) {
-                final double r = 0;
-                final double g = 1;
-                TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(closest.box, r, g, 0, 1));
-                TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(paths.get(index)));
-                hudContext.setPotentialActionCost(paths.get(index).getCost());
+                final Path path = paths.get(index);
+                TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(path));
+                TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(closest.box, 0, 1, 0, 1));
+                hudContext.setPotentialActionCost(path.getCost());
             }
+            TurnBasedCombatExperimentClient.addRenderPrimitive(context -> {
+                RenderSystem.depthMask(false);
+                RenderSystem.enableBlend();
+                RenderSystem.enableCull();
+                RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
+                vertexBuffer.setShader(context.matrixStack().peek().getModel(), context.projectionMatrix(), GameRenderer.getPositionColorShader());
+                RenderSystem.disableBlend();
+                RenderSystem.defaultBlendFunc();
+                RenderSystem.disableCull();
+            });
         }
     }
 
