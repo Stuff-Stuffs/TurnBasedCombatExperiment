@@ -63,6 +63,7 @@ public final class ParticipantComponents {
         if (entity.tbcex_shouldSaveToTag()) {
             NbtCompound compound = new NbtCompound();
             ((Entity) entity).saveNbt(compound);
+            ((Entity)entity).remove(Entity.RemovalReason.DISCARDED);
             return new ParticipantRestoreComponent(Optional.of(compound), ((Entity) entity).getPos());
         }
         entity.onBattleJoin(battleParticipantStateView.getBattleState().getHandle());
