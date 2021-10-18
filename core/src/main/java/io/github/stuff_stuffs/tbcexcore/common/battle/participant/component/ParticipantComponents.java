@@ -3,11 +3,16 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant.component;
 import com.mojang.serialization.Codec;
 import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.status.ParticipantStatusEffect;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.status.ParticipantStatusEffectComponent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.status.ParticipantStatusEffectComponentView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.status.ParticipantStatusEffects;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventory;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStats;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
@@ -18,6 +23,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -63,6 +69,17 @@ public final class ParticipantComponents {
         return new ParticipantRestoreComponent(Optional.empty(), ((Entity) entity).getPos());
     }, ParticipantRestoreComponent.CODEC, ParticipantComponentKey.get(ParticipantRestoreComponent.class, ParticipantRestoreComponent.class), Set.of());
 
+    public static final Type<ParticipantStatusEffectComponent, ParticipantStatusEffectComponentView> STATUS_EFFECT_COMPONENT_TYPE = new Type<>((entity, battleParticipantStateView) -> {
+        Map<ParticipantStatusEffects.Type, ParticipantStatusEffect> map = new Reference2ReferenceOpenHashMap<>();
+        for (ParticipantStatusEffects.Type type : ParticipantStatusEffects.REGISTRY) {
+            final ParticipantStatusEffect effect = type.extractor.apply(battleParticipantStateView, entity);
+            if (effect != null) {
+                map.put(type, effect);
+            }
+        }
+        return new ParticipantStatusEffectComponent(map);
+    }, ParticipantStatusEffectComponent.CODEC, ParticipantComponentKey.get(ParticipantStatusEffectComponent.class, ParticipantStatusEffectComponentView.class), Set.of());
+
     public static final class Type<Mut extends View, View extends ParticipantComponent> {
         public final BiFunction<BattleEntity, BattleParticipantStateView, @Nullable Mut> extractor;
         public final Codec<ParticipantComponent> codec;
@@ -101,5 +118,6 @@ public final class ParticipantComponents {
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("info"), INFO_COMPONENT_TYPE);
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("pos"), POS_COMPONENT_TYPE);
         Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("restore"), RESTORE_COMPONENT_TYPE);
+        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("status_effect"), STATUS_EFFECT_COMPONENT_TYPE);
     }
 }
