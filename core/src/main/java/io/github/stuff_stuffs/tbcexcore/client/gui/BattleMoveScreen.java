@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
-import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
+import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleMoveWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
@@ -65,7 +65,7 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
         if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         }
-        final InputUtil.Key altModeKey = KeyBindingHelper.getBoundKeyOf(TurnBasedCombatExperimentClient.ALT_MODE_KEYBINDING);
+        final InputUtil.Key altModeKey = KeyBindingHelper.getBoundKeyOf(TBCExCoreClient.ALT_MODE_KEYBINDING);
         if ((altModeKey.getCategory() == InputUtil.Type.KEYSYM && altModeKey.getCode() == keyCode) || (altModeKey.getCategory() == InputUtil.Type.SCANCODE && altModeKey.getCode() == scanCode)) {
             altMode = !altMode;
             options.setHidden(!altMode);

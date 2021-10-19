@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.component;
 
 import com.mojang.serialization.Codec;
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.status.ParticipantStatusEffect;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.status.ParticipantStatusEffectComponent;
@@ -30,7 +30,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class ParticipantComponents {
-    public static final Registry<Type<?, ?>> REGISTRY = FabricRegistryBuilder.createSimple((Class<Type<?, ?>>) (Object) Type.class, TurnBasedCombatExperiment.createId("participant_component")).buildAndRegister();
+    public static final Registry<Type<?, ?>> REGISTRY = FabricRegistryBuilder.createSimple((Class<Type<?, ?>>) (Object) Type.class, TBCExCore.createId("participant_component")).buildAndRegister();
 
     public static final Type<ParticipantPosComponent, ParticipantPosComponentView> POS_COMPONENT_TYPE = new Type<>((entity, battleStateView) -> {
         final BlockPos pos = ((Entity) entity).getBlockPos();
@@ -116,9 +116,9 @@ public final class ParticipantComponents {
     }
 
     public static void init() {
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("info"), INFO_COMPONENT_TYPE);
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("pos"), POS_COMPONENT_TYPE);
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("restore"), RESTORE_COMPONENT_TYPE);
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("status_effect"), STATUS_EFFECT_COMPONENT_TYPE);
+        Registry.register(REGISTRY, TBCExCore.createId("info"), INFO_COMPONENT_TYPE);
+        Registry.register(REGISTRY, TBCExCore.createId("pos"), POS_COMPONENT_TYPE);
+        Registry.register(REGISTRY, TBCExCore.createId("restore"), RESTORE_COMPONENT_TYPE);
+        Registry.register(REGISTRY, TBCExCore.createId("status_effect"), STATUS_EFFECT_COMPONENT_TYPE);
     }
 }

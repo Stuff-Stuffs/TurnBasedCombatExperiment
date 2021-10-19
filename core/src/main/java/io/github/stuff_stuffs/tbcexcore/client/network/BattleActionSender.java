@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.client.network;
 
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleActionRegistry;
@@ -10,7 +10,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
 public final class BattleActionSender {
-    public static final Identifier IDENTIFIER = TurnBasedCombatExperiment.createId("battle_action");
+    public static final Identifier IDENTIFIER = TBCExCore.createId("battle_action");
 
     private BattleActionSender() {
     }

@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
-public class TurnBasedCombatExperimentClient implements ClientModInitializer {
+public class TBCExCoreClient implements ClientModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("TBCExClient");
     //TODO https://github.com/FabricMC/fabric/issues/1772
     public static final KeyBinding ALT_MODE_KEYBINDING = KeyBindingHelper.registerKeyBinding(new KeyBinding("tbcex.alt_mod_key", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_INSERT, "tbcex"));

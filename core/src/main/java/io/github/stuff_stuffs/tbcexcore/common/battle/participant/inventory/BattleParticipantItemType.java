@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.registry.Registry;
@@ -17,7 +17,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
 public final class BattleParticipantItemType {
-    public static final Registry<BattleParticipantItemType> REGISTRY = FabricRegistryBuilder.createSimple(BattleParticipantItemType.class, TurnBasedCombatExperiment.createId("items")).buildAndRegister();
+    public static final Registry<BattleParticipantItemType> REGISTRY = FabricRegistryBuilder.createSimple(BattleParticipantItemType.class, TBCExCore.createId("items")).buildAndRegister();
     public static final Codec<BattleParticipantItem> CODEC = new Codec<>() {
         @Override
         public <T> DataResult<Pair<BattleParticipantItem, T>> decode(final DynamicOps<T> ops, final T input) {

@@ -2,7 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
+import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.gui.BattleMoveScreen;
 import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
 import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
@@ -210,11 +210,11 @@ public class BattleMoveWidget extends AbstractWidget {
             }
             if (closest != null) {
                 final BattlePath path = paths.get(index);
-                TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(path.getPath()));
-                TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(closest.box, 0, 1, 0, 1));
+                TBCExCoreClient.addRenderPrimitive(renderPath(path.getPath()));
+                TBCExCoreClient.addBoxInfo(new BoxInfo(closest.box, 0, 1, 0, 1));
                 hudContext.setPotentialActionCost(path.getCost());
             }
-            TurnBasedCombatExperimentClient.addRenderPrimitive(context -> {
+            TBCExCoreClient.addRenderPrimitive(context -> {
                 if (MinecraftClient.isFabulousGraphicsOrBetter()) {
                     MinecraftClient.getInstance().worldRenderer.getTranslucentFramebuffer().beginWrite(false);
                 }

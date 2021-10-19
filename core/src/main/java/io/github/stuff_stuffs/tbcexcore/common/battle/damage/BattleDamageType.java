@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.damage;
 
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.text.LiteralText;
@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.Set;
 
 public final class BattleDamageType {
-    public static final Registry<BattleDamageType> REGISTRY = FabricRegistryBuilder.createSimple(BattleDamageType.class, TurnBasedCombatExperiment.createId("damage_types")).buildAndRegister();
+    public static final Registry<BattleDamageType> REGISTRY = FabricRegistryBuilder.createSimple(BattleDamageType.class, TBCExCore.createId("damage_types")).buildAndRegister();
     //TODO translatable texts
     public static final BattleDamageType PHYSICAL = createRoot(new LiteralText("physical"));
     public static final BattleDamageType SLASHING = createChild(new LiteralText("slashing"), PHYSICAL);
@@ -82,16 +82,16 @@ public final class BattleDamageType {
     }
 
     public static void init() {
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("physical"), PHYSICAL);
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("slashing"), SLASHING);
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("piercing"), PIERCING);
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("crushing"), CRUSHING);
+        Registry.register(REGISTRY, TBCExCore.createId("physical"), PHYSICAL);
+        Registry.register(REGISTRY, TBCExCore.createId("slashing"), SLASHING);
+        Registry.register(REGISTRY, TBCExCore.createId("piercing"), PIERCING);
+        Registry.register(REGISTRY, TBCExCore.createId("crushing"), CRUSHING);
 
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("environmental"), ENVIRONMENTAL);
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("fire"), FIRE);
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("freeze"), FREEZE);
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("asphyxiation"), ASPHYXIATION);
+        Registry.register(REGISTRY, TBCExCore.createId("environmental"), ENVIRONMENTAL);
+        Registry.register(REGISTRY, TBCExCore.createId("fire"), FIRE);
+        Registry.register(REGISTRY, TBCExCore.createId("freeze"), FREEZE);
+        Registry.register(REGISTRY, TBCExCore.createId("asphyxiation"), ASPHYXIATION);
 
-        Registry.register(REGISTRY, TurnBasedCombatExperiment.createId("magic"), MAGIC);
+        Registry.register(REGISTRY, TBCExCore.createId("magic"), MAGIC);
     }
 }

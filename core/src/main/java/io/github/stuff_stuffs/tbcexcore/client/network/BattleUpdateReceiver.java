@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.client.network;
 
-import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
+import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleActionRegistry;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class BattleUpdateReceiver {
-    private static final Logger LOGGER = TurnBasedCombatExperimentClient.LOGGER;
+    private static final Logger LOGGER = TBCExCoreClient.LOGGER;
 
     private BattleUpdateReceiver() {
     }

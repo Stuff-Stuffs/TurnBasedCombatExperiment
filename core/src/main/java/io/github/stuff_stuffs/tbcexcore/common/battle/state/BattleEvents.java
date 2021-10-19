@@ -3,7 +3,7 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.state;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mojang.datafixers.util.Pair;
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.MutableEventHolder;
@@ -47,7 +47,7 @@ public final class BattleEvents {
     }
 
     static {
-        register(TurnBasedCombatExperiment.createId("pre_participant_join"), BattleStateView.PRE_PARTICIPANT_JOIN_EVENT, (key, map) -> {
+        register(TBCExCore.createId("pre_participant_join"), BattleStateView.PRE_PARTICIPANT_JOIN_EVENT, (key, map) -> {
             final EventKey<PreParticipantJoinEvent.Mut, PreParticipantJoinEvent> castedKey = (EventKey<PreParticipantJoinEvent.Mut, PreParticipantJoinEvent>) key;
             map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> (battleState, participant) -> {
                 view.onParticipantJoin(battleState, participant);
@@ -61,7 +61,7 @@ public final class BattleEvents {
             }));
         });
 
-        register(TurnBasedCombatExperiment.createId("post_particpant_join"), BattleStateView.POST_PARTICIPANT_JOIN_EVENT, (key, map) -> {
+        register(TBCExCore.createId("post_particpant_join"), BattleStateView.POST_PARTICIPANT_JOIN_EVENT, (key, map) -> {
             final EventKey<PostParticipantJoinEvent.Mut, PostParticipantJoinEvent> castedKey = (EventKey<PostParticipantJoinEvent.Mut, PostParticipantJoinEvent>) key;
             map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> view::onParticipantJoin, events -> (battleState, participant) -> {
                 for (final PostParticipantJoinEvent.Mut event : events) {
@@ -70,7 +70,7 @@ public final class BattleEvents {
             }));
         });
 
-        register(TurnBasedCombatExperiment.createId("pre_participant_leave"), BattleStateView.PRE_PARTICIPANT_LEAVE_EVENT, (key, map) -> {
+        register(TBCExCore.createId("pre_participant_leave"), BattleStateView.PRE_PARTICIPANT_LEAVE_EVENT, (key, map) -> {
             final EventKey<PreParticipantLeaveEvent.Mut, PreParticipantLeaveEvent> castedKey = (EventKey<PreParticipantLeaveEvent.Mut, PreParticipantLeaveEvent>) key;
             map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> (battleState, participantState) -> {
                 view.onParticipantLeave(battleState, participantState);
@@ -84,7 +84,7 @@ public final class BattleEvents {
             }));
         });
 
-        register(TurnBasedCombatExperiment.createId("post_participant_leave"), BattleStateView.POST_PARTICIPANT_LEAVE_EVENT, (key, map) -> {
+        register(TBCExCore.createId("post_participant_leave"), BattleStateView.POST_PARTICIPANT_LEAVE_EVENT, (key, map) -> {
             final EventKey<PostParticipantLeaveEvent.Mut, PostParticipantLeaveEvent> castedKey = (EventKey<PostParticipantLeaveEvent.Mut, PostParticipantLeaveEvent>) key;
             map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> view::onParticipantLeave, events -> (battleState, participantState) -> {
                 for (final PostParticipantLeaveEvent.Mut event : events) {
@@ -93,7 +93,7 @@ public final class BattleEvents {
             }));
         });
 
-        register(TurnBasedCombatExperiment.createId("advance_turn"), BattleStateView.ADVANCE_TURN_EVENT, (key, map) -> {
+        register(TBCExCore.createId("advance_turn"), BattleStateView.ADVANCE_TURN_EVENT, (key, map) -> {
             final EventKey<AdvanceTurnEvent.Mut, AdvanceTurnEvent> castedKey = (EventKey<AdvanceTurnEvent.Mut, AdvanceTurnEvent>) key;
             map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> view::onAdvanceTurn, events -> ((battleState, current) -> {
                 for (final AdvanceTurnEvent.Mut event : events) {

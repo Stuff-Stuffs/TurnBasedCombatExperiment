@@ -12,7 +12,7 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.Logger;
 
-public class TurnBasedCombatExperiment implements ModInitializer {
+public class TBCExCore implements ModInitializer {
     public static final String MOD_ID = "tbcexcore";
     public static final Logger LOGGER = LoggerUtil.LOGGER;
 

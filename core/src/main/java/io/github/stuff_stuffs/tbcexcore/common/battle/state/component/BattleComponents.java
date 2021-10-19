@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.state.component;
 
 import com.mojang.serialization.Codec;
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.util.registry.Registry;
@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 public final class BattleComponents {
-    public static final Registry<Type<?, ?>> REGISTRY = FabricRegistryBuilder.createSimple((Class<Type<?, ?>>) (Object) Type.class, TurnBasedCombatExperiment.createId("battle_component")).buildAndRegister();
+    public static final Registry<Type<?, ?>> REGISTRY = FabricRegistryBuilder.createSimple((Class<Type<?, ?>>) (Object) Type.class, TBCExCore.createId("battle_component")).buildAndRegister();
 
     public static final class Type<Mut extends View, View extends BattleComponent> {
         public final Function<BattleState, @Nullable Mut> extractor;

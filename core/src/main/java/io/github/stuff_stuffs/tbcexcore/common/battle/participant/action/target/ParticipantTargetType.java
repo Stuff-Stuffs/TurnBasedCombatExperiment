@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target;
 
-import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
+import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
@@ -80,7 +80,7 @@ public class ParticipantTargetType implements TargetType {
                     r = 1;
                     g = 0;
                 }
-                TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(part.box, r, g, 0, 1));
+                TBCExCoreClient.addBoxInfo(new BoxInfo(part.box, r, g, 0, 1));
             }
         }
     }

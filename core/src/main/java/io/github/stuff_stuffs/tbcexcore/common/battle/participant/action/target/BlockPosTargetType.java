@@ -2,7 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target
 
 import com.google.common.collect.AbstractIterator;
 import com.mojang.datafixers.util.Pair;
-import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
+import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
@@ -35,7 +35,7 @@ public class BlockPosTargetType extends AbstractBoxedTargetType<BiFunction<Battl
                 r = 1;
                 g = 0;
             }
-            TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(location.getX(), location.getY(), location.getZ(), location.getX() + 1, location.getY() + 1, location.getZ() + 1, r, g, 0, 1));
+            TBCExCoreClient.addBoxInfo(new BoxInfo(location.getX(), location.getY(), location.getZ(), location.getX() + 1, location.getY() + 1, location.getZ() + 1, r, g, 0, 1));
         }
     }
 

@@ -5,14 +5,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 public record BattleEquipmentType(Text name, Codec<BattleEquipment> codec) {
-    public static final Registry<BattleEquipmentType> REGISTRY = FabricRegistryBuilder.createSimple(BattleEquipmentType.class, TurnBasedCombatExperiment.createId("equipment_types")).buildAndRegister();
+    public static final Registry<BattleEquipmentType> REGISTRY = FabricRegistryBuilder.createSimple(BattleEquipmentType.class, TBCExCore.createId("equipment_types")).buildAndRegister();
     public static final Codec<BattleEquipment> CODEC = new Codec<>() {
         @Override
         public <T> DataResult<T> encode(final BattleEquipment input, final DynamicOps<T> ops, final T prefix) {

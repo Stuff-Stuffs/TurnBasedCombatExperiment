@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.world;
 
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.ParticipantJoinBattleAction;
@@ -33,7 +33,7 @@ import java.util.Set;
 
 //TODO remember valid battle ids
 public final class ServerBattleWorld implements BattleWorld {
-    private static final Logger LOGGER = TurnBasedCombatExperiment.LOGGER;
+    private static final Logger LOGGER = TBCExCore.LOGGER;
     //TODO config option
     //5 minutes
     private static final long TIME_OUT = 20 * 60 * 5;

@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.world;
 
-import io.github.stuff_stuffs.tbcexcore.client.TurnBasedCombatExperimentClient;
+import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.network.RequestBattleSender;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 public final class ClientBattleWorld implements BattleWorld, Iterable<Battle> {
-    private static final Logger LOGGER = TurnBasedCombatExperimentClient.LOGGER;
+    private static final Logger LOGGER = TBCExCoreClient.LOGGER;
     private final Map<BattleHandle, Battle> battleMap;
     private final Set<BattleHandle> requestedUpdates;
 

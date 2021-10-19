@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.network;
 
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleActionRegistry;
@@ -19,8 +19,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public final class BattleUpdateSender {
-    public static final Identifier IDENTIFIER = TurnBasedCombatExperiment.createId("battle_update");
-    private static final Logger LOGGER = TurnBasedCombatExperiment.LOGGER;
+    public static final Identifier IDENTIFIER = TBCExCore.createId("battle_update");
+    private static final Logger LOGGER = TBCExCore.LOGGER;
 
     public static void send(final BattleHandle handle, final Battle battle, final int sizeBefore, final boolean existing, final ServerPlayerEntity playerEntity) {
         final PacketByteBuf buf = PacketByteBufs.create();

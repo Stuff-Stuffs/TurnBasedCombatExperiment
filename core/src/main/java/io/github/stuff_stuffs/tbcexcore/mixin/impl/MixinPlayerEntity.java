@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.mixin.impl;
 
 import com.google.common.collect.Iterables;
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
@@ -78,7 +78,7 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
 
     @Override
     public BattleParticipantBounds getBounds() {
-        return BattleParticipantBounds.builder().add(TurnBasedCombatExperiment.createId("body"), new Box(0, 0, 0, 1, 1.5, 1)).add(TurnBasedCombatExperiment.createId("head"), new Box(0.25, 1.5, 0.25, 0.75, 2, 0.75)).build(new Vec3d(0.5, 0, 0.5));
+        return BattleParticipantBounds.builder().add(TBCExCore.createId("body"), new Box(0, 0, 0, 1, 1.5, 1)).add(TBCExCore.createId("head"), new Box(0.25, 1.5, 0.25, 0.75, 2, 0.75)).build(new Vec3d(0.5, 0, 0.5));
     }
 
     @Override
@@ -90,7 +90,7 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
     @Override
     public void tbcex_setCurrentBattle(@Nullable final BattleHandle handle) {
         if (currentBattle != null && handle != null && !currentBattle.equals(handle)) {
-            TurnBasedCombatExperiment.LOGGER.error("Set current battle to {}, while battle {} was active", handle, currentBattle);
+            TBCExCore.LOGGER.error("Set current battle to {}, while battle {} was active", handle, currentBattle);
         }
         currentBattle = handle;
         if ((Object) this instanceof ServerPlayerEntity serverPlayer) {

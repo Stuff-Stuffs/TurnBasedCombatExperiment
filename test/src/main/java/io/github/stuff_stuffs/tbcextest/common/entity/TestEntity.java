@@ -6,7 +6,7 @@ import io.github.stuff_stuffs.tbcexanimation.client.model.ImmutableSkeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.Skeleton;
 import io.github.stuff_stuffs.tbcexanimation.client.model.SkeletonData;
 import io.github.stuff_stuffs.tbcexanimation.client.model.bundle.ModelPartBundle;
-import io.github.stuff_stuffs.tbcexcore.common.TurnBasedCombatExperiment;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
@@ -25,7 +25,7 @@ import java.util.Collections;
 
 public class TestEntity extends LivingEntity implements BattleEntity {
     private static final Team TEAM = new Team("test_non-player");
-    private static final BattleParticipantBounds BOUNDS = BattleParticipantBounds.builder().add(TurnBasedCombatExperiment.createId("body"), new Box(-0.5, 0, -0.5, 0.5, 1.5, 0.5)).add(TurnBasedCombatExperiment.createId("head"), new Box(-0.25, 1.5, -0.25, 0.25, 2, 0.25)).build();
+    private static final BattleParticipantBounds BOUNDS = BattleParticipantBounds.builder().add(TBCExCore.createId("body"), new Box(-0.5, 0, -0.5, 0.5, 1.5, 0.5)).add(TBCExCore.createId("head"), new Box(-0.25, 1.5, -0.25, 0.25, 2, 0.25)).build();
     private Skeleton skeleton;
     private boolean slim = false;
 
