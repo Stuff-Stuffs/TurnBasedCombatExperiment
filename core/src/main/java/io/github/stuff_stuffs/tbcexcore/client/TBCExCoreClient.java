@@ -45,7 +45,7 @@ public class TBCExCoreClient implements ClientModInitializer {
 
         ClientTickEvents.START_WORLD_TICK.register(world -> ((ClientBattleWorldSupplier) world).tbcex_getBattleWorld().tick());
         DebugRenderers.register("battle_bounds", BattleBoundsDebugRenderer.INSTANCE, DebugRenderers.Stage.POST_ENTITY);
-        DebugRenderers.register("battle_particpant_bounds", BattleParticipantBoundsDebugRenderer.INSTANCE, DebugRenderers.Stage.POST_ENTITY);
+        DebugRenderers.register("battle_participant_bounds", BattleParticipantBoundsDebugRenderer.INSTANCE, DebugRenderers.Stage.POST_ENTITY);
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             final MatrixStack matrices = context.matrixStack();
             final Camera camera = context.camera();
