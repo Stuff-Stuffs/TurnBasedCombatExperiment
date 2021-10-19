@@ -2,13 +2,14 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.event.participant;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattlePath;
 import io.github.stuff_stuffs.tbcexutil.common.path.Path;
 import net.minecraft.util.math.BlockPos;
 
 public interface PreMoveEvent {
-    void onMove(BattleParticipantStateView state, BlockPos pos, Path path);
+    void onMove(BattleParticipantStateView state, BlockPos pos, BattlePath path);
 
     interface Mut {
-        boolean onMove(BattleParticipantState state, BlockPos pos, Path path);
+        boolean onMove(BattleParticipantState state, BlockPos pos, BattlePath path);
     }
 }

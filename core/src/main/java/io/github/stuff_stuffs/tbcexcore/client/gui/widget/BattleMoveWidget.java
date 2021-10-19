@@ -11,6 +11,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.ParticipantMoveBattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattlePath;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.ParticipantPathGatherer;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleWorld;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
@@ -30,6 +31,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.VertexBuffer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
@@ -40,16 +42,22 @@ import java.util.function.Consumer;
 
 public class BattleMoveWidget extends AbstractWidget {
     public static final Colour PATH_COLOUR = new IntRgbColour(0, 255, 0);
+    private static final Quaternion[] QUATERNION_DIRECTIONS = Util.make(new Quaternion[6], arr -> {
+        Direction[] directions = Direction.values();
+        for (int i = 0; i < directions.length; i++) {
+            arr[i] = directions[i].getRotationQuaternion();
+        }
+    });
     private static final WidgetPosition ROOT = WidgetPosition.of(0, 0, 0);
 
     private final BattleParticipantHandle handle;
     private final World world;
     private final BattleMoveScreen.PathContext context;
     private final BattleHudContext hudContext;
+    private final VertexBuffer vertexBuffer;
     private BlockPos lastPos = null;
-    private List<Path> paths = null;
+    private List<BattlePath> paths = null;
     private List<EndPoint> endPoints = null;
-    private VertexBuffer vertexBuffer;
     private boolean foundPaths = false;
     private boolean fallDamagePaths = false;
 
@@ -84,13 +92,13 @@ public class BattleMoveWidget extends AbstractWidget {
                 final Vec3d endPos = eyePos.add(mouseVector.multiply(64));
                 double closestDist = Double.POSITIVE_INFINITY;
                 EndPoint closest = null;
-                Path closestPath = null;
+                BattlePath closestPath = null;
                 for (int i = 0; i < endPoints.size(); i++) {
                     final EndPoint endPoint = endPoints.get(i);
                     final Optional<Vec3d> raycast = endPoint.box.raycast(eyePos, endPos);
                     if (raycast.isPresent()) {
                         final double sq = raycast.get().squaredDistanceTo(eyePos);
-                        final Path path = paths.get(i);
+                        final BattlePath path = paths.get(i);
                         if (sq < closestDist && path.getCost() <= participant.getEnergy()) {
                             closest = endPoint;
                             closestDist = sq;
@@ -145,9 +153,9 @@ public class BattleMoveWidget extends AbstractWidget {
             } else {
                 builder.fallDamage(4, Double.POSITIVE_INFINITY);
             }
-            paths = builder.build().gather(participant, this.world);
+            paths = builder.build(ParticipantPathGatherer.DEFAULT).gather(participant, this.world);
             endPoints = paths.stream().map(p -> {
-                final Movement last = p.getMovements().get(p.getMovements().size() - 1);
+                final Movement last = p.getPath().getMovements().get(p.getPath().getMovements().size() - 1);
                 return new EndPoint(last.getStartPos(), last.getEndPos(), last);
             }).toList();
             final BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
@@ -156,7 +164,7 @@ public class BattleMoveWidget extends AbstractWidget {
             for (int i = 0; i < endPoints.size(); i++) {
                 final EndPoint endPoint = endPoints.get(i);
                 final double cost = paths.get(i).getCost();
-                if(cost>hudContext.getEnergy()) {
+                if (cost > hudContext.getEnergy()) {
                     continue;
                 }
                 final float percent = (float) Math.min(Math.max(hudContext.getEnergy() - cost, 0) / hudContext.getMaxEnergy(), 1);
@@ -164,9 +172,9 @@ public class BattleMoveWidget extends AbstractWidget {
                 matrixStack.push();
                 final Vec3d center = endPoint.box.getCenter();
                 matrixStack.translate(center.x, center.y, center.z);
-                for (final Direction direction : Direction.values()) {
+                for (final Quaternion quaternionDirection : QUATERNION_DIRECTIONS) {
                     matrixStack.push();
-                    matrixStack.multiply(direction.getRotationQuaternion());
+                    matrixStack.multiply(quaternionDirection);
                     matrixStack.translate(0, 0.25, 0);
                     final Matrix4f model = matrixStack.peek().getModel();
                     bufferBuilder.vertex(model, -0.25f, 0, -0.25f).color(colour.r, colour.g, colour.b, 0.25f).next();
@@ -192,7 +200,7 @@ public class BattleMoveWidget extends AbstractWidget {
                 final Optional<Vec3d> raycast = endPoint.box.raycast(eyePos, endPos);
                 if (raycast.isPresent()) {
                     final double sq = raycast.get().squaredDistanceTo(eyePos);
-                    final Path path = paths.get(i);
+                    final BattlePath path = paths.get(i);
                     if (sq < closestDist && path.getCost() <= participant.getEnergy()) {
                         closest = endPoint;
                         closestDist = sq;
@@ -201,12 +209,15 @@ public class BattleMoveWidget extends AbstractWidget {
                 }
             }
             if (closest != null) {
-                final Path path = paths.get(index);
-                TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(path));
+                final BattlePath path = paths.get(index);
+                TurnBasedCombatExperimentClient.addRenderPrimitive(renderPath(path.getPath()));
                 TurnBasedCombatExperimentClient.addBoxInfo(new BoxInfo(closest.box, 0, 1, 0, 1));
                 hudContext.setPotentialActionCost(path.getCost());
             }
             TurnBasedCombatExperimentClient.addRenderPrimitive(context -> {
+                if (MinecraftClient.isFabulousGraphicsOrBetter()) {
+                    MinecraftClient.getInstance().worldRenderer.getTranslucentFramebuffer().beginWrite(false);
+                }
                 RenderSystem.depthMask(false);
                 RenderSystem.enableBlend();
                 RenderSystem.enableCull();
@@ -215,6 +226,9 @@ public class BattleMoveWidget extends AbstractWidget {
                 RenderSystem.disableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.disableCull();
+                if (MinecraftClient.isFabulousGraphicsOrBetter()) {
+                    MinecraftClient.getInstance().getFramebuffer().beginWrite(false);
+                }
             });
         }
     }
