@@ -15,6 +15,7 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetHandle;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.BasicPanelWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
+import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.colour.FloatRgbColour;
 import net.minecraft.client.MinecraftClient;
@@ -51,7 +52,7 @@ public class BattleParticipantOtherInfoScreen extends TBCExScreen implements Mou
             final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
             if (battle != null) {
                 final Vec3d start = MinecraftClient.getInstance().cameraEntity.getClientCameraPosVec(1);
-                final Vec3d end = start.add(MinecraftClient.getInstance().cameraEntity.getRotationVecClient().multiply(64));
+                final Vec3d end = start.add(ClientUtil.getMouseVector().multiply(64));
                 double bestDist = Double.POSITIVE_INFINITY;
                 BattleParticipantHandle best = null;
                 final Iterator<BattleParticipantHandle> iterator = battle.getState().getParticipants();

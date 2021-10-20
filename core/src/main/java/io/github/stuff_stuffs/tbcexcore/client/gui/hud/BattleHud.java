@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.client.gui.hud;
 
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.hud.BattleHudCurrentTurnWidget;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.hud.BattleHudEnergyWidget;
+import io.github.stuff_stuffs.tbcexcore.client.gui.widget.hud.BattleHudHealthWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
@@ -26,6 +27,7 @@ public final class BattleHud extends TBCExHud {
         context = new ContextImpl();
         root.addWidget(new BattleHudCurrentTurnWidget(WidgetPosition.of(0.25, 0.05, 1), 0.5, 0.05, handle, entity.world));
         root.addWidget(new BattleHudEnergyWidget(WidgetPosition.of(0.25, 0.975, 1), 0.5, 0.025, context, new BattleParticipantHandle(handle, entity.getUuid()), entity.world));
+        root.addWidget(new BattleHudHealthWidget(handle, entity.world));
     }
 
     public boolean matches(final BattleHandle handle) {

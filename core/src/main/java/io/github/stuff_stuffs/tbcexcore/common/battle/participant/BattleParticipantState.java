@@ -17,7 +17,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattlePa
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
-import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.text.Text;
@@ -239,6 +238,15 @@ public final class BattleParticipantState implements BattleParticipantStateView 
             throw new TBCExException("required component is missing");
         }
         return component.getEnergy();
+    }
+
+    @Override
+    public int getLevel() {
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            throw new TBCExException("required component is missing");
+        }
+        return component.getLevel();
     }
 
     public void leave() {

@@ -16,7 +16,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 
@@ -79,34 +78,10 @@ public class ParticipantSelfStatListWidget extends AbstractParticipantStatListWi
         raw = floorToNearestHundredth(raw);
         final double x = position.getX();
         final double y = position.getY();
-        final String formattedVal;
-        if (val > MAX_DISPLAYABLE) {
-            formattedVal = "\u221E";
-        } else if (-val > MAX_DISPLAYABLE) {
-            formattedVal = "-\u221E";
-        } else {
-            formattedVal = DECIMAL_FORMAT.format(val);
-        }
-        final String formattedRaw;
-        if (raw > MAX_DISPLAYABLE) {
-            formattedRaw = "\u221E";
-        } else if (-raw > MAX_DISPLAYABLE) {
-            formattedRaw = "-\u221E";
-        } else {
-            formattedRaw = DECIMAL_FORMAT.format(raw);
-        }
         final double diff = val - raw;
-        final String formattedDiff;
-        if (diff > MAX_DISPLAYABLE) {
-            formattedDiff = "\u221E";
-        } else if (-diff > MAX_DISPLAYABLE) {
-            formattedDiff = "-\u221E";
-        } else {
-            formattedDiff = DECIMAL_FORMAT.format(diff);
-        }
-        final Text valText = new LiteralText(formattedVal).setStyle(Style.EMPTY.withColor(val == 0 ? NEUTRAL_COLOUR.pack() : val < 0 ? NEGATIVE_COLOUR.pack() : POSITIVE_COLOUR.pack()));
-        final Text rawText = new LiteralText(formattedRaw).setStyle(Style.EMPTY.withColor(raw == 0 ? NEUTRAL_COLOUR.pack() : raw < 0 ? NEGATIVE_COLOUR.pack() : POSITIVE_COLOUR.pack()));
-        final Text diffText = new LiteralText(formattedDiff).setStyle(Style.EMPTY.withColor(diff == 0 ? NEUTRAL_COLOUR.pack() : diff < 0 ? NEGATIVE_COLOUR.pack() : POSITIVE_COLOUR.pack()));
+        final Text valText = format(val);
+        final Text rawText = format(raw);
+        final Text diffText = format(diff);
         MutableText text = new LiteralText("");
         text = text.append(valText);
         text = text.append("(");

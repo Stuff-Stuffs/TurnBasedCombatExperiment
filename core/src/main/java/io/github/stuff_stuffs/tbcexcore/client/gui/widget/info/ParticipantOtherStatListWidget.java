@@ -16,7 +16,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
 import net.minecraft.world.World;
 
 import java.util.Random;
@@ -92,29 +91,11 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
         final double top = ParticipantSelfStatListWidget.floorToNearestHundredth(val + rangeOffset);
         final double bottom = top - rangeSize;
         final boolean same = floorToNearestHundredth(Math.abs(top - bottom)) == 0;
-
-        final String formattedTop;
-        if (top > ParticipantSelfStatListWidget.MAX_DISPLAYABLE) {
-            formattedTop = "\u221E";
-        } else if (-top > ParticipantSelfStatListWidget.MAX_DISPLAYABLE) {
-            formattedTop = "-\u221E";
-        } else {
-            formattedTop = ParticipantSelfStatListWidget.DECIMAL_FORMAT.format(top);
-        }
-
-        final String formattedBottom;
-        if (bottom > ParticipantSelfStatListWidget.MAX_DISPLAYABLE) {
-            formattedBottom = "\u221E";
-        } else if (-bottom > ParticipantSelfStatListWidget.MAX_DISPLAYABLE) {
-            formattedBottom = "-\u221E";
-        } else {
-            formattedBottom = ParticipantSelfStatListWidget.DECIMAL_FORMAT.format(bottom);
-        }
         MutableText text = new LiteralText("");
         if (bottom < 0) {
             text = text.append("(");
         }
-        text = text.append(new LiteralText(formattedBottom).setStyle(Style.EMPTY.withColor(bottom == 0 ? ParticipantSelfStatListWidget.NEUTRAL_COLOUR.pack() : bottom < 0 ? ParticipantSelfStatListWidget.NEGATIVE_COLOUR.pack() : ParticipantSelfStatListWidget.POSITIVE_COLOUR.pack())));
+        text = text.append(format(bottom));
         if (bottom < 0) {
             text.append(")");
         }
@@ -123,7 +104,7 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
             if (top < 0) {
                 text.append(new LiteralText("("));
             }
-            text = text.append(new LiteralText(formattedTop).setStyle(Style.EMPTY.withColor(top == 0 ? ParticipantSelfStatListWidget.NEUTRAL_COLOUR.pack() : top < 0 ? ParticipantSelfStatListWidget.NEGATIVE_COLOUR.pack() : ParticipantSelfStatListWidget.POSITIVE_COLOUR.pack())));
+            text = text.append(format(top));
             if (top < 0) {
                 text.append(new LiteralText(")"));
             }
