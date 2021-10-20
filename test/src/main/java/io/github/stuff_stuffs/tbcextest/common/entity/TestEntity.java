@@ -119,7 +119,7 @@ public class TestEntity extends LivingEntity implements BattleEntity {
 
     @Override
     public double tbcex_getIntelligence() {
-        return 1;
+        return 10;
     }
 
     @Override

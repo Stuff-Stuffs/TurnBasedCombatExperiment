@@ -141,6 +141,11 @@ public final class ParticipantInfoComponent extends AbstractParticipantComponent
         return stats.calculate(stat, state.getBattleState(), state);
     }
 
+    @Override
+    public double getRawStat(BattleParticipantStat stat) {
+        return stats.getRaw(stat);
+    }
+
     public @Nullable BattleDamagePacket damage(final BattleDamagePacket packet) {
         final BattleDamagePacket processed = state.getEvent(BattleParticipantStateView.PRE_DAMAGE_EVENT).invoker().onDamage(state, packet);
         if (processed.getTotalDamage() > 0) {

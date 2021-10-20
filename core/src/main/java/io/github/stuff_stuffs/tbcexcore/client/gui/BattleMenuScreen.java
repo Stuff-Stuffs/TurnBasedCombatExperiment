@@ -29,7 +29,7 @@ public class BattleMenuScreen extends TBCExScreen {
         this.world = world;
         this.context = context;
         final ParentWidget widget = (ParentWidget) this.widget;
-        final int widgetCount = 2;
+        final int widgetCount = 4;
         final BooleanSupplier isTurn = () -> {
             final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
             if (battle == null) {
@@ -45,8 +45,12 @@ public class BattleMenuScreen extends TBCExScreen {
         final BasicPanelWidget panelWidget = new BasicPanelWidget(panelPos, () -> false, () -> 1, 0.16, widgetCount * 0.1 + 0.05);
         final PressableButtonWidget inventoryWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.025, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Inventory"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleInventoryScreen(handle, context, world)));
         final PressableButtonWidget movementWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.1375, 1)), () -> 1, isTurn, 0.14, 0.1, () -> new LiteralText("Move"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleMoveScreen(handle, world, context)));
+        final PressableButtonWidget selfInfoWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.225, 1)), () -> 1, () -> true, 0.14, 0.1, () -> new LiteralText("Self Info"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleParticipantSelfInfoScreen(world, handle)));
+        final PressableButtonWidget otherInfoWidget = new PressableButtonWidget(WidgetPosition.combine(panelPos, WidgetPosition.of(0.01, 0.36, 1)), () -> 1, () -> true, 0.14, 0.1, () -> new LiteralText("Other Info"), List::of, () -> MinecraftClient.getInstance().setScreen(new BattleParticipantOtherInfoScreen(world, handle)));
         widget.addWidget(panelWidget);
         panelWidget.addWidget(inventoryWidget);
         panelWidget.addWidget(movementWidget);
+        panelWidget.addWidget(selfInfoWidget);
+        panelWidget.addWidget(otherInfoWidget);
     }
 }

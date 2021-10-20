@@ -6,6 +6,10 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
+import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.text.Text;
+
+import java.util.List;
 
 public interface ParticipantStatusEffect {
     Codec<Pair<ParticipantStatusEffects.Type, ParticipantStatusEffect>> CODEC = new Codec<>() {
@@ -28,6 +32,10 @@ public interface ParticipantStatusEffect {
             return ops.mapBuilder().add("type", ParticipantStatusEffects.REGISTRY.encodeStart(ops, input.getFirst())).add("data", input.getFirst().codec.encodeStart(ops, input.getSecond())).build(prefix);
         }
     };
+
+    Text getName();
+
+    List<TooltipComponent> getDescription();
 
     void init(BattleParticipantState state);
 

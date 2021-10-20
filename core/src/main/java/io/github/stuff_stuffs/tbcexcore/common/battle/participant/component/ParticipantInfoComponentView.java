@@ -26,4 +26,6 @@ public interface ParticipantInfoComponentView extends ParticipantComponent {
     Text getName();
 
     double getEnergy();
+
+    double getRawStat(BattleParticipantStat stat);
 }

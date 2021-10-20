@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.status;
 
+import com.google.common.collect.Iterables;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -66,8 +67,14 @@ public class ParticipantStatusEffectComponent extends AbstractParticipantCompone
         }
     }
 
-    public ParticipantStatusEffect get(final ParticipantStatusEffects.Type type) {
+    @Override
+    public ParticipantStatusEffect getStatusEffect(final ParticipantStatusEffects.Type type) {
         return statusEffectMap.get(type);
+    }
+
+    @Override
+    public Iterable<ParticipantStatusEffects.Type> getActiveStatusEffects() {
+        return Iterables.unmodifiableIterable(statusEffectMap.keySet());
     }
 
     @Override
