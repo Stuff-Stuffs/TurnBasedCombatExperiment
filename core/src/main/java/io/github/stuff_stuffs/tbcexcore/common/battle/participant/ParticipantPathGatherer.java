@@ -28,7 +28,7 @@ public class ParticipantPathGatherer {
     }
 
     public List<BattlePath> gather(final BattleParticipantStateView participant, final World world) {
-        final List<Path> paths = DjikstraPather.INSTANCE.getPaths(participant.getPos(), participant.getFacing(), participant.getBounds(), participant.getBattleState().getBounds().getBox(), world, movementTypes, processors);
+        final List<Path> paths = DjikstraPather.INSTANCE.getPaths(participant.getPos(), participant.getBounds(), participant.getBattleState().getBounds().getBox(), world, movementTypes, processors);
         final List<BattlePath> battlePaths = new ArrayList<>(paths.size());
         for (final Path path : paths) {
             battlePaths.add(postProcessor.processPath(path));

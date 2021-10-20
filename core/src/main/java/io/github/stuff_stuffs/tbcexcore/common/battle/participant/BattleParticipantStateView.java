@@ -51,11 +51,7 @@ public interface BattleParticipantStateView {
 
     BattleEquipment getEquipment(BattleEquipmentSlot slot);
 
-    HorizontalDirection getFacing();
-
     BattleParticipantBounds getBounds();
-
-    BattleParticipantBounds getBounds(HorizontalDirection facing);
 
     Text getName();
 

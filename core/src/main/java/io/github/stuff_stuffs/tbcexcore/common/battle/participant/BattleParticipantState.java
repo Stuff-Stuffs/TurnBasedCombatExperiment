@@ -215,30 +215,12 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     }
 
     @Override
-    public HorizontalDirection getFacing() {
-        final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
-        if (component == null) {
-            throw new TBCExException("required component is missing");
-        }
-        return component.getFacing();
-    }
-
-    @Override
     public BattleParticipantBounds getBounds() {
         final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
         if (component == null) {
             throw new TBCExException("required component is missing");
         }
         return component.getBounds();
-    }
-
-    @Override
-    public BattleParticipantBounds getBounds(final HorizontalDirection facing) {
-        final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
-        if (component == null) {
-            throw new TBCExException("required component is missing");
-        }
-        return component.getBounds(facing);
     }
 
     @Override

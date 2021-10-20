@@ -39,7 +39,6 @@ public final class BattleActionRegistry {
     public static final Type<TeleportBattleAction> TELEPORT_BATTLE_ACTION = new Type<>(TeleportBattleAction.CODEC);
     public static final Type<EndTurnBattleAction> END_TURN_BATTLE_ACTION = new Type<>(EndTurnBattleAction.CODEC);
     public static final Type<ParticipantEquipAction> PARTICIPANT_EQUIP_ACTION = new Type<>(ParticipantEquipAction.CODEC);
-    public static final Type<ParticipantRotateAction> PARTICIPANT_ROTATE_ACTION = new Type<>(ParticipantRotateAction.CODEC);
     public static final Type<ParticipantMoveBattleAction> PARTICIPANT_MOVE_BATTLE_ACTION = new Type<>(ParticipantMoveBattleAction.CODEC);
 
     private BattleActionRegistry() {
@@ -50,7 +49,6 @@ public final class BattleActionRegistry {
         Registry.register(REGISTRY, TBCExCore.createId("teleport"), TELEPORT_BATTLE_ACTION);
         Registry.register(REGISTRY, TBCExCore.createId("end_turn"), END_TURN_BATTLE_ACTION);
         Registry.register(REGISTRY, TBCExCore.createId("equip"), PARTICIPANT_EQUIP_ACTION);
-        Registry.register(REGISTRY, TBCExCore.createId("rotate"), PARTICIPANT_ROTATE_ACTION);
         Registry.register(REGISTRY, TBCExCore.createId("move"), PARTICIPANT_MOVE_BATTLE_ACTION);
     }
 

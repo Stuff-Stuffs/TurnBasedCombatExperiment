@@ -18,11 +18,11 @@ import java.util.Set;
 public enum BasicMovements implements MovementType {
     FALL {
         @Override
-        public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
+        public @Nullable Movement modify(final BattleParticipantBounds bounds, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             final double groundHeight = MovementType.getGroundHeight(bounds.offset(0, -1, 0), cache);
             if (groundHeight < 1 && !MovementType.doesCollideWith(bounds.offset(0, -0.01, 0), cache)) {
                 final boolean validEnding = MovementType.doesCollideWith(bounds.offset(0, -2, 0), cache);
-                return new Fall(pos, dir, validEnding);
+                return new Fall(pos, validEnding);
             }
             return null;
         }
@@ -35,7 +35,6 @@ public enum BasicMovements implements MovementType {
             final Fall fall = (Fall) movement;
             final RecordBuilder<T> builder = ops.mapBuilder();
             builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, fall.getStartPos()));
-            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, fall.direction));
             builder.add("valid_ending", Codec.BOOL.encodeStart(ops, fall.validEnding));
             return builder.build(ops.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
@@ -56,11 +55,11 @@ public enum BasicMovements implements MovementType {
             final boolean validEnding = Codec.BOOL.parse(ops, mapLike.get("valid_ending")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            return new Fall(startPos, direction, validEnding);
+            return new Fall(startPos, validEnding);
         }
     }, WALK_NORTH {
         @Override
-        public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
+        public @Nullable Movement modify(final BattleParticipantBounds bounds, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, -1), cache) && MovementType.doesCollideWith(bounds.offset(0, -1, -1), cache)) {
                 return createSimple(pos, pos.add(0, 0, -1), HorizontalDirection.NORTH, WALK_NORTH);
             }
@@ -76,7 +75,6 @@ public enum BasicMovements implements MovementType {
             final RecordBuilder<T> builder = ops.mapBuilder();
             builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, simple.start));
             builder.add("end_pos", BlockPos.CODEC.encodeStart(ops, simple.end));
-            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, simple.direction));
             return builder.build(ops.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
@@ -96,12 +94,12 @@ public enum BasicMovements implements MovementType {
             final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            return new Simple(startPos, endPos, direction, WALK_NORTH);
+            return new Simple(startPos, endPos, WALK_NORTH);
         }
     },
     WALK_SOUTH {
         @Override
-        public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
+        public @Nullable Movement modify(final BattleParticipantBounds bounds, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(0, 0, 1), cache) && MovementType.doesCollideWith(bounds.offset(0, -1, 1), cache)) {
                 return createSimple(pos, pos.add(0, 0, 1), HorizontalDirection.SOUTH, WALK_SOUTH);
             }
@@ -117,7 +115,6 @@ public enum BasicMovements implements MovementType {
             final RecordBuilder<T> builder = ops.mapBuilder();
             builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, simple.start));
             builder.add("end_pos", BlockPos.CODEC.encodeStart(ops, simple.end));
-            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, simple.direction));
             return builder.build(ops.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
@@ -134,14 +131,11 @@ public enum BasicMovements implements MovementType {
             final BlockPos endPos = BlockPos.CODEC.parse(ops, mapLike.get("end_pos")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
-                throw new RuntimeException(s);
-            });
-            return new Simple(startPos, endPos, direction, WALK_SOUTH);
+            return new Simple(startPos, endPos, WALK_SOUTH);
         }
     }, WALK_EAST {
         @Override
-        public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
+        public @Nullable Movement modify(final BattleParticipantBounds bounds, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(1, 0, 0), cache) && MovementType.doesCollideWith(bounds.offset(1, -1, 0), cache)) {
                 return createSimple(pos, pos.add(1, 0, 0), HorizontalDirection.EAST, WALK_EAST);
             }
@@ -157,7 +151,6 @@ public enum BasicMovements implements MovementType {
             final RecordBuilder<T> builder = ops.mapBuilder();
             builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, simple.start));
             builder.add("end_pos", BlockPos.CODEC.encodeStart(ops, simple.end));
-            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, simple.direction));
             return builder.build(ops.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
@@ -174,14 +167,11 @@ public enum BasicMovements implements MovementType {
             final BlockPos endPos = BlockPos.CODEC.parse(ops, mapLike.get("end_pos")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
-                throw new RuntimeException(s);
-            });
-            return new Simple(startPos, endPos, direction, WALK_EAST);
+            return new Simple(startPos, endPos, WALK_EAST);
         }
     }, WALK_WEST {
         @Override
-        public @Nullable Movement modify(final BattleParticipantBounds bounds, final HorizontalDirection dir, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
+        public @Nullable Movement modify(final BattleParticipantBounds bounds, final BlockPos pos, final Box pathBounds, final World world, final WorldShapeCache cache) {
             if (MovementType.doesCollideWith(bounds.offset(0, -1, 0), cache) && !MovementType.doesCollideWith(bounds.offset(-1, 0, 0), cache) && MovementType.doesCollideWith(bounds.offset(-1, -1, 0), cache)) {
                 return createSimple(pos, pos.add(-1, 0, 0), HorizontalDirection.EAST, WALK_WEST);
             }
@@ -197,7 +187,6 @@ public enum BasicMovements implements MovementType {
             final RecordBuilder<T> builder = ops.mapBuilder();
             builder.add("start_pos", BlockPos.CODEC.encodeStart(ops, simple.start));
             builder.add("end_pos", BlockPos.CODEC.encodeStart(ops, simple.end));
-            builder.add("direction", HorizontalDirection.CODEC.encodeStart(ops, simple.direction));
             return builder.build(ops.empty()).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
@@ -214,28 +203,23 @@ public enum BasicMovements implements MovementType {
             final BlockPos endPos = BlockPos.CODEC.parse(ops, mapLike.get("end_pos")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
-                throw new RuntimeException(s);
-            });
-            return new Simple(startPos, endPos, direction, WALK_WEST);
+            return new Simple(startPos, endPos, WALK_WEST);
         }
     };
 
     private static Movement createSimple(final BlockPos start, final BlockPos end, final HorizontalDirection endDir, final MovementType type) {
-        return new Simple(start, end, endDir, type);
+        return new Simple(start, end, type);
     }
 
     private static final class Simple implements Movement {
         private final BlockPos start;
         private final BlockPos end;
         private final BlockPos delta;
-        private final HorizontalDirection direction;
         private final MovementType type;
 
-        private Simple(final BlockPos start, final BlockPos end, final HorizontalDirection direction, final MovementType type) {
+        private Simple(final BlockPos start, final BlockPos end, final MovementType type) {
             this.start = start;
             this.end = end;
-            this.direction = direction;
             this.type = type;
             delta = end.subtract(start);
         }
@@ -266,11 +250,6 @@ public enum BasicMovements implements MovementType {
         }
 
         @Override
-        public HorizontalDirection getRotation(final double t) {
-            return direction;
-        }
-
-        @Override
         public MovementType getType() {
             return type;
         }
@@ -279,12 +258,10 @@ public enum BasicMovements implements MovementType {
     private static final class Fall implements Movement {
         private static final Set<MovementFlag> FLAGS = Set.of(MovementFlag.FALL);
         private final BlockPos start;
-        private final HorizontalDirection direction;
         private final boolean validEnding;
 
-        private Fall(final BlockPos start, final HorizontalDirection direction, final boolean validEnding) {
+        private Fall(final BlockPos start, final boolean validEnding) {
             this.start = start;
-            this.direction = direction;
             this.validEnding = validEnding;
         }
 
@@ -311,11 +288,6 @@ public enum BasicMovements implements MovementType {
         @Override
         public Vec3d interpolate(final Vec3d start, final double t) {
             return start.add(0, -1 * t, 0);
-        }
-
-        @Override
-        public HorizontalDirection getRotation(final double t) {
-            return direction;
         }
 
         @Override

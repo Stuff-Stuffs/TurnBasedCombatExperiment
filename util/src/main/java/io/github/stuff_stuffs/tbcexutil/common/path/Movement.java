@@ -34,8 +34,6 @@ public interface Movement {
 
     Vec3d interpolate(Vec3d start, double t);
 
-    HorizontalDirection getRotation(double t);
-
     default boolean isValidEnding() {
         return true;
     }

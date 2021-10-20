@@ -35,20 +35,7 @@ public final class ParticipantComponents {
     public static final Type<ParticipantPosComponent, ParticipantPosComponentView> POS_COMPONENT_TYPE = new Type<>((entity, battleStateView) -> {
         final BlockPos pos = ((Entity) entity).getBlockPos();
         final BattleParticipantBounds bounds = entity.getBounds().withCenter(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-        Direction bestDir = Direction.NORTH;
-        double best = Double.NEGATIVE_INFINITY;
-        final Vec3d facingVec = ((Entity) entity).getRotationVec(1);
-        for (final Direction direction : Direction.values()) {
-            if (direction.getAxis() != Direction.Axis.Y) {
-                final double cur = new Vec3d(direction.getOffsetX(), direction.getOffsetY(), direction.getOffsetZ()).dotProduct(facingVec);
-                if (cur > best) {
-                    bestDir = direction;
-                    best = cur;
-                }
-            }
-        }
-        final HorizontalDirection facing = HorizontalDirection.fromDirection(bestDir);
-        return new ParticipantPosComponent(pos, bounds, facing);
+        return new ParticipantPosComponent(pos, bounds);
     }, ParticipantPosComponent.CODEC, ParticipantComponentKey.get(ParticipantPosComponent.class, ParticipantPosComponentView.class), Set.of());
 
     public static final Type<ParticipantInfoComponent, ParticipantInfoComponentView> INFO_COMPONENT_TYPE = new Type<>((entity, battleParticipantStateView) -> {

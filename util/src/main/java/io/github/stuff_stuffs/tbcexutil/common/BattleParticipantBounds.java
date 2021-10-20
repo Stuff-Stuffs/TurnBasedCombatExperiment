@@ -17,34 +17,14 @@ import java.util.Optional;
 
 public final class BattleParticipantBounds implements Iterable<BattleParticipantBounds.Part> {
     private static final Codec<Part> PART_CODEC = RecordCodecBuilder.create(instance -> instance.group(Identifier.CODEC.fieldOf("name").forGetter(part -> part.name), CodecUtil.BOX_CODEC.fieldOf("box").forGetter(part -> part.box)).apply(instance, Part::new));
-    public static final Codec<BattleParticipantBounds> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.unboundedMap(Identifier.CODEC, PART_CODEC).fieldOf("parts").forGetter(bounds -> bounds.parts), CodecUtil.VEC3D_CODEC.fieldOf("center").forGetter(bounds -> bounds.center), HorizontalDirection.CODEC.fieldOf("direction").forGetter(bounds -> bounds.direction)).apply(instance, BattleParticipantBounds::new));
+    public static final Codec<BattleParticipantBounds> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.unboundedMap(Identifier.CODEC, PART_CODEC).fieldOf("parts").forGetter(bounds -> bounds.parts), CodecUtil.VEC3D_CODEC.fieldOf("center").forGetter(bounds -> bounds.center)).apply(instance, BattleParticipantBounds::new));
 
     private final Map<Identifier, Part> parts;
     private final Vec3d center;
-    private final HorizontalDirection direction;
-    private final Map<HorizontalDirection, BattleParticipantBounds> rotationCache;
 
     private BattleParticipantBounds(final Map<Identifier, Part> parts, final Vec3d center) {
         this.parts = parts;
-        direction = HorizontalDirection.NORTH;
-        rotationCache = new EnumMap<>(HorizontalDirection.class);
-        rotationCache.put(HorizontalDirection.NORTH, this);
         this.center = center;
-    }
-
-    private BattleParticipantBounds(final Map<Identifier, Part> parts, final Vec3d center, final HorizontalDirection dir) {
-        this.parts = parts;
-        this.center = center;
-        direction = dir;
-        rotationCache = new EnumMap<>(HorizontalDirection.class);
-        rotationCache.put(HorizontalDirection.NORTH, this);
-    }
-
-    private BattleParticipantBounds(final Map<Identifier, Part> parts, final Vec3d center, final HorizontalDirection dir, final Map<HorizontalDirection, BattleParticipantBounds> rotationCache) {
-        this.parts = parts;
-        this.center = center;
-        direction = dir;
-        this.rotationCache = rotationCache;
     }
 
     public BattleParticipantBounds offset(final double x, final double y, final double z) {
@@ -60,26 +40,6 @@ public final class BattleParticipantBounds implements Iterable<BattleParticipant
 
     public BattleParticipantBounds withCenter(final double x, final double y, final double z) {
         return offset(-center.x, -center.y, -center.z).offset(x, y, z);
-    }
-
-    public BattleParticipantBounds withRotation(final HorizontalDirection dir) {
-        if (dir == direction) {
-            return this;
-        } else {
-            return rotationCache.computeIfAbsent(dir, this::computeRotation);
-        }
-    }
-
-    private BattleParticipantBounds computeRotation(final HorizontalDirection direction) {
-        final HorizontalRotation rotation = HorizontalRotation.compute(this.direction, direction);
-        if (rotation == HorizontalRotation.R0) {
-            return this;
-        }
-        final Map<Identifier, Part> parts = new Object2ReferenceOpenHashMap<>();
-        for (final Part part : this.parts.values()) {
-            parts.put(part.name, new Part(part.name, rotation.rotateBox(part.box.offset(-center.x, -center.y, -center.z)).offset(center)));
-        }
-        return new BattleParticipantBounds(parts, center, direction, rotationCache);
     }
 
     public @Nullable RaycastResult raycast(final Vec3d start, final Vec3d end) {

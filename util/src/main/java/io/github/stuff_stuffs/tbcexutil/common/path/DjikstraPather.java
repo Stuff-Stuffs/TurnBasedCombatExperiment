@@ -50,7 +50,7 @@ public final class DjikstraPather implements Pather {
     }
 
     @Override
-    public List<Path> getPaths(final BlockPos startPos, final HorizontalDirection startDir, final BattleParticipantBounds bounds, final Box pathBounds, final World world, final Collection<MovementType> movementTypes, final Collection<PathProcessor> processors) {
+    public List<Path> getPaths(final BlockPos startPos, final BattleParticipantBounds bounds, final Box pathBounds, final World world, final Collection<MovementType> movementTypes, final Collection<PathProcessor> processors) {
         final PathHeap<Node> queue = new PathHeap<>(128);
         final Map<BlockPos, Node> nodes = new Object2ReferenceOpenHashMap<>(128);
         final Node start = new Node(startPos, null, startPos, null, 0);
@@ -60,9 +60,8 @@ public final class DjikstraPather implements Pather {
         while (!queue.isEmpty()) {
             final Node node = queue.dequeue();
             final BattleParticipantBounds moved = bounds.offset(node.pos.getX() - startPos.getX(), node.pos.getY() - startPos.getY(), node.pos.getZ() - startPos.getZ());
-            final HorizontalDirection dir = node.movement == null ? startDir : node.movement.getRotation(node.movement.getLength());
             for (final MovementType movementType : movementTypes) {
-                final Movement movement = movementType.modify(moved, dir, node.pos, pathBounds, world, shapeCache);
+                final Movement movement = movementType.modify(moved, node.pos, pathBounds, world, shapeCache);
                 if (movement != null) {
                     final Node next = nodes.computeIfAbsent(movement.getEndPos(), pos -> {
                         final Node n = new Node(startPos, node, pos, movement, node.cost + movement.getCost());

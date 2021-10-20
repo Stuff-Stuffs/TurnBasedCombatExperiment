@@ -10,5 +10,5 @@ import java.util.Collection;
 import java.util.List;
 
 public interface Pather {
-    List<Path> getPaths(BlockPos pos, HorizontalDirection startDir, BattleParticipantBounds bounds, Box pathBounds, World world, Collection<MovementType> movementTypes, Collection<PathProcessor> processors);
+    List<Path> getPaths(BlockPos pos, BattleParticipantBounds bounds, Box pathBounds, World world, Collection<MovementType> movementTypes, Collection<PathProcessor> processors);
 }

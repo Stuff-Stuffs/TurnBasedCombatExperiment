@@ -22,7 +22,7 @@ import static net.minecraft.util.math.MathHelper.ceil;
 import static net.minecraft.util.math.MathHelper.floor;
 
 public interface MovementType {
-    @Nullable Movement modify(BattleParticipantBounds bounds, HorizontalDirection dir, BlockPos pos, Box pathBounds, World world, WorldShapeCache cache);
+    @Nullable Movement modify(BattleParticipantBounds bounds, BlockPos pos, Box pathBounds, World world, WorldShapeCache cache);
 
     <T> T serialize(DynamicOps<T> ops, Movement movement);
 
