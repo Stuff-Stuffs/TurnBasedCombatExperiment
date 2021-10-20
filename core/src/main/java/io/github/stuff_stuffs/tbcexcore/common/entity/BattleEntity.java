@@ -1,7 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.entity;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.BattleTimelineView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
@@ -25,6 +24,10 @@ public interface BattleEntity {
     double tbcex_getVitality();
 
     double tbcex_getDexterity();
+
+    double tbcex_getPerception();
+
+    int tbcex_getLevel();
 
     BattleParticipantBounds getBounds();
 

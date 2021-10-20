@@ -77,6 +77,16 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
     }
 
     @Override
+    public int tbcex_getLevel() {
+        return 1;
+    }
+
+    @Override
+    public double tbcex_getPerception() {
+        return 3;
+    }
+
+    @Override
     public BattleParticipantBounds getBounds() {
         return BattleParticipantBounds.builder().add(TBCExCore.createId("body"), new Box(0, 0, 0, 1, 1.5, 1)).add(TBCExCore.createId("head"), new Box(0.25, 1.5, 0.25, 0.75, 2, 0.75)).build(new Vec3d(0.5, 0, 0.5));
     }

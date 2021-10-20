@@ -29,6 +29,7 @@ public final class ParticipantInfoComponent extends AbstractParticipantComponent
                     CodecUtil.TEXT_CODEC.fieldOf("name").forGetter(component -> component.name),
                     BattleParticipantInventory.CODEC.fieldOf("inventory").forGetter(component -> component.inventory),
                     BattleParticipantStats.CODEC.fieldOf("stats").forGetter(component -> component.stats),
+                    Codec.INT.fieldOf("level").forGetter(component -> component.level),
                     Codec.DOUBLE.fieldOf("health").forGetter(component -> component.health),
                     Codec.DOUBLE.fieldOf("energy").forGetter(component -> component.energy)
             ).apply(instance, ParticipantInfoComponent::new)
@@ -36,24 +37,27 @@ public final class ParticipantInfoComponent extends AbstractParticipantComponent
     private final Text name;
     private final BattleParticipantInventory inventory;
     private final BattleParticipantStats stats;
+    private final int level;
     private double health;
     private double energy;
     private EventListenerHandle turnEventHandle;
     private boolean setupEnergy;
 
-    public ParticipantInfoComponent(final Text name, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health, final double energy) {
+    public ParticipantInfoComponent(final Text name, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final int level, final double health, final double energy) {
         this.name = name;
         this.inventory = inventory;
         this.stats = stats;
+        this.level = level;
         this.health = health;
         this.energy = energy;
         setupEnergy = true;
     }
 
-    public ParticipantInfoComponent(final Text name, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final double health) {
+    public ParticipantInfoComponent(final Text name, final BattleParticipantInventory inventory, final BattleParticipantStats stats, final int level, final double health) {
         this.name = name;
         this.inventory = inventory;
         this.stats = stats;
+        this.level = level;
         this.health = health;
         setupEnergy = false;
     }
@@ -142,8 +146,13 @@ public final class ParticipantInfoComponent extends AbstractParticipantComponent
     }
 
     @Override
-    public double getRawStat(BattleParticipantStat stat) {
+    public double getRawStat(final BattleParticipantStat stat) {
         return stats.getRaw(stat);
+    }
+
+    @Override
+    public int getLevel() {
+        return level;
     }
 
     public @Nullable BattleDamagePacket damage(final BattleDamagePacket packet) {

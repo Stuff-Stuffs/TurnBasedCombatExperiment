@@ -8,9 +8,9 @@ import io.github.stuff_stuffs.tbcexanimation.client.model.SkeletonData;
 import io.github.stuff_stuffs.tbcexanimation.client.model.bundle.ModelPartBundle;
 import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
-import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
+import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -129,6 +129,16 @@ public class TestEntity extends LivingEntity implements BattleEntity {
 
     @Override
     public double tbcex_getDexterity() {
+        return 1;
+    }
+
+    @Override
+    public double tbcex_getPerception() {
+        return 10;
+    }
+
+    @Override
+    public int tbcex_getLevel() {
         return 1;
     }
 

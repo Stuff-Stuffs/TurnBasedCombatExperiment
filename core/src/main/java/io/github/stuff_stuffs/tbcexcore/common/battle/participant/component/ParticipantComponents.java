@@ -56,14 +56,14 @@ public final class ParticipantComponents {
         final BattleParticipantInventory inventory = new BattleParticipantInventory(entity);
         final BattleParticipantStats stats = new BattleParticipantStats(entity);
         final double health = entity.tbcex_getCurrentHealth();
-        return new ParticipantInfoComponent(name, inventory, stats, health);
+        return new ParticipantInfoComponent(name, inventory, stats, entity.tbcex_getLevel(), health);
     }, ParticipantInfoComponent.CODEC, ParticipantComponentKey.get(ParticipantInfoComponent.class, ParticipantInfoComponentView.class), Set.of());
 
     public static final Type<ParticipantRestoreComponent, ParticipantRestoreComponent> RESTORE_COMPONENT_TYPE = new Type<>((entity, battleParticipantStateView) -> {
         if (entity.tbcex_shouldSaveToTag()) {
             NbtCompound compound = new NbtCompound();
             ((Entity) entity).saveNbt(compound);
-            ((Entity)entity).remove(Entity.RemovalReason.DISCARDED);
+            ((Entity) entity).remove(Entity.RemovalReason.DISCARDED);
             return new ParticipantRestoreComponent(Optional.of(compound), ((Entity) entity).getPos());
         }
         entity.onBattleJoin(battleParticipantStateView.getBattleState().getHandle());

@@ -46,9 +46,8 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
         if (curComponent == null || targetComponent == null) {
             return;
         }
-        //TODO should change to perception when we add it
-        final double perception = curComponent.getStat(BattleParticipantStat.INTELLIGENCE_STAT);
-        final double targetPerception = targetComponent.getStat(BattleParticipantStat.INTELLIGENCE_STAT);
+        final double perception = curComponent.getStat(BattleParticipantStat.PERCEPTION_STAT);
+        final double targetPerception = targetComponent.getLevel();
         final double effect = calcEffect(targetPerception - perception);
         final Random rangeRandom = new Random(target.participantId().getLeastSignificantBits() ^ target.participantId().getMostSignificantBits());
 
@@ -57,8 +56,8 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
         render(vertexConsumers -> {
             final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER);
             matrices.translate(0, 0, 2);
-            renderFitText(matrices, new LiteralText("Stat"), x, y, width * 0.25, entryHeight, false, NEUTRAL_COLOUR, 255, vertexConsumers);
-            renderFitText(matrices, new LiteralText("Possible Range(lo-hi)"), x + width * 0.3, y, width * 0.7, entryHeight, false, NEUTRAL_COLOUR, 255, vertexConsumers);
+            renderFitText(matrices, new LiteralText("Stat"), x, y, width * 0.35, entryHeight, false, NEUTRAL_COLOUR, 255, vertexConsumers);
+            renderFitText(matrices, new LiteralText("Possible Range(lo-hi)"), x + width * 0.4, y, width * 0.6, entryHeight, false, NEUTRAL_COLOUR, 255, vertexConsumers);
             matrices.translate(0, 0, -1);
             RenderUtil.renderRectangle(matrices, x, y, width, entryHeight, FIRST_BACKGROUND_COLOUR, 255, vertexConsumer);
             matrices.translate(0, 0, -1);
@@ -84,7 +83,7 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
 
     private void renderStatEntry(final double val, double rangeSize, final Random rangeFinder, final BattleParticipantStat stat, final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {
         rangeSize = ParticipantSelfStatListWidget.floorToNearestHundredth(rangeSize);
-        if(stat==BattleParticipantStat.MAX_HEALTH_STAT) {
+        if (stat == BattleParticipantStat.MAX_HEALTH_STAT) {
             rangeSize = 0;
         }
         final double x = position.getX();
@@ -130,11 +129,12 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
             }
         }
 
-        renderFitText(matrices, stat.getName(), x, y, width * 0.25, entryHeight, true, ParticipantSelfStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
-        renderFitText(matrices, text, x + width * 0.3, y, width * 0.7, entryHeight, true, ParticipantSelfStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
+        renderFitText(matrices, stat.getName(), x, y, width * 0.35, entryHeight, true, ParticipantSelfStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
+        renderFitText(matrices, text, x + width * 0.4, y, width * 0.6, entryHeight, true, ParticipantSelfStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
     }
 
-    private static double calcEffect(final double perceptionDelta) {
+    private static double calcEffect(double perceptionDelta) {
+        perceptionDelta += 5;
         if (perceptionDelta <= 0) {
             return 0;
         } else if (perceptionDelta <= 10) {
