@@ -8,6 +8,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import org.jetbrains.annotations.Nullable;
@@ -49,8 +50,7 @@ public class BlockPosTargetType extends AbstractBoxedTargetType<BiFunction<Battl
                 if (iterator.hasNext()) {
                     final BattleParticipantStateView battleParticipant = battle.getState().getParticipant(user);
                     if (battleParticipant == null) {
-                        //TODO
-                        throw new RuntimeException();
+                        throw new TBCExException("missing battle participant in battle");
                     }
                     final BlockPos location = iterator.next();
                     return Pair.of(new Box(location), (battle, user) -> new BlockPosTargetInstance(location, battleParticipant.getPos().getSquaredDistance(location), BlockPosTargetType.this));

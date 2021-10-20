@@ -3,10 +3,11 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target
 import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
-import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
+import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +33,7 @@ public class ParticipantTargetType implements TargetType {
         for (final BattleParticipantHandle target : targets) {
             final BattleParticipantStateView targetState = battleState.getParticipant(target);
             if (targetState == null) {
-                //TODO
-                throw new RuntimeException();
+                throw new TBCExException("missing battle participant in battle");
             }
             final BattleParticipantBounds bounds = targetState.getBounds();
             if (checkDistance(bounds, pos, closestDistance)) {
@@ -63,8 +63,7 @@ public class ParticipantTargetType implements TargetType {
         for (final BattleParticipantHandle targetHandle : locations) {
             final BattleParticipantStateView target = battle.getParticipant(targetHandle);
             if (target == null) {
-                //TODO
-                throw new RuntimeException();
+                throw new TBCExException("missing battle participant in battle");
             }
 
             final boolean targetedTarget = inst && targetHandle.equals(((ParticipantTargetInstance) hovered).getHandle());

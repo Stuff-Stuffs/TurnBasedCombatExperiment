@@ -4,6 +4,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetInstance;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetType;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import org.jetbrains.annotations.Nullable;
@@ -56,8 +57,7 @@ public final class ParticipantActionInstance {
             list.add(instance);
             update();
         } else {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("target instance type does not match expected");
         }
     }
 

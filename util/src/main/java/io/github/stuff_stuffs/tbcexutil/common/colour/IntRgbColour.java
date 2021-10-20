@@ -17,8 +17,7 @@ public final class IntRgbColour implements RgbColour {
 
     public IntRgbColour(final int r, final int g, final int b) {
         if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
-            //TODO
-            throw new RuntimeException();
+            throw new IllegalArgumentException("r, g, and b must be between 0 and 255 inclusive");
         }
         this.r = r;
         this.g = g;
@@ -28,8 +27,7 @@ public final class IntRgbColour implements RgbColour {
     @Override
     public int pack(final int a) {
         if (a < 0 || a > 255) {
-            //TODO
-            throw new RuntimeException();
+            throw new IllegalArgumentException("a must be between 0 and 255 inclusive");
         }
         return a << 24 | r << 16 | g << 8 | b;
     }

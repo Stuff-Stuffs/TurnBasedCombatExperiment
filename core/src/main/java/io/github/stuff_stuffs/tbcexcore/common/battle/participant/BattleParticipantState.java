@@ -3,7 +3,6 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.participant;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
@@ -15,9 +14,11 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -74,7 +75,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
         while (lastAdded) {
             lastAdded = false;
             for (final ParticipantComponents.Type<?, ?> type : ParticipantComponents.REGISTRY) {
-                if(componentsByType.containsKey(type)) {
+                if (componentsByType.containsKey(type)) {
                     continue;
                 }
                 boolean acceptable = true;
@@ -154,8 +155,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public @Nullable BattleParticipantItemStack getItemStack(final BattleParticipantInventoryHandle handle) {
         final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getItemStack(handle);
     }
@@ -164,8 +164,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public @Nullable BattleParticipantItemStack getEquipmentStack(final BattleEquipmentSlot slot) {
         final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getEquipmentStack(slot);
     }
@@ -174,8 +173,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public Iterator<BattleParticipantInventoryHandle> getInventoryIterator() {
         final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getInventoryIterator();
     }
@@ -184,8 +182,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public double getStat(final BattleParticipantStat stat) {
         final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getStat(stat);
     }
@@ -194,8 +191,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public double getHealth() {
         final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getHealth();
     }
@@ -204,8 +200,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public BlockPos getPos() {
         final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getPos();
     }
@@ -214,8 +209,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public BattleEquipment getEquipment(final BattleEquipmentSlot slot) {
         final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getEquipment(slot);
     }
@@ -224,8 +218,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public HorizontalDirection getFacing() {
         final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getFacing();
     }
@@ -234,8 +227,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public BattleParticipantBounds getBounds() {
         final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getBounds();
     }
@@ -244,8 +236,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public BattleParticipantBounds getBounds(final HorizontalDirection facing) {
         final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getBounds(facing);
     }
@@ -254,8 +245,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public Text getName() {
         final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getName();
     }
@@ -264,8 +254,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     public double getEnergy() {
         final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         if (component == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is missing");
         }
         return component.getEnergy();
     }

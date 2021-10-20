@@ -9,6 +9,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public final class Battle implements AdvanceTurnEvent {
         timeline = new BattleTimeline();
     }
 
-    public void setWorld(World world) {
+    public void setWorld(final World world) {
         this.world = world;
         state.setWorld(world);
     }
@@ -70,8 +71,7 @@ public final class Battle implements AdvanceTurnEvent {
             action.applyToState(state);
             timeline.push(action);
         } else {
-            //TODO log
-            throw new RuntimeException();
+            throw new TBCExException("tried action not on turn");
         }
     }
 

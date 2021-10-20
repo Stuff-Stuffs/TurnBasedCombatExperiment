@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.AbstractParticipantComponent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 
 import java.util.ArrayList;
@@ -58,8 +59,7 @@ public class ParticipantStatusEffectComponent extends AbstractParticipantCompone
             final ParticipantStatusEffect combined = type.combiner.apply(cur, effect);
             if (combined != null) {
                 if (combined.getType() != type) {
-                    //TODO
-                    throw new RuntimeException();
+                    throw new TBCExException("combined status effect type not same as parts");
                 }
                 statusEffectMap.put(type, combined);
                 combined.init(state);

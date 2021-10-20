@@ -1,8 +1,9 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,8 +23,7 @@ public interface TargetType {
 
         public Compound(final TargetType... targetTypes) {
             if (targetTypes.length == 0) {
-                //TODO
-                throw new RuntimeException();
+                throw new TBCExException("compound target type of length 0");
             }
             this.targetTypes = targetTypes;
         }

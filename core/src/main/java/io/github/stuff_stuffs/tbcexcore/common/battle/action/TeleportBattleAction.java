@@ -2,12 +2,13 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.action;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantInfoComponent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantPosComponent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.util.math.BlockPos;
 
 public final class TeleportBattleAction extends BattleAction<TeleportBattleAction> {
@@ -35,8 +36,7 @@ public final class TeleportBattleAction extends BattleAction<TeleportBattleActio
         final ParticipantInfoComponent infoComponent = participant.getMutComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         final ParticipantPosComponent posComponent = participant.getMutComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
         if (infoComponent == null || posComponent == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("component is null");
         }
         if (infoComponent.useEnergy(energyCost)) {
             posComponent.setPos(pos);

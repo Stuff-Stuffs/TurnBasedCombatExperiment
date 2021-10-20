@@ -8,8 +8,7 @@ public final class HsvColour implements Colour {
 
     public HsvColour(final float h, final float s, final float v) {
         if (h < 0 || h > 360 || s < 0 || s > 1 || v < 0 || v > 255) {
-            //TODO
-            throw new RuntimeException();
+            throw new IllegalArgumentException("h must be between 0 and 360 inclusive, s and v must be between 0 and 1 inclusive");
         }
         this.h = h;
         this.s = s;

@@ -17,7 +17,6 @@ public enum HorizontalDirection {
         @Override
         public <T> DataResult<Pair<HorizontalDirection, T>> decode(final DynamicOps<T> ops, final T input) {
             return DataResult.success(Pair.of(ops.getStringValue(input).map(HorizontalDirection::valueOf).getOrThrow(false, s -> {
-                //TODO
                 throw new RuntimeException();
             }), input));
         }

@@ -12,6 +12,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexutil.common.LoggerUtil;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 
 public final class ParticipantEquipAction extends BattleAction<ParticipantEquipAction> {
     public static final Codec<ParticipantEquipAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -43,8 +44,7 @@ public final class ParticipantEquipAction extends BattleAction<ParticipantEquipA
         }
         final ParticipantInfoComponent component = participant.getMutComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         if(component==null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("component is null");
         }
         if(component.useEnergy(energyCost)) {
             if (!component.equip(slot, itemStack)) {

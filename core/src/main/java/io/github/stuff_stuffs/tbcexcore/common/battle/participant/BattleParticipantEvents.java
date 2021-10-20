@@ -20,8 +20,7 @@ public final class BattleParticipantEvents {
 
     public static <View, Mut> void register(final Identifier id, final EventKey<Mut, View> key, final EventFactory<Mut, View> factory) {
         if (IDENTIFIER_EVENT_MAPPING.put(id, key) != null) {
-            //TODO
-            throw new RuntimeException();
+            throw new IllegalArgumentException("event already present");
         }
         EVENT_FACTORIES.put(id, Pair.of(key, factory));
     }

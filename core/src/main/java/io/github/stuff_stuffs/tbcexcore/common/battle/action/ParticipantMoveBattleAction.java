@@ -10,6 +10,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.Part
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantInfoComponent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantPosComponent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import io.github.stuff_stuffs.tbcexutil.common.path.Movement;
 
 import java.util.List;
@@ -22,7 +23,6 @@ public final class ParticipantMoveBattleAction extends BattleAction<ParticipantM
     private final BattlePath path;
 
     public ParticipantMoveBattleAction(final BattleParticipantHandle actor, final BattlePath path) {
-        //TODO path independent costs
         super(actor, path.getCost());
         this.path = path;
     }
@@ -36,8 +36,7 @@ public final class ParticipantMoveBattleAction extends BattleAction<ParticipantM
         final ParticipantInfoComponent infoComponent = participant.getMutComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
         final ParticipantPosComponent posComponent = participant.getMutComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
         if (posComponent == null || infoComponent == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("component is null");
         }
         final List<Movement> movements = path.getPath().getMovements();
         for (int i = 0; i < movements.size(); i++) {

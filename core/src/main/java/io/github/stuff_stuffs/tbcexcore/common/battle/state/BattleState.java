@@ -15,6 +15,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComp
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComponents;
 import io.github.stuff_stuffs.tbcexcore.common.battle.turnchooser.TurnChooser;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.world.World;
@@ -90,8 +91,7 @@ public final class BattleState implements BattleStateView {
         }
         final ParticipantPosComponent posComponent = state.getMutComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
         if (posComponent == null) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("required component is null");
         }
         posComponent.setPos(bounds.getNearest(state.getPos()));
         if (participants.containsKey(state.getHandle())) {
@@ -164,7 +164,7 @@ public final class BattleState implements BattleStateView {
         return Iterators.unmodifiableIterator(participants.keySet().iterator());
     }
 
-    public void setWorld(World world) {
+    public void setWorld(final World world) {
         this.world = world;
     }
 

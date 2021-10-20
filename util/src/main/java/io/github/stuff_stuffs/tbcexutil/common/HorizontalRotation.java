@@ -17,7 +17,6 @@ public enum HorizontalRotation {
         @Override
         public <T> DataResult<Pair<HorizontalRotation, T>> decode(final DynamicOps<T> ops, final T input) {
             return DataResult.success(Pair.of(HorizontalRotation.valueOf(ops.getStringValue(input).getOrThrow(false, s -> {
-                //TODO
                 throw new RuntimeException();
             })), input));
         }

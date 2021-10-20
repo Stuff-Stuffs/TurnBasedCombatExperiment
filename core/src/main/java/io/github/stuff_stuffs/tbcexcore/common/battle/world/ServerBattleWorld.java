@@ -7,6 +7,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.action.ParticipantJoinBatt
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexcore.common.network.PlayerJoinBattleSender;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -31,7 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-//TODO remember valid battle ids
 public final class ServerBattleWorld implements BattleWorld {
     private static final Logger LOGGER = TBCExCore.LOGGER;
     //TODO config option
@@ -133,8 +133,7 @@ public final class ServerBattleWorld implements BattleWorld {
             buffer.putInt(nextId);
             metaStream.write(buffer.array());
         } catch (final IOException e) {
-            //TODO
-            throw new RuntimeException();
+            throw new TBCExException("error during saving battle", e);
         }
     }
 
