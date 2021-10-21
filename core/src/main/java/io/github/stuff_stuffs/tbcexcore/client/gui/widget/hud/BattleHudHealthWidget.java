@@ -37,6 +37,7 @@ import java.util.Iterator;
 public class BattleHudHealthWidget extends AbstractWidget {
     private static final Quaternion FLIP_Z_AXIS = Vec3f.NEGATIVE_Z.getDegreesQuaternion(180);
     private static final WidgetPosition ROOT = WidgetPosition.of(0, 0, 0);
+    private static final Identifier BOSS_BAR_TEXTURE = new Identifier("minecraft", "textures/gui/bars.png");
     private final BattleHandle handle;
     private final World world;
 
@@ -112,12 +113,12 @@ public class BattleHudHealthWidget extends AbstractWidget {
                 final double width = dist;
                 final double height = dist / 8.0;
                 final VertexConsumer posColour = vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_TRANSPARENT_LAYER);
-                RenderUtil.colour(RenderUtil.position(posColour, width*1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
-                RenderUtil.colour(RenderUtil.position(posColour, -width*1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
-                RenderUtil.colour(RenderUtil.position(posColour, -width*1.05 / 2.0, height*3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
-                RenderUtil.colour(RenderUtil.position(posColour, width*1.05 / 2.0, height*3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
 
-                final VertexConsumer posColourTex = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(new Identifier("minecraft", "textures/gui/bars.png"), false));
+                final VertexConsumer posColourTex = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(BOSS_BAR_TEXTURE, false));
                 RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width / 2.0, 0, 0, matrixStack), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
                 RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, -width / 2.0 * percent, 0, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
                 RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, -width / 2.0 * percent, height, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
