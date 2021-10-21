@@ -111,11 +111,17 @@ public class BattleHudHealthWidget extends AbstractWidget {
 
                 final double width = dist;
                 final double height = dist / 8.0;
-                final VertexConsumer opaque = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(new Identifier("minecraft", "textures/gui/bars.png"), false));
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, width / 2.0, 0, 0, matrixStack), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, -width / 2.0 * percent, 0, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, -width / 2.0 * percent, height, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, width / 2.0, height, 0, matrixStack), colour, 255), 0, (6 * 10 + 10) / 256.0).next();
+                final VertexConsumer posColour = vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_TRANSPARENT_LAYER);
+                RenderUtil.colour(RenderUtil.position(posColour, width*1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                RenderUtil.colour(RenderUtil.position(posColour, -width*1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                RenderUtil.colour(RenderUtil.position(posColour, -width*1.05 / 2.0, height*3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                RenderUtil.colour(RenderUtil.position(posColour, width*1.05 / 2.0, height*3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+
+                final VertexConsumer posColourTex = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(new Identifier("minecraft", "textures/gui/bars.png"), false));
+                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width / 2.0, 0, 0, matrixStack), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
+                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, -width / 2.0 * percent, 0, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
+                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, -width / 2.0 * percent, height, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
+                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width / 2.0, height, 0, matrixStack), colour, 255), 0, (6 * 10 + 10) / 256.0).next();
                 matrixStack.translate(0, height, -0.001);
                 matrixStack.multiply(FLIP_Z_AXIS);
                 final Text text = AbstractParticipantStatListWidget.format(health).setStyle(Style.EMPTY).append(new LiteralText("/")).append(AbstractParticipantStatListWidget.format(maxHealth).setStyle(Style.EMPTY));
