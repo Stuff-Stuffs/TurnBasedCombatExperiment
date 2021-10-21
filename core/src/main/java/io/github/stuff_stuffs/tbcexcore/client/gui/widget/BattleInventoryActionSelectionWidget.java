@@ -1,9 +1,10 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
 import io.github.stuff_stuffs.tbcexcore.client.gui.BattleActionScreen;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.ParentWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
@@ -35,7 +36,14 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
                             0.15,
                             action::getName,
                             action::getTooltip,
-                            () -> MinecraftClient.getInstance().setScreen(new BattleActionScreen(handle, action.createInstance(battleState, handle)))
+                            () -> {
+                                final ParticipantActionInstance instance = action.createInstance(battleState, handle);
+                                if (instance.getNextType() == null && instance.canActivate()) {
+                                    instance.activate();
+                                } else {
+                                    MinecraftClient.getInstance().setScreen(new BattleActionScreen(handle, instance));
+                                }
+                            }
                     )
             );
             index++;

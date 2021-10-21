@@ -28,10 +28,7 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
         passEvents = true;
         final ParentWidget root = (ParentWidget) widget;
         root.addWidget(new BattleActionRenderTargetsWidget(actionInstance));
-        if (actionInstance.getNextType() == null && actionInstance.canActivate()) {
-            actionInstance.activate();
-            onClose();
-        }
+
     }
 
     @Override
