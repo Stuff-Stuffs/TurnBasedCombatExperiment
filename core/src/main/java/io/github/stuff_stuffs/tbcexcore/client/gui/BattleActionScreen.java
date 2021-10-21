@@ -20,14 +20,18 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
     private final Screen prevScreen;
     private boolean locked = false;
 
-    public BattleActionScreen(BattleParticipantHandle handle, final ParticipantActionInstance actionInstance) {
+    public BattleActionScreen(final BattleParticipantHandle handle, final ParticipantActionInstance actionInstance) {
         super(new LiteralText("Battle Action"), new RootPanelWidget());
         this.handle = handle;
         this.actionInstance = actionInstance;
         prevScreen = MinecraftClient.getInstance().currentScreen;
         passEvents = true;
-        ParentWidget root = (ParentWidget) this.widget;
+        final ParentWidget root = (ParentWidget) widget;
         root.addWidget(new BattleActionRenderTargetsWidget(actionInstance));
+        if (actionInstance.getNextType() == null && actionInstance.canActivate()) {
+            actionInstance.activate();
+            onClose();
+        }
     }
 
     @Override
@@ -50,8 +54,8 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
 
     @Override
     public void tick() {
-        Battle battle = ((BattleWorldSupplier)MinecraftClient.getInstance().world).tbcex_getBattleWorld().getBattle(handle.battleId());
-        if(battle==null || !handle.equals(battle.getState().getCurrentTurn())) {
+        final Battle battle = ((BattleWorldSupplier) MinecraftClient.getInstance().world).tbcex_getBattleWorld().getBattle(handle.battleId());
+        if (battle == null || !handle.equals(battle.getState().getCurrentTurn())) {
             MinecraftClient.getInstance().setScreen(null);
         }
     }
@@ -59,7 +63,7 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
     @Override
     public void onClose() {
         MinecraftClient.getInstance().setScreen(prevScreen);
-        if(prevScreen!=null) {
+        if (prevScreen != null) {
             prevScreen.tick();
         }
     }
