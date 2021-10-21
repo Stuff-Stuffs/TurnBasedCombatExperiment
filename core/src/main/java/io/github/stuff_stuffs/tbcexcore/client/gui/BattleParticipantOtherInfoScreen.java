@@ -103,7 +103,7 @@ public class BattleParticipantOtherInfoScreen extends TBCExScreen implements Mou
             final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
             if (battle != null) {
                 final Vec3d start = MinecraftClient.getInstance().cameraEntity.getClientCameraPosVec(1);
-                final Vec3d end = start.add(MinecraftClient.getInstance().cameraEntity.getRotationVecClient().multiply(64));
+                final Vec3d end = start.add(ClientUtil.getMouseVector().multiply(64));
                 double bestDist = Double.POSITIVE_INFINITY;
                 BattleParticipantHandle best = null;
                 Iterator<BattleParticipantHandle> iterator = battle.getState().getParticipants();

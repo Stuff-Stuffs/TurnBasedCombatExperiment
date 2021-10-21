@@ -42,5 +42,6 @@ public final class BattleParticipantStat {
         Registry.register(REGISTRY, TBCExCore.createId("vitality"), VITALITY_STAT);
         Registry.register(REGISTRY, TBCExCore.createId("strength"), STRENGTH_STAT);
         Registry.register(REGISTRY, TBCExCore.createId("energy_per_turn"), ENERGY_PER_TURN_STAT);
+        Registry.register(REGISTRY, TBCExCore.createId("perception"), PERCEPTION_STAT);
     }
 }

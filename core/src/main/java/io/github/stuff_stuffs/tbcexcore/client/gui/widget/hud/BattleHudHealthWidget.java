@@ -102,12 +102,10 @@ public class BattleHudHealthWidget extends AbstractWidget {
                 matrixStack.push();
                 matrixStack.translate(topCenter.x, topCenter.y, topCenter.z);
                 matrixStack.multiply(camera.getRotation());
-                //REMOVE ME
-                matrices.peek();
 
                 double dist = camera.getPos().squaredDistanceTo(topCenter);
                 dist *= MathHelper.fastInverseSqrt(dist);
-                dist = Math.min(dist, 4);
+                dist = Math.min(Math.max(dist / 4, 1), 4);
 
                 final double width = dist;
                 final double height = dist / 8.0;
@@ -126,11 +124,11 @@ public class BattleHudHealthWidget extends AbstractWidget {
                 name = name.append(new LiteralText("("));
                 name = name.append(new LiteralText("" + participant.getLevel()));
                 name = name.append(")");
-                renderFitText(matrixStack, name, -width / 2.0, -height * 2, width, height, true, teamColour, 255, vertexConsumers);
+                renderFitText(matrixStack, name, -width / 2.0, -height * 2, width, height, false, teamColour, 255, vertexConsumers);
                 MutableText teamText = new LiteralText("(");
                 teamText = teamText.append(new LiteralText(participant.getTeam().teamId()).setStyle(Style.EMPTY.withColor(teamColour.pack())));
                 teamText = teamText.append(")");
-                renderFitText(matrixStack, teamText, -width / 2.0, -height, width, height, true, teamColour, 255, vertexConsumers);
+                renderFitText(matrixStack, teamText, -width / 2.0, -height, width, height, false, teamColour, 255, vertexConsumers);
 
                 matrixStack.pop();
             });
