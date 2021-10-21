@@ -27,6 +27,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
@@ -34,6 +35,7 @@ import net.minecraft.world.World;
 import java.util.Iterator;
 
 public class BattleHudHealthWidget extends AbstractWidget {
+    private static final Quaternion FLIP_Z_AXIS = Vec3f.NEGATIVE_Z.getDegreesQuaternion(180);
     private static final WidgetPosition ROOT = WidgetPosition.of(0, 0, 0);
     private final BattleHandle handle;
     private final World world;
@@ -115,7 +117,7 @@ public class BattleHudHealthWidget extends AbstractWidget {
                 RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, -width / 2.0 * percent, height, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
                 RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, width / 2.0, height, 0, matrixStack), colour, 255), 0, (6 * 10 + 10) / 256.0).next();
                 matrixStack.translate(0, height, -0.001);
-                matrixStack.multiply(Vec3f.NEGATIVE_Z.getDegreesQuaternion(180));
+                matrixStack.multiply(FLIP_Z_AXIS);
                 final Text text = AbstractParticipantStatListWidget.format(health).setStyle(Style.EMPTY).append(new LiteralText("/")).append(AbstractParticipantStatListWidget.format(maxHealth).setStyle(Style.EMPTY));
                 renderFitText(matrixStack, text, -width / 2.0, 0, width, height, true, IntRgbColour.WHITE, 255, vertexConsumers);
 
