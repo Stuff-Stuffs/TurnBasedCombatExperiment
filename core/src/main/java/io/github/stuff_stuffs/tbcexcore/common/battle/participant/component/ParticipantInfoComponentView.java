@@ -30,4 +30,6 @@ public interface ParticipantInfoComponentView extends ParticipantComponent {
     double getRawStat(BattleParticipantStat stat);
 
     int getLevel();
+
+    boolean canEquip(BattleParticipantInventoryHandle inventoryHandle, BattleEquipmentSlot slot);
 }

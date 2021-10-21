@@ -68,21 +68,28 @@ public final class Battle implements AdvanceTurnEvent {
     public void push(final BattleAction<?> action) {
         final BattleParticipantHandle currentTurn = state.getCurrentTurn();
         if (action.getActor().isUniversal() || action.getActor().equals(currentTurn)) {
-            action.applyToState(state);
             timeline.push(action);
+            action.applyToState(state);
         } else {
             throw new TBCExException("tried action not on turn");
         }
     }
 
     public void trimAndAppend(final int size, final List<BattleAction<?>> actions, final int turnTimerRemaining, final int turnTimerMax) {
-        timeline.trim(size);
-        for (final BattleAction<?> action : actions) {
-            timeline.push(action);
-        }
-        state = createState(handle, bounds, turnTimerRemaining, turnTimerMax);
-        for (final BattleAction<?> action : timeline) {
-            action.applyToState(state);
+        if (size != timeline.getSize()) {
+            timeline.trim(size);
+            for (final BattleAction<?> action : actions) {
+                timeline.push(action);
+            }
+            state = createState(handle, bounds, turnTimerRemaining, turnTimerMax);
+            for (final BattleAction<?> action : timeline) {
+                action.applyToState(state);
+            }
+        } else if (actions.size() != 0) {
+            for (final BattleAction<?> action : actions) {
+                timeline.push(action);
+                action.applyToState(state);
+            }
         }
         timer = new TurnTimer(turnTimerMax, turnTimerRemaining);
     }

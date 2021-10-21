@@ -17,6 +17,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattlePa
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStats;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -191,5 +192,13 @@ public final class ParticipantInfoComponent extends AbstractParticipantComponent
     @Override
     public double getEnergy() {
         return energy;
+    }
+
+    @Override
+    public boolean canEquip(final BattleParticipantInventoryHandle inventoryHandle, final BattleEquipmentSlot slot) {
+        if (!state.getHandle().equals(inventoryHandle.handle())) {
+            throw new TBCExException("Wrong handle");
+        }
+        return inventory.canEquip(inventoryHandle, slot);
     }
 }

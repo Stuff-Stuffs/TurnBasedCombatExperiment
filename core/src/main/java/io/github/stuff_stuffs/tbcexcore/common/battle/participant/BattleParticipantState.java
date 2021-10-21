@@ -214,6 +214,15 @@ public final class BattleParticipantState implements BattleParticipantStateView 
     }
 
     @Override
+    public boolean canEquip(BattleParticipantInventoryHandle inventoryHandle, BattleEquipmentSlot slot) {
+        final ParticipantInfoComponentView component = getComponent(ParticipantComponents.INFO_COMPONENT_TYPE.key);
+        if (component == null) {
+            throw new TBCExException("required component is missing");
+        }
+        return component.canEquip(inventoryHandle, slot);
+    }
+
+    @Override
     public BattleParticipantBounds getBounds() {
         final ParticipantPosComponentView component = getComponent(ParticipantComponents.POS_COMPONENT_TYPE.key);
         if (component == null) {

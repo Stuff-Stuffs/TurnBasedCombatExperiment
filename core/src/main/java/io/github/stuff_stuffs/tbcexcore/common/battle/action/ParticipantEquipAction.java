@@ -38,6 +38,10 @@ public final class ParticipantEquipAction extends BattleAction<ParticipantEquipA
             return;
         }
         final BattleParticipantItemStack itemStack = participant.getItemStack(handle);
+        if(itemStack==null) {
+            LoggerUtil.LOGGER.error("Tried to equip null item {}", handle);
+            return;
+        }
         if(!(itemStack.getItem() instanceof BattleParticipantEquipmentItem)) {
             LoggerUtil.LOGGER.error("Cannot equip non equipment item {}", handle);
             return;

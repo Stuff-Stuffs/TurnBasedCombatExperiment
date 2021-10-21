@@ -52,6 +52,8 @@ public interface BattleParticipantStateView {
 
     BattleEquipment getEquipment(BattleEquipmentSlot slot);
 
+    boolean canEquip(BattleParticipantInventoryHandle inventoryHandle, BattleEquipmentSlot slot);
+
     BattleParticipantBounds getBounds();
 
     Text getName();

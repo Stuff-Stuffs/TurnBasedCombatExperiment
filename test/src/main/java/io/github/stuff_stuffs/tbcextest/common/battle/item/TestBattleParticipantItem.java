@@ -1,8 +1,7 @@
-package io.github.stuff_stuffs.tbcextest.common;
+package io.github.stuff_stuffs.tbcextest.common.battle.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
@@ -11,6 +10,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.SingleT
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.BlockPosTargetType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.ParticipantTargetType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.*;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
+import io.github.stuff_stuffs.tbcextest.common.Test;
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.item.ItemStack;

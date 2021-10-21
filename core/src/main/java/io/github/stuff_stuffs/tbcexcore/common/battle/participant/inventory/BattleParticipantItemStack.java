@@ -31,4 +31,12 @@ public final class BattleParticipantItemStack {
     public BattleParticipantItem getItem() {
         return item;
     }
+
+    @Override
+    public String toString() {
+        return "BattleParticipantItemStack{" +
+                "item=" + item +
+                ", count=" + count +
+                '}';
+    }
 }

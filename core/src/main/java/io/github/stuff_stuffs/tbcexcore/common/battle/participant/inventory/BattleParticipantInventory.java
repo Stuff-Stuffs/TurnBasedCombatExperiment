@@ -146,6 +146,14 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         return false;
     }
 
+    public boolean canEquip(BattleParticipantInventoryHandle handle, final BattleEquipmentSlot slot) {
+        final BattleParticipantItemStack stack = stacks.get(handle.id());
+        if(stack.getItem() instanceof BattleParticipantEquipmentItem equipmentItem) {
+            return equipmentState.canEquip(equipmentItem.createEquipmentInstance(stack), slot);
+        }
+        return false;
+    }
+
     public boolean unequip(final BattleParticipantState state, final BattleEquipmentSlot slot) {
         return equip(state, slot, null);
     }

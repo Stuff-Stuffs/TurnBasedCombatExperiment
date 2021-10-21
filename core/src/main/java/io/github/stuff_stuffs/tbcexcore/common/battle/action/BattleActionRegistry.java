@@ -40,6 +40,7 @@ public final class BattleActionRegistry {
     public static final Type<EndTurnBattleAction> END_TURN_BATTLE_ACTION = new Type<>(EndTurnBattleAction.CODEC);
     public static final Type<ParticipantEquipAction> PARTICIPANT_EQUIP_ACTION = new Type<>(ParticipantEquipAction.CODEC);
     public static final Type<ParticipantMoveBattleAction> PARTICIPANT_MOVE_BATTLE_ACTION = new Type<>(ParticipantMoveBattleAction.CODEC);
+    public static final Type<BasicAttackBattleAction> BASIC_ATTACK_ACTION = new Type<>(BasicAttackBattleAction.CODEC);
 
     private BattleActionRegistry() {
     }
@@ -50,6 +51,7 @@ public final class BattleActionRegistry {
         Registry.register(REGISTRY, TBCExCore.createId("end_turn"), END_TURN_BATTLE_ACTION);
         Registry.register(REGISTRY, TBCExCore.createId("equip"), PARTICIPANT_EQUIP_ACTION);
         Registry.register(REGISTRY, TBCExCore.createId("move"), PARTICIPANT_MOVE_BATTLE_ACTION);
+        Registry.register(REGISTRY, TBCExCore.createId("basic_attack"), BASIC_ATTACK_ACTION);
     }
 
     public static final class Type<T extends BattleAction<T>> {

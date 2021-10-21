@@ -24,7 +24,7 @@ public final class BattleEquipmentState {
 
     public boolean equip(final BattleParticipantState state, final BattleEquipmentSlot slot, @Nullable final BattleEquipment equipment) {
         if (equipment != null) {
-            if (equipment.validSlot(slot)) {
+            if (!equipment.validSlot(slot)) {
                 throw new IllegalArgumentException();
             }
             for (final BattleEquipmentSlot blockedSlot : equipment.getBlockedSlots()) {
@@ -68,5 +68,19 @@ public final class BattleEquipmentState {
         for (final BattleEquipment equipment : map.values()) {
             equipment.deinitEvents();
         }
+    }
+
+    public boolean canEquip(final BattleEquipment equipment, final BattleEquipmentSlot slot) {
+        if (equipment != null) {
+            if (!equipment.validSlot(slot)) {
+                return false;
+            }
+            for (final BattleEquipmentSlot blockedSlot : equipment.getBlockedSlots()) {
+                if (map.get(blockedSlot) != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }

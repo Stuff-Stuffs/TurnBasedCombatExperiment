@@ -1,0 +1,57 @@
+package io.github.stuff_stuffs.tbcextest.common.battle.item;
+
+import com.mojang.serialization.Codec;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantEquipActionUtil;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.*;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
+import io.github.stuff_stuffs.tbcextest.common.Test;
+import io.github.stuff_stuffs.tbcextest.common.battle.equipment.TestWeaponEquipment;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+
+import java.util.List;
+import java.util.function.Function;
+
+public class TestWeaponBattleParticipantItem implements BattleParticipantEquipmentItem {
+    public static final Codec<BattleParticipantItem> CODEC = Codec.unit(TestWeaponBattleParticipantItem::new).xmap(Function.identity(), o -> (TestWeaponBattleParticipantItem) o);
+    private static final RarityInstance RARITY_INSTANCE = new RarityInstance(Rarity.LEGENDARY, 1);
+
+    @Override
+    public List<ParticipantAction> getActions(final BattleStateView battleState, final BattleParticipantStateView participantState, final BattleParticipantInventoryHandle handle) {
+        return ParticipantEquipActionUtil.getActions(participantState, handle);
+    }
+
+    @Override
+    public BattleParticipantItemType getType() {
+        return Test.TEST_WEAPON_ITEM_TYPE;
+    }
+
+    @Override
+    public BattleParticipantItemCategory getCategory() {
+        return BattleParticipantItemCategory.BATTLE_EQUIPMENT_CATEGORY.apply(BattleEquipmentSlot.MAIN_HAND_SLOT);
+    }
+
+    @Override
+    public Text getName() {
+        return new LiteralText("Test sword");
+    }
+
+    @Override
+    public List<Text> getTooltip() {
+        return List.of();
+    }
+
+    @Override
+    public RarityInstance getRarity() {
+        return RARITY_INSTANCE;
+    }
+
+    @Override
+    public BattleEquipment createEquipmentInstance(final BattleParticipantItemStack stack) {
+        return new TestWeaponEquipment();
+    }
+}

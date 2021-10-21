@@ -4,24 +4,29 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleParticipantItemRenderer;
-import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.EndTurnBattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemType;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.ServerBattleWorld;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
+import io.github.stuff_stuffs.tbcextest.common.battle.equipment.TestWeaponEquipment;
+import io.github.stuff_stuffs.tbcextest.common.battle.item.TestBattleParticipantItem;
+import io.github.stuff_stuffs.tbcextest.common.battle.item.TestWeaponBattleParticipantItem;
 import io.github.stuff_stuffs.tbcextest.common.entity.EntityTypes;
+import io.github.stuff_stuffs.tbcextest.common.item.TestItem;
+import io.github.stuff_stuffs.tbcextest.common.item.TestWeaponItem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
@@ -30,15 +35,22 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 import java.util.Collection;
+import java.util.List;
 
 public class Test implements ModInitializer {
     public static final Item TEST_ITEM = new TestItem();
+    public static final Item TEST_WEAPON_ITEM = new TestWeaponItem();
+    public static final BattleEquipmentType TEST_WEAPON_EQUIPMENT_TYPE = new BattleEquipmentType(new LiteralText("test_weapon"), TestWeaponEquipment.CODEC);
     public static final BattleParticipantItemType TEST_ITEM_TYPE = new BattleParticipantItemType(TestBattleParticipantItem.CODEC, TestBattleParticipantItem.CAN_MERGE, TestBattleParticipantItem.MERGER, TestBattleParticipantItem.TO_ITEM_STACK);
+    public static final BattleParticipantItemType TEST_WEAPON_ITEM_TYPE = new BattleParticipantItemType(TestWeaponBattleParticipantItem.CODEC, (i, j) -> false, (i, j) -> null, i -> List.of(new ItemStack(TEST_ITEM, i.getCount())));
 
     @Override
     public void onInitialize() {
         Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_item"), TEST_ITEM);
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_item"), TEST_ITEM_TYPE);
+        Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_weapon"), TEST_WEAPON_ITEM);
+        Registry.register(BattleEquipmentType.REGISTRY, new Identifier("tbcextest", "test_weapon"), TEST_WEAPON_EQUIPMENT_TYPE);
+        Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_weapon"), TEST_WEAPON_ITEM_TYPE);
         EntityTypes.init();
         CommandRegistrationCallback.EVENT.register(Test::register);
     }
