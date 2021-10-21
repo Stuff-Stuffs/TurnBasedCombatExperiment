@@ -18,6 +18,7 @@ import java.util.List;
 public class BattleInventoryActionSelectionWidget extends AbstractWidget {
     private final WidgetPosition position;
     private final ParentWidget panel;
+    private boolean shouldClose = false;
 
     public BattleInventoryActionSelectionWidget(final WidgetPosition position, final BattleStateView battleState, final BattleParticipantHandle handle, final List<ParticipantAction> actions) {
         this.position = position;
@@ -40,6 +41,7 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
                                 final ParticipantActionInstance instance = action.createInstance(battleState, handle);
                                 if (instance.getNextType() == null && instance.canActivate()) {
                                     instance.activate();
+                                    shouldClose = true;
                                 } else {
                                     MinecraftClient.getInstance().setScreen(new BattleActionScreen(handle, instance));
                                 }
@@ -48,6 +50,10 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
             );
             index++;
         }
+    }
+
+    public boolean shouldClose() {
+        return shouldClose;
     }
 
     @Override

@@ -19,12 +19,13 @@ import org.lwjgl.glfw.GLFW;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntConsumer;
+import java.util.function.Supplier;
 
 public class BattleInventoryTabWidget extends AbstractWidget {
     public static final int COLUMN_COUNT = 4;
     private static final Colour EQUIPED_COLOR = new IntRgbColour(200, 31, 0);
     private final WidgetPosition position;
-    private final List<ItemStackInfo> stacks;
+    private final Supplier<List<ItemStackInfo>> stacks;
     private final double borderThickness;
     private final double entryHeight;
     private final double verticalSpacing;
@@ -35,7 +36,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     private double pos = 0;
     private int selectedIndex = 0;
 
-    public BattleInventoryTabWidget(final WidgetPosition position, final List<ItemStackInfo> stacks, final double borderThickness, final double entryHeight, final double verticalSpacing, final DoubleSupplier width, final DoubleSupplier height, final IntConsumer onSelect, final DoubleSelect doubleSelect) {
+    public BattleInventoryTabWidget(final WidgetPosition position, final Supplier<List<ItemStackInfo>> stacks, final double borderThickness, final double entryHeight, final double verticalSpacing, final DoubleSupplier width, final DoubleSupplier height, final IntConsumer onSelect, final DoubleSelect doubleSelect) {
         this.position = position;
         this.stacks = stacks;
         this.borderThickness = borderThickness;
@@ -57,7 +58,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     }
 
     public void setSelectedIndex(final int selectedIndex, final double mouseX, final double mouseY) {
-        if (0 <= selectedIndex && selectedIndex < stacks.size()) {
+        if (0 <= selectedIndex && selectedIndex < stacks.get().size()) {
             if (selectedIndex != this.selectedIndex) {
                 this.selectedIndex = selectedIndex;
                 onSelect.accept(selectedIndex);
@@ -140,7 +141,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         matrices.push();
         matrices.translate(0, -pos, 0);
         final int hoverIndex = findHoverIndex(mouseX, mouseY + pos);
-
+        List<ItemStackInfo> stacks = this.stacks.get();
         for (int i = 0; i < stacks.size(); i++) {
             renderInfo(stacks.get(i), buffer, matrices, i, hoverIndex);
         }
@@ -238,7 +239,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final double offsetX = position.getX();
         final double offsetY = position.getY();
         final double width = this.width.getAsDouble();
-        for (int index = 0; index < stacks.size(); index++) {
+        for (int index = 0; index < stacks.get().size(); index++) {
             final double startX = offsetX + borderThickness;
             final double endX = offsetX + width - borderThickness;
             final double startY = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
@@ -251,7 +252,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
     }
 
     private double getListHeight() {
-        final int size = stacks.size();
+        final int size = stacks.get().size();
         return size * entryHeight + size * verticalSpacing;
     }
 

@@ -13,11 +13,13 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
+import io.github.stuff_stuffs.tbcexgui.client.widget.ParentWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.SuppliedWidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetHandle;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -39,7 +41,7 @@ public class BattleInventoryScreen extends TBCExScreen {
     private final World world;
     private boolean init = false;
 
-    public BattleInventoryScreen(final BattleParticipantHandle handle, BattleHudContext hudContext, final World world) {
+    public BattleInventoryScreen(final BattleParticipantHandle handle, final BattleHudContext hudContext, final World world) {
         super(new LiteralText("Battle Inventory"), new RootPanelWidget());
         this.handle = handle;
         this.hudContext = hudContext;
@@ -62,7 +64,12 @@ public class BattleInventoryScreen extends TBCExScreen {
             final DoubleSupplier startX = () -> -(widget.getScreenWidth() - 1) / 2.0;
             final DoubleSupplier startY = () -> -(widget.getScreenHeight() - 1) / 2.0;
             final SuppliedWidgetPosition tabPosition = new SuppliedWidgetPosition(() -> startX.getAsDouble() + widget.getScreenWidth() * 1 / 4.0, () -> startY.getAsDouble() + widget.getScreenHeight() * 1 / 8.0, () -> 0);
-            inventoryWidget = new BattleInventoryTabWidget(tabPosition, infos, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 7 / 8.0, this::select, (index, mouseX, mouseY) -> {
+            inventoryWidget = new BattleInventoryTabWidget(tabPosition, () -> {
+                infos.clear();
+                infos.addAll(navigationWidget.getFiltered());
+                sorterWidget.sort(infos);
+                return infos;
+            }, 1 / 128.0, 1 / 16.0, 1 / 128.0, () -> widget.getScreenWidth() * 3 / 8.0, () -> widget.getScreenHeight() * 7 / 8.0, this::select, (index, mouseX, mouseY) -> {
                 if (index >= 0 && index < infos.size()) {
                     final BattleParticipantStateView participantState;
                     final Battle b = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
@@ -116,6 +123,9 @@ public class BattleInventoryScreen extends TBCExScreen {
                 }
                 return null;
             });
+            if (selectionWidget != null && selectionWidget.shouldClose()) {
+                widget.removeWidget(selectionWidgetHandle);
+            }
 
             widget.addWidget(inventoryWidget);
             widget.addWidget(sorterWidget);
@@ -127,6 +137,15 @@ public class BattleInventoryScreen extends TBCExScreen {
         }
         if (battle == null || !handle.equals(battle.getState().getCurrentTurn())) {
             MinecraftClient.getInstance().setScreen(null);
+        }
+    }
+
+    @Override
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        super.render(matrices, mouseX, mouseY, delta);
+        if(selectionWidget!=null&&selectionWidget.shouldClose()) {
+            selectionWidget = null;
+            ((ParentWidget)widget).removeWidget(selectionWidgetHandle);
         }
     }
 
