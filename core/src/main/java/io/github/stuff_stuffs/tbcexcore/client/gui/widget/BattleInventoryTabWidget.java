@@ -22,6 +22,7 @@ import java.util.function.IntConsumer;
 
 public class BattleInventoryTabWidget extends AbstractWidget {
     public static final int COLUMN_COUNT = 4;
+    private static final Colour EQUIPED_COLOR = new IntRgbColour(200, 31, 0);
     private final WidgetPosition position;
     private final List<ItemStackInfo> stacks;
     private final double borderThickness;
@@ -183,10 +184,17 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         } else {
             alpha = 0x77;
         }
-        RenderUtil.colour(vertexConsumer.vertex(model, endX, startY, 0), backgroundColour, alpha).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour, alpha).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, startX, endY, 0), backgroundColour, alpha).next();
-        RenderUtil.colour(vertexConsumer.vertex(model, endX, endY, 0), backgroundColour, alpha).next();
+        info.location.ifLeft(loc -> {
+            RenderUtil.colour(vertexConsumer.vertex(model, endX, startY, 0), backgroundColour, alpha).next();
+            RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour, alpha).next();
+            RenderUtil.colour(vertexConsumer.vertex(model, startX, endY, 0), backgroundColour, alpha).next();
+            RenderUtil.colour(vertexConsumer.vertex(model, endX, endY, 0), backgroundColour, alpha).next();
+        }).ifRight(loc -> {
+            RenderUtil.colour(vertexConsumer.vertex(model, endX, startY, 0), EQUIPED_COLOR, 255).next();
+            RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), EQUIPED_COLOR, 255).next();
+            RenderUtil.colour(vertexConsumer.vertex(model, startX, endY, 0), EQUIPED_COLOR, 255).next();
+            RenderUtil.colour(vertexConsumer.vertex(model, endX, endY, 0), EQUIPED_COLOR, 255).next();
+        });
     }
 
     private static Colour getBackgroundColour(final int index) {
