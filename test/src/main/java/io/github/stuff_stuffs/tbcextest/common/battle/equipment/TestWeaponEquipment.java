@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.tbcextest.common.battle.equipment;
 import com.mojang.serialization.Codec;
 import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BasicAttackBattleAction;
+import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamageComposition;
 import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamagePacket;
 import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamageSource;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class TestWeaponEquipment implements BattleEquipment {
@@ -56,7 +58,7 @@ public class TestWeaponEquipment implements BattleEquipment {
             }
 
             @Override
-            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle) {
+            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, Consumer<BattleAction<?>> sender) {
                 return new ParticipantActionInstance(new SingleTargetParticipantActionInfo(new ParticipantTargetType((battleState1, handle1) -> {
                     final List<BattleParticipantHandle> handles = new ArrayList<>();
                     battleState1.getParticipants().forEachRemaining(h -> {
@@ -65,7 +67,7 @@ public class TestWeaponEquipment implements BattleEquipment {
                         }
                     });
                     return handles;
-                }), (battleState12, user, target) -> BattleActionSender.send(user.battleId(),
+                }), (battleState12, user, target) -> sender.accept(
                         new BasicAttackBattleAction(
                                 user,
                                 ((ParticipantTargetType.ParticipantTargetInstance) target).getHandle(),

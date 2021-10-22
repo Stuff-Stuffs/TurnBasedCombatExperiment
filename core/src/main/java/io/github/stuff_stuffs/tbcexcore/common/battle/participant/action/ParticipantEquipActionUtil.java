@@ -1,6 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action;
 
-import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
+import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.ParticipantEquipAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
@@ -15,15 +15,18 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class ParticipantEquipActionUtil {
     public static final class EquipActionInfo implements ParticipantActionInfo {
         private final BattleParticipantInventoryHandle handle;
         private final BattleEquipmentSlot slot;
+        private final Consumer<BattleAction<?>> sender;
 
-        public EquipActionInfo(final BattleParticipantInventoryHandle handle, final BattleEquipmentSlot slot) {
+        public EquipActionInfo(final BattleParticipantInventoryHandle handle, final BattleEquipmentSlot slot, final Consumer<BattleAction<?>> sender) {
             this.handle = handle;
             this.slot = slot;
+            this.sender = sender;
         }
 
         @Override
@@ -38,7 +41,7 @@ public final class ParticipantEquipActionUtil {
 
         @Override
         public void activate(final BattleStateView battleState, final BattleParticipantHandle user, final List<TargetInstance> list) {
-            BattleActionSender.send(user.battleId(), new ParticipantEquipAction(user, slot, handle, 5));
+            sender.accept(new ParticipantEquipAction(user, slot, handle, 5));
         }
 
         @Override
@@ -47,8 +50,8 @@ public final class ParticipantEquipActionUtil {
         }
     }
 
-    public static ParticipantActionInstance create(final BattleStateView battleState, final BattleParticipantInventoryHandle handle, final BattleEquipmentSlot slot) {
-        return new ParticipantActionInstance(new EquipActionInfo(handle, slot), battleState, handle.handle());
+    public static ParticipantActionInstance create(final BattleStateView battleState, final BattleParticipantInventoryHandle handle, final BattleEquipmentSlot slot, Consumer<BattleAction<?>> sender) {
+        return new ParticipantActionInstance(new EquipActionInfo(handle, slot, sender), battleState, handle.handle());
     }
 
     public static List<ParticipantAction> getActions(final BattleParticipantStateView participantState, final BattleParticipantInventoryHandle handle) {
@@ -64,8 +67,8 @@ public final class ParticipantEquipActionUtil {
             }
 
             @Override
-            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle participantHandle) {
-                return ParticipantEquipActionUtil.create(battleState, handle, slot);
+            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle participantHandle, Consumer<BattleAction<?>> sender) {
+                return ParticipantEquipActionUtil.create(battleState, handle, slot, sender);
             }
         }).toList();
     }

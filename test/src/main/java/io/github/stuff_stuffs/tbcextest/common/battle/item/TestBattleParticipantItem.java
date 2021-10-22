@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.tbcextest.common.battle.item;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
@@ -21,6 +22,7 @@ import net.minecraft.text.Text;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,7 +72,7 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
             }
 
             @Override
-            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle) {
+            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
                 return new ParticipantActionInstance(new SingleTargetParticipantActionInfo(new ParticipantTargetType((state, user) -> Set.of(user)), (battleStateView, user, target) -> {
 
                 }, List.of(TooltipComponent.of(new LiteralText("equip lol").asOrderedText()))), battleState, handle);
@@ -88,7 +90,7 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
             }
 
             @Override
-            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle) {
+            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
                 return new ParticipantActionInstance(new SingleTargetParticipantActionInfo(new BlockPosTargetType((state, user) -> Set.of(state.getParticipant(user).getPos())), (battleStateView, user, target) -> {
                 }, List.of(TooltipComponent.of(new LiteralText("use it").asOrderedText()))), battleState, handle);
             }

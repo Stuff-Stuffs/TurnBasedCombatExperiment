@@ -1,6 +1,8 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
 import io.github.stuff_stuffs.tbcexcore.client.gui.BattleActionScreen;
+import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
+import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
@@ -17,11 +19,13 @@ import java.util.List;
 
 public class BattleInventoryActionSelectionWidget extends AbstractWidget {
     private final WidgetPosition position;
+    private final BattleParticipantHandle handle;
     private final ParentWidget panel;
     private boolean shouldClose = false;
 
     public BattleInventoryActionSelectionWidget(final WidgetPosition position, final BattleStateView battleState, final BattleParticipantHandle handle, final List<ParticipantAction> actions) {
         this.position = position;
+        this.handle = handle;
         panel = new BasicPanelWidget(position, () -> false, () -> 2, 0.25, 0.15 * actions.size() + 0.05);
         int index = 0;
         for (final ParticipantAction action : actions) {
@@ -38,7 +42,7 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
                             action::getName,
                             action::getTooltip,
                             () -> {
-                                final ParticipantActionInstance instance = action.createInstance(battleState, handle);
+                                final ParticipantActionInstance instance = action.createInstance(battleState, handle, this::send);
                                 if (instance.getNextType() == null && instance.canActivate()) {
                                     instance.activate();
                                     shouldClose = true;
@@ -95,5 +99,9 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
     @Override
     public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
         return panel.keyPress(keyCode, scanCode, modifiers);
+    }
+
+    private void send(final BattleAction<?> battleAction) {
+        BattleActionSender.send(handle.battleId(), battleAction);
     }
 }
