@@ -94,11 +94,20 @@ public final class BattleEvents {
 
         register(TBCExCore.createId("advance_turn"), BattleStateView.ADVANCE_TURN_EVENT, (key, map) -> {
             final EventKey<AdvanceTurnEvent.Mut, AdvanceTurnEvent> castedKey = (EventKey<AdvanceTurnEvent.Mut, AdvanceTurnEvent>) key;
-            map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> view::onAdvanceTurn, events -> ((battleState, current) -> {
+            map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> view::onAdvanceTurn, events -> (battleState, current) -> {
                 for (final AdvanceTurnEvent.Mut event : events) {
                     event.onAdvanceTurn(battleState, current);
                 }
-            })));
+            }));
+        });
+
+        register(TBCExCore.createId("end"), BattleStateView.BATTLE_END_EVENT, (key, map) -> {
+            final EventKey<BattleEndEvent.Mut, BattleEndEvent> castedKey = (EventKey<BattleEndEvent.Mut, BattleEndEvent>) key;
+            map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> view::onBattleEnd, events -> state -> {
+                for (final BattleEndEvent.Mut event : events) {
+                    event.onBattleEnd(state);
+                }
+            }));
         });
     }
 }

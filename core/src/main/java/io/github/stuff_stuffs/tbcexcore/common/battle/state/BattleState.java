@@ -2,12 +2,14 @@ package io.github.stuff_stuffs.tbcexcore.common.battle.state;
 
 import com.google.common.collect.Iterators;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.EventMap;
 import io.github.stuff_stuffs.tbcexcore.common.battle.event.MutableEventHolder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantComponents;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.component.ParticipantPosComponent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComponent;
@@ -17,12 +19,14 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.turnchooser.TurnChooser;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public final class BattleState implements BattleStateView {
     private final Map<BattleParticipantHandle, BattleParticipantState> participants;
@@ -73,6 +77,21 @@ public final class BattleState implements BattleStateView {
                 }
             }
         }
+        getEvent(POST_PARTICIPANT_LEAVE_EVENT).register((battleState, participantView) -> {
+            final Set<Team> active = new ObjectOpenHashSet<>();
+            final Iterator<BattleParticipantHandle> iterator = battleState.getParticipants();
+            while (iterator.hasNext()) {
+                final BattleParticipantStateView participant = battleState.getParticipant(iterator.next());
+                if (participant == null) {
+                    throw new TBCExException("missing battle participant in battle");
+                }
+                active.add(participant.getTeam());
+            }
+            if (active.size() < 2) {
+                ended = true;
+                getEvent(BATTLE_END_EVENT).invoker().onBattleEnd(BattleState.this);
+            }
+        });
     }
 
     @Override

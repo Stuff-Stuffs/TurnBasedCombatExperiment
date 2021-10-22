@@ -7,5 +7,6 @@ public final class ClientNetwork {
     public static void init() {
         BattleUpdateReceiver.init();
         PlayerJoinBattleReceiver.init();
+        PlayerLeaveBattleReceiver.init();
     }
 }

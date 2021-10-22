@@ -19,6 +19,7 @@ public interface BattleStateView {
     EventKey<PreParticipantLeaveEvent.Mut, PreParticipantLeaveEvent> PRE_PARTICIPANT_LEAVE_EVENT = EventKey.get(PreParticipantLeaveEvent.Mut.class, PreParticipantLeaveEvent.class);
     EventKey<AdvanceTurnEvent.Mut, AdvanceTurnEvent> ADVANCE_TURN_EVENT = EventKey.get(AdvanceTurnEvent.Mut.class, AdvanceTurnEvent.class);
     EventKey<PostParticipantLeaveEvent.Mut, PostParticipantLeaveEvent> POST_PARTICIPANT_LEAVE_EVENT = EventKey.get(PostParticipantLeaveEvent.Mut.class, PostParticipantLeaveEvent.class);
+    EventKey<BattleEndEvent.Mut, BattleEndEvent> BATTLE_END_EVENT = EventKey.get(BattleEndEvent.Mut.class, BattleEndEvent.class);
 
     BattleHandle getHandle();
 

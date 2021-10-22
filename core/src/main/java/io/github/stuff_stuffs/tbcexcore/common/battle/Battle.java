@@ -96,6 +96,7 @@ public final class Battle implements AdvanceTurnEvent {
 
     private BattleState createState(final BattleHandle handle, final BattleBounds bounds, final int turnTimerRemaining, final int turnTimerMax) {
         final BattleState battleState = new BattleState(handle, bounds);
+        battleState.setWorld(world);
         battleState.getEvent(BattleStateView.ADVANCE_TURN_EVENT).register(this);
         timer = new TurnTimer(turnTimerMax, turnTimerRemaining);
         return battleState;

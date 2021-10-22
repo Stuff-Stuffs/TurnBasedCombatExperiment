@@ -6,6 +6,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.ClientBattleWorld;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
+import io.github.stuff_stuffs.tbcexcore.mixin.api.ClientBattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexutil.client.DebugRenderer;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
@@ -33,7 +34,7 @@ public final class BattleParticipantBoundsDebugRenderer implements DebugRenderer
         matrices.push();
         final Vec3d pos = context.camera().getPos();
         matrices.translate(-pos.x, -pos.y, -pos.z);
-        for (final Battle battle : (ClientBattleWorld) ((BattleWorldSupplier) world).tbcex_getBattleWorld()) {
+        for (final Battle battle : ((ClientBattleWorldSupplier) world).tbcex_getBattleWorld()) {
             final BattleStateView view = battle.getState();
             final Iterator<BattleParticipantHandle> participants = view.getParticipants();
             while (participants.hasNext()) {

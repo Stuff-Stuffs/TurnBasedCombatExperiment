@@ -103,8 +103,14 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
             TBCExCore.LOGGER.error("Set current battle to {}, while battle {} was active", handle, currentBattle);
         }
         currentBattle = handle;
-        if ((Object) this instanceof ServerPlayerEntity serverPlayer) {
-            serverPlayer.changeGameMode(GameMode.SPECTATOR);
+        if (handle != null) {
+            if ((Object) this instanceof ServerPlayerEntity serverPlayer) {
+                serverPlayer.changeGameMode(GameMode.SPECTATOR);
+            }
+        } else {
+            if ((Object) this instanceof ServerPlayerEntity serverPlayer) {
+                serverPlayer.changeGameMode(GameMode.SURVIVAL);
+            }
         }
     }
 

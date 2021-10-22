@@ -42,7 +42,7 @@ public final class Team {
         if (obj == null || obj.getClass() != getClass()) {
             return false;
         }
-        final var that = (Team) obj;
+        final Team that = (Team) obj;
         return Objects.equals(teamId, that.teamId);
     }
 

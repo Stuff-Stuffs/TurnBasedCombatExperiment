@@ -12,7 +12,9 @@ import net.minecraft.world.PersistentStateManager;
 import net.minecraft.world.chunk.ChunkStatusChangeListener;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.level.storage.LevelStorage;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,6 +27,8 @@ import java.util.function.Supplier;
 
 @Mixin(ServerChunkManager.class)
 public abstract class MixinServerChunkManager implements BattleWorldSupplier {
+    @Shadow @Final
+    ServerWorld world;
     @Unique
     private ServerBattleWorld battleWorld;
 
@@ -32,7 +36,7 @@ public abstract class MixinServerChunkManager implements BattleWorldSupplier {
     private void init(final ServerWorld world, final LevelStorage.Session session, final DataFixer dataFixer, final StructureManager structureManager, final Executor workerExecutor, final ChunkGenerator chunkGenerator, final int viewDistance, final boolean bl, final WorldGenerationProgressListener worldGenerationProgressListener, final ChunkStatusChangeListener chunkStatusChangeListener, final Supplier<PersistentStateManager> supplier, final CallbackInfo ci) {
         final File worldDirectory = session.getWorldDirectory(world.getRegistryKey());
         final File battleWorldDirectory = new File(worldDirectory, "tbcex_battle_world");
-        battleWorld = new ServerBattleWorld(battleWorldDirectory.toPath());
+        battleWorld = new ServerBattleWorld(battleWorldDirectory.toPath(), this.world);
     }
 
     @Inject(method = "tick(Ljava/util/function/BooleanSupplier;)V", at = @At("HEAD"))

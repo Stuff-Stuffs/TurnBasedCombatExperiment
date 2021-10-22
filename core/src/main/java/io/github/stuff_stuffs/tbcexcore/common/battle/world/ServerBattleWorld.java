@@ -16,6 +16,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,14 +40,16 @@ public final class ServerBattleWorld implements BattleWorld {
     private static final long TIME_OUT = 20 * 60 * 5;
     private static final String VERSION = "0.0";
     private final Path directory;
+    private final ServerWorld world;
     private final Path metaFile;
     private final Map<BattleHandle, Battle> activeBattles;
     private final Object2LongMap<BattleHandle> lastAccess;
     private int nextId;
     private long tickCount = 0;
 
-    public ServerBattleWorld(final Path directory) {
+    public ServerBattleWorld(final Path directory, ServerWorld world) {
         this.directory = directory;
+        this.world = world;
         if (!Files.exists(directory)) {
             try {
                 Files.createDirectories(directory);
@@ -102,6 +105,7 @@ public final class ServerBattleWorld implements BattleWorld {
     public BattleHandle createBattle(final BattleBounds bounds) {
         final BattleHandle handle = new BattleHandle(nextId++);
         final Battle battle = new Battle(handle, bounds, 20 * 30, 20 * 30);
+        battle.setWorld(world);
         activeBattles.put(handle, battle);
         lastAccess.put(handle, tickCount);
         return handle;
@@ -159,6 +163,7 @@ public final class ServerBattleWorld implements BattleWorld {
                 final Optional<Battle> result = Battle.CODEC.parse(NbtOps.INSTANCE, NbtIo.readCompressed(new DataInputStream(battleStream)).get("data")).result();
                 if (result.isPresent()) {
                     final Battle battle = result.get();
+                    battle.setWorld(world);
                     activeBattles.put(handle, battle);
                     lastAccess.put(handle, tickCount);
                     return battle;
