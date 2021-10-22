@@ -83,7 +83,7 @@ public class BattleInventoryScreen extends TBCExScreen {
                     }
                     final Either<BattleParticipantInventoryHandle, Pair<BattleParticipantHandle, BattleEquipmentSlot>> location = infos.get(index).location;
                     final List<ParticipantAction> actions = new ArrayList<>();
-                    actions.addAll(location.map(h -> participantState.getItemStack(h).getItem().getActions(b.getState(), participantState, h), p -> participantState.getEquipment(p.getSecond()).getActions(b.getState(), participantState)));
+                    actions.addAll(location.map(h -> participantState.getItemStack(h).getItem().getActions(b.getState(), participantState, h), p -> participantState.getEquipment(p.getSecond()).getActions(b.getState(), participantState, p.getSecond())));
                     if (actions.size() > 0) {
                         selectionWidget = new BattleInventoryActionSelectionWidget(WidgetPosition.of(mouseX, mouseY, 10), b.getState(), handle, actions);
                         if (selectionWidgetHandle != null) {

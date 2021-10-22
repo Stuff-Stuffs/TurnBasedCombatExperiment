@@ -43,7 +43,7 @@ public class TestWeaponEquipment implements BattleEquipment {
     }
 
     @Override
-    public List<ParticipantAction> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView) {
+    public List<ParticipantAction> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView, final BattleEquipmentSlot slot) {
         return List.of(new ParticipantAction() {
             @Override
             public Text getName() {
@@ -78,7 +78,7 @@ public class TestWeaponEquipment implements BattleEquipment {
                         )
                 ), List.of()), battleState, handle);
             }
-        });
+        }, BattleEquipment.createUnequipAction(participantView, slot));
     }
 
     @Override

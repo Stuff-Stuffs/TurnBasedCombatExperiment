@@ -90,7 +90,7 @@ public final class ParticipantInfoComponent extends AbstractParticipantComponent
         return ParticipantComponents.INFO_COMPONENT_TYPE;
     }
 
-    public boolean equip(final BattleEquipmentSlot slot, final BattleParticipantItemStack equipment) {
+    public boolean equip(final BattleEquipmentSlot slot, final @Nullable BattleParticipantItemStack equipment) {
         return inventory.equip(state, slot, equipment);
     }
 
