@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+//TODO sync timers better to avoid unnecessary update
 public final class BattleTimeline implements BattleTimelineView {
     public static final Codec<BattleTimeline> CODEC = Codec.list(BattleActionRegistry.CODEC).xmap(BattleTimeline::new, timeline -> timeline.actions);
     private final List<BattleAction<?>> actions;

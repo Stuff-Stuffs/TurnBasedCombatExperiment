@@ -16,7 +16,7 @@ import java.util.Map;
 
 public final class BattleParticipantEvents {
     private static final Map<Identifier, Pair<EventKey<?, ?>, EventFactory<?, ?>>> EVENT_FACTORIES = new Object2ReferenceOpenHashMap<>();
-    private static final BiMap<Identifier, EventKey<?,?>> IDENTIFIER_EVENT_MAPPING = HashBiMap.create();
+    private static final BiMap<Identifier, EventKey<?, ?>> IDENTIFIER_EVENT_MAPPING = HashBiMap.create();
 
     public static <View, Mut> void register(final Identifier id, final EventKey<Mut, View> key, final EventFactory<Mut, View> factory) {
         if (IDENTIFIER_EVENT_MAPPING.put(id, key) != null) {
@@ -111,6 +111,15 @@ public final class BattleParticipantEvents {
             map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> view::onMove, events -> (battleParticipantState, path) -> {
                 for (final PostMoveEvent.Mut event : events) {
                     event.onMove(battleParticipantState, path);
+                }
+            }));
+        });
+
+        register(TBCExCore.createId("death"), BattleParticipantStateView.DEATH_EVENT, (key, map) -> {
+            final EventKey<DeathEvent.Mut, DeathEvent> castedKey = (EventKey<DeathEvent.Mut, DeathEvent>) key;
+            map.register(castedKey, new MutableEventHolder.BasicEventHolder<>(castedKey, view -> view::onDeath, events -> state -> {
+                for (final DeathEvent.Mut event : events) {
+                    event.onDeath(state);
                 }
             }));
         });

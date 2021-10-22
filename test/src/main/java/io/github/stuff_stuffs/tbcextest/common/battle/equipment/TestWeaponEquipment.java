@@ -72,7 +72,7 @@ public class TestWeaponEquipment implements BattleEquipment {
                                 new BattleDamagePacket(
                                         BattleDamageComposition.builder().addWeight(BattleDamageType.PHYSICAL, 1).build(),
                                         new BattleDamageSource(Optional.of(user)),
-                                        3
+                                        10
                                 ),
                                 1
                         )

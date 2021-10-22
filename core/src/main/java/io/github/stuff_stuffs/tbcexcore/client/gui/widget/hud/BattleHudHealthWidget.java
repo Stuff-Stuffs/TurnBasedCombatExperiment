@@ -77,71 +77,73 @@ public class BattleHudHealthWidget extends AbstractWidget {
         if (battle == null) {
             return;
         }
-        final Iterator<BattleParticipantHandle> iterator = battle.getState().getParticipants();
-        while (iterator.hasNext()) {
-            final BattleParticipantHandle next = iterator.next();
-            final BattleParticipantStateView participant = battle.getState().getParticipant(next);
-            if (participant == null) {
-                throw new TBCExException("missing battle participant in battle");
-            }
-            BattleParticipantBounds.Part max = null;
-            for (final BattleParticipantBounds.Part part : participant.getBounds()) {
-                if (max == null || part.box.maxY > max.box.maxY) {
-                    max = part;
+        TBCExCoreClient.addRenderPrimitive(context -> {
+                    final Iterator<BattleParticipantHandle> iterator = battle.getState().getParticipants();
+                    while (iterator.hasNext()) {
+                        final BattleParticipantHandle next = iterator.next();
+                        final BattleParticipantStateView participant = battle.getState().getParticipant(next);
+                        if (participant == null) {
+                            throw new TBCExException("missing battle participant in battle");
+                        }
+                        BattleParticipantBounds.Part max = null;
+                        for (final BattleParticipantBounds.Part part : participant.getBounds()) {
+                            if (max == null || part.box.maxY > max.box.maxY) {
+                                max = part;
+                            }
+                        }
+                        if (max == null) {
+                            continue;
+                        }
+                        final Vec3d topCenter = max.box.getCenter().add(0, max.box.getYLength() / 2.0 + 0.5, 0);
+                        final double health = participant.getHealth();
+                        final double maxHealth = participant.getStat(BattleParticipantStat.MAX_HEALTH_STAT);
+                        final double percent = health / maxHealth;
+                        final HsvColour colour = new HsvColour((float) MathHelper.lerp(percent, 0, 128), 1, 1);
+                        final VertexConsumerProvider vertexConsumers = context.consumers();
+                        final MatrixStack matrixStack = context.matrixStack();
+                        final Camera camera = context.camera();
+                        matrixStack.push();
+                        matrixStack.translate(topCenter.x, topCenter.y, topCenter.z);
+                        matrixStack.multiply(camera.getRotation());
+
+                        double dist = camera.getPos().squaredDistanceTo(topCenter);
+                        dist *= MathHelper.fastInverseSqrt(dist);
+                        dist = Math.min(Math.max(dist / 4, 1), 4);
+
+                        final double width = dist;
+                        final double height = dist / 8.0;
+                        final VertexConsumer posColour = vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_TRANSPARENT_LAYER);
+                        RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                        RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                        RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+                        RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
+
+                        final VertexConsumer posColourTex = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(BOSS_BAR_TEXTURE, false));
+                        matrixStack.translate(-width / 2.0, 0, 0);
+                        RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, 0, 0, 0, matrixStack), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
+                        RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width * percent, 0, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
+                        RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width * percent, height, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
+                        RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, 0, height, 0, matrixStack), colour, 255), 0, (6 * 10 + 10) / 256.0).next();
+                        matrixStack.translate(width / 2.0, height, -0.001);
+                        matrixStack.multiply(FLIP_Z_AXIS);
+                        final Text text = AbstractParticipantStatListWidget.format(health).setStyle(Style.EMPTY).append(new LiteralText("/")).append(AbstractParticipantStatListWidget.format(maxHealth).setStyle(Style.EMPTY));
+                        renderFitText(matrixStack, text, -width / 2.0, 0, width, height, true, IntRgbColour.WHITE, 255, vertexConsumers);
+
+                        final Colour teamColour = participant.getTeam().getColour();
+                        MutableText name = participant.getName().copy();
+                        name = name.append(new LiteralText("("));
+                        name = name.append(new LiteralText("" + participant.getLevel()));
+                        name = name.append(")");
+                        renderFitText(matrixStack, name, -width / 2.0, -height * 2, width, height, false, teamColour, 255, vertexConsumers);
+                        MutableText teamText = new LiteralText("(");
+                        teamText = teamText.append(new LiteralText(participant.getTeam().teamId()).setStyle(Style.EMPTY.withColor(teamColour.pack())));
+                        teamText = teamText.append(")");
+                        renderFitText(matrixStack, teamText, -width / 2.0, -height, width, height, false, teamColour, 255, vertexConsumers);
+
+                        matrixStack.pop();
+                    }
                 }
-            }
-            if (max == null) {
-                continue;
-            }
-            final Vec3d topCenter = max.box.getCenter().add(0, max.box.getYLength() / 2.0 + 0.5, 0);
-            final double health = participant.getHealth();
-            final double maxHealth = participant.getStat(BattleParticipantStat.MAX_HEALTH_STAT);
-            final double percent = health / maxHealth;
-            final HsvColour colour = new HsvColour((float) MathHelper.lerp(percent, 0, 128), 1, 1);
-            TBCExCoreClient.addRenderPrimitive(context -> {
-                final VertexConsumerProvider vertexConsumers = context.consumers();
-                final MatrixStack matrixStack = context.matrixStack();
-                final Camera camera = context.camera();
-                matrixStack.push();
-                matrixStack.translate(topCenter.x, topCenter.y, topCenter.z);
-                matrixStack.multiply(camera.getRotation());
-
-                double dist = camera.getPos().squaredDistanceTo(topCenter);
-                dist *= MathHelper.fastInverseSqrt(dist);
-                dist = Math.min(Math.max(dist / 4, 1), 4);
-
-                final double width = dist;
-                final double height = dist / 8.0;
-                final VertexConsumer posColour = vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_TRANSPARENT_LAYER);
-                RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
-                RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
-                RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
-                RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
-
-                final VertexConsumer posColourTex = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(BOSS_BAR_TEXTURE, false));
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width / 2.0, 0, 0, matrixStack), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, -width / 2.0 * percent, 0, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, -width / 2.0 * percent, height, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width / 2.0, height, 0, matrixStack), colour, 255), 0, (6 * 10 + 10) / 256.0).next();
-                matrixStack.translate(0, height, -0.001);
-                matrixStack.multiply(FLIP_Z_AXIS);
-                final Text text = AbstractParticipantStatListWidget.format(health).setStyle(Style.EMPTY).append(new LiteralText("/")).append(AbstractParticipantStatListWidget.format(maxHealth).setStyle(Style.EMPTY));
-                renderFitText(matrixStack, text, -width / 2.0, 0, width, height, true, IntRgbColour.WHITE, 255, vertexConsumers);
-
-                final Colour teamColour = participant.getTeam().getColour();
-                MutableText name = participant.getName().copy();
-                name = name.append(new LiteralText("("));
-                name = name.append(new LiteralText("" + participant.getLevel()));
-                name = name.append(")");
-                renderFitText(matrixStack, name, -width / 2.0, -height * 2, width, height, false, teamColour, 255, vertexConsumers);
-                MutableText teamText = new LiteralText("(");
-                teamText = teamText.append(new LiteralText(participant.getTeam().teamId()).setStyle(Style.EMPTY.withColor(teamColour.pack())));
-                teamText = teamText.append(")");
-                renderFitText(matrixStack, teamText, -width / 2.0, -height, width, height, false, teamColour, 255, vertexConsumers);
-
-                matrixStack.pop();
-            });
-        }
+        );
     }
 
     @Override
