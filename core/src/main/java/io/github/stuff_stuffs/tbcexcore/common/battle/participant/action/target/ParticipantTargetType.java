@@ -14,6 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class ParticipantTargetType implements TargetType {
     private final BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BattleParticipantHandle>> source;
@@ -150,6 +152,44 @@ public class ParticipantTargetType implements TargetType {
                     "handle=" + handle + ", " +
                     "distance=" + distance + ", " +
                     "type=" + type + ']';
+        }
+    }
+
+    public static Stream<BattleParticipantHandle> getWithinRange(final BattleStateView battleState, final BattleParticipantHandle self, final boolean includeSelf, final double range) {
+        if (range < 0) {
+            throw new IllegalArgumentException();
+        }
+        if (range == 0) {
+            if (includeSelf) {
+                return Stream.of(self);
+            } else {
+                return Stream.empty();
+            }
+        }
+        final BattleParticipantStateView selfState = battleState.getParticipant(self);
+        if (selfState == null) {
+            throw new TBCExException("missing participant in battle");
+        }
+        final Vec3d pos = new Vec3d(selfState.getPos().getX() + 0.5, selfState.getPos().getY() + 0.5, selfState.getPos().getZ() + 0.5);
+        if (includeSelf) {
+            return StreamSupport.stream(battleState.getSpliteratorParticipants(), false).filter(handle -> {
+                final BattleParticipantStateView curState = battleState.getParticipant(handle);
+                if (curState == null) {
+                    throw new TBCExException("missing participant in battle");
+                }
+                return curState.getBounds().getDistanceSquared(pos) <= range * range;
+            });
+        } else {
+            return StreamSupport.stream(battleState.getSpliteratorParticipants(), false).filter(handle -> {
+                if (handle.equals(self)) {
+                    return false;
+                }
+                final BattleParticipantStateView curState = battleState.getParticipant(handle);
+                if (curState == null) {
+                    throw new TBCExException("missing participant in battle");
+                }
+                return curState.getBounds().getDistanceSquared(pos) <= range * range;
+            });
         }
     }
 }

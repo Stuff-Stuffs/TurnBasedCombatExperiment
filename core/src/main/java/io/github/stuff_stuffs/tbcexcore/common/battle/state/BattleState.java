@@ -24,9 +24,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class BattleState implements BattleStateView {
     private final Map<BattleParticipantHandle, BattleParticipantState> participants;
@@ -181,6 +179,11 @@ public final class BattleState implements BattleStateView {
     @Override
     public Iterator<BattleParticipantHandle> getParticipants() {
         return Iterators.unmodifiableIterator(participants.keySet().iterator());
+    }
+
+    @Override
+    public Spliterator<BattleParticipantHandle> getSpliteratorParticipants() {
+        return participants.keySet().spliterator();
     }
 
     public void setWorld(final World world) {

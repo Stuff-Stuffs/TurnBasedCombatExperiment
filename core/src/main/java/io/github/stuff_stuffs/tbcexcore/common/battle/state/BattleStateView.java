@@ -12,6 +12,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
+import java.util.Spliterator;
 
 public interface BattleStateView {
     EventKey<PreParticipantJoinEvent.Mut, PreParticipantJoinEvent> PRE_PARTICIPANT_JOIN_EVENT = EventKey.get(PreParticipantJoinEvent.Mut.class, PreParticipantJoinEvent.class);
@@ -36,4 +37,6 @@ public interface BattleStateView {
     BattleBounds getBounds();
 
     Iterator<BattleParticipantHandle> getParticipants();
+
+    Spliterator<BattleParticipantHandle> getSpliteratorParticipants();
 }

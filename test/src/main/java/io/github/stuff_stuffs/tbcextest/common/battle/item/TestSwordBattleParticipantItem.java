@@ -9,15 +9,15 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equi
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcextest.common.Test;
-import io.github.stuff_stuffs.tbcextest.common.battle.equipment.TestWeaponEquipment;
+import io.github.stuff_stuffs.tbcextest.common.battle.equipment.TestSwordEquipment;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 import java.util.List;
 import java.util.function.Function;
 
-public class TestWeaponBattleParticipantItem implements BattleParticipantEquipmentItem {
-    public static final Codec<BattleParticipantItem> CODEC = Codec.unit(TestWeaponBattleParticipantItem::new).xmap(Function.identity(), o -> (TestWeaponBattleParticipantItem) o);
+public class TestSwordBattleParticipantItem implements BattleParticipantEquipmentItem {
+    public static final Codec<BattleParticipantItem> CODEC = Codec.unit(TestSwordBattleParticipantItem::new).xmap(Function.identity(), o -> (TestSwordBattleParticipantItem) o);
     private static final RarityInstance RARITY_INSTANCE = new RarityInstance(Rarity.LEGENDARY, 1);
 
     @Override
@@ -27,7 +27,7 @@ public class TestWeaponBattleParticipantItem implements BattleParticipantEquipme
 
     @Override
     public BattleParticipantItemType getType() {
-        return Test.TEST_WEAPON_ITEM_TYPE;
+        return Test.TEST_SWORD_ITEM_TYPE;
     }
 
     @Override
@@ -52,6 +52,6 @@ public class TestWeaponBattleParticipantItem implements BattleParticipantEquipme
 
     @Override
     public BattleEquipment createEquipmentInstance(final BattleParticipantItemStack stack) {
-        return new TestWeaponEquipment();
+        return new TestSwordEquipment();
     }
 }

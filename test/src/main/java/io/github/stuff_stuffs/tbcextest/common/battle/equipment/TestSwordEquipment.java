@@ -1,7 +1,6 @@
 package io.github.stuff_stuffs.tbcextest.common.battle.equipment;
 
 import com.mojang.serialization.Codec;
-import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BasicAttackBattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamageComposition;
@@ -24,15 +23,14 @@ import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class TestWeaponEquipment implements BattleEquipment {
-    public static final Codec<BattleEquipment> CODEC = Codec.unit(TestWeaponEquipment::new).xmap(Function.identity(), o -> (TestWeaponEquipment) o);
+public class TestSwordEquipment implements BattleEquipment {
+    public static final Codec<BattleEquipment> CODEC = Codec.unit(TestSwordEquipment::new).xmap(Function.identity(), o -> (TestSwordEquipment) o);
 
     @Override
     public boolean validSlot(final BattleEquipmentSlot slot) {
@@ -49,36 +47,35 @@ public class TestWeaponEquipment implements BattleEquipment {
         return List.of(new ParticipantAction() {
             @Override
             public Text getName() {
-                return new LiteralText("Ranged Attack");
+                return new LiteralText("Melee Attack");
             }
 
             @Override
             public List<TooltipComponent> getTooltip() {
-                return List.of(TooltipComponent.of(new LiteralText("How are you ranged attacking with a sword?").asOrderedText()));
+                return List.of(TooltipComponent.of(new LiteralText("Basic melee attack").asOrderedText()));
             }
 
             @Override
-            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, Consumer<BattleAction<?>> sender) {
-                return new ParticipantActionInstance(new SingleTargetParticipantActionInfo(new ParticipantTargetType((battleState1, handle1) -> {
-                    final List<BattleParticipantHandle> handles = new ArrayList<>();
-                    battleState1.getParticipants().forEachRemaining(h -> {
-                        if (!h.equals(handle1)) {
-                            handles.add(h);
-                        }
-                    });
-                    return handles;
-                }), (battleState12, user, target) -> sender.accept(
-                        new BasicAttackBattleAction(
-                                user,
-                                ((ParticipantTargetType.ParticipantTargetInstance) target).getHandle(),
-                                new BattleDamagePacket(
-                                        BattleDamageComposition.builder().addWeight(BattleDamageType.PHYSICAL, 1).build(),
-                                        new BattleDamageSource(Optional.of(user)),
-                                        10
+            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
+                return new ParticipantActionInstance(
+                        new SingleTargetParticipantActionInfo(
+                                new ParticipantTargetType(
+                                        (battleState1, handle1) -> () -> ParticipantTargetType.getWithinRange(battleState1, handle1, false, 1).iterator()
                                 ),
-                                1
-                        )
-                ), List.of()), battleState, handle);
+                                (battleState12, user, target) ->
+                                        new BasicAttackBattleAction(
+                                                user,
+                                                ((ParticipantTargetType.ParticipantTargetInstance) target).getHandle(),
+                                                new BattleDamagePacket(
+                                                        BattleDamageComposition.builder().addWeight(BattleDamageType.PHYSICAL, 1).build(),
+                                                        new BattleDamageSource(Optional.of(user)),
+                                                        10
+                                                ),
+                                                1
+                                        ),
+                                List.of()
+                        ), battleState, handle
+                );
             }
         }, BattleEquipment.createUnequipAction(participantView, slot));
     }
@@ -95,6 +92,6 @@ public class TestWeaponEquipment implements BattleEquipment {
 
     @Override
     public BattleEquipmentType getType() {
-        return Test.TEST_WEAPON_EQUIPMENT_TYPE;
+        return Test.TEST_SWORD_EQUIPMENT_TYPE;
     }
 }

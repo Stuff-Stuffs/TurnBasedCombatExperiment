@@ -10,7 +10,6 @@ import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -25,6 +24,47 @@ public final class BattleParticipantBounds implements Iterable<BattleParticipant
     private BattleParticipantBounds(final Map<Identifier, Part> parts, final Vec3d center) {
         this.parts = parts;
         this.center = center;
+    }
+
+    public double getDistanceSquared(final Vec3d pos) {
+        double min = Double.POSITIVE_INFINITY;
+        for (final Part part : parts.values()) {
+            min = Math.min(getDistanceSquared(part.box, pos), min);
+        }
+        return min;
+    }
+
+    private static double getDistanceSquared(final Box box, final Vec3d pos) {
+        final double x = pos.x;
+        final double dX;
+        if (box.minX <= x && x <= box.maxX) {
+            dX = 0;
+        } else if (x < box.minX) {
+            dX = box.minX - x;
+        } else {
+            dX = x - box.maxX;
+        }
+
+        final double y = pos.y;
+        final double dY;
+        if (box.minY <= y && y <= box.maxY) {
+            dY = 0;
+        } else if (y < box.minY) {
+            dY = box.minY - y;
+        } else {
+            dY = y - box.maxY;
+        }
+
+        final double z = pos.z;
+        final double dZ;
+        if (box.minZ <= z && z <= box.maxZ) {
+            dZ = 0;
+        } else if (z < box.minZ) {
+            dZ = box.minZ - z;
+        } else {
+            dZ = z - box.maxZ;
+        }
+        return dX * dX + dY * dY + dZ * dZ;
     }
 
     public BattleParticipantBounds offset(final double x, final double y, final double z) {

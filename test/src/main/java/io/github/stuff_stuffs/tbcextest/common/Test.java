@@ -15,12 +15,15 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.world.ServerBattleWorld;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
-import io.github.stuff_stuffs.tbcextest.common.battle.equipment.TestWeaponEquipment;
+import io.github.stuff_stuffs.tbcextest.common.battle.equipment.TestBowEquipment;
+import io.github.stuff_stuffs.tbcextest.common.battle.equipment.TestSwordEquipment;
 import io.github.stuff_stuffs.tbcextest.common.battle.item.TestBattleParticipantItem;
-import io.github.stuff_stuffs.tbcextest.common.battle.item.TestWeaponBattleParticipantItem;
+import io.github.stuff_stuffs.tbcextest.common.battle.item.TestBowBattleParticipantItem;
+import io.github.stuff_stuffs.tbcextest.common.battle.item.TestSwordBattleParticipantItem;
 import io.github.stuff_stuffs.tbcextest.common.entity.EntityTypes;
+import io.github.stuff_stuffs.tbcextest.common.item.TestBowItem;
 import io.github.stuff_stuffs.tbcextest.common.item.TestItem;
-import io.github.stuff_stuffs.tbcextest.common.item.TestWeaponItem;
+import io.github.stuff_stuffs.tbcextest.common.item.TestSwordItem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -39,18 +42,25 @@ import java.util.List;
 
 public class Test implements ModInitializer {
     public static final Item TEST_ITEM = new TestItem();
-    public static final Item TEST_WEAPON_ITEM = new TestWeaponItem();
-    public static final BattleEquipmentType TEST_WEAPON_EQUIPMENT_TYPE = new BattleEquipmentType(new LiteralText("test_weapon"), TestWeaponEquipment.CODEC);
+    public static final Item TEST_SWORD_ITEM = new TestSwordItem();
+    public static final Item TEST_BOW_ITEM = new TestBowItem();
+    public static final BattleEquipmentType TEST_SWORD_EQUIPMENT_TYPE = new BattleEquipmentType(new LiteralText("test_sword"), TestSwordEquipment.CODEC);
+    public static final BattleEquipmentType TEST_BOW_EQUIPMENT_TYPE = new BattleEquipmentType(new LiteralText("test_bow"), TestBowEquipment.CODEC);
     public static final BattleParticipantItemType TEST_ITEM_TYPE = new BattleParticipantItemType(TestBattleParticipantItem.CODEC, TestBattleParticipantItem.CAN_MERGE, TestBattleParticipantItem.MERGER, TestBattleParticipantItem.TO_ITEM_STACK);
-    public static final BattleParticipantItemType TEST_WEAPON_ITEM_TYPE = new BattleParticipantItemType(TestWeaponBattleParticipantItem.CODEC, (i, j) -> false, (i, j) -> null, i -> List.of(new ItemStack(TEST_ITEM, i.getCount())));
+    public static final BattleParticipantItemType TEST_SWORD_ITEM_TYPE = new BattleParticipantItemType(TestSwordBattleParticipantItem.CODEC, (i, j) -> false, (i, j) -> null, i -> List.of(new ItemStack(TEST_SWORD_ITEM, i.getCount())));
+    public static final BattleParticipantItemType TEST_BOW_ITEM_TYPE = new BattleParticipantItemType(TestBowBattleParticipantItem.CODEC, (i, j) -> false, (i, j) -> null, i -> List.of(new ItemStack(TEST_BOW_ITEM, i.getCount())));
 
     @Override
     public void onInitialize() {
         Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_item"), TEST_ITEM);
+        Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_weapon"), TEST_SWORD_ITEM);
+        Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_bow"), TEST_BOW_ITEM);
+        Registry.register(BattleEquipmentType.REGISTRY, new Identifier("tbcextest", "test_weapon"), TEST_SWORD_EQUIPMENT_TYPE);
+        Registry.register(BattleEquipmentType.REGISTRY, new Identifier("tbcextest", "test_bow"), TEST_BOW_EQUIPMENT_TYPE);
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_item"), TEST_ITEM_TYPE);
-        Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_weapon"), TEST_WEAPON_ITEM);
-        Registry.register(BattleEquipmentType.REGISTRY, new Identifier("tbcextest", "test_weapon"), TEST_WEAPON_EQUIPMENT_TYPE);
-        Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_weapon"), TEST_WEAPON_ITEM_TYPE);
+        Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_weapon"), TEST_SWORD_ITEM_TYPE);
+        Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_bow"), TEST_BOW_ITEM_TYPE);
+
         EntityTypes.init();
         CommandRegistrationCallback.EVENT.register(Test::register);
     }
