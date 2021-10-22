@@ -120,6 +120,12 @@ public class BattleHudHealthWidget extends AbstractWidget {
 
                         final VertexConsumer posColourTex = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(BOSS_BAR_TEXTURE, false));
                         matrixStack.translate(-width / 2.0, 0, 0);
+                        //background
+                        RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, 0, 0, 0, matrixStack), colour, 255), 0, (6 * 10) / 256.0).next();
+                        RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width, 0, 0, matrixStack), colour, 255), 182 / 256.0, (6 * 10) / 256.0).next();
+                        RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width, height, 0, matrixStack), colour, 255), 182 / 256.0, (6 * 10 + 5) / 256.0).next();
+                        RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, 0, height, 0, matrixStack), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
+                        //foreground
                         RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, 0, 0, 0, matrixStack), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
                         RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width * percent, 0, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
                         RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, width * percent, height, 0, matrixStack), colour, 255), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();

@@ -33,6 +33,7 @@ public interface BattleEquipment {
 
     BattleEquipmentType getType();
 
+    //TODO seems to be a bug in the inventory screen todo with un-equipping and re-equipping
     static ParticipantAction createUnequipAction(final BattleParticipantStateView participantView, final BattleEquipmentSlot slot) {
         return new ParticipantAction() {
             @Override

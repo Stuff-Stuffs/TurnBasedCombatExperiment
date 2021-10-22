@@ -121,8 +121,6 @@ public class BattleParticipantOtherInfoScreen extends TBCExScreen implements Mou
                         }
                     }
                 }
-                locked = false;
-                passEvents = false;
                 iterator = battle.getState().getParticipants();
                 while (iterator.hasNext()) {
                     final BattleParticipantHandle nextHandle = iterator.next();

@@ -79,7 +79,11 @@ public abstract class MixinInGameHud implements HudSupplier {
     private void redirectSpectatorRendering(final SpectatorHud spectatorHud, final MatrixStack matrices, final float tickDelta) {
         if (hud != null) {
             final Mouse mouse = client.mouse;
-            hud.render(matrices, mouse.getX() * (double) client.getWindow().getScaledWidth() / (double) client.getWindow().getWidth(), mouse.getY() * (double) client.getWindow().getScaledHeight() / (double) client.getWindow().getHeight(), tickDelta);
+            if (mouse.isCursorLocked()) {
+                hud.render(matrices, (this.client.getWindow().getWidth() / 2.0) * (double) client.getWindow().getScaledWidth() / (double) client.getWindow().getWidth(), (this.client.getWindow().getHeight() / 2.0) * (double) client.getWindow().getScaledHeight() / (double) client.getWindow().getHeight(), tickDelta);
+            } else {
+                hud.render(matrices, mouse.getX() * (double) client.getWindow().getScaledWidth() / (double) client.getWindow().getWidth(), mouse.getY() * (double) client.getWindow().getScaledHeight() / (double) client.getWindow().getHeight(), tickDelta);
+            }
         } else {
             spectatorHud.render(matrices);
         }

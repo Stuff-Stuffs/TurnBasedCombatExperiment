@@ -107,10 +107,10 @@ public class BattleHudEnergyWidget extends AbstractWidget {
                     RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percentPartial, y + height, z, matrices), colourPartial, tweakedAlphaInv), 182 / 256.0 * percentPartial, (6 * 10 + 10) / 256.0).next();
                     RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colourPartial, tweakedAlphaInv), 0, (6 * 10 + 10) / 256.0).next();
                 } else {
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), IntRgbColour.WHITE, 255), 0, (6 * 10) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0, (6 * 10) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y + height, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0, (6 * 10 + 5) / 256.0).next();
-                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), IntRgbColour.WHITE, 255), 0, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colour, 255), 0, (6 * 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y, z, matrices), colour, 255), 182 / 256.0, (6 * 10) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y + height, z, matrices), colour, 255), 182 / 256.0, (6 * 10 + 5) / 256.0).next();
+                    RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
 
                     RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
                     RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y, z, matrices), colour, 255), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
