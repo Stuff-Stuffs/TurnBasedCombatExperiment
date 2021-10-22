@@ -13,7 +13,7 @@ public class ParticipantPathGatherer {
     public static final PathPostProcessor DEFAULT = path -> {
         DoubleList costs = new DoubleArrayList(path.getMovements().size());
         for (Movement movement : path.getMovements()) {
-            costs.add(movement.getCost() / 10.0);
+            costs.add(movement.getCost() / 3.0);
         }
         return new BattlePath(path, costs);
     };
