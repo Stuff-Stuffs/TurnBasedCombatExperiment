@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target;
 
+import com.google.common.collect.Iterables;
 import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
@@ -79,6 +80,11 @@ public class ParticipantTargetType implements TargetType {
                 TBCExCoreClient.addBoxInfo(new BoxInfo(part.box, r, g, 0, 1));
             }
         }
+    }
+
+    @Override
+    public boolean isAnyValid(BattleParticipantHandle user, Battle battle) {
+        return !Iterables.isEmpty(this.source.apply(battle.getState(), user));
     }
 
     public static final class ParticipantTargetInstance implements TargetInstance {

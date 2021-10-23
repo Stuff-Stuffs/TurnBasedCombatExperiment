@@ -4,8 +4,10 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.*;
+import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
 import io.github.stuff_stuffs.tbcexcore.client.util.ItemStackInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
@@ -83,9 +85,12 @@ public class BattleInventoryScreen extends TBCExScreen {
                     }
                     final Either<BattleParticipantInventoryHandle, Pair<BattleParticipantHandle, BattleEquipmentSlot>> location = infos.get(index).location;
                     final List<ParticipantAction> actions = new ArrayList<>();
-                    actions.addAll(location.map(h -> participantState.getItemStack(h).getItem().getActions(b.getState(), participantState, h), p -> participantState.getEquipment(p.getSecond()).getActions(b.getState(), participantState, p.getSecond())));
+                    actions.addAll(location.map(
+                            h -> participantState.getItemStack(h).getItem().getActions(b.getState(), participantState, h),
+                            p -> participantState.getEquipment(p.getSecond()).getActions(b.getState(), participantState, p.getSecond())
+                    ));
                     if (actions.size() > 0) {
-                        selectionWidget = new BattleInventoryActionSelectionWidget(WidgetPosition.of(mouseX, mouseY, 10), b.getState(), handle, actions);
+                        selectionWidget = new BattleInventoryActionSelectionWidget(WidgetPosition.of(mouseX, mouseY, 10), b.getState(), handle, battle, actions);
                         if (selectionWidgetHandle != null) {
                             widget.removeWidget(selectionWidgetHandle);
                         }
@@ -141,11 +146,11 @@ public class BattleInventoryScreen extends TBCExScreen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(final MatrixStack matrices, final int mouseX, final int mouseY, final float delta) {
         super.render(matrices, mouseX, mouseY, delta);
-        if(selectionWidget!=null&&selectionWidget.shouldClose()) {
+        if (selectionWidget != null && selectionWidget.shouldClose()) {
             selectionWidget = null;
-            ((ParentWidget)widget).removeWidget(selectionWidgetHandle);
+            ((ParentWidget) widget).removeWidget(selectionWidgetHandle);
         }
     }
 
@@ -156,5 +161,9 @@ public class BattleInventoryScreen extends TBCExScreen {
 
     private void select(final int index) {
         selected.setValue(index);
+    }
+
+    private void send(final BattleAction<?> battleAction) {
+        BattleActionSender.send(handle.battleId(), battleAction);
     }
 }

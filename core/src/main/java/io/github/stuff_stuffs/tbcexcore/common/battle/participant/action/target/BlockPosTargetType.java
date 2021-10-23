@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target;
 
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.Iterables;
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
@@ -38,6 +39,11 @@ public class BlockPosTargetType extends AbstractBoxedTargetType<BiFunction<Battl
             }
             TBCExCoreClient.addBoxInfo(new BoxInfo(location.getX(), location.getY(), location.getZ(), location.getX() + 1, location.getY() + 1, location.getZ() + 1, r, g, 0, 1));
         }
+    }
+
+    @Override
+    public boolean isAnyValid(BattleParticipantHandle user, Battle battle) {
+        return !Iterables.isEmpty(this.source.apply(battle.getState(), user));
     }
 
     @Override

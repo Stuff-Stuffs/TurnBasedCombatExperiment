@@ -2,6 +2,7 @@ package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
 import io.github.stuff_stuffs.tbcexcore.client.gui.BattleActionScreen;
 import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
+import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
@@ -13,9 +14,12 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.PressableButtonWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.BasicPanelWidget;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
 
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 public class BattleInventoryActionSelectionWidget extends AbstractWidget {
     private final WidgetPosition position;
@@ -23,12 +27,16 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
     private final ParentWidget panel;
     private boolean shouldClose = false;
 
-    public BattleInventoryActionSelectionWidget(final WidgetPosition position, final BattleStateView battleState, final BattleParticipantHandle handle, final List<ParticipantAction> actions) {
+    public BattleInventoryActionSelectionWidget(final WidgetPosition position, final BattleStateView battleState, final BattleParticipantHandle handle, final Battle battle, final List<ParticipantAction> actions) {
         this.position = position;
         this.handle = handle;
         panel = new BasicPanelWidget(position, () -> false, () -> 2, 0.25, 0.15 * actions.size() + 0.05);
         int index = 0;
         for (final ParticipantAction action : actions) {
+            final BooleanSupplier s = () -> {
+                final ParticipantActionInstance instance = action.createInstance(battle.getState(), handle, this::send);
+                return (instance.getNextType() == null && instance.canActivate()) || (instance.getNextType() != null && instance.getNextType().isAnyValid(instance.getUser(), battle));
+            };
             panel.addWidget(
                     new PressableButtonWidget(
                             WidgetPosition.combine(
@@ -36,11 +44,17 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
                                     position
                             ),
                             () -> 4,
-                            () -> true,
+                            s,
                             0.2,
                             0.15,
                             action::getName,
-                            action::getTooltip,
+                            () -> {
+                                if (s.getAsBoolean()) {
+                                    return action.getTooltip();
+                                } else {
+                                    return List.of(TooltipComponent.of(new LiteralText("No available targets").asOrderedText()));
+                                }
+                            },
                             () -> {
                                 final ParticipantActionInstance instance = action.createInstance(battleState, handle, this::send);
                                 if (instance.getNextType() == null && instance.canActivate()) {

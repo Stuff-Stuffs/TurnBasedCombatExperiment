@@ -95,17 +95,19 @@ public class PressableButtonWidget extends AbstractWidget {
         final ButtonState state;
         final double positionX = position.getX();
         final double positionY = position.getY();
+        final Rect2d rect = new Rect2d(positionX, positionY, positionX + width, positionY + height);
         if (enabled.getAsBoolean()) {
             if (held) {
                 state = ButtonState.HELD;
             } else {
-                final Rect2d rect = new Rect2d(positionX, positionY, positionX + width, positionY + height);
                 if (rect.isIn(mouseX, mouseY)) {
                     state = ButtonState.HOVERED;
                 } else {
                     state = ButtonState.ACTIVE;
                 }
             }
+        } else if(rect.isIn(mouseX,mouseY)){
+            state = ButtonState.HOVERED;
         } else {
             state = ButtonState.INACTIVE;
         }
