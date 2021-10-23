@@ -16,11 +16,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.RegistryWorldView;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.function.Function;
 
 public final class BattleShapeCache {
     private final WorldShapeCache worldCache;
@@ -55,50 +52,61 @@ public final class BattleShapeCache {
         return participant.getBounds();
     }
 
-    public boolean canSeeAny(Vec3d eyePos, Vec3d[] targets, BattleParticipantHandle ...exclusions) {
+    public boolean canSeeAny(final Vec3d eyePos, final Vec3d[] targets, final BattleParticipantHandle... exclusions) {
         final Iterator<BattleParticipantHandle> participants = getParticipants();
+        final boolean[] blocked = new boolean[targets.length];
+        int blockedCount = 0;
         while (participants.hasNext()) {
-            BattleParticipantHandle next = participants.next();
+            final BattleParticipantHandle next = participants.next();
             boolean excluded = false;
-            for (BattleParticipantHandle  exclusion: exclusions) {
-                if(exclusion.equals(next)) {
+            for (final BattleParticipantHandle exclusion : exclusions) {
+                if (exclusion.equals(next)) {
                     excluded = true;
                     break;
                 }
             }
-            if(!excluded) {
-                boolean seeAny = false;
+            if (!excluded) {
                 final BattleParticipantBounds shape = getShape(next);
-                for (Vec3d target : targets) {
-                    final BattleParticipantBounds.RaycastResult raycast = shape.raycast(eyePos, target);
-                    if(raycast==null) {
-                        seeAny = true;
-                        break;
+                for (int i = 0; i < targets.length; i++) {
+                    final boolean b = blocked[i];
+                    if (!b) {
+                        final Vec3d target = targets[i];
+                        final BattleParticipantBounds.RaycastResult raycast = shape.raycast(eyePos, target);
+                        if (raycast != null) {
+                            blocked[i] = true;
+                            blockedCount++;
+                            if (blockedCount == targets.length) {
+                                return false;
+                            }
+                        }
                     }
                 }
-                if(!seeAny) {
-                    return false;
-                }
             }
         }
-        boolean seeAny = false;
-        for (Vec3d target : targets) {
-            final HitResult hitResult = MathUtil.rayCast(eyePos, target, pos -> {
-                VoxelShape shape = getShape(pos);
-                if (shape == VoxelShapes.empty() || shape.isEmpty()) {
+        for (int i = 0; i < targets.length; i++) {
+            final boolean b = blocked[i];
+            if (!b) {
+                final Vec3d target = targets[i];
+                final HitResult hitResult = MathUtil.rayCast(eyePos, target, pos -> {
+                    final VoxelShape shape = getShape(pos);
+                    if (shape == VoxelShapes.empty() || shape.isEmpty()) {
+                        return null;
+                    }
+                    final BlockHitResult raycast = shape.raycast(eyePos, target, pos);
+                    if (raycast != null && raycast.getType() != HitResult.Type.MISS) {
+                        return raycast;
+                    }
                     return null;
+                });
+                if (hitResult != null && hitResult.getType() != HitResult.Type.MISS) {
+                    blocked[i] = true;
+                    blockedCount++;
+                    if (blockedCount == targets.length) {
+                        return false;
+                    }
                 }
-                final BlockHitResult raycast = shape.raycast(eyePos, target, pos);
-                if (raycast != null && raycast.getType() != HitResult.Type.MISS) {
-                    return raycast;
-                }
-                return null;
-            });
-            if(hitResult==null||hitResult.getType()== HitResult.Type.MISS) {
-                seeAny = true;
-                break;
             }
         }
-        return seeAny;
+        return true;
     }
 }
