@@ -17,10 +17,13 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComp
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComponents;
 import io.github.stuff_stuffs.tbcexcore.common.battle.turnchooser.TurnChooser;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
+import io.github.stuff_stuffs.tbcexcore.common.util.BattleShapeCache;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
+import io.github.stuff_stuffs.tbcexutil.common.WorldShapeCache;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +39,7 @@ public final class BattleState implements BattleStateView {
     private final Map<BattleComponentKey<?, ?>, BattleComponent> componentsByKey;
     private boolean ended;
     private World world;
+    private BattleShapeCache shapeCache;
 
     public BattleState(final BattleHandle handle, final BattleBounds bounds) {
         eventMap = new EventMap();
@@ -154,6 +158,11 @@ public final class BattleState implements BattleStateView {
     }
 
     @Override
+    public BattleShapeCache getShapeCache() {
+        return shapeCache;
+    }
+
+    @Override
     public <T, V> EventHolder<T, V> getEvent(final EventKey<T, V> key) {
         return eventMap.get(key);
     }
@@ -186,8 +195,15 @@ public final class BattleState implements BattleStateView {
         return participants.keySet().spliterator();
     }
 
+    public void tick() {
+        if(world!=null) {
+            shapeCache = new BattleShapeCache(world, this);
+        }
+    }
+
     public void setWorld(final World world) {
         this.world = world;
+        shapeCache = new BattleShapeCache(world, this);
     }
 
     public World getWorld() {

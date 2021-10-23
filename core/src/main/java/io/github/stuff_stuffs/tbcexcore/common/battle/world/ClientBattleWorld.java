@@ -7,6 +7,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.world.World;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,8 +21,10 @@ public final class ClientBattleWorld implements BattleWorld, Iterable<Battle> {
     private static final Logger LOGGER = TBCExCoreClient.LOGGER;
     private final Map<BattleHandle, Battle> battleMap;
     private final Set<BattleHandle> requestedUpdates;
+    private final World world;
 
-    public ClientBattleWorld() {
+    public ClientBattleWorld(World world) {
+        this.world = world;
         battleMap = new Object2ObjectOpenHashMap<>();
         requestedUpdates = new ObjectOpenHashSet<>();
     }
@@ -52,7 +55,9 @@ public final class ClientBattleWorld implements BattleWorld, Iterable<Battle> {
         if (battle != null) {
             LOGGER.error("Attempt to add already existing battle: {}", handle);
         } else {
-            battleMap.put(handle, new Battle(handle, bounds, turnTimerRemaining, turnTimerMax));
+            final Battle b = new Battle(handle, bounds, turnTimerRemaining, turnTimerMax);
+            b.setWorld(world);
+            battleMap.put(handle, b);
         }
     }
 

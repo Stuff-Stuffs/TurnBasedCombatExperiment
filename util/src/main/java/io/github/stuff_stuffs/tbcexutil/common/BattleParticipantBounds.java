@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public final class BattleParticipantBounds implements Iterable<BattleParticipantBounds.Part> {
     private static final Codec<Part> PART_CODEC = RecordCodecBuilder.create(instance -> instance.group(Identifier.CODEC.fieldOf("name").forGetter(part -> part.name), CodecUtil.BOX_CODEC.fieldOf("box").forGetter(part -> part.box)).apply(instance, Part::new));
@@ -123,6 +124,18 @@ public final class BattleParticipantBounds implements Iterable<BattleParticipant
     @Override
     public Iterator<Part> iterator() {
         return Iterators.unmodifiableIterator(parts.values().iterator());
+    }
+
+    public Stream<Part> stream() {
+        return parts.values().stream();
+    }
+
+    public Part getPart(final Identifier part) {
+        final Part p = parts.get(part);
+        if (p == null) {
+            throw new TBCExException("Tried to get non-existant part");
+        }
+        return p;
     }
 
     public static final class Part {

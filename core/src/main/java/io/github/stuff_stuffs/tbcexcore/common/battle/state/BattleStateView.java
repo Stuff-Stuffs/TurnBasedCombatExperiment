@@ -9,6 +9,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComponent;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.component.BattleComponentKey;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
+import io.github.stuff_stuffs.tbcexcore.common.util.BattleShapeCache;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -29,6 +30,8 @@ public interface BattleStateView {
     @Nullable BattleParticipantHandle getCurrentTurn();
 
     boolean isEnded();
+
+    BattleShapeCache getShapeCache();
 
     <T, V> EventHolder<T, V> getEvent(EventKey<T, V> key);
 

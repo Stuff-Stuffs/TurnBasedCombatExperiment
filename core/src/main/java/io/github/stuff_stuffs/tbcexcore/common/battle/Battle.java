@@ -111,6 +111,7 @@ public final class Battle implements AdvanceTurnEvent {
         if (timer.tick()) {
             push(new EndTurnBattleAction(BattleParticipantHandle.UNIVERSAL.apply(handle)));
         }
+        state.tick();
     }
 
     public int getTurnTimerRemaining() {

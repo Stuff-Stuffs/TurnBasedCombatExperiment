@@ -14,6 +14,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.Partici
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.SingleTargetParticipantActionInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.ParticipantTargetType;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetStreams;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentType;
@@ -60,7 +61,10 @@ public class TestSwordEquipment implements BattleEquipment {
                 return new ParticipantActionInstance(
                         new SingleTargetParticipantActionInfo(
                                 new ParticipantTargetType(
-                                        (battleState1, handle1) -> () -> ParticipantTargetType.getWithinRange(battleState1, handle1, false, 1).iterator()
+                                        (battleState1, handle1) -> {
+                                            final TargetStreams.Context context = new TargetStreams.Context(battleState1, handle1);
+                                            return () -> TargetStreams.getParticipantStream(context, false).filter(TargetStreams.team(context, false)).filter(TargetStreams.withinRange(context, 1)).iterator();
+                                        }
                                 ),
                                 (battleState12, user, target) ->
                                         new BasicAttackBattleAction(
@@ -73,6 +77,7 @@ public class TestSwordEquipment implements BattleEquipment {
                                                 ),
                                                 1
                                         ),
+                                sender,
                                 List.of()
                         ), battleState, handle
                 );

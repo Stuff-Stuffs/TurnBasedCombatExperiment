@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcextest.common.battle.equipment;
 
 import com.mojang.serialization.Codec;
+import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BasicAttackBattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamageComposition;
@@ -14,6 +15,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.Partici
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.SingleTargetParticipantActionInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.ParticipantTargetType;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetStreams;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentType;
@@ -22,19 +24,24 @@ import io.github.stuff_stuffs.tbcextest.common.Test;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+//TODO arrows?
 public class TestBowEquipment implements BattleEquipment {
     public static final Codec<BattleEquipment> CODEC = Codec.unit(TestBowEquipment::new).xmap(Function.identity(), o -> (TestBowEquipment) o);
+    private static final BattleDamageComposition COMPOSITION = BattleDamageComposition.builder().addWeight(BattleDamageType.PHYSICAL, 1).build();
+    private static final Function<BattleParticipantHandle, BattleDamagePacket> DAMAGE_PACKET_FACTORY = participantHandle -> new BattleDamagePacket(COMPOSITION, new BattleDamageSource(Optional.of(participantHandle)), 10);
+    private static final Identifier EYE_PART = TBCExCore.createId("head");
+
     @Override
-    public boolean validSlot(BattleEquipmentSlot slot) {
-        return slot==BattleEquipmentSlot.MAIN_HAND_SLOT;
+    public boolean validSlot(final BattleEquipmentSlot slot) {
+        return slot == BattleEquipmentSlot.MAIN_HAND_SLOT;
     }
 
     @Override
@@ -43,7 +50,7 @@ public class TestBowEquipment implements BattleEquipment {
     }
 
     @Override
-    public void initEvents(BattleParticipantState state) {
+    public void initEvents(final BattleParticipantState state) {
 
     }
 
@@ -71,27 +78,25 @@ public class TestBowEquipment implements BattleEquipment {
             }
 
             @Override
-            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, Consumer<BattleAction<?>> sender) {
-                return new ParticipantActionInstance(new SingleTargetParticipantActionInfo(new ParticipantTargetType((battleState1, handle1) -> {
-                    final List<BattleParticipantHandle> handles = new ArrayList<>();
-                    battleState1.getParticipants().forEachRemaining(h -> {
-                        if (!h.equals(handle1)) {
-                            handles.add(h);
-                        }
-                    });
-                    return handles;
-                }), (battleState12, user, target) -> sender.accept(
-                        new BasicAttackBattleAction(
-                                user,
-                                ((ParticipantTargetType.ParticipantTargetInstance) target).getHandle(),
-                                new BattleDamagePacket(
-                                        BattleDamageComposition.builder().addWeight(BattleDamageType.PHYSICAL, 1).build(),
-                                        new BattleDamageSource(Optional.of(user)),
-                                        10
-                                ),
-                                1
-                        )
-                ), List.of()), battleState, handle);
+            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
+                return new ParticipantActionInstance(
+                        new SingleTargetParticipantActionInfo(
+                                new ParticipantTargetType(
+                                        (battleStateView, handle1) -> {
+                                            final TargetStreams.Context context = new TargetStreams.Context(battleStateView, handle1);
+                                            return () -> TargetStreams.getParticipantStream(context, false).
+                                                    filter(TargetStreams.team(context, false)).
+                                                    filter(TargetStreams.visibleParticipant(context, EYE_PART)).iterator();
+                                        }
+                                ), (battleState12, user, target) ->
+                                new BasicAttackBattleAction(
+                                        user,
+                                        ((ParticipantTargetType.ParticipantTargetInstance) target).getHandle(),
+                                        DAMAGE_PACKET_FACTORY.apply(user),
+                                        1
+                                ), sender, List.of()
+                        ), battleState, handle
+                );
             }
         }, BattleEquipment.createUnequipAction(participantView, slot));
     }
