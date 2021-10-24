@@ -9,7 +9,6 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.function.ToDoubleFunction;
 
-//TODO perception?
 public final class BattleParticipantStat {
     public static final Registry<BattleParticipantStat> REGISTRY = FabricRegistryBuilder.createSimple(BattleParticipantStat.class, TBCExCore.createId("stat")).buildAndRegister();
     public static final BattleParticipantStat MAX_HEALTH_STAT = new BattleParticipantStat(new LiteralText("max_health"), BattleEntity::tbcex_getMaxHealth);

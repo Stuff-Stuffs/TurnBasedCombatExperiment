@@ -6,12 +6,10 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
-import net.minecraft.block.BlockState;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -94,11 +92,11 @@ public final class TargetStreams {
         };
     }
 
-    public static Stream<BlockPos> getFloorPositions(final Context context, final int range, final World world) {
+    public static Stream<BlockPos> getFloorPositions(final Context context, final int range) {
         final BlockPos pos = context.getSelfState().getPos();
         final BlockPos.Mutable mutable = new BlockPos.Mutable();
         final int sq = range * range;
-        return Stream.iterate(new FloorFinder(range, pos.getX() - range, pos.getY() - range, pos.getZ() - range), f -> !(f.x + f.range == f.curX && f.y + f.range == f.curY && f.z + f.range == f.curZ), floorFinder -> {
+        return Stream.iterate(new FloorFinder(range, pos.getX() - range, pos.getY() - range, pos.getZ() - range), f -> f.curZ < f.z + f.range + 1, floorFinder -> {
             if (floorFinder.curX == floorFinder.x + range) {
                 floorFinder.curX = floorFinder.x - floorFinder.range;
                 if (floorFinder.curY == floorFinder.y + floorFinder.range) {
@@ -112,12 +110,10 @@ public final class TargetStreams {
             }
             return floorFinder;
         }).filter(f -> (f.curX - f.x) * (f.curX - f.x) + (f.curY - f.y) * (f.curY - f.y) + (f.curZ - f.z) * (f.curZ - f.z) <= sq).filter(f -> {
-            final BlockState floorState = world.getBlockState(mutable.set(f.curX, f.curY - 1, f.curZ));
-            if (floorState.getCollisionShape(world, mutable).isEmpty()) {
+            if (context.battle.getShapeCache().getShape(mutable.set(f.curX, f.curY - 1, f.curZ)).isEmpty()) {
                 return false;
             }
-            final BlockState blockState = world.getBlockState(mutable.set(f.curX, f.curY, f.curZ));
-            return blockState.getCollisionShape(world, mutable).isEmpty();
+            return context.battle.getShapeCache().getShape(mutable.set(f.curX, f.curY, f.curZ)).isEmpty();
         }).map(f -> new BlockPos(f.curX, f.curY, f.curZ));
     }
 

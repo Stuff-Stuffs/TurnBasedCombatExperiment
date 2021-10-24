@@ -19,15 +19,16 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.turnchooser.TurnChooser;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleBounds;
 import io.github.stuff_stuffs.tbcexcore.common.util.BattleShapeCache;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
-import io.github.stuff_stuffs.tbcexutil.common.WorldShapeCache;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Spliterator;
 
 public final class BattleState implements BattleStateView {
     private final Map<BattleParticipantHandle, BattleParticipantState> participants;
@@ -196,7 +197,7 @@ public final class BattleState implements BattleStateView {
     }
 
     public void tick() {
-        if(world!=null) {
+        if (world != null) {
             shapeCache = new BattleShapeCache(world, this);
         }
     }
