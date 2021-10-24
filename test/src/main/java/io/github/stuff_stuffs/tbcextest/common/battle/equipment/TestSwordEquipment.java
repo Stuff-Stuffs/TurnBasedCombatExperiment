@@ -59,7 +59,7 @@ public class TestSwordEquipment implements BattleEquipment {
             @Override
             public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
                 return new ParticipantActionInstance(
-                        new SingleTargetParticipantActionInfo(
+                        new SingleTargetParticipantActionInfo<>(
                                 new ParticipantTargetType(
                                         (battleState1, handle1) -> {
                                             final TargetStreams.Context context = new TargetStreams.Context(battleState1, handle1);
@@ -69,7 +69,7 @@ public class TestSwordEquipment implements BattleEquipment {
                                 (battleState12, user, target) ->
                                         new BasicAttackBattleAction(
                                                 user,
-                                                ((ParticipantTargetType.ParticipantTargetInstance) target).getHandle(),
+                                                target.getHandle(),
                                                 new BattleDamagePacket(
                                                         BattleDamageComposition.builder().addWeight(BattleDamageType.PHYSICAL, 1).build(),
                                                         new BattleDamageSource(Optional.of(user)),

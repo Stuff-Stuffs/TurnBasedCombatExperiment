@@ -80,7 +80,7 @@ public class TestBowEquipment implements BattleEquipment {
             @Override
             public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
                 return new ParticipantActionInstance(
-                        new SingleTargetParticipantActionInfo(
+                        new SingleTargetParticipantActionInfo<>(
                                 new ParticipantTargetType(
                                         (battleStateView, handle1) -> {
                                             final TargetStreams.Context context = new TargetStreams.Context(battleStateView, handle1);
@@ -91,7 +91,7 @@ public class TestBowEquipment implements BattleEquipment {
                                 ), (battleState12, user, target) ->
                                 new BasicAttackBattleAction(
                                         user,
-                                        ((ParticipantTargetType.ParticipantTargetInstance) target).getHandle(),
+                                        target.getHandle(),
                                         DAMAGE_PACKET_FACTORY.apply(user),
                                         1
                                 ), sender, List.of()
