@@ -11,25 +11,25 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SingleTargetParticipantActionInfo implements ParticipantActionInfo {
-    private final TargetType type;
-    private final Action action;
+public class SingleTargetParticipantActionInfo<T extends TargetInstance> implements ParticipantActionInfo {
+    private final TargetType<T> type;
+    private final Action<? super T> action;
     private final List<TooltipComponent> description;
 
-    public SingleTargetParticipantActionInfo(final TargetType type, final Action action, final List<TooltipComponent> description) {
+    public SingleTargetParticipantActionInfo(final TargetType<T> type, final Action<? super T> action, final List<TooltipComponent> description) {
         this.type = type;
         this.action = action;
         this.description = description;
     }
 
-    public SingleTargetParticipantActionInfo(final TargetType type, final SimpleAction action, final Consumer<BattleAction<?>> sender, final List<TooltipComponent> description) {
+    public SingleTargetParticipantActionInfo(final TargetType<T> type, final SimpleAction<? super T> action, final Consumer<BattleAction<?>> sender, final List<TooltipComponent> description) {
         this.type = type;
         this.action = (battleState, user, target) -> sender.accept(action.apply(battleState, user, target));
         this.description = description;
     }
 
     @Override
-    public @Nullable TargetType getNextTargetType(final List<TargetInstance> list) {
+    public @Nullable TargetType<T> getNextTargetType(final List<TargetInstance> list) {
         return list.isEmpty() ? type : null;
     }
 
@@ -43,7 +43,7 @@ public class SingleTargetParticipantActionInfo implements ParticipantActionInfo 
         if (list.isEmpty()) {
             throw new RuntimeException();
         }
-        action.apply(battleState, user, list.get(0));
+        action.apply(battleState, user, (T) list.get(0));
     }
 
     @Override
@@ -51,11 +51,11 @@ public class SingleTargetParticipantActionInfo implements ParticipantActionInfo 
         return description;
     }
 
-    public interface Action {
-        void apply(final BattleStateView battleState, final BattleParticipantHandle user, TargetInstance target);
+    public interface Action<T extends TargetInstance> {
+        void apply(final BattleStateView battleState, final BattleParticipantHandle user, T target);
     }
 
-    public interface SimpleAction {
-        BattleAction<?> apply(final BattleStateView battleState, final BattleParticipantHandle user, TargetInstance target);
+    public interface SimpleAction<T extends TargetInstance> {
+        BattleAction<?> apply(final BattleStateView battleState, final BattleParticipantHandle user, T target);
     }
 }

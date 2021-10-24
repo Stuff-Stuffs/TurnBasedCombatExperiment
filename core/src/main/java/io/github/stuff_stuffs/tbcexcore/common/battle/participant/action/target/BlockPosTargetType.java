@@ -6,9 +6,9 @@ import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 
-public class BlockPosTargetType extends AbstractBoxedTargetType<BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BlockPos>>> {
+public class BlockPosTargetType extends AbstractBoxedTargetType<BlockPosTargetType.BlockPosTargetInstance, BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BlockPos>>> {
     public BlockPosTargetType(final BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BlockPos>> locations) {
         super(locations);
     }
@@ -42,17 +42,17 @@ public class BlockPosTargetType extends AbstractBoxedTargetType<BiFunction<Battl
     }
 
     @Override
-    public boolean isAnyValid(BattleParticipantHandle user, Battle battle) {
-        return !Iterables.isEmpty(this.source.apply(battle.getState(), user));
+    public boolean isAnyValid(final BattleParticipantHandle user, final Battle battle) {
+        return !Iterables.isEmpty(source.apply(battle.getState(), user));
     }
 
     @Override
-    protected BiFunction<Battle, BattleParticipantHandle, Iterable<Pair<Box, BiFunction<Battle, BattleParticipantHandle, TargetInstance>>>> createFunc(final BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BlockPos>> source) {
+    protected BiFunction<Battle, BattleParticipantHandle, Iterable<Pair<Box, BiFunction<Battle, BattleParticipantHandle, ? extends BlockPosTargetInstance>>>> createFunc(final BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BlockPos>> source) {
         return (battle, user) -> () -> new AbstractIterator<>() {
             private final Iterator<BlockPos> iterator = source.apply(battle.getState(), user).iterator();
 
             @Override
-            protected Pair<Box, BiFunction<Battle, BattleParticipantHandle, TargetInstance>> computeNext() {
+            protected Pair<Box, BiFunction<Battle, BattleParticipantHandle, ? extends BlockPosTargetInstance>> computeNext() {
                 if (iterator.hasNext()) {
                     final BattleParticipantStateView battleParticipant = battle.getState().getParticipant(user);
                     if (battleParticipant == null) {
@@ -82,7 +82,7 @@ public class BlockPosTargetType extends AbstractBoxedTargetType<BiFunction<Battl
         }
 
         @Override
-        public TargetType getType() {
+        public BlockPosTargetType getType() {
             return type;
         }
 

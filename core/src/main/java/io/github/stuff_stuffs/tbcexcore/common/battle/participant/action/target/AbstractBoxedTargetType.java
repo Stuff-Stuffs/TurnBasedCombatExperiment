@@ -11,23 +11,23 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public abstract class AbstractBoxedTargetType<T> implements TargetType {
-    protected final BiFunction<Battle, BattleParticipantHandle, Iterable<Pair<Box, BiFunction<Battle, BattleParticipantHandle, TargetInstance>>>> boxFunction;
-    protected final T source;
+public abstract class AbstractBoxedTargetType<T extends TargetInstance,K> implements TargetType<T> {
+    protected final BiFunction<Battle, BattleParticipantHandle, Iterable<Pair<Box, BiFunction<Battle, BattleParticipantHandle, ? extends T>>>> boxFunction;
+    protected final K source;
 
-    protected AbstractBoxedTargetType(final T source) {
+    protected AbstractBoxedTargetType(final K source) {
         boxFunction = createFunc(source);
         this.source = source;
     }
 
-    protected abstract BiFunction<Battle, BattleParticipantHandle, Iterable<Pair<Box, BiFunction<Battle, BattleParticipantHandle, TargetInstance>>>> createFunc(T source);
+    protected abstract BiFunction<Battle, BattleParticipantHandle, Iterable<Pair<Box, BiFunction<Battle, BattleParticipantHandle, ? extends T>>>> createFunc(K source);
 
     @Override
-    public @Nullable TargetInstance find(final Vec3d pos, final Vec3d direction, final BattleParticipantHandle user, final Battle battle) {
+    public @Nullable T find(final Vec3d pos, final Vec3d direction, final BattleParticipantHandle user, final Battle battle) {
         double minDistSq = Double.POSITIVE_INFINITY;
-        TargetInstance closest = null;
+        T closest = null;
         final Vec3d end = pos.add(direction.multiply(64));
-        for (final Pair<Box, BiFunction<Battle, BattleParticipantHandle, TargetInstance>> boxPair : boxFunction.apply(battle, user)) {
+        for (final Pair<Box, BiFunction<Battle, BattleParticipantHandle, ? extends T>> boxPair : boxFunction.apply(battle, user)) {
             final Box box = boxPair.getFirst();
             if (minDistSq(pos, box) < minDistSq) {
                 final Optional<Vec3d> raycast = box.raycast(pos, end);

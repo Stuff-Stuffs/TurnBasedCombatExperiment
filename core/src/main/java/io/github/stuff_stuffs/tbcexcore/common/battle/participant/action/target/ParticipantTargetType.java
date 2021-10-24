@@ -15,10 +15,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-public class ParticipantTargetType implements TargetType {
+public class ParticipantTargetType implements TargetType<ParticipantTargetType.ParticipantTargetInstance> {
     private final BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BattleParticipantHandle>> source;
 
     public ParticipantTargetType(final BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BattleParticipantHandle>> source) {
@@ -26,11 +24,11 @@ public class ParticipantTargetType implements TargetType {
     }
 
     @Override
-    public @Nullable TargetInstance find(final Vec3d pos, final Vec3d direction, final BattleParticipantHandle user, final Battle battle) {
+    public @Nullable ParticipantTargetInstance find(final Vec3d pos, final Vec3d direction, final BattleParticipantHandle user, final Battle battle) {
         final BattleStateView battleState = battle.getState();
         final Iterable<BattleParticipantHandle> targets = source.apply(battleState, user);
         double closestDistance = Double.MAX_VALUE;
-        TargetInstance closest = null;
+        ParticipantTargetInstance closest = null;
 
         final Vec3d end = pos.add(direction.multiply(64));
         for (final BattleParticipantHandle target : targets) {
@@ -51,7 +49,7 @@ public class ParticipantTargetType implements TargetType {
     }
 
     private static boolean checkDistance(final BattleParticipantBounds bounds, final Vec3d pos, final double distance) {
-        return bounds.getDistanceSquared(pos)<distance;
+        return bounds.getDistanceSquared(pos) < distance;
     }
 
     @Override
@@ -83,8 +81,8 @@ public class ParticipantTargetType implements TargetType {
     }
 
     @Override
-    public boolean isAnyValid(BattleParticipantHandle user, Battle battle) {
-        return !Iterables.isEmpty(this.source.apply(battle.getState(), user));
+    public boolean isAnyValid(final BattleParticipantHandle user, final Battle battle) {
+        return !Iterables.isEmpty(source.apply(battle.getState(), user));
     }
 
     public static final class ParticipantTargetInstance implements TargetInstance {
@@ -105,7 +103,7 @@ public class ParticipantTargetType implements TargetType {
         }
 
         @Override
-        public TargetType getType() {
+        public ParticipantTargetType getType() {
             return type;
         }
 

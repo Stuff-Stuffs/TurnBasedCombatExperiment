@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public interface ParticipantActionInfo {
-    @Nullable TargetType getNextTargetType(List<TargetInstance> list);
+    @Nullable TargetType<?> getNextTargetType(List<TargetInstance> list);
 
     boolean canActivate(BattleStateView battleState, BattleParticipantHandle user, List<TargetInstance> list);
 
