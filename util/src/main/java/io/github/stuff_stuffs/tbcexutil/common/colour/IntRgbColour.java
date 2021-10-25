@@ -11,8 +11,8 @@ public final class IntRgbColour implements RgbColour {
 
     public IntRgbColour(final int packed) {
         r = packed >> 16 & 0xFF;
-        b = packed >> 8 & 0xFF;
-        g = packed & 0xFF;
+        g = packed >> 8 & 0xFF;
+        b = packed & 0xFF;
     }
 
     public IntRgbColour(final int r, final int g, final int b) {

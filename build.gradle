@@ -112,11 +112,19 @@ dependencies {
     modRuntime "curse.maven:LazyDFU-433518:3209972"
     testImplementation project(path: ":test", configuration: "dev")
     subprojects.each {
-        if(it.name != "test") {
-            implementation project(path: ":${it.name}", configuration: "dev")
-            include project(":${it.name}")
+        String path = collectName(it)
+        if(path != "test") {
+            implementation project(path: ":${path}", configuration: "dev")
+            include project(":${path}")
         }
     }
+}
+
+private String collectName(it) {
+    if(it.parent !=null && it.parent.name != project.name) {
+        return collectName(it.parent) + ":" + it.name
+    }
+    return it.name
 }
 
 sourceSets {

@@ -13,6 +13,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.Transformation;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.Quaternion;
@@ -23,12 +25,21 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 public final class ClientUtil implements ClientModInitializer {
+    public static final Transformation TRANSFORM_ITEM_HEAD = makeTransform(0, 180, 0, 0, 13, 7, 1, 1, 1);
+    public static final Transformation TRANSFORM_ITEM_GUI = Transformation.IDENTITY;
+    public static final Transformation TRANSFORM_ITEM_GROUND = makeTransform(0, 0, 0, 0, 2, 0, 0.5f, 0.5f, 0.5f);
+    public static final Transformation TRANSFORM_ITEM_FIXED = makeTransform(0, 180, 0, 0, 0, 0, 1f, 1f, 1f);
+    public static final Transformation TRANSFORM_ITEM_3RD_PERSON_RIGHT = makeTransform(0, 0, 0, 0, 3f, 1, 0.55f, 0.55f, 0.55f);
+    public static final Transformation TRANSFORM_ITEM_1ST_PERSON_RIGHT = makeTransform(0, -90, 0, 1.13f, 3.2f, 1.13f, 0.68f, 0.68f, 0.68f);
+
+    public static final ModelTransformation ITEM_TRANSFORMATION = new ModelTransformation(TRANSFORM_ITEM_3RD_PERSON_RIGHT, TRANSFORM_ITEM_3RD_PERSON_RIGHT, TRANSFORM_ITEM_1ST_PERSON_RIGHT, TRANSFORM_ITEM_1ST_PERSON_RIGHT, TRANSFORM_ITEM_HEAD, TRANSFORM_ITEM_GUI, TRANSFORM_ITEM_GROUND, TRANSFORM_ITEM_FIXED);
+
     public ClientUtil() {
     }
 
     public static Vec3d getMouseVector() {
         final MinecraftClient client = MinecraftClient.getInstance();
-        final double fov = Math.toRadians(((AccessorGameRenderer)client.gameRenderer).callGetFov(client.gameRenderer.getCamera(), 0.5f, true));
+        final double fov = Math.toRadians(((AccessorGameRenderer) client.gameRenderer).callGetFov(client.gameRenderer.getCamera(), 0.5f, true));
         final Vec3f vec3f = new Vec3f((float) (client.getWindow().getFramebufferWidth() / 2d - client.mouse.getX()), (float) (client.getWindow().getFramebufferHeight() / 2d - client.mouse.getY()), (client.getWindow().getFramebufferHeight() / 2f) / ((float) Math.tan(fov / 2d)));
         final Quaternion rotation = client.gameRenderer.getCamera().getRotation();
         vec3f.rotate(rotation);
@@ -57,6 +68,14 @@ public final class ClientUtil implements ClientModInitializer {
             return 0;
         }))));
     }
+
+    private static Transformation makeTransform(final float rotationX, final float rotationY, final float rotationZ, final float translationX, final float translationY, final float translationZ, final float scaleX, final float scaleY, final float scaleZ) {
+        final Vec3f translation = new Vec3f(translationX, translationY, translationZ);
+        translation.scale(0.0625f);
+        translation.clamp(-5.0F, 5.0F);
+        return new Transformation(new Vec3f(rotationX, rotationY, rotationZ), translation, new Vec3f(scaleX, scaleY, scaleZ));
+    }
+
 
     private static class DebugRendererArgument implements ArgumentType<String> {
         private static final SimpleCommandExceptionType EXCEPTION = new SimpleCommandExceptionType(new TranslatableText("turn_base_combat.debugRenderer.invalid"));
