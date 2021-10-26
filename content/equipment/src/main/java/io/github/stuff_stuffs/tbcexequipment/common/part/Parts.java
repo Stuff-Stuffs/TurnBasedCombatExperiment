@@ -32,10 +32,22 @@ public final class Parts {
             return List.of(new LiteralText("A basic axe head"));
         }
     };
+    public static final Part SWORD_BLADE_PART = new Part() {
+        @Override
+        public Text getName() {
+            return new LiteralText("Sword Blade");
+        }
+
+        @Override
+        public List<Text> getDescription() {
+            return List.of(new LiteralText("A basic sword blade"));
+        }
+    };
 
     public static void init() {
         Registry.register(REGISTRY, TBCExEquipment.createId("handle"), HANDLE_PART);
         Registry.register(REGISTRY, TBCExEquipment.createId("axe_head"), AXE_HEAD_PART);
+        Registry.register(REGISTRY, TBCExEquipment.createId("sword_blade"), SWORD_BLADE_PART);
     }
 
     private Parts() {

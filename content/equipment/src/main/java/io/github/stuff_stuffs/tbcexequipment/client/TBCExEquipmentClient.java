@@ -7,6 +7,7 @@ import io.github.stuff_stuffs.tbcexequipment.client.render.model.PartItemModel;
 import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Materials;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Parts;
+import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
@@ -54,8 +55,8 @@ public class TBCExEquipmentClient implements ClientModInitializer {
                 new MaterialPalette.Entry(new IntRgbColour(0xFFDC9613), false, 255)
         ));
         MaterialRenderInfo.register(Materials.REGISTRY.getId(Materials.STONE), new MaterialPalette(
-                new MaterialPalette.Entry(new IntRgbColour(0xFF2D2D2D), false, 255),
-                new MaterialPalette.Entry(new IntRgbColour(0xFF191919), false, 255),
+                new MaterialPalette.Entry(new IntRgbColour(0xFF494949), false, 255),
+                new MaterialPalette.Entry(new IntRgbColour(0xFF212121), false, 255),
                 new MaterialPalette.Entry(new IntRgbColour(0xFFFFFFFF), false, 255),
                 new MaterialPalette.Entry(new IntRgbColour(0xFFD8D8D8), false, 255),
                 new MaterialPalette.Entry(new IntRgbColour(0xFFC6C6C6), false, 255),
@@ -85,5 +86,7 @@ public class TBCExEquipmentClient implements ClientModInitializer {
         ));
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.HANDLE_PART), TBCExEquipment.createId("part/handle"));
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.AXE_HEAD_PART), TBCExEquipment.createId("part/axe_head"));
+        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SWORD_BLADE_PART), TBCExEquipment.createId("part/sword_blade"));
+        DebugRenderers.register("disable_part_model_cache", context -> PartItemModel.clearCache(), DebugRenderers.Stage.POST_ENTITY);
     }
 }
