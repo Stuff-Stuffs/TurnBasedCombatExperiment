@@ -23,11 +23,10 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-import java.util.Set;
 import java.util.function.Function;
 
 public final class ModelUtil {
-    public static Mesh buildMesh(final Pair<Material, Part> key) {
+    public static Mesh buildMesh(final Pair<Material, Part> key, final float thicknessFactor) {
         final Function<Identifier, Sprite> atlas = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
         final Part part = key.getSecond();
         final PartRenderInfo partRenderInfo = PartRenderInfo.get(Parts.REGISTRY.getId(part));
@@ -69,14 +68,14 @@ public final class ModelUtil {
             final boolean emissive = entry.emissive();
             final RenderMaterial renderMaterial = RendererAccess.INSTANCE.getRenderer().materialFinder().disableAo(0, true).emissive(0, emissive).blendMode(0, alpha == 255 ? BlendMode.SOLID : BlendMode.TRANSLUCENT).find();
             final int packedColour = colour.pack(alpha);
-            quadEmitter.material(renderMaterial).square(Direction.NORTH, 0, 0, 1, 1, 0.5f - 1 / 32f).spriteColor(0, packedColour, packedColour, packedColour, packedColour).spriteUnitSquare(0).spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED | MutableQuadView.BAKE_FLIP_U).emit();
-            quadEmitter.material(renderMaterial).square(Direction.SOUTH, 0, 0, 1, 1, 0.5f - 1 / 32f).spriteColor(0, packedColour, packedColour, packedColour, packedColour).spriteUnitSquare(0).spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED).emit();
+            quadEmitter.material(renderMaterial).square(Direction.NORTH, 0, 0, 1, 1, 0.5f - (1 / 32f * thicknessFactor)).spriteColor(0, packedColour, packedColour, packedColour, packedColour).spriteUnitSquare(0).spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED | MutableQuadView.BAKE_FLIP_U).emit();
+            quadEmitter.material(renderMaterial).square(Direction.SOUTH, 0, 0, 1, 1, 0.5f - (1 / 32f * thicknessFactor)).spriteColor(0, packedColour, packedColour, packedColour, packedColour).spriteUnitSquare(0).spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED).emit();
             final int factor = maxSize / sprite.getWidth();
             for (int i = 0; i < maxSize; i++) {
                 for (int j = 0; j < maxSize; j++) {
                     if (!transparent[i][j] && (i + 1 == maxSize || transparent[i + 1][j]) && sprite.isPixelTransparent(0, i / factor, j / factor) && (i + 1 == maxSize || !sprite.isPixelTransparent(0, (i) / factor + 1, j / factor))) {
                         quadEmitter.material(renderMaterial);
-                        quadEmitter.square(Direction.WEST, 0.5f - 1 / 32f, (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, (i + 1) / (float) maxSize);
+                        quadEmitter.square(Direction.WEST, 0.5f - (1 / 32f * thicknessFactor), (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, (i + 1) / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
                         quadEmitter.sprite(0, 0, (i + 1f) / (float) maxSize, j / (float) maxSize);
                         quadEmitter.sprite(1, 0, (i + 1f) / (float) maxSize, (j + 1) / (float) maxSize);
@@ -86,7 +85,7 @@ public final class ModelUtil {
                     }
                     if (transparent[i][j] && (i == maxSize - 1 || !transparent[i + 1][j]) && !sprite.isPixelTransparent(0, i / factor, j / factor) && (i == maxSize - 1 || sprite.isPixelTransparent(0, (i) / factor + 1, j / factor))) {
                         quadEmitter.material(renderMaterial);
-                        quadEmitter.square(Direction.EAST, 0.5f - 1 / 32f, (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, (maxSize - i - 1) / (float) maxSize);
+                        quadEmitter.square(Direction.EAST, 0.5f - (1 / 32f * thicknessFactor), (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, (maxSize - i - 1) / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
                         quadEmitter.sprite(0, 0, (i + 0f) / (float) maxSize, j / (float) maxSize);
                         quadEmitter.sprite(1, 0, (i + 0f) / (float) maxSize, (j + 1) / (float) maxSize);
@@ -96,7 +95,7 @@ public final class ModelUtil {
                     }
                     if ((j == 0 || !transparent[i][j - 1]) && transparent[i][j] && (j == 0 || sprite.isPixelTransparent(0, i / factor, j / factor - 1)) && !sprite.isPixelTransparent(0, i / factor, j / factor)) {
                         quadEmitter.material(renderMaterial);
-                        quadEmitter.square(Direction.UP, i / (float) maxSize, 0.5f - 1 / 32f, (i + 1) / (float) maxSize, 0.5f + 1 / 32f, j / (float) maxSize);
+                        quadEmitter.square(Direction.UP, i / (float) maxSize, (0.5f - 1 / 32f * thicknessFactor), (i + 1) / (float) maxSize, 0.5f + 1 / 32f, j / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
                         quadEmitter.sprite(0, 0, (i) / (float) maxSize, (j + 0f) / (float) maxSize);
                         quadEmitter.sprite(1, 0, (i) / (float) maxSize, (j + 0.01f) / (float) maxSize);
@@ -106,7 +105,7 @@ public final class ModelUtil {
                     }
                     if ((j + 1 == maxSize || !transparent[i][j + 1]) && transparent[i][j] && (j + 1 == maxSize || sprite.isPixelTransparent(0, i / factor, j / factor + 1)) && !sprite.isPixelTransparent(0, i / factor, j / factor)) {
                         quadEmitter.material(renderMaterial);
-                        quadEmitter.square(Direction.DOWN, i / (float) maxSize, 0.5f - 1 / 32f, (i + 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j - 1) / (float) maxSize);
+                        quadEmitter.square(Direction.DOWN, i / (float) maxSize, (0.5f - 1 / 32f * thicknessFactor), (i + 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j - 1) / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
                         quadEmitter.sprite(0, 0, (i) / (float) maxSize, (j + 0f) / (float) maxSize);
                         quadEmitter.sprite(1, 0, (i) / (float) maxSize, (j + 0.01f) / (float) maxSize);
@@ -121,5 +120,9 @@ public final class ModelUtil {
     }
 
     private ModelUtil() {
+    }
+
+    public static Mesh buildMesh(final Pair<Material, Part> key) {
+        return buildMesh(key, 1);
     }
 }

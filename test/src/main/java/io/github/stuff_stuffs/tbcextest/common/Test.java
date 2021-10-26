@@ -20,16 +20,19 @@ import io.github.stuff_stuffs.tbcextest.common.battle.equipment.TestSwordEquipme
 import io.github.stuff_stuffs.tbcextest.common.battle.item.TestBattleParticipantItem;
 import io.github.stuff_stuffs.tbcextest.common.battle.item.TestBowBattleParticipantItem;
 import io.github.stuff_stuffs.tbcextest.common.battle.item.TestSwordBattleParticipantItem;
+import io.github.stuff_stuffs.tbcextest.common.crafting.ToolPartsRecipe;
 import io.github.stuff_stuffs.tbcextest.common.entity.EntityTypes;
 import io.github.stuff_stuffs.tbcextest.common.item.TestBowItem;
 import io.github.stuff_stuffs.tbcextest.common.item.TestItem;
 import io.github.stuff_stuffs.tbcextest.common.item.TestSwordItem;
+import io.github.stuff_stuffs.tbcextest.common.item.ToolPartsTestItem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.SpecialRecipeSerializer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
@@ -41,6 +44,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class Test implements ModInitializer {
+    public static final Item TEST_PARTS_ITEM = new ToolPartsTestItem();
     public static final Item TEST_ITEM = new TestItem();
     public static final Item TEST_SWORD_ITEM = new TestSwordItem();
     public static final Item TEST_BOW_ITEM = new TestBowItem();
@@ -52,6 +56,8 @@ public class Test implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        Registry.register(Registry.ITEM, new Identifier("tbcextest", "parts"), TEST_PARTS_ITEM);
+
         Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_item"), TEST_ITEM);
         Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_weapon"), TEST_SWORD_ITEM);
         Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_bow"), TEST_BOW_ITEM);
@@ -60,6 +66,8 @@ public class Test implements ModInitializer {
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_item"), TEST_ITEM_TYPE);
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_weapon"), TEST_SWORD_ITEM_TYPE);
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_bow"), TEST_BOW_ITEM_TYPE);
+
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier("tbcextest", "parts"), new SpecialRecipeSerializer<>(ToolPartsRecipe::new));
 
         EntityTypes.init();
         CommandRegistrationCallback.EVENT.register(Test::register);
