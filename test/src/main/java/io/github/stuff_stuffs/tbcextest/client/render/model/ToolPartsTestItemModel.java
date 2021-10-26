@@ -65,7 +65,7 @@ public class ToolPartsTestItemModel implements FabricBakedModel, BakedModel, Unb
             final float factor = (float) stretchZStart;
             context.pushTransform(quad -> {
                 for (int i = 0; i < 4; i++) {
-                    quad.pos(i, quad.x(i), quad.y(i), quad.z(i) * factor);
+                    quad.pos(i, (quad.x(i)-0.5f) * factor+0.5f, (quad.y(i)-0.5f) * factor+0.5f, (quad.z(i)-0.5f) * factor+0.5f);
                 }
                 return true;
             });

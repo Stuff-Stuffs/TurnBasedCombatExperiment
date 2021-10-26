@@ -87,6 +87,7 @@ public class TBCExEquipmentClient implements ClientModInitializer {
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.HANDLE_PART), TBCExEquipment.createId("part/handle"));
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.AXE_HEAD_PART), TBCExEquipment.createId("part/axe_head"));
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SWORD_BLADE_PART), TBCExEquipment.createId("part/sword_blade"));
+        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SIMPLE_SWORD_GUARD_PART), TBCExEquipment.createId("part/simple_guard"));
         DebugRenderers.register("disable_part_model_cache", context -> PartItemModel.clearCache(), DebugRenderers.Stage.POST_ENTITY);
     }
 }
