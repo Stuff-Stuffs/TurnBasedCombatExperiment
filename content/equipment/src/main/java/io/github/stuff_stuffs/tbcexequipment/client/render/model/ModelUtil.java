@@ -70,6 +70,7 @@ public final class ModelUtil {
             final boolean emissive = entry.emissive();
             final RenderMaterial renderMaterial = RendererAccess.INSTANCE.getRenderer().materialFinder().disableAo(0, true).emissive(0, emissive).blendMode(0, alpha == 255 ? BlendMode.SOLID : BlendMode.TRANSLUCENT).find();
             final int packedColour = colour.pack(alpha);
+            //TODO greedy meshing
             for (int i = 0; i < mask.length; i++) {
                 for (int j = 0; j < mask.length; j++) {
                     if (mask[i][j]) {
@@ -83,21 +84,21 @@ public final class ModelUtil {
                         quadEmitter.material(renderMaterial);
                         quadEmitter.square(Direction.SOUTH, left, bottom, right, top, 0.5f - 1 / 32.0f);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
-                        quadEmitter.sprite(2, 0, 1 - bottom, 1 - right);
-                        quadEmitter.sprite(1, 0, 1 - bottom, 1 - left);
-                        quadEmitter.sprite(0, 0, 1 - top, 1 - left);
-                        quadEmitter.sprite(3, 0, 1 - top, 1 - right);
-                        quadEmitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED | MutableQuadView.BAKE_ROTATE_270);
+                        quadEmitter.sprite(2, 0, right, 1 - bottom);
+                        quadEmitter.sprite(1, 0, left, 1 - bottom);
+                        quadEmitter.sprite(0, 0, left, 1 - top);
+                        quadEmitter.sprite(3, 0, right, 1 - top);
+                        quadEmitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED);
                         quadEmitter.emit();
 
                         quadEmitter.material(renderMaterial);
                         quadEmitter.square(Direction.NORTH, 1 - right, bottom, 1 - left, top, 0.5f - 1 / 32.0f);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
-                        quadEmitter.sprite(2, 0, 1 - bottom, 1 - left);
-                        quadEmitter.sprite(1, 0, 1 - bottom, 1 - right);
-                        quadEmitter.sprite(0, 0, 1 - top, 1 - right);
-                        quadEmitter.sprite(3, 0, 1 - top, 1 - left);
-                        quadEmitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED | MutableQuadView.BAKE_ROTATE_270);
+                        quadEmitter.sprite(2, 0, left, 1 - bottom);
+                        quadEmitter.sprite(1, 0, right, 1 - bottom);
+                        quadEmitter.sprite(0, 0, right, 1 - top);
+                        quadEmitter.sprite(3, 0, left, 1 - top);
+                        quadEmitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED);
                         quadEmitter.emit();
                     }
                 }
