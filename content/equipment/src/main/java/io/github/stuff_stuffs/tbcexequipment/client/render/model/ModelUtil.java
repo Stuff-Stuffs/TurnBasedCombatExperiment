@@ -26,7 +26,7 @@ import net.minecraft.util.math.Direction;
 import java.util.function.Function;
 
 public final class ModelUtil {
-    public static Mesh buildMesh(final Pair<Material, Part> key, final float thicknessFactor) {
+    public static Mesh buildMesh(final Pair<Material, Part> key, final boolean[][] mask, final float thicknessFactor) {
         final Function<Identifier, Sprite> atlas = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
         final Part part = key.getSecond();
         final PartRenderInfo partRenderInfo = PartRenderInfo.get(Parts.REGISTRY.getId(part));
@@ -41,19 +41,21 @@ public final class ModelUtil {
             }
             maxSize = Math.max(maxSize, sprite.getWidth());
         }
-        final boolean[][] transparent = new boolean[maxSize][maxSize];
+        final boolean[][][] opaque = new boolean[MaterialPalette.EntryType.values().length][maxSize][maxSize];
+        final boolean[][] masterOpaque = new boolean[maxSize][maxSize];
         final Material material = key.getFirst();
         final MaterialRenderInfo materialRenderInfo = MaterialRenderInfo.get(Materials.REGISTRY.getId(material));
+        final int maskFactor = maxSize > mask.length ? maxSize / mask.length : mask.length / maxSize;
         for (final MaterialPalette.EntryType type : MaterialPalette.EntryType.values()) {
             final Sprite sprite = atlas.apply(partRenderInfo.getTexture(type));
             final int width = sprite.getWidth();
             final int height = sprite.getHeight();
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) {
+            for (int i = 0; i < maxSize; i++) {
+                for (int j = 0; j < maxSize; j++) {
                     final boolean maskTranslucent = sprite.isPixelTransparent(0, i / (maxSize / width), j / (maxSize / height));
-                    final boolean paletteTranslucent = materialRenderInfo.getPalette().isTranslucent(type);
-                    if (!maskTranslucent && !paletteTranslucent) {
-                        transparent[i][j] = true;
+                    if (!maskTranslucent && mask[maxSize > mask.length ? i / maskFactor : i * maskFactor][maxSize > mask.length ? j / maskFactor : j * maskFactor]) {
+                        opaque[type.ordinal()][i][j] = true;
+                        masterOpaque[i][j] = true;
                     }
                 }
             }
@@ -68,22 +70,52 @@ public final class ModelUtil {
             final boolean emissive = entry.emissive();
             final RenderMaterial renderMaterial = RendererAccess.INSTANCE.getRenderer().materialFinder().disableAo(0, true).emissive(0, emissive).blendMode(0, alpha == 255 ? BlendMode.SOLID : BlendMode.TRANSLUCENT).find();
             final int packedColour = colour.pack(alpha);
-            quadEmitter.material(renderMaterial).square(Direction.NORTH, 0, 0, 1, 1, 0.5f - (1 / 32f * thicknessFactor)).spriteColor(0, packedColour, packedColour, packedColour, packedColour).spriteUnitSquare(0).spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED | MutableQuadView.BAKE_FLIP_U).emit();
-            quadEmitter.material(renderMaterial).square(Direction.SOUTH, 0, 0, 1, 1, 0.5f - (1 / 32f * thicknessFactor)).spriteColor(0, packedColour, packedColour, packedColour, packedColour).spriteUnitSquare(0).spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED).emit();
-            final int factor = maxSize / sprite.getWidth();
+            for (int i = 0; i < mask.length; i++) {
+                for (int j = 0; j < mask.length; j++) {
+                    if (mask[i][j]) {
+                        final int x = i;
+                        final int y = mask.length - 1 - j;
+                        final float left = x / (float) mask.length;
+                        final float right = (x + 1) / (float) mask.length;
+                        final float bottom = y / (float) mask.length;
+                        final float top = (y + 1) / (float) mask.length;
+
+                        quadEmitter.material(renderMaterial);
+                        quadEmitter.square(Direction.SOUTH, left, bottom, right, top, 0.5f - 1 / 32.0f);
+                        quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
+                        quadEmitter.sprite(2, 0, 1 - bottom, 1 - right);
+                        quadEmitter.sprite(1, 0, 1 - bottom, 1 - left);
+                        quadEmitter.sprite(0, 0, 1 - top, 1 - left);
+                        quadEmitter.sprite(3, 0, 1 - top, 1 - right);
+                        quadEmitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED | MutableQuadView.BAKE_ROTATE_270);
+                        quadEmitter.emit();
+
+                        quadEmitter.material(renderMaterial);
+                        quadEmitter.square(Direction.NORTH, 1 - right, bottom, 1 - left, top, 0.5f - 1 / 32.0f);
+                        quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
+                        quadEmitter.sprite(2, 0, 1 - bottom, 1 - left);
+                        quadEmitter.sprite(1, 0, 1 - bottom, 1 - right);
+                        quadEmitter.sprite(0, 0, 1 - top, 1 - right);
+                        quadEmitter.sprite(3, 0, 1 - top, 1 - left);
+                        quadEmitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED | MutableQuadView.BAKE_ROTATE_270);
+                        quadEmitter.emit();
+                    }
+                }
+            }
+            final boolean[][] typeMask = opaque[type.ordinal()];
             for (int i = 0; i < maxSize; i++) {
                 for (int j = 0; j < maxSize; j++) {
-                    if (!transparent[i][j] && (i + 1 == maxSize || transparent[i + 1][j]) && sprite.isPixelTransparent(0, i / factor, j / factor) && (i + 1 == maxSize || !sprite.isPixelTransparent(0, (i) / factor + 1, j / factor))) {
+                    if (shouldRenderCube(i, j, -1, 0, maxSize, typeMask, masterOpaque)) {
                         quadEmitter.material(renderMaterial);
-                        quadEmitter.square(Direction.WEST, 0.5f - (1 / 32f * thicknessFactor), (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, (i + 1) / (float) maxSize);
+                        quadEmitter.square(Direction.WEST, 0.5f - (1 / 32f * thicknessFactor), (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, i / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
-                        quadEmitter.sprite(0, 0, (i + 1f) / (float) maxSize, j / (float) maxSize);
-                        quadEmitter.sprite(1, 0, (i + 1f) / (float) maxSize, (j + 1) / (float) maxSize);
-                        quadEmitter.sprite(2, 0, (i + 1.01f) / (float) maxSize, (j + 1) / (float) maxSize);
-                        quadEmitter.sprite(3, 0, (i + 1.01f) / (float) maxSize, j / (float) maxSize);
+                        quadEmitter.sprite(0, 0, (i + 0f) / (float) maxSize, j / (float) maxSize);
+                        quadEmitter.sprite(1, 0, (i + 0f) / (float) maxSize, (j + 1) / (float) maxSize);
+                        quadEmitter.sprite(2, 0, (i + 0.01f) / (float) maxSize, (j + 1) / (float) maxSize);
+                        quadEmitter.sprite(3, 0, (i + 0.01f) / (float) maxSize, j / (float) maxSize);
                         quadEmitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED).emit();
                     }
-                    if (transparent[i][j] && (i == maxSize - 1 || !transparent[i + 1][j]) && !sprite.isPixelTransparent(0, i / factor, j / factor) && (i == maxSize - 1 || sprite.isPixelTransparent(0, (i) / factor + 1, j / factor))) {
+                    if (shouldRenderCube(i, j, 1, 0, maxSize, typeMask, masterOpaque)) {
                         quadEmitter.material(renderMaterial);
                         quadEmitter.square(Direction.EAST, 0.5f - (1 / 32f * thicknessFactor), (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, (maxSize - i - 1) / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
@@ -93,7 +125,7 @@ public final class ModelUtil {
                         quadEmitter.sprite(3, 0, (i + 0.01f) / (float) maxSize, j / (float) maxSize);
                         quadEmitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED).emit();
                     }
-                    if ((j == 0 || !transparent[i][j - 1]) && transparent[i][j] && (j == 0 || sprite.isPixelTransparent(0, i / factor, j / factor - 1)) && !sprite.isPixelTransparent(0, i / factor, j / factor)) {
+                    if (shouldRenderCube(i, j, 0, -1, maxSize, typeMask, masterOpaque)) {
                         quadEmitter.material(renderMaterial);
                         quadEmitter.square(Direction.UP, i / (float) maxSize, (0.5f - 1 / 32f * thicknessFactor), (i + 1) / (float) maxSize, 0.5f + 1 / 32f, j / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
@@ -103,7 +135,7 @@ public final class ModelUtil {
                         quadEmitter.sprite(3, 0, (i + 1) / (float) maxSize, (j + 0f) / (float) maxSize);
                         quadEmitter.spriteBake(0, sprite, MutableQuadView.BAKE_NORMALIZED).emit();
                     }
-                    if ((j + 1 == maxSize || !transparent[i][j + 1]) && transparent[i][j] && (j + 1 == maxSize || sprite.isPixelTransparent(0, i / factor, j / factor + 1)) && !sprite.isPixelTransparent(0, i / factor, j / factor)) {
+                    if (shouldRenderCube(i, j, 0, 1, maxSize, typeMask, masterOpaque)) {
                         quadEmitter.material(renderMaterial);
                         quadEmitter.square(Direction.DOWN, i / (float) maxSize, (0.5f - 1 / 32f * thicknessFactor), (i + 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j - 1) / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
@@ -119,10 +151,26 @@ public final class ModelUtil {
         return meshBuilder.build();
     }
 
+    private static boolean shouldRenderCube(final int x, final int y, final int xOff, final int yOff, final int max, final boolean[][] mask, final boolean[][] masterMask) {
+        if (!mask[x][y]) {
+            return false;
+        }
+        final boolean edge;
+        if ((x + xOff) < 0 || (x + xOff) == max) {
+            edge = true;
+        } else if ((y + yOff) < 0 || (y + yOff) == max) {
+            edge = true;
+        } else {
+            edge = false;
+        }
+        final boolean offsetTransparent = edge || !masterMask[x + xOff][y + yOff];
+        return offsetTransparent;
+    }
+
     private ModelUtil() {
     }
 
     public static Mesh buildMesh(final Pair<Material, Part> key) {
-        return buildMesh(key, 1);
+        return buildMesh(key, new boolean[][]{{true}}, 1);
     }
 }
