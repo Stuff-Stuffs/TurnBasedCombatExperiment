@@ -60,12 +60,14 @@ public class PartInstanceItem extends Item {
         if (group == Items.PART_GROUP) {
             for (final Part part : Parts.REGISTRY) {
                 for (final Material material : Materials.REGISTRY) {
-                    final ItemStack stack = new ItemStack(this, 1);
-                    final NbtCompound nbt = stack.getOrCreateNbt();
-                    nbt.put("partInstance", PartInstance.CODEC.encodeStart(NbtOps.INSTANCE, new PartInstance(part, material)).getOrThrow(false, s -> {
-                        throw new TBCExException(s);
-                    }));
-                    stacks.add(stack);
+                    if(part.isValidMaterial(material)) {
+                        final ItemStack stack = new ItemStack(this, 1);
+                        final NbtCompound nbt = stack.getOrCreateNbt();
+                        nbt.put("partInstance", PartInstance.CODEC.encodeStart(NbtOps.INSTANCE, new PartInstance(part, material)).getOrThrow(false, s -> {
+                            throw new TBCExException(s);
+                        }));
+                        stacks.add(stack);
+                    }
                 }
             }
         }

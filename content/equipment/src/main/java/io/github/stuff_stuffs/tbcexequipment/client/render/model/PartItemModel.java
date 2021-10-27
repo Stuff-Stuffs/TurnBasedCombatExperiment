@@ -30,7 +30,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class PartItemModel implements BakedModel, FabricBakedModel, UnbakedModel {
-    private static final Map<Pair<Material, Part>, Mesh> CACHE = new Object2ReferenceOpenHashMap<>();
+    private final Map<Pair<Material, Part>, Mesh> cache = new Object2ReferenceOpenHashMap<>();
 
     @Override
     public boolean isVanillaAdapter() {
@@ -50,13 +50,9 @@ public class PartItemModel implements BakedModel, FabricBakedModel, UnbakedModel
                 throw new TBCExException(s);
             });
             final Pair<Material, Part> key = Pair.of(instance.getMaterial(), instance.getPart());
-            final Mesh mesh = CACHE.computeIfAbsent(key, ModelUtil::buildMesh);
+            final Mesh mesh = cache.computeIfAbsent(key, ModelUtil::buildMesh);
             context.meshConsumer().accept(mesh);
         }
-    }
-
-    public static void clearCache() {
-        CACHE.clear();
     }
 
     @Override

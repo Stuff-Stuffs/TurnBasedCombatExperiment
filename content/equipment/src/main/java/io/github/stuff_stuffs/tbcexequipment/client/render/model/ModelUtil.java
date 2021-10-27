@@ -164,8 +164,7 @@ public final class ModelUtil {
         } else {
             edge = false;
         }
-        final boolean offsetTransparent = edge || !masterMask[x + xOff][y + yOff];
-        return offsetTransparent;
+        return edge || !masterMask[x + xOff][y + yOff];
     }
 
     private ModelUtil() {

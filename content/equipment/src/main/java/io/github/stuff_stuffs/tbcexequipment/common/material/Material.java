@@ -5,10 +5,31 @@ import net.minecraft.text.Text;
 
 import java.util.List;
 
-public interface Material {
-    Text getName();
+public final class Material {
+    private final Text name;
+    private final List<Text> description;
+    private final BattleParticipantItem.Rarity rarity;
 
-    List<Text> getDescription();
+    public Material(final Text name, final List<Text> description, final BattleParticipantItem.Rarity rarity) {
+        this.name = name;
+        this.description = description;
+        this.rarity = rarity;
+    }
 
-    BattleParticipantItem.Rarity getRarity();
+    public Text getName() {
+        return name;
+    }
+
+    public List<Text> getDescription() {
+        return description;
+    }
+
+    public BattleParticipantItem.Rarity getRarity() {
+        return rarity;
+    }
+
+    @Override
+    public String toString() {
+        return "Material{" + getName().asString() + "}";
+    }
 }

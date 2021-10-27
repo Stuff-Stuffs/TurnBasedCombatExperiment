@@ -1,97 +1,24 @@
 package io.github.stuff_stuffs.tbcexequipment.common.material;
 
+import com.mojang.serialization.Lifecycle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItem;
 import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
-import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.SimpleRegistry;
 
 import java.util.List;
 
 public final class Materials {
-    public static final Registry<Material> REGISTRY = FabricRegistryBuilder.createSimple(Material.class, TBCExEquipment.createId("materials")).attribute(RegistryAttribute.MODDED).buildAndRegister();
-    public static final Material WOOD = new Material() {
-        @Override
-        public Text getName() {
-            return new LiteralText("Wood");
-        }
-
-        @Override
-        public List<Text> getDescription() {
-            return List.of(new LiteralText("It's wood!"));
-        }
-
-        @Override
-        public BattleParticipantItem.Rarity getRarity() {
-            return BattleParticipantItem.Rarity.COMMON;
-        }
-    };
-    public static final Material STONE = new Material() {
-        @Override
-        public Text getName() {
-            return new LiteralText("Stone");
-        }
-
-        @Override
-        public List<Text> getDescription() {
-            return List.of(new LiteralText("It's stone!"));
-        }
-
-        @Override
-        public BattleParticipantItem.Rarity getRarity() {
-            return BattleParticipantItem.Rarity.COMMON;
-        }
-    };
-    public static final Material IRON = new Material() {
-        @Override
-        public Text getName() {
-            return new LiteralText("Iron");
-        }
-
-        @Override
-        public List<Text> getDescription() {
-            return List.of(new LiteralText("It's iron!"));
-        }
-
-        @Override
-        public BattleParticipantItem.Rarity getRarity() {
-            return BattleParticipantItem.Rarity.COMMON;
-        }
-    };
-    public static final Material GOLD = new Material() {
-        @Override
-        public Text getName() {
-            return new LiteralText("Gold");
-        }
-
-        @Override
-        public List<Text> getDescription() {
-            return List.of(new LiteralText("It's gold!"));
-        }
-
-        @Override
-        public BattleParticipantItem.Rarity getRarity() {
-            return BattleParticipantItem.Rarity.UNCOMMON;
-        }
-    };
-    public static final Material DIAMOND = new Material() {
-        @Override
-        public Text getName() {
-            return new LiteralText("Diamond");
-        }
-
-        @Override
-        public List<Text> getDescription() {
-            return List.of(new LiteralText("It's diamond!"));
-        }
-
-        @Override
-        public BattleParticipantItem.Rarity getRarity() {
-            return BattleParticipantItem.Rarity.UNCOMMON;
-        }
-    };
+    public static final RegistryKey<Registry<Material>> REGISTRY_KEY = RegistryKey.ofRegistry(TBCExEquipment.createId("materials"));
+    public static final Registry<Material> REGISTRY = FabricRegistryBuilder.from(new SimpleRegistry<>(REGISTRY_KEY, Lifecycle.stable())).buildAndRegister();
+    public static final Material WOOD = new Material(new LiteralText("Wood"), List.of(new LiteralText("It's wood!")), BattleParticipantItem.Rarity.COMMON);
+    public static final Material STONE = new Material(new LiteralText("Stone"), List.of(new LiteralText("It's stone!")), BattleParticipantItem.Rarity.COMMON);
+    public static final Material IRON = new Material(new LiteralText("Iron"), List.of(new LiteralText("It's iron!")), BattleParticipantItem.Rarity.COMMON);
+    public static final Material GOLD = new Material(new LiteralText("Gold"), List.of(new LiteralText("It's gold!")), BattleParticipantItem.Rarity.UNCOMMON);
+    public static final Material DIAMOND = new Material(new LiteralText("Diamond"), List.of(new LiteralText("It's diamond!")), BattleParticipantItem.Rarity.UNCOMMON);
 
     public static void init() {
         Registry.register(REGISTRY, TBCExEquipment.createId("wood"), WOOD);

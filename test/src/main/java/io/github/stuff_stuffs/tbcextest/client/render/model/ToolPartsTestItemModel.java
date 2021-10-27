@@ -33,7 +33,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ToolPartsTestItemModel implements FabricBakedModel, BakedModel, UnbakedModel {
-    private static final Map<Pair<Material, Part>, Mesh> CACHE = new Object2ReferenceOpenHashMap<>();
+    private final Map<Pair<Material, Part>, Mesh> cache = new Object2ReferenceOpenHashMap<>();
 
     @Override
     public boolean isVanillaAdapter() {
@@ -47,9 +47,6 @@ public class ToolPartsTestItemModel implements FabricBakedModel, BakedModel, Unb
 
     @Override
     public void emitItemQuads(final ItemStack stack, final Supplier<Random> randomSupplier, final RenderContext context) {
-        if (DebugRenderers.get("disable_part_model_cache")) {
-            CACHE.clear();
-        }
         final NbtElement parts = stack.getOrCreateNbt().get("parts");
         if (parts == null) {
             return;
@@ -69,7 +66,7 @@ public class ToolPartsTestItemModel implements FabricBakedModel, BakedModel, Unb
                 }
                 return true;
             });
-            final Mesh mesh = CACHE.computeIfAbsent(Pair.of(instance.getMaterial(), instance.getPart()), ModelUtil::buildMesh);
+            final Mesh mesh = cache.computeIfAbsent(Pair.of(instance.getMaterial(), instance.getPart()), ModelUtil::buildMesh);
             context.meshConsumer().accept(mesh);
             context.popTransform();
             stretchZStart += stretchZInc;
