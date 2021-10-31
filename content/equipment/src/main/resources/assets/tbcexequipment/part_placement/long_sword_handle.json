@@ -1,0 +1,22 @@
+{
+  "pose": "tbcexequipment:long_sword_handle",
+  "container": {
+    "tbcexequipment:handle": {
+      "offset": {
+        "x": -0.5,
+        "y": -0.5,
+        "z": -0.5
+      },
+      "scale": {
+        "x": 0.999,
+        "y": 0.999,
+        "z": 0.999
+      },
+      "offsetSecond": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+      }
+    }
+  }
+}

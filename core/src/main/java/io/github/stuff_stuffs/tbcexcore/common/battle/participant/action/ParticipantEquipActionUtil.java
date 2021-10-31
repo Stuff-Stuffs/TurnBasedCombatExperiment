@@ -30,7 +30,7 @@ public final class ParticipantEquipActionUtil {
         }
 
         @Override
-        public @Nullable TargetType getNextTargetType(final List<TargetInstance> list) {
+        public @Nullable TargetType<?> getNextTargetType(final List<TargetInstance> list) {
             return null;
         }
 

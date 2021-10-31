@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "tbcexequipment:simple_sword_guard"
+    "tbcexequipment:simple_sword_guard",
+    "tbcexequipment:fancy_sword_guard"
   ]
 }

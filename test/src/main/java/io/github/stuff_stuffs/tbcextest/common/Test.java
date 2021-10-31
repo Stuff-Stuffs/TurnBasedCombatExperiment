@@ -25,7 +25,6 @@ import io.github.stuff_stuffs.tbcextest.common.entity.EntityTypes;
 import io.github.stuff_stuffs.tbcextest.common.item.TestBowItem;
 import io.github.stuff_stuffs.tbcextest.common.item.TestItem;
 import io.github.stuff_stuffs.tbcextest.common.item.TestSwordItem;
-import io.github.stuff_stuffs.tbcextest.common.item.ToolPartsTestItem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -44,7 +43,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class Test implements ModInitializer {
-    public static final Item TEST_PARTS_ITEM = new ToolPartsTestItem();
     public static final Item TEST_ITEM = new TestItem();
     public static final Item TEST_SWORD_ITEM = new TestSwordItem();
     public static final Item TEST_BOW_ITEM = new TestBowItem();
@@ -56,8 +54,6 @@ public class Test implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Registry.register(Registry.ITEM, new Identifier("tbcextest", "parts"), TEST_PARTS_ITEM);
-
         Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_item"), TEST_ITEM);
         Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_weapon"), TEST_SWORD_ITEM);
         Registry.register(Registry.ITEM, new Identifier("tbcextest", "test_bow"), TEST_BOW_ITEM);

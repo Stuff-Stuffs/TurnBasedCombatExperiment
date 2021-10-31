@@ -1,13 +1,12 @@
-package io.github.stuff_stuffs.tbcextest.client.render.model;
+package io.github.stuff_stuffs.tbcexequipment.client.render.model.part;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.ModelUtil;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Material;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Part;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
-import io.github.stuff_stuffs.tbcextest.common.item.ToolPartsTestItem;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
-import io.github.stuff_stuffs.tbcexutil.client.DebugRenderers;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
@@ -20,7 +19,6 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -32,8 +30,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ToolPartsTestItemModel implements FabricBakedModel, BakedModel, UnbakedModel {
-    private final Map<Pair<Material, Part>, Mesh> cache = new Object2ReferenceOpenHashMap<>();
+public class PartItemModel implements BakedModel, FabricBakedModel, UnbakedModel {
+    private final Map<Pair<Material, Part<?>>, Mesh> cache = new Object2ReferenceOpenHashMap<>();
 
     @Override
     public boolean isVanillaAdapter() {
@@ -47,29 +45,14 @@ public class ToolPartsTestItemModel implements FabricBakedModel, BakedModel, Unb
 
     @Override
     public void emitItemQuads(final ItemStack stack, final Supplier<Random> randomSupplier, final RenderContext context) {
-        final NbtElement parts = stack.getOrCreateNbt().get("parts");
-        if (parts == null) {
-            return;
-        }
-        final Optional<List<PartInstance>> result = ToolPartsTestItem.CODEC.parse(NbtOps.INSTANCE, parts).result();
-        if (result.isEmpty()) {
-            return;
-        }
-        final List<PartInstance> partList = result.get();
-        final double stretchZInc = 0.001;
-        double stretchZStart = 1 - partList.size() * stretchZInc;
-        for (final PartInstance instance : partList) {
-            final float factor = (float) stretchZStart;
-            context.pushTransform(quad -> {
-                for (int i = 0; i < 4; i++) {
-                    quad.pos(i, (quad.x(i)-0.5f) * factor+0.5f, (quad.y(i)-0.5f) * factor+0.5f, (quad.z(i)-0.5f) * factor+0.5f);
-                }
-                return true;
+        final NbtCompound nbt = stack.getSubNbt("partInstance");
+        if (nbt != null) {
+            final PartInstance instance = PartInstance.CODEC.parse(NbtOps.INSTANCE, nbt).getOrThrow(false, s -> {
+                throw new TBCExException(s);
             });
-            final Mesh mesh = cache.computeIfAbsent(Pair.of(instance.getMaterial(), instance.getPart()), ModelUtil::buildMesh);
+            final Pair<Material, Part<?>> key = Pair.of(instance.getMaterial(), instance.getPart());
+            final Mesh mesh = cache.computeIfAbsent(key, ModelUtil::buildMesh);
             context.meshConsumer().accept(mesh);
-            context.popTransform();
-            stretchZStart += stretchZInc;
         }
     }
 

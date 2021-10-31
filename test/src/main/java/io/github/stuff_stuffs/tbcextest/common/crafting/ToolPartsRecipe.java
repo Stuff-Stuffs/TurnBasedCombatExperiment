@@ -1,12 +1,17 @@
 package io.github.stuff_stuffs.tbcextest.common.crafting;
 
+import io.github.stuff_stuffs.tbcexequipment.common.creation.EquipmentDataCreationContext;
+import io.github.stuff_stuffs.tbcexequipment.common.equipment.data.EquipmentData;
+import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentInstance;
+import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentType;
+import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
+import io.github.stuff_stuffs.tbcexequipment.common.item.EquipmentInstanceItem;
 import io.github.stuff_stuffs.tbcexequipment.common.item.Items;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
-import io.github.stuff_stuffs.tbcextest.common.Test;
-import io.github.stuff_stuffs.tbcextest.common.item.ToolPartsTestItem;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
@@ -15,6 +20,7 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ToolPartsRecipe extends SpecialCraftingRecipe {
     public ToolPartsRecipe(final Identifier id) {
@@ -23,17 +29,24 @@ public class ToolPartsRecipe extends SpecialCraftingRecipe {
 
     @Override
     public boolean matches(final CraftingInventory inventory, final World world) {
-        int count = 0;
+        final List<PartInstance> partInstances = new ArrayList<>();
         for (int i = 0; i < inventory.size(); i++) {
             final ItemStack stack = inventory.getStack(i);
             if (!stack.isEmpty()) {
-                count++;
-                if (stack.getItem() != Items.PART_INSTANCE || stack.getSubNbt("partInstance") == null) {
+                if (stack.getItem() != Items.PART_INSTANCE) {
                     return false;
                 }
+                final NbtCompound nbt = stack.getSubNbt("partInstance");
+                if (nbt == null) {
+                    return false;
+                }
+                partInstances.add(PartInstance.CODEC.parse(NbtOps.INSTANCE, nbt).getOrThrow(false, s -> {
+                    throw new TBCExException();
+                }));
             }
         }
-        return count != 0;
+        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.check(partInstances)).findAny();
+        return any.isPresent();
     }
 
     @Override
@@ -41,14 +54,26 @@ public class ToolPartsRecipe extends SpecialCraftingRecipe {
         final List<PartInstance> partInstances = new ArrayList<>();
         for (int i = 0; i < inventory.size(); i++) {
             final ItemStack stack = inventory.getStack(i);
-            if (stack.getItem() == Items.PART_INSTANCE && stack.getSubNbt("partInstance") != null) {
-                partInstances.add(PartInstance.CODEC.parse(NbtOps.INSTANCE, stack.getSubNbt("partInstance")).getOrThrow(false, s -> {
-                    throw new TBCExException(s);
+            if (!stack.isEmpty()) {
+                final NbtCompound nbt = stack.getSubNbt("partInstance");
+                if (nbt == null) {
+                    return ItemStack.EMPTY;
+                }
+                partInstances.add(PartInstance.CODEC.parse(NbtOps.INSTANCE, nbt).getOrThrow(false, s -> {
+                    throw new TBCExException();
                 }));
             }
         }
-        final ItemStack stack = new ItemStack(Test.TEST_PARTS_ITEM, 1);
-        stack.setSubNbt("parts", ToolPartsTestItem.CODEC.encodeStart(NbtOps.INSTANCE, partInstances).getOrThrow(false, s -> {
+        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.check(partInstances)).findAny();
+        if (any.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        final EquipmentDataCreationContext ctx = EquipmentDataCreationContext.createForEntity(null, partInstances);
+        final EquipmentType<?> equipmentType = any.get();
+        final EquipmentData equipmentData = equipmentType.initialize(ctx);
+        final EquipmentInstance instance = new EquipmentInstance(equipmentType, equipmentData);
+        final ItemStack stack = new ItemStack(Items.EQUIPMENT_INSTANCE, 1);
+        stack.setSubNbt(EquipmentInstanceItem.INSTANCE_KEY, EquipmentInstance.CODEC.encodeStart(NbtOps.INSTANCE, instance).getOrThrow(false, s -> {
             throw new TBCExException(s);
         }));
         return stack;

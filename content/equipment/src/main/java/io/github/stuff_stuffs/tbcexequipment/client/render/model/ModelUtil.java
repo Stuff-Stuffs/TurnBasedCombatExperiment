@@ -26,9 +26,9 @@ import net.minecraft.util.math.Direction;
 import java.util.function.Function;
 
 public final class ModelUtil {
-    public static Mesh buildMesh(final Pair<Material, Part> key, final boolean[][] mask, final float thicknessFactor) {
+    public static Mesh buildMesh(final Pair<Material, Part<?>> key, final boolean[][] mask, final float thicknessFactor) {
         final Function<Identifier, Sprite> atlas = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
-        final Part part = key.getSecond();
+        final Part<?> part = key.getSecond();
         final PartRenderInfo partRenderInfo = PartRenderInfo.get(Parts.REGISTRY.getId(part));
         int maxSize = 0;
         for (final MaterialPalette.EntryType type : MaterialPalette.EntryType.values()) {
@@ -170,7 +170,7 @@ public final class ModelUtil {
     private ModelUtil() {
     }
 
-    public static Mesh buildMesh(final Pair<Material, Part> key) {
+    public static Mesh buildMesh(final Pair<Material, Part<?>> key) {
         return buildMesh(key, new boolean[][]{{true}}, 1);
     }
 }

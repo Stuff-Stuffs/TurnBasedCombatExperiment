@@ -73,7 +73,7 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
 
             @Override
             public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
-                return new ParticipantActionInstance(new SingleTargetParticipantActionInfo(new ParticipantTargetType((state, user) -> Set.of(user)), (battleStateView, user, target) -> {
+                return new ParticipantActionInstance(new SingleTargetParticipantActionInfo<>(new ParticipantTargetType((state, user) -> Set.of(user)), (battleStateView, user, target) -> {
 
                 }, List.of(TooltipComponent.of(new LiteralText("equip lol").asOrderedText()))), battleState, handle);
             }
@@ -91,7 +91,7 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
 
             @Override
             public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
-                return new ParticipantActionInstance(new SingleTargetParticipantActionInfo(new BlockPosTargetType((state, user) -> Set.of(state.getParticipant(user).getPos())), (battleStateView, user, target) -> {
+                return new ParticipantActionInstance(new SingleTargetParticipantActionInfo<>(new BlockPosTargetType((state, user) -> Set.of(state.getParticipant(user).getPos())), (battleStateView, user, target) -> {
                 }, List.of(TooltipComponent.of(new LiteralText("use it").asOrderedText()))), battleState, handle);
             }
         };
@@ -104,8 +104,8 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
     }
 
     @Override
-    public BattleParticipantItemCategory getCategory() {
-        return BattleParticipantItemCategory.CONSUMABLE_CATEGORY;
+    public boolean isInCategory(final BattleParticipantItemCategory category) {
+        return category == BattleParticipantItemCategory.CONSUMABLE_CATEGORY;
     }
 
     @Override

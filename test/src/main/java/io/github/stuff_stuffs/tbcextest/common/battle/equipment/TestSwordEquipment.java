@@ -19,6 +19,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equi
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
+import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentSlots;
 import io.github.stuff_stuffs.tbcextest.common.Test;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
@@ -35,12 +36,12 @@ public class TestSwordEquipment implements BattleEquipment {
 
     @Override
     public boolean validSlot(final BattleEquipmentSlot slot) {
-        return slot == BattleEquipmentSlot.MAIN_HAND_SLOT;
+        return slot == BattleEquipmentSlots.MAIN_HAND_SLOT;
     }
 
     @Override
     public Set<BattleEquipmentSlot> getBlockedSlots() {
-        return Set.of(BattleEquipmentSlot.OFF_HAND_SLOT);
+        return Set.of(BattleEquipmentSlots.OFF_HAND_SLOT);
     }
 
     @Override
@@ -86,7 +87,7 @@ public class TestSwordEquipment implements BattleEquipment {
     }
 
     @Override
-    public void initEvents(final BattleParticipantState state) {
+    public void initEvents(final BattleParticipantState state, final BattleEquipmentSlot slot) {
 
     }
 

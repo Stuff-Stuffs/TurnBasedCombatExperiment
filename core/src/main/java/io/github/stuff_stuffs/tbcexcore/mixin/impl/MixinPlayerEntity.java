@@ -22,6 +22,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.function.Function;
+
 @Mixin(PlayerEntity.class)
 public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEntity {
     @Shadow
@@ -116,16 +118,11 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
 
     @Override
     public @Nullable ItemStack tbcex_getEquipped(final BattleEquipmentSlot slot) {
-        if (slot == BattleEquipmentSlot.HEAD_SLOT) {
-            return getEquippedStack(EquipmentSlot.HEAD);
-        } else if (slot == BattleEquipmentSlot.CHEST_SLOT) {
-            return getEquippedStack(EquipmentSlot.CHEST);
-        } else if (slot == BattleEquipmentSlot.LEGS_SLOT) {
-            return getEquippedStack(EquipmentSlot.LEGS);
-        } else if (slot == BattleEquipmentSlot.FEET_SLOT) {
-            return getEquippedStack(EquipmentSlot.FEET);
+        final Function<PlayerEntity, @Nullable ItemStack> extractor = TBCExCore.getPlayerExtractor(slot);
+        if (extractor == null) {
+            return null;
         }
-        return null;
+        return extractor.apply((PlayerEntity) (Object) this);
     }
 
     @Override

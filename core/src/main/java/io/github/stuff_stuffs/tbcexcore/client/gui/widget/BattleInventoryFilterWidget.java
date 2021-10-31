@@ -50,7 +50,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         list.add(new Category() {
             @Override
             public List<ItemStackInfo> filter(final List<ItemStackInfo> infos) {
-                return infos.stream().filter(item -> item.stack.getItem().getCategory() == BattleParticipantItemCategory.CONSUMABLE_CATEGORY).toList();
+                return infos.stream().filter(item -> item.stack.getItem().isInCategory(BattleParticipantItemCategory.CONSUMABLE_CATEGORY)).toList();
             }
 
             @Override
@@ -61,7 +61,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         list.add(new Category() {
             @Override
             public List<ItemStackInfo> filter(final List<ItemStackInfo> infos) {
-                return infos.stream().filter(item -> item.stack.getItem().getCategory() == BattleParticipantItemCategory.INVALID_CATEGORY).toList();
+                return infos.stream().filter(item -> item.stack.getItem().isInCategory(BattleParticipantItemCategory.INVALID_CATEGORY)).toList();
             }
 
             @Override
@@ -74,7 +74,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
             public List<ItemStackInfo> filter(final List<ItemStackInfo> infos) {
                 return infos.stream().filter(item -> {
                     for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
-                        if (item.stack.getItem().getCategory() == BattleParticipantItemCategory.BATTLE_EQUIPMENT_CATEGORY.apply(slot)) {
+                        if (item.stack.getItem().isInCategory(BattleParticipantItemCategory.BATTLE_EQUIPMENT_CATEGORY.apply(slot))) {
                             return true;
                         }
                     }
@@ -91,7 +91,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
             list.add(new Category() {
                 @Override
                 public List<ItemStackInfo> filter(final List<ItemStackInfo> infos) {
-                    return infos.stream().filter(item -> item.stack.getItem().getCategory() == BattleParticipantItemCategory.BATTLE_EQUIPMENT_CATEGORY.apply(slot)).toList();
+                    return infos.stream().filter(item -> item.stack.getItem().isInCategory(BattleParticipantItemCategory.BATTLE_EQUIPMENT_CATEGORY.apply(slot))).toList();
                 }
 
                 @Override

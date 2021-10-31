@@ -27,7 +27,7 @@ public interface BattleEquipment {
 
     Set<BattleEquipmentSlot> getBlockedSlots();
 
-    void initEvents(BattleParticipantState state);
+    void initEvents(BattleParticipantState state, BattleEquipmentSlot slot);
 
     void deinitEvents();
 

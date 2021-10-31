@@ -36,7 +36,7 @@ public final class BattleEquipmentState {
         final BattleEquipment old = map.get(slot);
         if (!state.getEvent(BattleParticipantStateView.PRE_EQUIPMENT_CHANGE_EVENT).invoker().onEquipmentChange(state, slot, old, equipment)) {
             if (equipment != null) {
-                equipment.initEvents(state);
+                equipment.initEvents(state, slot);
                 map.put(slot, equipment);
             } else {
                 map.remove(slot);
@@ -59,8 +59,8 @@ public final class BattleEquipmentState {
     }
 
     public void initEvents(final BattleParticipantState state) {
-        for (final BattleEquipment equipment : map.values()) {
-            equipment.initEvents(state);
+        for (final Map.Entry<BattleEquipmentSlot, BattleEquipment> equipment : map.entrySet()) {
+            equipment.getValue().initEvents(state, equipment.getKey());
         }
     }
 

@@ -22,7 +22,7 @@ import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 
 public class BattleInventoryTabWidget extends AbstractWidget {
-    public static final int COLUMN_COUNT = 4;
+    public static final int COLUMN_COUNT = 3;
     private static final Colour EQUIPED_COLOR = new IntRgbColour(200, 31, 0);
     private final WidgetPosition position;
     private final Supplier<List<ItemStackInfo>> stacks;
@@ -166,8 +166,7 @@ public class BattleInventoryTabWidget extends AbstractWidget {
         final Text name = info.stack.getItem().getName();
         renderFitTextWrap(matrices, name, offsetX + borderThickness, y, maxWidth, entryHeight, shadow, IntRgbColour.WHITE, 255, vertexConsumers);
         renderFitTextWrap(matrices, new LiteralText("" + info.stack.getCount()), offsetX + borderThickness + maxWidth, y, maxWidth, entryHeight, shadow, IntRgbColour.WHITE, 255, vertexConsumers);
-        renderFitTextWrap(matrices, info.stack.getItem().getCategory().getName(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, IntRgbColour.WHITE, 255, vertexConsumers);
-        renderFitTextWrap(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, new IntRgbColour(info.stack.getItem().getRarity().getRarity().getColour()), 255, vertexConsumers);
+        renderFitTextWrap(matrices, info.stack.getItem().getRarity().getAsText(), offsetX + borderThickness + maxWidth + maxWidth, y, maxWidth, entryHeight, shadow, new IntRgbColour(info.stack.getItem().getRarity().getRarity().getColour()), 255, vertexConsumers);
     }
 
     private void renderInfo(final ItemStackInfo info, final VertexConsumer vertexConsumer, final MatrixStack matrices, final int index, final int hoverIndex) {

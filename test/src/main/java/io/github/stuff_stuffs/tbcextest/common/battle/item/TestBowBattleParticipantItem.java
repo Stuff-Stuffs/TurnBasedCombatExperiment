@@ -6,8 +6,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.Partici
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantEquipActionUtil;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
+import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentSlots;
 import io.github.stuff_stuffs.tbcextest.common.Test;
 import io.github.stuff_stuffs.tbcextest.common.battle.equipment.TestBowEquipment;
 import net.minecraft.text.LiteralText;
@@ -31,8 +31,8 @@ public class TestBowBattleParticipantItem implements BattleParticipantEquipmentI
     }
 
     @Override
-    public BattleParticipantItemCategory getCategory() {
-        return BattleParticipantItemCategory.BATTLE_EQUIPMENT_CATEGORY.apply(BattleEquipmentSlot.MAIN_HAND_SLOT);
+    public boolean isInCategory(final BattleParticipantItemCategory category) {
+        return category == BattleParticipantItemCategory.BATTLE_EQUIPMENT_CATEGORY.apply(BattleEquipmentSlots.MAIN_HAND_SLOT);
     }
 
     @Override

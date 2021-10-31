@@ -47,7 +47,6 @@ public class BattleInventorySorterWidget extends AbstractWidget {
     };
     private static final Comparator<ItemStackInfo> ALPHABETICAL_COMPARATOR = Comparator.comparing(o -> o.stack.getItem().getName().getString());
     private static final Comparator<ItemStackInfo> COUNT_COMPARATOR = Comparator.comparingInt(o -> o.stack.getCount());
-    private static final Comparator<ItemStackInfo> CATEGORY_COMPARATOR = Comparator.comparing(o -> o.stack.getItem().getCategory().getName().getString());
     private static final Comparator<ItemStackInfo> RARITY_COMPARATOR = Comparator.<ItemStackInfo>comparingInt(o -> o.stack.getItem().getRarity().getRarity().ordinal()).thenComparingDouble(o -> o.stack.getItem().getRarity().getProgress());
     public static final List<Sort> DEFAULTS = Util.make(new ArrayList<>(), list -> {
         list.add(new Sort() {
@@ -70,17 +69,6 @@ public class BattleInventorySorterWidget extends AbstractWidget {
             @Override
             public Text getName() {
                 return new LiteralText("COUNT");
-            }
-        });
-        list.add(new Sort() {
-            @Override
-            public Comparator<ItemStackInfo> getComparator() {
-                return CATEGORY_COMPARATOR;
-            }
-
-            @Override
-            public Text getName() {
-                return new LiteralText("CATEGORY");
             }
         });
         list.add(new Sort() {

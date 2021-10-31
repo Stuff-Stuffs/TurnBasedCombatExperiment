@@ -43,14 +43,20 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         equipment = new Reference2ObjectOpenHashMap<>();
         for (final ItemStack itemStack : entity.tbcex_getInventory()) {
             if (itemStack.getItem() instanceof BattleItem battleItem) {
-                giveStack(battleItem.toBattleItem(itemStack));
+                final BattleParticipantItemStack stack = battleItem.toBattleItem(itemStack);
+                if (stack != null) {
+                    giveStack(stack);
+                }
             }
         }
         equipmentState = new BattleEquipmentState(entity);
         for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
             final ItemStack itemStack = entity.tbcex_getEquipped(slot);
             if (itemStack != null && itemStack.getItem() instanceof BattleItem battleItem) {
-                equipment.put(slot, battleItem.toBattleItem(itemStack));
+                final BattleParticipantItemStack stack = battleItem.toBattleItem(itemStack);
+                if (stack != null) {
+                    equipment.put(slot, stack);
+                }
             }
         }
     }
@@ -146,9 +152,9 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
         return false;
     }
 
-    public boolean canEquip(BattleParticipantInventoryHandle handle, final BattleEquipmentSlot slot) {
+    public boolean canEquip(final BattleParticipantInventoryHandle handle, final BattleEquipmentSlot slot) {
         final BattleParticipantItemStack stack = stacks.get(handle.id());
-        if(stack.getItem() instanceof BattleParticipantEquipmentItem equipmentItem) {
+        if (stack.getItem() instanceof BattleParticipantEquipmentItem equipmentItem) {
             return equipmentState.canEquip(equipmentItem.createEquipmentInstance(stack), slot);
         }
         return false;
@@ -169,7 +175,7 @@ public final class BattleParticipantInventory implements Iterable<Int2ReferenceM
     public void initEvents(final BattleParticipantState state) {
         for (final BattleEquipmentSlot slot : BattleEquipmentSlot.REGISTRY) {
             final BattleParticipantItemStack stack = equipment.get(slot);
-            if (stack!=null && stack.getItem() instanceof BattleParticipantEquipmentItem equipmentItem) {
+            if (stack != null && stack.getItem() instanceof BattleParticipantEquipmentItem equipmentItem) {
                 final BattleEquipment instance = equipmentItem.createEquipmentInstance(stack);
                 if (instance.validSlot(slot)) {
                     equipmentState.equip(state, slot, instance);

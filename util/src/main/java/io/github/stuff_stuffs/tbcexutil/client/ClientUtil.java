@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexutil.client;
 
+import com.google.common.base.Suppliers;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -12,6 +13,11 @@ import io.github.stuff_stuffs.tbcexutil.mixin.AccessorGameRenderer;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
+import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
+import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
+import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.render.model.json.Transformation;
@@ -23,6 +29,7 @@ import net.minecraft.util.math.Vec3f;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public final class ClientUtil implements ClientModInitializer {
     public static final Transformation TRANSFORM_ITEM_HEAD = makeTransform(0, 180, 0, 0, 13, 7, 1, 1, 1);
@@ -32,7 +39,10 @@ public final class ClientUtil implements ClientModInitializer {
     public static final Transformation TRANSFORM_ITEM_3RD_PERSON_RIGHT = makeTransform(0, 0, 0, 0, 3f, 1, 0.55f, 0.55f, 0.55f);
     public static final Transformation TRANSFORM_ITEM_1ST_PERSON_RIGHT = makeTransform(0, -90, 0, 1.13f, 3.2f, 1.13f, 0.68f, 0.68f, 0.68f);
 
+    //TODO fix this
     public static final ModelTransformation ITEM_TRANSFORMATION = new ModelTransformation(TRANSFORM_ITEM_3RD_PERSON_RIGHT, TRANSFORM_ITEM_3RD_PERSON_RIGHT, TRANSFORM_ITEM_1ST_PERSON_RIGHT, TRANSFORM_ITEM_1ST_PERSON_RIGHT, TRANSFORM_ITEM_HEAD, TRANSFORM_ITEM_GUI, TRANSFORM_ITEM_GROUND, TRANSFORM_ITEM_FIXED);
+
+    public static final Supplier<Mesh> LAZY_EMPTY_MESH = Suppliers.memoize(() -> RendererAccess.INSTANCE.getRenderer().meshBuilder().build());
 
     public ClientUtil() {
     }
@@ -76,6 +86,29 @@ public final class ClientUtil implements ClientModInitializer {
         return new Transformation(new Vec3f(rotationX, rotationY, rotationZ), translation, new Vec3f(scaleX, scaleY, scaleZ));
     }
 
+    public static Mesh transform(final Mesh input, final RenderContext.QuadTransform transform) {
+        final MeshBuilder builder = RendererAccess.INSTANCE.getRenderer().meshBuilder();
+        final QuadEmitter emitter = builder.getEmitter();
+        input.forEach(quadView -> {
+            quadView.copyTo(emitter);
+            if (transform.transform(emitter)) {
+                emitter.emit();
+            }
+        });
+        return builder.build();
+    }
+
+    public static Mesh merge(final Mesh... inputs) {
+        final MeshBuilder builder = RendererAccess.INSTANCE.getRenderer().meshBuilder();
+        final QuadEmitter emitter = builder.getEmitter();
+        for (final Mesh mesh : inputs) {
+            mesh.forEach(quadView -> {
+                quadView.copyTo(emitter);
+                emitter.emit();
+            });
+        }
+        return builder.build();
+    }
 
     private static class DebugRendererArgument implements ArgumentType<String> {
         private static final SimpleCommandExceptionType EXCEPTION = new SimpleCommandExceptionType(new TranslatableText("turn_base_combat.debugRenderer.invalid"));

@@ -5,9 +5,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
@@ -19,7 +19,7 @@ public interface BattleParticipantItem {
 
     BattleParticipantItemType getType();
 
-    BattleParticipantItemCategory getCategory();
+    boolean isInCategory(BattleParticipantItemCategory category);
 
     Text getName();
 
@@ -35,14 +35,14 @@ public interface BattleParticipantItem {
         LEGENDARY(100_000_000.0, 0xFFFFD700);
         public static final Codec<Rarity> CODEC = new Codec<>() {
             @Override
-            public <T> DataResult<Pair<Rarity, T>> decode(DynamicOps<T> ops, T input) {
+            public <T> DataResult<Pair<Rarity, T>> decode(final DynamicOps<T> ops, final T input) {
                 return DataResult.success(Pair.of(Rarity.valueOf(ops.getStringValue(input).getOrThrow(false, s -> {
                     throw new RuntimeException(s);
                 })), ops.empty()));
             }
 
             @Override
-            public <T> DataResult<T> encode(Rarity input, DynamicOps<T> ops, T prefix) {
+            public <T> DataResult<T> encode(final Rarity input, final DynamicOps<T> ops, final T prefix) {
                 return DataResult.success(ops.createString(input.name()));
             }
         };
@@ -79,11 +79,16 @@ public interface BattleParticipantItem {
                 return new RarityInstance(min, progress);
             }
         }
+
+        public double getStart() {
+            return start;
+        }
     }
 
     record RarityInstance(Rarity rarity, double progress) {
         private static final DecimalFormat RARITY_FORMAT = new DecimalFormat("0.00");
         public static final Codec<RarityInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(Rarity.CODEC.fieldOf("rarity").forGetter(RarityInstance::getRarity), Codec.DOUBLE.fieldOf("progress").forGetter(RarityInstance::getProgress)).apply(instance, RarityInstance::new));
+
         public Rarity getRarity() {
             return rarity;
         }
