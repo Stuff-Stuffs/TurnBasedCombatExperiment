@@ -119,16 +119,4 @@ public final class MathUtil {
         }
         return null;
     }
-
-    //@SuppressWarnings("PointlessBitwiseExpression")
-    //public static Vec2d[] projectObb(final Vec3d transformedEyePos, final Vec3d[] localVertices, final Vec3d[] worldVertices) {
-    //    //@formatter:off
-    //    final int pos = ((transformedEyePos.x < localVertices[0].x ? 1 : 0) << 0)
-    //                  + ((transformedEyePos.x > localVertices[7].x ? 1 : 0) << 1)
-    //                  + ((transformedEyePos.y < localVertices[0].y ? 1 : 0) << 2)
-    //                  + ((transformedEyePos.y > localVertices[7].y ? 1 : 0) << 3)
-    //                  + ((transformedEyePos.z < localVertices[0].z ? 1 : 0) << 4)
-    //                  + ((transformedEyePos.z > localVertices[7].z ? 1 : 0) << 5);
-    //    //@formatter:on
-    //}
 }
