@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexequipment.client.render.model.equipment;
+package io.github.stuff_stuffs.tbcexequipment.client.render.model.part;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexequipment.client.material.MaterialPalette;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-public class UnbakedEquipmentItemModel implements UnbakedModel {
+public class UnbakedPartItemModel implements UnbakedModel {
     @Override
     public Collection<Identifier> getModelDependencies() {
         return Collections.emptySet();
@@ -52,6 +52,6 @@ public class UnbakedEquipmentItemModel implements UnbakedModel {
             }
             sprites.put(Parts.REGISTRY.get(id), partSprites);
         }
-        return new EquipmentItemModel(sprites);
+        return new PartItemModel(sprites);
     }
 }

@@ -1,18 +1,19 @@
 package io.github.stuff_stuffs.tbcexequipment.client.render.model.equipment;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.stuff_stuffs.tbcexequipment.client.material.MaterialPalette;
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.ModelUtil;
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.Models;
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.part.PartPlacementInfo;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentInstance;
 import io.github.stuff_stuffs.tbcexequipment.common.item.EquipmentInstanceItem;
+import io.github.stuff_stuffs.tbcexequipment.common.part.Part;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Parts;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceLinkedOpenHashMap;
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
@@ -31,14 +32,16 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockRenderView;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class EquipmentItemModel implements BakedModel, FabricBakedModel {
+    private final Map<Part<?>, Map<MaterialPalette.EntryType, Sprite>> sprites;
     private final Object2ReferenceLinkedOpenHashMap<ItemStack, Mesh> cache = new Object2ReferenceLinkedOpenHashMap<>(512);
+
+    public EquipmentItemModel(Map<Part<?>, Map<MaterialPalette.EntryType, Sprite>> sprites) {
+        this.sprites = sprites;
+    }
 
     @Override
     public boolean isVanillaAdapter() {
@@ -67,7 +70,7 @@ public class EquipmentItemModel implements BakedModel, FabricBakedModel {
         context.meshConsumer().accept(mesh);
     }
 
-    private static Mesh buildMesh(final ItemStack stack) {
+    private Mesh buildMesh(final ItemStack stack) {
         final NbtElement nbt = stack.getOrCreateNbt().get(EquipmentInstanceItem.INSTANCE_KEY);
         if (nbt == null) {
             throw new TBCExException();
@@ -84,7 +87,7 @@ public class EquipmentItemModel implements BakedModel, FabricBakedModel {
         for (int i = 0; i < parts.size(); i++) {
             final PartInstance part = parts.get(i);
             final Identifier pose = equipment.getType().getPose(indices.getInt(i));
-            Mesh m = ModelUtil.buildMesh(Pair.of(part.getMaterial(), part.getPart()));
+            Mesh m = ModelUtil.buildMesh(Pair.of(part.getMaterial(), part.getPart()), sprites.get(part.getPart()));
             final PartPlacementInfo info = Models.getPlacementInfo(pose, Parts.REGISTRY.getId(part.getPart()));
             toMerge.add(ClientUtil.transform(m, info));
         }

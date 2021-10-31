@@ -7,8 +7,8 @@ import io.github.stuff_stuffs.tbcexequipment.client.render.model.equipment.Unbak
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.part.PartItemModel;
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.part.PartPlacementInfo;
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.part.PartPlacementInfoContainer;
+import io.github.stuff_stuffs.tbcexequipment.client.render.model.part.UnbakedPartItemModel;
 import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
-import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -63,7 +63,7 @@ public final class Models {
         final Identifier equipmentItemModel = TBCExEquipment.createId("item/equipment_instance");
         ModelLoadingRegistry.INSTANCE.registerResourceProvider(resourceManager -> (resourceId, context) -> {
             if (resourceId.equals(partItemModel)) {
-                return new PartItemModel();
+                return new UnbakedPartItemModel();
             }
             if (resourceId.equals(equipmentItemModel)) {
                 return new UnbakedEquipmentItemModel();

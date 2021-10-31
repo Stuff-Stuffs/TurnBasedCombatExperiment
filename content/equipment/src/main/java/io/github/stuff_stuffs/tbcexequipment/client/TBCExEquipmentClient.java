@@ -35,15 +35,6 @@ public class TBCExEquipmentClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ClientSpriteRegistryCallback.event(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).register((atlasTexture, registry) -> {
-            for (final Identifier id : Parts.REGISTRY.getIds()) {
-                final PartRenderInfo info = PartRenderInfo.get(id);
-                for (final MaterialPalette.EntryType type : MaterialPalette.EntryType.values()) {
-                    final Identifier texture = info.getTexture(type);
-                    registry.register(texture);
-                }
-            }
-        });
         Models.init();
         //TODO move these to json
         MaterialRenderInfo.register(Materials.REGISTRY.getId(Materials.WOOD), new MaterialPalette(
@@ -85,6 +76,16 @@ public class TBCExEquipmentClient implements ClientModInitializer {
                 new MaterialPalette.Entry(new IntRgbColour(0xFF828282), false, 255),
                 new MaterialPalette.Entry(new IntRgbColour(0xFF727272), false, 255),
                 new MaterialPalette.Entry(new IntRgbColour(0xFF585858), false, 255)
+        ));
+        MaterialRenderInfo.register(Materials.REGISTRY.getId(Materials.COPPER), new MaterialPalette(
+                new MaterialPalette.Entry(new IntRgbColour(0xFF9C4529), false, 255),
+                new MaterialPalette.Entry(new IntRgbColour(0xFF6d3421), false, 255),
+                new MaterialPalette.Entry(new IntRgbColour(0xFFfbc3b6), false, 255),
+                new MaterialPalette.Entry(new IntRgbColour(0xFFfc9982), false, 255),
+                new MaterialPalette.Entry(new IntRgbColour(0xFFe77c56), false, 255),
+                new MaterialPalette.Entry(new IntRgbColour(0xFFc77c56), false, 255),
+                new MaterialPalette.Entry(new IntRgbColour(0xFFc15a36), false, 255),
+                new MaterialPalette.Entry(new IntRgbColour(0xFF9c4e31), false, 255)
         ));
         MaterialRenderInfo.register(Materials.REGISTRY.getId(Materials.DIAMOND), new MaterialPalette(
                 new MaterialPalette.Entry(new IntRgbColour(0xFF0C3F36), false, 255),

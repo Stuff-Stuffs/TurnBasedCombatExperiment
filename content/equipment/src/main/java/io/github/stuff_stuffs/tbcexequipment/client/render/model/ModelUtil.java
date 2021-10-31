@@ -23,10 +23,11 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
+import java.util.Map;
 import java.util.function.Function;
 
 public final class ModelUtil {
-    public static Mesh buildMesh(final Pair<Material, Part<?>> key, final boolean[][] mask, final float thicknessFactor) {
+    public static Mesh buildMesh(final Pair<Material, Part<?>> key, final boolean[][] mask, Map<MaterialPalette.EntryType, Sprite> sprites) {
         final Function<Identifier, Sprite> atlas = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
         final Part<?> part = key.getSecond();
         final PartRenderInfo partRenderInfo = PartRenderInfo.get(Parts.REGISTRY.getId(part));
@@ -63,7 +64,7 @@ public final class ModelUtil {
         final MeshBuilder meshBuilder = RendererAccess.INSTANCE.getRenderer().meshBuilder();
         final QuadEmitter quadEmitter = meshBuilder.getEmitter();
         for (final MaterialPalette.EntryType type : MaterialPalette.EntryType.values()) {
-            final Sprite sprite = atlas.apply(partRenderInfo.getTexture(type));
+            final Sprite sprite = sprites.get(type);
             final MaterialPalette.Entry entry = materialRenderInfo.getPalette().getEntry(type);
             final Colour colour = entry.colour();
             final int alpha = entry.alpha();
@@ -108,7 +109,7 @@ public final class ModelUtil {
                 for (int j = 0; j < maxSize; j++) {
                     if (shouldRenderCube(i, j, -1, 0, maxSize, typeMask, masterOpaque)) {
                         quadEmitter.material(renderMaterial);
-                        quadEmitter.square(Direction.WEST, 0.5f - (1 / 32f * thicknessFactor), (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, i / (float) maxSize);
+                        quadEmitter.square(Direction.WEST, 0.5f - (1 / 32f), (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, i / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
                         quadEmitter.sprite(0, 0, (i + 0f) / (float) maxSize, j / (float) maxSize);
                         quadEmitter.sprite(1, 0, (i + 0f) / (float) maxSize, (j + 1) / (float) maxSize);
@@ -118,7 +119,7 @@ public final class ModelUtil {
                     }
                     if (shouldRenderCube(i, j, 1, 0, maxSize, typeMask, masterOpaque)) {
                         quadEmitter.material(renderMaterial);
-                        quadEmitter.square(Direction.EAST, 0.5f - (1 / 32f * thicknessFactor), (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, (maxSize - i - 1) / (float) maxSize);
+                        quadEmitter.square(Direction.EAST, 0.5f - (1 / 32f), (maxSize - j - 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j) / (float) maxSize, (maxSize - i - 1) / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
                         quadEmitter.sprite(0, 0, (i + 0f) / (float) maxSize, j / (float) maxSize);
                         quadEmitter.sprite(1, 0, (i + 0f) / (float) maxSize, (j + 1) / (float) maxSize);
@@ -128,7 +129,7 @@ public final class ModelUtil {
                     }
                     if (shouldRenderCube(i, j, 0, -1, maxSize, typeMask, masterOpaque)) {
                         quadEmitter.material(renderMaterial);
-                        quadEmitter.square(Direction.UP, i / (float) maxSize, (0.5f - 1 / 32f * thicknessFactor), (i + 1) / (float) maxSize, 0.5f + 1 / 32f, j / (float) maxSize);
+                        quadEmitter.square(Direction.UP, i / (float) maxSize, (0.5f - 1 / 32f), (i + 1) / (float) maxSize, 0.5f + 1 / 32f, j / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
                         quadEmitter.sprite(0, 0, (i) / (float) maxSize, (j + 0f) / (float) maxSize);
                         quadEmitter.sprite(1, 0, (i) / (float) maxSize, (j + 0.01f) / (float) maxSize);
@@ -138,7 +139,7 @@ public final class ModelUtil {
                     }
                     if (shouldRenderCube(i, j, 0, 1, maxSize, typeMask, masterOpaque)) {
                         quadEmitter.material(renderMaterial);
-                        quadEmitter.square(Direction.DOWN, i / (float) maxSize, (0.5f - 1 / 32f * thicknessFactor), (i + 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j - 1) / (float) maxSize);
+                        quadEmitter.square(Direction.DOWN, i / (float) maxSize, (0.5f - 1 / 32f), (i + 1) / (float) maxSize, 0.5f + 1 / 32f, (maxSize - j - 1) / (float) maxSize);
                         quadEmitter.spriteColor(0, packedColour, packedColour, packedColour, packedColour);
                         quadEmitter.sprite(0, 0, (i) / (float) maxSize, (j + 0f) / (float) maxSize);
                         quadEmitter.sprite(1, 0, (i) / (float) maxSize, (j + 0.01f) / (float) maxSize);
@@ -170,7 +171,7 @@ public final class ModelUtil {
     private ModelUtil() {
     }
 
-    public static Mesh buildMesh(final Pair<Material, Part<?>> key) {
-        return buildMesh(key, new boolean[][]{{true}}, 1);
+    public static Mesh buildMesh(final Pair<Material, Part<?>> key, Map<MaterialPalette.EntryType, Sprite> sprites) {
+        return buildMesh(key, new boolean[][]{{true}}, sprites);
     }
 }
