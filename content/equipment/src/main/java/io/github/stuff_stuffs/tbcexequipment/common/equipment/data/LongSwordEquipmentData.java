@@ -27,7 +27,7 @@ public class LongSwordEquipmentData extends AbstractEquipmentData {
     private final BattleParticipantItem.RarityInstance rarity;
 
     private LongSwordEquipmentData(final Map<Identifier, PartInstance> parts) {
-        super(parts);
+        super(parts, EquipmentTypes.LONG_SWORD_EQUIPMENT);
         double sum = 0;
         for (final PartInstance part : parts.values()) {
             final PartData data = part.getData();
