@@ -4,6 +4,7 @@ import com.mojang.serialization.Lifecycle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItem;
 import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public final class Materials {
     public static final RegistryKey<Registry<Material>> REGISTRY_KEY = RegistryKey.ofRegistry(TBCExEquipment.createId("materials"));
-    public static final Registry<Material> REGISTRY = FabricRegistryBuilder.from(new SimpleRegistry<>(REGISTRY_KEY, Lifecycle.stable())).buildAndRegister();
+    public static final Registry<Material> REGISTRY = FabricRegistryBuilder.from(new SimpleRegistry<>(REGISTRY_KEY, Lifecycle.stable())).attribute(RegistryAttribute.SYNCED).buildAndRegister();
     public static final Material WOOD = new Material(new LiteralText("Wood"), List.of(new LiteralText("It's wood!")), BattleParticipantItem.Rarity.COMMON);
     public static final Material STONE = new Material(new LiteralText("Stone"), List.of(new LiteralText("It's stone!")), BattleParticipantItem.Rarity.COMMON);
     public static final Material COPPER = new Material(new LiteralText("Copper"), List.of(new LiteralText("It's copper!")), BattleParticipantItem.Rarity.COMMON);

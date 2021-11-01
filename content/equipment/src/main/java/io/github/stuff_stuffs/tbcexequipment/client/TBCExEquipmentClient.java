@@ -4,38 +4,27 @@ import io.github.stuff_stuffs.tbcexequipment.client.material.MaterialPalette;
 import io.github.stuff_stuffs.tbcexequipment.client.material.MaterialRenderInfo;
 import io.github.stuff_stuffs.tbcexequipment.client.part.PartRenderInfo;
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.Models;
-import io.github.stuff_stuffs.tbcexequipment.client.render.model.equipment.UnbakedEquipmentItemModel;
-import io.github.stuff_stuffs.tbcexequipment.client.render.model.part.PartItemModel;
-import io.github.stuff_stuffs.tbcexequipment.client.render.model.part.PartPlacementInfo;
-import io.github.stuff_stuffs.tbcexequipment.client.render.model.part.PartPlacementInfoContainer;
 import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Materials;
+import io.github.stuff_stuffs.tbcexequipment.common.material.stats.MaterialStatManager;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Parts;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
-import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class TBCExEquipmentClient implements ClientModInitializer {
-
-
     @Override
     public void onInitializeClient() {
         Models.init();
+        ClientLoginNetworking.registerGlobalReceiver(MaterialStatManager.CHANNEL_ID, (client, handler, buf, listenerAdder) -> {
+            if (!handler.getConnection().isLocal()) {
+                TBCExEquipment.MATERIAL_STAT_MANAGER.receive(buf);
+            }
+            return CompletableFuture.completedFuture(PacketByteBufs.create());
+        });
         //TODO move these to json
         MaterialRenderInfo.register(Materials.REGISTRY.getId(Materials.WOOD), new MaterialPalette(
                 new MaterialPalette.Entry(new IntRgbColour(0xFF493615), false, 255),
