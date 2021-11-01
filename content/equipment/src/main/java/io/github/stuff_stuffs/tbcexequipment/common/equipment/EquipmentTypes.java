@@ -16,7 +16,7 @@ public final class EquipmentTypes {
     public static final RegistryKey<Registry<EquipmentType<?>>> REGISTRY_KEY = RegistryKey.ofRegistry(TBCExEquipment.createId("equipment_type"));
     public static final Registry<EquipmentType<?>> REGISTRY = FabricRegistryBuilder.from(new SimpleRegistry<>(REGISTRY_KEY, Lifecycle.stable())).buildAndRegister();
 
-    public static final EquipmentType<LongSwordEquipmentData> LONG_SWORD_EQUIPMENT = EquipmentType.builder().addOptional(PartTags.SWORD_POMMELS, TBCExEquipment.createId("long_sword_pommel")).add(PartTags.HANDLES, TBCExEquipment.createId("long_sword_handle")).addOptional(PartTags.SWORD_GUARDS, TBCExEquipment.createId("long_sword_guard")).add(PartTags.SWORD_BLADES, TBCExEquipment.createId("long_sword_blade")).build(new LiteralText("long sword"), List.of(), LongSwordEquipmentData.CODEC, LongSwordEquipmentData.INITIALIZER);
+    public static final EquipmentType<LongSwordEquipmentData> LONG_SWORD_EQUIPMENT = EquipmentType.builder().addOptional(TBCExEquipment.createId("long_sword_pommel"), PartTags.SWORD_POMMELS).add(TBCExEquipment.createId("long_sword_handle"), PartTags.HANDLES).addOptional(TBCExEquipment.createId("long_sword_guard"), PartTags.SWORD_GUARDS).add(TBCExEquipment.createId("long_sword_blade"), PartTags.SWORD_BLADES).build(new LiteralText("long sword"), List.of(), LongSwordEquipmentData.CODEC, LongSwordEquipmentData.INITIALIZER);
 
     public static void init() {
         Registry.register(REGISTRY, TBCExEquipment.createId("long_sword"), LONG_SWORD_EQUIPMENT);

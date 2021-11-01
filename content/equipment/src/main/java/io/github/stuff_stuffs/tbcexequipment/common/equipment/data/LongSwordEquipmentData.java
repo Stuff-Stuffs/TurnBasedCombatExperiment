@@ -13,21 +13,23 @@ import io.github.stuff_stuffs.tbcexequipment.common.part.PartData;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 public class LongSwordEquipmentData extends AbstractEquipmentData {
-    public static final Codec<LongSwordEquipmentData> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.list(PartInstance.CODEC).fieldOf("parts").forGetter(data -> data.parts)).apply(instance, LongSwordEquipmentData::new));
+    public static final Codec<LongSwordEquipmentData> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.unboundedMap(Identifier.CODEC, PartInstance.CODEC).fieldOf("parts").forGetter(data -> data.parts)).apply(instance, LongSwordEquipmentData::new));
     public static final Function<EquipmentDataCreationContext, LongSwordEquipmentData> INITIALIZER = ctx -> new LongSwordEquipmentData(ctx.getParts());
 
     private final BattleParticipantItem.RarityInstance rarity;
 
-    private LongSwordEquipmentData(final List<PartInstance> parts) {
+    private LongSwordEquipmentData(final Map<Identifier, PartInstance> parts) {
         super(parts);
         double sum = 0;
-        for (final PartInstance part : parts) {
+        for (final PartInstance part : parts.values()) {
             final PartData data = part.getData();
             sum += data.getRarity().getRarity().getStart() * (1 + data.getRarity().getProgress());
         }

@@ -12,7 +12,6 @@ import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Parts;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceLinkedOpenHashMap;
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
@@ -39,7 +38,7 @@ public class EquipmentItemModel implements BakedModel, FabricBakedModel {
     private final Map<Part<?>, Map<MaterialPalette.EntryType, Sprite>> sprites;
     private final Object2ReferenceLinkedOpenHashMap<ItemStack, Mesh> cache = new Object2ReferenceLinkedOpenHashMap<>(512);
 
-    public EquipmentItemModel(Map<Part<?>, Map<MaterialPalette.EntryType, Sprite>> sprites) {
+    public EquipmentItemModel(final Map<Part<?>, Map<MaterialPalette.EntryType, Sprite>> sprites) {
         this.sprites = sprites;
     }
 
@@ -81,14 +80,12 @@ public class EquipmentItemModel implements BakedModel, FabricBakedModel {
             return ClientUtil.LAZY_EMPTY_MESH.get();
         }
         final EquipmentInstance equipment = optional.get();
-        final List<PartInstance> parts = equipment.getData().getParts();
-        final IntList indices = equipment.getType().generateIndices(parts);
-        List<Mesh> toMerge = new ArrayList<>();
-        for (int i = 0; i < parts.size(); i++) {
-            final PartInstance part = parts.get(i);
-            final Identifier pose = equipment.getType().getPose(indices.getInt(i));
-            Mesh m = ModelUtil.buildMesh(Pair.of(part.getMaterial(), part.getPart()), sprites.get(part.getPart()));
-            final PartPlacementInfo info = Models.getPlacementInfo(pose, Parts.REGISTRY.getId(part.getPart()));
+        final Map<Identifier, PartInstance> parts = equipment.getData().getParts();
+        final List<Mesh> toMerge = new ArrayList<>(parts.size());
+        for (final Map.Entry<Identifier, PartInstance> entry : parts.entrySet()) {
+            final PartInstance part = entry.getValue();
+            final Mesh m = ModelUtil.buildMesh(Pair.of(part.getMaterial(), part.getPart()), sprites.get(part.getPart()));
+            final PartPlacementInfo info = Models.getPlacementInfo(entry.getKey(), Parts.REGISTRY.getId(part.getPart()));
             toMerge.add(ClientUtil.transform(m, info));
         }
         return ClientUtil.merge(toMerge.toArray(new Mesh[0]));

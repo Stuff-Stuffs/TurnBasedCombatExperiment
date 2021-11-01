@@ -18,9 +18,7 @@ import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ToolPartsRecipe extends SpecialCraftingRecipe {
     public ToolPartsRecipe(final Identifier id) {
@@ -45,7 +43,7 @@ public class ToolPartsRecipe extends SpecialCraftingRecipe {
                 }));
             }
         }
-        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.check(partInstances)).findAny();
+        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.fromList(partInstances)!=null).findAny();
         return any.isPresent();
     }
 
@@ -64,11 +62,12 @@ public class ToolPartsRecipe extends SpecialCraftingRecipe {
                 }));
             }
         }
-        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.check(partInstances)).findAny();
+        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.fromList(partInstances)!=null).findAny();
         if (any.isEmpty()) {
             return ItemStack.EMPTY;
         }
-        final EquipmentDataCreationContext ctx = EquipmentDataCreationContext.createForEntity(null, partInstances);
+        Map<Identifier, PartInstance> parts = any.get().fromList(partInstances);
+        final EquipmentDataCreationContext ctx = EquipmentDataCreationContext.createForEntity(null, parts);
         final EquipmentType<?> equipmentType = any.get();
         final EquipmentData equipmentData = equipmentType.initialize(ctx);
         final EquipmentInstance instance = new EquipmentInstance(equipmentType, equipmentData);

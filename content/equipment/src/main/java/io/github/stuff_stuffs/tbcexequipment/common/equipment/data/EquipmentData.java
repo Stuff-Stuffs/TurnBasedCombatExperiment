@@ -10,9 +10,11 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentType;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface EquipmentData {
@@ -38,5 +40,5 @@ public interface EquipmentData {
 
     BattleParticipantItem.RarityInstance getRarity();
 
-    List<PartInstance> getParts();
+    Map<Identifier, PartInstance> getParts();
 }
