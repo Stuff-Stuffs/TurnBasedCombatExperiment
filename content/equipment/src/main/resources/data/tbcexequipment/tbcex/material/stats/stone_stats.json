@@ -2,6 +2,7 @@
   "material": "tbcexequipment:stone",
   "stats": {
     "tbcexequipment:hardness": 6,
-    "tbcexequipment:weight": 5
+    "tbcexequipment:weight": 5,
+    "tbcexequipment:edge_retention": 1
   }
 }

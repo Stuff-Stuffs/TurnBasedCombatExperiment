@@ -2,6 +2,7 @@
   "material": "tbcexequipment:wood",
   "stats": {
     "tbcexequipment:hardness": 1,
-    "tbcexequipment:weight": 3
+    "tbcexequipment:weight": 3,
+    "tbcexequipment:edge_retention": 2
   }
 }

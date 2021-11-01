@@ -5,6 +5,7 @@ import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 public final class MaterialStats {
     public static final MaterialStat HARDNESS = TBCExEquipment.MATERIAL_STAT_MANAGER.getStat(TBCExEquipment.createId("hardness"));
     public static final MaterialStat WEIGHT = TBCExEquipment.MATERIAL_STAT_MANAGER.getStat(TBCExEquipment.createId("weight"));
+    public static final MaterialStat EDGE_RETENTION = TBCExEquipment.MATERIAL_STAT_MANAGER.getStat(TBCExEquipment.createId("edge_retention"));
 
     public static void init() {
 

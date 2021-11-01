@@ -2,6 +2,7 @@
   "material": "tbcexequipment:diamond",
   "stats": {
     "tbcexequipment:hardness": 10,
-    "tbcexequipment:weight": 10
+    "tbcexequipment:weight": 10,
+    "tbcexequipment:edge_retention": 10
   }
 }
