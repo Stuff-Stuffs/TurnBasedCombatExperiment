@@ -6,20 +6,24 @@ import io.github.stuff_stuffs.tbcexequipment.common.equipment.data.EquipmentData
 import io.github.stuff_stuffs.tbcexequipment.common.part.Part;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceRBTreeMap;
 import net.minecraft.tag.Tag;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public final class EquipmentType<T extends EquipmentData> {
     private final Text name;
     private final List<Text> description;
+    //Must have consistent iteration order
     private final Map<Identifier, Predicate<@Nullable PartInstance>> partPredicates;
     private final Codec<T> dataCodec;
     private final Codec<EquipmentData> uncheckedCodec;
@@ -67,9 +71,7 @@ public final class EquipmentType<T extends EquipmentData> {
     }
 
     public @Nullable Map<Identifier, PartInstance> fromList(final List<PartInstance> parts) {
-        final Map<Identifier, Predicate<@Nullable PartInstance>> map = new Object2ReferenceRBTreeMap<>(Comparator.comparing(Identifier::getNamespace).thenComparing(Identifier::getPath));
-        map.putAll(partPredicates);
-        final Iterator<Map.Entry<Identifier, Predicate<@Nullable PartInstance>>> iterator = map.entrySet().iterator();
+        final Iterator<Map.Entry<Identifier, Predicate<@Nullable PartInstance>>> iterator = partPredicates.entrySet().iterator();
         final Map<Identifier, PartInstance> mapped = new Object2ReferenceOpenHashMap<>();
         int listIndex = 0;
         while (iterator.hasNext()) {
@@ -91,7 +93,7 @@ public final class EquipmentType<T extends EquipmentData> {
                 }
             }
         }
-        if (listIndex == parts.size() && mapped.size() == map.size()) {
+        if (listIndex == parts.size()) {
             return mapped;
         }
         return null;
@@ -100,8 +102,11 @@ public final class EquipmentType<T extends EquipmentData> {
     public boolean check(final Map<Identifier, PartInstance> partInstances) {
         int checked = 0;
         for (final Map.Entry<Identifier, Predicate<PartInstance>> entry : partPredicates.entrySet()) {
-            checked++;
-            final boolean b = entry.getValue().test(partInstances.get(entry.getKey()));
+            final PartInstance partInstance = partInstances.get(entry.getKey());
+            if(partInstance!=null) {
+                checked++;
+            }
+            final boolean b = entry.getValue().test(partInstance);
             if (!b) {
                 return false;
             }
@@ -117,7 +122,7 @@ public final class EquipmentType<T extends EquipmentData> {
         private final Map<Identifier, Predicate<@Nullable PartInstance>> predicates;
 
         private EquipmentTypeBuilder() {
-            predicates = new Object2ReferenceOpenHashMap<>();
+            predicates = new Object2ReferenceLinkedOpenHashMap<>();
         }
 
         public EquipmentTypeBuilder add(final Identifier partId, final Predicate<PartInstance> predicate) {
@@ -146,7 +151,7 @@ public final class EquipmentType<T extends EquipmentData> {
             if (predicates.size() == 0) {
                 throw new TBCExException("Size 0 equipment");
             }
-            return new EquipmentType<>(name, description, new Object2ReferenceOpenHashMap<>(predicates), dataCodec, initializer);
+            return new EquipmentType<>(name, description, new Object2ReferenceLinkedOpenHashMap<>(predicates), dataCodec, initializer);
         }
     }
 }

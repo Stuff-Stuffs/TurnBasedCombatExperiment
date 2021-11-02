@@ -12,7 +12,6 @@ import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import java.util.List;
 
 public final class EquipmentInstance {
-    private static final Codec<List<PartInstance>> LIST_CODEC = Codec.list(PartInstance.CODEC);
     public static final Codec<EquipmentInstance> CODEC = new Codec<>() {
         @Override
         public <T> DataResult<Pair<EquipmentInstance, T>> decode(final DynamicOps<T> ops, final T input) {
