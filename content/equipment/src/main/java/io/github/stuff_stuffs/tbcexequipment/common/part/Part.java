@@ -3,6 +3,7 @@ package io.github.stuff_stuffs.tbcexequipment.common.part;
 import com.mojang.serialization.Codec;
 import io.github.stuff_stuffs.tbcexequipment.common.creation.PartDataCreationContext;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Material;
+import io.github.stuff_stuffs.tbcexequipment.common.part.data.PartData;
 import net.minecraft.text.Text;
 
 import java.util.List;

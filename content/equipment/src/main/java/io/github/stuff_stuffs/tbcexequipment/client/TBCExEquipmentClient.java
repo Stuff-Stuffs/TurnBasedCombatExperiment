@@ -87,11 +87,9 @@ public class TBCExEquipmentClient implements ClientModInitializer {
                 new MaterialPalette.Entry(new IntRgbColour(0xFF145E53), false, 255)
         ));
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.HANDLE_PART), TBCExEquipment.createId("part/handle"));
-        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.AXE_HEAD_PART), TBCExEquipment.createId("part/axe_head"));
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SWORD_BLADE_PART), TBCExEquipment.createId("part/sword_blade"));
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SIMPLE_SWORD_GUARD_PART), TBCExEquipment.createId("part/simple_guard"));
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.FANCY_SWORD_GUARD), TBCExEquipment.createId("part/fancy_guard"));
         PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SIMPLE_POMMEL), TBCExEquipment.createId("part/simple_pommel"));
-        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.FANCY_POMMEL), TBCExEquipment.createId("part/fancy_pommel"));
     }
 }

@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "tbcexequipment:simple_pommel",
-    "tbcexequipment:fancy_pommel"
+    "tbcexequipment:simple_pommel"
   ]
 }

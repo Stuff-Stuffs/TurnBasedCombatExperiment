@@ -56,7 +56,7 @@ public class PartItemModel implements BakedModel, FabricBakedModel, UnbakedModel
             final PartInstance instance = PartInstance.CODEC.parse(NbtOps.INSTANCE, nbt).getOrThrow(false, s -> {
                 throw new TBCExException(s);
             });
-            final Pair<Material, Part<?>> key = Pair.of(instance.getMaterial(), instance.getPart());
+            final Pair<Material, Part<?>> key = Pair.of(instance.getData().getMaterial(), instance.getPart());
             final Mesh mesh = cache.computeIfAbsent(key, k -> ModelUtil.buildMesh(k, sprites.get(instance.getPart())));
             context.meshConsumer().accept(mesh);
         }

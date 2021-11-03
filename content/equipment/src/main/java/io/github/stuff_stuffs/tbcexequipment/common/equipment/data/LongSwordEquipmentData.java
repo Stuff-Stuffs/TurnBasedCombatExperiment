@@ -7,10 +7,9 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentSlots;
 import io.github.stuff_stuffs.tbcexequipment.common.creation.EquipmentDataCreationContext;
-import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentType;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
-import io.github.stuff_stuffs.tbcexequipment.common.part.PartData;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
+import io.github.stuff_stuffs.tbcexequipment.common.part.data.PartData;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -34,11 +33,6 @@ public class LongSwordEquipmentData extends AbstractEquipmentData {
             sum += data.getRarity().getRarity().getStart() * (1 + data.getRarity().getProgress());
         }
         rarity = BattleParticipantItem.Rarity.find(sum / parts.size());
-    }
-
-    @Override
-    public EquipmentType<?> getType() {
-        return EquipmentTypes.LONG_SWORD_EQUIPMENT;
     }
 
     @Override

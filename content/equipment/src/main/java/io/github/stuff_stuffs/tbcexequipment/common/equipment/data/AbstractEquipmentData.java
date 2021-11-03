@@ -10,13 +10,20 @@ import net.minecraft.util.Identifier;
 import java.util.Map;
 
 public abstract class AbstractEquipmentData implements EquipmentData {
+    protected final EquipmentType<?> type;
     protected final Map<Identifier, PartInstance> parts;
 
-    protected AbstractEquipmentData(final Map<Identifier, PartInstance> parts, EquipmentType<?> type) {
+    protected AbstractEquipmentData(final Map<Identifier, PartInstance> parts, final EquipmentType<?> type) {
+        this.type = type;
         this.parts = parts;
-        if(!type.check(parts)) {
+        if (!type.check(parts)) {
             throw new TBCExException("Invalid equipment setup");
         }
+    }
+
+    @Override
+    public EquipmentType<?> getType() {
+        return type;
     }
 
     @Override

@@ -84,7 +84,7 @@ public class EquipmentItemModel implements BakedModel, FabricBakedModel {
         final List<Mesh> toMerge = new ArrayList<>(parts.size());
         for (final Map.Entry<Identifier, PartInstance> entry : parts.entrySet()) {
             final PartInstance part = entry.getValue();
-            final Mesh m = ModelUtil.buildMesh(Pair.of(part.getMaterial(), part.getPart()), sprites.get(part.getPart()));
+            final Mesh m = ModelUtil.buildMesh(Pair.of(part.getData().getMaterial(), part.getPart()), sprites.get(part.getPart()));
             final PartPlacementInfo info = Models.getPlacementInfo(entry.getKey(), Parts.REGISTRY.getId(part.getPart()));
             toMerge.add(ClientUtil.transform(m, info));
         }
