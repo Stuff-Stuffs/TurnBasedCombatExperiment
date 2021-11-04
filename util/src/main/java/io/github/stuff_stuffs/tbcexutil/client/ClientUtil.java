@@ -37,10 +37,12 @@ public final class ClientUtil implements ClientModInitializer {
     public static final Transformation TRANSFORM_ITEM_GROUND = makeTransform(0, 0, 0, 0, 2, 0, 0.5f, 0.5f, 0.5f);
     public static final Transformation TRANSFORM_ITEM_FIXED = makeTransform(0, 180, 0, 0, 0, 0, 1f, 1f, 1f);
     public static final Transformation TRANSFORM_ITEM_3RD_PERSON_RIGHT = makeTransform(0, 0, 0, 0, 3f, 1, 0.55f, 0.55f, 0.55f);
-    public static final Transformation TRANSFORM_ITEM_1ST_PERSON_RIGHT = makeTransform(0, -90, 0, 1.13f, 3.2f, 1.13f, 0.68f, 0.68f, 0.68f);
+    public static final Transformation TRANSFORM_ITEM_3RD_PERSON_LEFT = makeTransform(0, 0, 0, 0, 3f, 1, 0.55f, 0.55f, 0.55f);
+    public static final Transformation TRANSFORM_ITEM_1ST_PERSON_RIGHT = makeTransform(0, -90, 25, 1.13f, 3.2f, 1.13f, 0.68f, 0.68f, 0.68f);
+    public static final Transformation TRANSFORM_ITEM_1ST_PERSON_LEFT = makeTransform(0, -90, 25, 1.13f, 3.2f, 1.13f, 0.68f, 0.68f, 0.68f);
 
     //TODO fix this
-    public static final ModelTransformation ITEM_TRANSFORMATION = new ModelTransformation(TRANSFORM_ITEM_3RD_PERSON_RIGHT, TRANSFORM_ITEM_3RD_PERSON_RIGHT, TRANSFORM_ITEM_1ST_PERSON_RIGHT, TRANSFORM_ITEM_1ST_PERSON_RIGHT, TRANSFORM_ITEM_HEAD, TRANSFORM_ITEM_GUI, TRANSFORM_ITEM_GROUND, TRANSFORM_ITEM_FIXED);
+    public static final ModelTransformation ITEM_TRANSFORMATION = new ModelTransformation(TRANSFORM_ITEM_3RD_PERSON_LEFT, TRANSFORM_ITEM_3RD_PERSON_RIGHT, TRANSFORM_ITEM_1ST_PERSON_LEFT, TRANSFORM_ITEM_1ST_PERSON_RIGHT, TRANSFORM_ITEM_HEAD, TRANSFORM_ITEM_GUI, TRANSFORM_ITEM_GROUND, TRANSFORM_ITEM_FIXED);
 
     public static final Supplier<Mesh> LAZY_EMPTY_MESH = Suppliers.memoize(() -> RendererAccess.INSTANCE.getRenderer().meshBuilder().build());
 

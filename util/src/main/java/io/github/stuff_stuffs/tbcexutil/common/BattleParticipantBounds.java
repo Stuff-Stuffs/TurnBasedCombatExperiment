@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public final class BattleParticipantBounds implements Iterable<BattleParticipantBounds.Part> {
+    private static final StringInterpolator NON_EXISTENT = new StringInterpolator("Tried to get nonexistent part {}");
     private static final Codec<Part> PART_CODEC = RecordCodecBuilder.create(instance -> instance.group(Identifier.CODEC.fieldOf("name").forGetter(part -> part.name), CodecUtil.BOX_CODEC.fieldOf("box").forGetter(part -> part.box)).apply(instance, Part::new));
     public static final Codec<BattleParticipantBounds> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.unboundedMap(Identifier.CODEC, PART_CODEC).fieldOf("parts").forGetter(bounds -> bounds.parts), CodecUtil.VEC3D_CODEC.fieldOf("center").forGetter(bounds -> bounds.center)).apply(instance, BattleParticipantBounds::new));
 
@@ -133,7 +134,7 @@ public final class BattleParticipantBounds implements Iterable<BattleParticipant
     public Part getPart(final Identifier part) {
         final Part p = parts.get(part);
         if (p == null) {
-            throw new TBCExException("Tried to get non-existant part");
+            throw new TBCExException(NON_EXISTENT.interpolate(part));
         }
         return p;
     }

@@ -123,7 +123,7 @@ public class EquipmentItemModel implements BakedModel, FabricBakedModel {
 
     @Override
     public ModelTransformation getTransformation() {
-        return ModelTransformation.NONE;
+        return ClientUtil.ITEM_TRANSFORMATION;
     }
 
     @Override

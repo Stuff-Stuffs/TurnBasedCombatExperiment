@@ -6,12 +6,11 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.data.EquipmentData;
-import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
+import io.github.stuff_stuffs.tbcexutil.common.StringInterpolator;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 
-import java.util.List;
-
 public final class EquipmentInstance {
+    private static final StringInterpolator MISMATCH = new StringInterpolator("Mismatched equipment {} and data type {}");
     public static final Codec<EquipmentInstance> CODEC = new Codec<>() {
         @Override
         public <T> DataResult<Pair<EquipmentInstance, T>> decode(final DynamicOps<T> ops, final T input) {
@@ -39,7 +38,7 @@ public final class EquipmentInstance {
         this.type = type;
         this.data = data;
         if (type != data.getType()) {
-            throw new TBCExException("Mismatched equipment and data");
+            throw new TBCExException(MISMATCH.interpolate(type, data.getType()));
         }
     }
 

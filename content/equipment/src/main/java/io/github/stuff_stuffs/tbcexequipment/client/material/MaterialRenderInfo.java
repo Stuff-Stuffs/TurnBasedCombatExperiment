@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexequipment.client.material;
 
+import io.github.stuff_stuffs.tbcexutil.common.StringInterpolator;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
@@ -9,6 +10,7 @@ import net.minecraft.util.Identifier;
 import java.util.Map;
 
 public final class MaterialRenderInfo {
+    private static final StringInterpolator ALREADY_PRESENT = new StringInterpolator("Material render info {} already present");
     private static final Map<Identifier, MaterialRenderInfo> RENDER_INFO_MAP = new Object2ReferenceOpenHashMap<>();
     private static final MaterialRenderInfo MISSING;
     private final MaterialPalette palette;
@@ -27,7 +29,7 @@ public final class MaterialRenderInfo {
 
     public static void register(final Identifier id, final MaterialPalette palette) {
         if (RENDER_INFO_MAP.put(id, new MaterialRenderInfo(palette)) != null) {
-            throw new TBCExException("Material render info already present");
+            throw new TBCExException(ALREADY_PRESENT.interpolate(id));
         }
     }
 
