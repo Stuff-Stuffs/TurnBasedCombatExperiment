@@ -18,7 +18,7 @@ public final class ParticipantActionInstance {
     private final BattleStateView battleState;
     private final BattleParticipantHandle user;
     private final List<TargetInstance> list;
-    private TargetType nextTargetType;
+    private TargetType<?> nextTargetType;
 
     public ParticipantActionInstance(final ParticipantActionInfo info, final BattleStateView battleState, final BattleParticipantHandle user) {
         this.info = info;
@@ -32,7 +32,7 @@ public final class ParticipantActionInstance {
         return user;
     }
 
-    public @Nullable TargetType getNextType() {
+    public @Nullable TargetType<?> getNextType() {
         return nextTargetType;
     }
 
@@ -66,14 +66,14 @@ public final class ParticipantActionInstance {
     }
 
     public void render(@Nullable final TargetInstance targeted, final float tickDelta) {
-        final Set<TargetType> types = new ObjectOpenHashSet<>();
+        final Set<TargetType<?>> types = new ObjectOpenHashSet<>();
         for (final TargetInstance instance : list) {
             types.add(instance.getType());
         }
         if (targeted != null) {
             types.add(targeted.getType());
         }
-        for (final TargetType type : types) {
+        for (final TargetType<?> type : types) {
             type.render(targeted, list, user, battleState, tickDelta);
         }
         if (nextTargetType != null) {

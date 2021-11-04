@@ -1,5 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleParticipantItemRenderer;
 import io.github.stuff_stuffs.tbcexcore.client.render.battle.BattleRendererRegistry;
@@ -96,6 +98,7 @@ public class BattleInventoryPreviewWidget extends AbstractWidget {
         final double y = position.getY();
         final double width = this.width.getAsDouble();
         final double height = this.height.getAsDouble();
+        RenderSystem.disableCull();
         render(vertexConsumers -> {
             matrices.push();
             final double scale = Math.min(width, height * (1 - infoFraction));

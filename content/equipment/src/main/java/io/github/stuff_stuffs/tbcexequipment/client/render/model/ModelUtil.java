@@ -3,11 +3,9 @@ package io.github.stuff_stuffs.tbcexequipment.client.render.model;
 import com.mojang.datafixers.util.Pair;
 import io.github.stuff_stuffs.tbcexequipment.client.material.MaterialPalette;
 import io.github.stuff_stuffs.tbcexequipment.client.material.MaterialRenderInfo;
-import io.github.stuff_stuffs.tbcexequipment.client.part.PartRenderInfo;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Material;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Materials;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Part;
-import io.github.stuff_stuffs.tbcexequipment.common.part.Parts;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
@@ -17,17 +15,13 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.client.texture.SpriteAtlasTexture;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 
-import java.util.Map;
 import java.util.function.Function;
 
 public final class ModelUtil {
-    public static Mesh buildMesh(final Pair<Material, Part<?>> key, final boolean[][] mask, Function<MaterialPalette.EntryType, Sprite> partSpriteGetter) {
+    public static Mesh buildMesh(final Pair<Material, Part<?>> key, final boolean[][] mask, final Function<MaterialPalette.EntryType, Sprite> partSpriteGetter) {
         int maxSize = 0;
         for (final MaterialPalette.EntryType type : MaterialPalette.EntryType.values()) {
             final Sprite sprite = partSpriteGetter.apply(type);
@@ -168,7 +162,7 @@ public final class ModelUtil {
     private ModelUtil() {
     }
 
-    public static Mesh buildMesh(final Pair<Material, Part<?>> key, Function<MaterialPalette.EntryType, Sprite> partSpriteGetter) {
+    public static Mesh buildMesh(final Pair<Material, Part<?>> key, final Function<MaterialPalette.EntryType, Sprite> partSpriteGetter) {
         return buildMesh(key, new boolean[][]{{true}}, partSpriteGetter);
     }
 }

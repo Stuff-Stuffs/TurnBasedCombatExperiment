@@ -3,12 +3,17 @@ package io.github.stuff_stuffs.tbcexequipment.common.battle.equipment;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantState;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentType;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentInstance;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -33,6 +38,13 @@ public class EquipmentBattleEquipment implements BattleEquipment {
     @Override
     public void initEvents(final BattleParticipantState state, final BattleEquipmentSlot slot) {
         equipmentInstance.getData().initEvents(state, slot);
+    }
+
+    @Override
+    public List<ParticipantAction> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView, final BattleEquipmentSlot slot) {
+        final List<ParticipantAction> actions = new ArrayList<>(equipmentInstance.getData().getActions(stateView, participantView, slot));
+        actions.add(BattleEquipment.createUnequipAction(participantView, slot));
+        return actions;
     }
 
     @Override

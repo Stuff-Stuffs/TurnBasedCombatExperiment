@@ -27,9 +27,15 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget {
     private final ParentWidget panel;
     private boolean shouldClose = false;
 
-    public BattleInventoryActionSelectionWidget(final WidgetPosition position, final BattleStateView battleState, final BattleParticipantHandle handle, final Battle battle, final List<ParticipantAction> actions) {
+    public BattleInventoryActionSelectionWidget(WidgetPosition position, final BattleStateView battleState, final BattleParticipantHandle handle, final Battle battle, final List<ParticipantAction> actions) {
         this.position = position;
         this.handle = handle;
+        final double v = position.getY() + (0.15 * actions.size() + 0.05);
+        if (v < 0) {
+            position = WidgetPosition.combine(position, WidgetPosition.of(0, 0.15 * actions.size() + 0.05, 0));
+        } else if (v > 1) {
+            position = WidgetPosition.combine(position, WidgetPosition.of(0, -(0.15 * actions.size() + 0.05), 0));
+        }
         panel = new BasicPanelWidget(position, () -> false, () -> 2, 0.25, 0.15 * actions.size() + 0.05);
         int index = 0;
         for (final ParticipantAction action : actions) {

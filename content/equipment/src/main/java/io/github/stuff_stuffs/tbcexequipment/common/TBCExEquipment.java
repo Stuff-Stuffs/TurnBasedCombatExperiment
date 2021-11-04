@@ -50,6 +50,7 @@ public class TBCExEquipment implements ModInitializer {
         EquipmentTypes.init();
         BattleEquipmentSlots.init();
         Registry.register(BattleEquipmentType.REGISTRY, TBCExEquipment.createId("equipment"), EQUIPMENT_BATTLE_EQUIPMENT_TYPE);
+        Registry.register(BattleParticipantItemType.REGISTRY, TBCExEquipment.createId("equipment"), EQUIPMENT_INSTANCE_ITEM_TYPE);
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(MATERIAL_STAT_MANAGER);
         ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> MATERIAL_STAT_MANAGER.sync(sender));

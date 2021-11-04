@@ -49,9 +49,6 @@ public enum BasicMovements implements MovementType {
             final BlockPos startPos = BlockPos.CODEC.parse(ops, mapLike.get("start_pos")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
-            final HorizontalDirection direction = HorizontalDirection.CODEC.parse(ops, mapLike.get("direction")).getOrThrow(false, s -> {
-                throw new RuntimeException(s);
-            });
             final boolean validEnding = Codec.BOOL.parse(ops, mapLike.get("valid_ending")).getOrThrow(false, s -> {
                 throw new RuntimeException(s);
             });
