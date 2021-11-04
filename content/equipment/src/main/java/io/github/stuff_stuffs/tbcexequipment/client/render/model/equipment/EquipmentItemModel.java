@@ -1,13 +1,10 @@
 package io.github.stuff_stuffs.tbcexequipment.client.render.model.equipment;
 
-import com.mojang.datafixers.util.Pair;
-import io.github.stuff_stuffs.tbcexequipment.client.material.MaterialPalette;
-import io.github.stuff_stuffs.tbcexequipment.client.render.model.ModelUtil;
+import io.github.stuff_stuffs.tbcexequipment.client.part.PartRenderInfo;
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.Models;
 import io.github.stuff_stuffs.tbcexequipment.client.render.model.part.PartPlacementInfo;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentInstance;
 import io.github.stuff_stuffs.tbcexequipment.common.item.EquipmentInstanceItem;
-import io.github.stuff_stuffs.tbcexequipment.common.part.Part;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Parts;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
@@ -35,12 +32,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class EquipmentItemModel implements BakedModel, FabricBakedModel {
-    private final Map<Part<?>, Map<MaterialPalette.EntryType, Sprite>> sprites;
     private final Object2ReferenceLinkedOpenHashMap<ItemStack, Mesh> cache = new Object2ReferenceLinkedOpenHashMap<>(512);
-
-    public EquipmentItemModel(final Map<Part<?>, Map<MaterialPalette.EntryType, Sprite>> sprites) {
-        this.sprites = sprites;
-    }
 
     @Override
     public boolean isVanillaAdapter() {
@@ -84,7 +76,7 @@ public class EquipmentItemModel implements BakedModel, FabricBakedModel {
         final List<Mesh> toMerge = new ArrayList<>(parts.size());
         for (final Map.Entry<Identifier, PartInstance> entry : parts.entrySet()) {
             final PartInstance part = entry.getValue();
-            final Mesh m = ModelUtil.buildMesh(Pair.of(part.getData().getMaterial(), part.getPart()), sprites.get(part.getPart()));
+            final Mesh m = PartRenderInfo.get(Parts.REGISTRY.getId(part.getPart())).build(part);
             final PartPlacementInfo info = Models.getPlacementInfo(entry.getKey(), Parts.REGISTRY.getId(part.getPart()));
             toMerge.add(ClientUtil.transform(m, info));
         }

@@ -1,11 +1,11 @@
 package io.github.stuff_stuffs.tbcexequipment.client.render.model.part;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.stuff_stuffs.tbcexequipment.client.material.MaterialPalette;
-import io.github.stuff_stuffs.tbcexequipment.client.render.model.ModelUtil;
+import io.github.stuff_stuffs.tbcexequipment.client.part.PartRenderInfo;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Material;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Part;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
+import io.github.stuff_stuffs.tbcexequipment.common.part.Parts;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -32,12 +32,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class PartItemModel implements BakedModel, FabricBakedModel, UnbakedModel {
-    private final Map<Part<?>, Map<MaterialPalette.EntryType, Sprite>> sprites;
-    private final Map<Pair<Material, Part<?>>, Mesh> cache = new Object2ReferenceOpenHashMap<>();
-
-    public PartItemModel(Map<Part<?>, Map<MaterialPalette.EntryType, Sprite>> sprites) {
-        this.sprites = sprites;
-    }
 
     @Override
     public boolean isVanillaAdapter() {
@@ -56,8 +50,7 @@ public class PartItemModel implements BakedModel, FabricBakedModel, UnbakedModel
             final PartInstance instance = PartInstance.CODEC.parse(NbtOps.INSTANCE, nbt).getOrThrow(false, s -> {
                 throw new TBCExException(s);
             });
-            final Pair<Material, Part<?>> key = Pair.of(instance.getData().getMaterial(), instance.getPart());
-            final Mesh mesh = cache.computeIfAbsent(key, k -> ModelUtil.buildMesh(k, sprites.get(instance.getPart())));
+            final Mesh mesh = PartRenderInfo.get(Parts.REGISTRY.getId(instance.getPart())).build(instance);
             context.meshConsumer().accept(mesh);
         }
     }

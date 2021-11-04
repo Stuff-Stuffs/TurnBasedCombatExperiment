@@ -27,13 +27,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 public final class ModelUtil {
-    public static Mesh buildMesh(final Pair<Material, Part<?>> key, final boolean[][] mask, Map<MaterialPalette.EntryType, Sprite> sprites) {
-        final Function<Identifier, Sprite> atlas = MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
-        final Part<?> part = key.getSecond();
-        final PartRenderInfo partRenderInfo = PartRenderInfo.get(Parts.REGISTRY.getId(part));
+    public static Mesh buildMesh(final Pair<Material, Part<?>> key, final boolean[][] mask, Function<MaterialPalette.EntryType, Sprite> partSpriteGetter) {
         int maxSize = 0;
         for (final MaterialPalette.EntryType type : MaterialPalette.EntryType.values()) {
-            final Sprite sprite = atlas.apply(partRenderInfo.getTexture(type));
+            final Sprite sprite = partSpriteGetter.apply(type);
             if (sprite.getWidth() != sprite.getHeight()) {
                 throw new TBCExException("Non square part mask!");
             }
@@ -48,7 +45,7 @@ public final class ModelUtil {
         final MaterialRenderInfo materialRenderInfo = MaterialRenderInfo.get(Materials.REGISTRY.getId(material));
         final int maskFactor = maxSize > mask.length ? maxSize / mask.length : mask.length / maxSize;
         for (final MaterialPalette.EntryType type : MaterialPalette.EntryType.values()) {
-            final Sprite sprite = atlas.apply(partRenderInfo.getTexture(type));
+            final Sprite sprite = partSpriteGetter.apply(type);
             final int width = sprite.getWidth();
             final int height = sprite.getHeight();
             for (int i = 0; i < maxSize; i++) {
@@ -64,7 +61,7 @@ public final class ModelUtil {
         final MeshBuilder meshBuilder = RendererAccess.INSTANCE.getRenderer().meshBuilder();
         final QuadEmitter quadEmitter = meshBuilder.getEmitter();
         for (final MaterialPalette.EntryType type : MaterialPalette.EntryType.values()) {
-            final Sprite sprite = sprites.get(type);
+            final Sprite sprite = partSpriteGetter.apply(type);
             final MaterialPalette.Entry entry = materialRenderInfo.getPalette().getEntry(type);
             final Colour colour = entry.colour();
             final int alpha = entry.alpha();
@@ -171,7 +168,7 @@ public final class ModelUtil {
     private ModelUtil() {
     }
 
-    public static Mesh buildMesh(final Pair<Material, Part<?>> key, Map<MaterialPalette.EntryType, Sprite> sprites) {
-        return buildMesh(key, new boolean[][]{{true}}, sprites);
+    public static Mesh buildMesh(final Pair<Material, Part<?>> key, Function<MaterialPalette.EntryType, Sprite> partSpriteGetter) {
+        return buildMesh(key, new boolean[][]{{true}}, partSpriteGetter);
     }
 }

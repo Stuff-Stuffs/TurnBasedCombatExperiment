@@ -86,10 +86,10 @@ public class TBCExEquipmentClient implements ClientModInitializer {
                 new MaterialPalette.Entry(new IntRgbColour(0xFF1AAAA7), false, 255),
                 new MaterialPalette.Entry(new IntRgbColour(0xFF145E53), false, 255)
         ));
-        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.HANDLE_PART), TBCExEquipment.createId("part/handle"));
-        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SWORD_BLADE_PART), TBCExEquipment.createId("part/sword_blade"));
-        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SIMPLE_SWORD_GUARD_PART), TBCExEquipment.createId("part/simple_guard"));
-        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.FANCY_SWORD_GUARD), TBCExEquipment.createId("part/fancy_guard"));
-        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SIMPLE_POMMEL), TBCExEquipment.createId("part/simple_pommel"));
+        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.HANDLE_PART), PartRenderInfo.createBasicMesher(TBCExEquipment.createId("part/handle")));
+        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SWORD_BLADE_PART), PartRenderInfo.createBasicMesher(TBCExEquipment.createId("part/sword_blade")));
+        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SIMPLE_SWORD_GUARD_PART), PartRenderInfo.createBasicMesher(TBCExEquipment.createId("part/simple_guard")));
+        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.FANCY_SWORD_GUARD), PartRenderInfo.createBasicMesher(TBCExEquipment.createId("part/fancy_guard")));
+        PartRenderInfo.register(Parts.REGISTRY.getId(Parts.SIMPLE_POMMEL), PartRenderInfo.createBasicMesher(TBCExEquipment.createId("part/simple_pommel")));
     }
 }
