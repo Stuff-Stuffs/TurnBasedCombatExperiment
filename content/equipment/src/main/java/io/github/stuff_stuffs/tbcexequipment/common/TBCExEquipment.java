@@ -6,6 +6,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equi
 import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentSlots;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.EquipmentBattleEquipment;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.item.ParticipantEquipmentInstanceItem;
+import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentActions;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
 import io.github.stuff_stuffs.tbcexequipment.common.item.EquipmentInstanceItem;
 import io.github.stuff_stuffs.tbcexequipment.common.item.Items;
@@ -51,6 +52,7 @@ public class TBCExEquipment implements ModInitializer {
         BattleEquipmentSlots.init();
         Registry.register(BattleEquipmentType.REGISTRY, TBCExEquipment.createId("equipment"), EQUIPMENT_BATTLE_EQUIPMENT_TYPE);
         Registry.register(BattleParticipantItemType.REGISTRY, TBCExEquipment.createId("equipment"), EQUIPMENT_INSTANCE_ITEM_TYPE);
+        EquipmentActions.init();
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(MATERIAL_STAT_MANAGER);
         ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> MATERIAL_STAT_MANAGER.sync(sender));

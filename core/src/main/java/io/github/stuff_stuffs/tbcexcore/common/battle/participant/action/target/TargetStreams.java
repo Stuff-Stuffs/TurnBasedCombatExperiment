@@ -11,6 +11,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -51,6 +53,13 @@ public final class TargetStreams {
             }
             return state;
         }
+    }
+
+    public static BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BattleParticipantHandle>> setupParticipantContext(Function<Context, Iterable<BattleParticipantHandle>> function) {
+        return (battleView, self) -> {
+            Context context = new Context(battleView, self);
+            return function.apply(context);
+        };
     }
 
     public static Stream<BattleParticipantHandle> getParticipantStream(final Context context, final boolean includeSelf) {

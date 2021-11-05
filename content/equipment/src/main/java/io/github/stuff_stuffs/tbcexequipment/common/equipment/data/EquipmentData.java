@@ -20,10 +20,6 @@ import java.util.Set;
 public interface EquipmentData {
     EquipmentType<?> getType();
 
-    default List<ParticipantAction> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView, final BattleEquipmentSlot slot) {
-        return Collections.emptyList();
-    }
-
     boolean validSlot(BattleEquipmentSlot slot);
 
     Set<BattleEquipmentSlot> getBlockedSlots();

@@ -22,6 +22,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 @Mixin(PlayerEntity.class)
@@ -45,7 +47,11 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
 
     @Override
     public Iterable<ItemStack> tbcex_getInventory() {
-        return Iterables.concat(inventory.armor, inventory.main, inventory.offHand);
+        List<ItemStack> stacks = new ArrayList<>();
+        stacks.addAll(inventory.main);
+        stacks.set(inventory.selectedSlot, ItemStack.EMPTY);
+        stacks.addAll(inventory.armor);
+        return stacks;
     }
 
     @Override

@@ -10,7 +10,10 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equi
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
+import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentActions;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentInstance;
+import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentType;
+import io.github.stuff_stuffs.tbcexequipment.common.equipment.data.EquipmentData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +45,13 @@ public class EquipmentBattleEquipment implements BattleEquipment {
 
     @Override
     public List<ParticipantAction> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView, final BattleEquipmentSlot slot) {
-        final List<ParticipantAction> actions = new ArrayList<>(equipmentInstance.getData().getActions(stateView, participantView, slot));
+        final List<ParticipantAction> actions = new ArrayList<>(thunk(equipmentInstance.getType(), equipmentInstance.getData(), stateView, participantView, slot));
         actions.add(BattleEquipment.createUnequipAction(participantView, slot));
         return actions;
+    }
+
+    private static <T extends EquipmentData> List<ParticipantAction> thunk(final EquipmentType<T> type, final EquipmentData data, final BattleStateView stateView, final BattleParticipantStateView participantView, final BattleEquipmentSlot slot) {
+        return EquipmentActions.getActions(type, (T) data, stateView, participantView, slot);
     }
 
     @Override

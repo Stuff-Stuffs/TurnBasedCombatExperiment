@@ -2,44 +2,30 @@ package io.github.stuff_stuffs.tbcexequipment.common.equipment.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.stuff_stuffs.tbcexcore.common.battle.action.BasicAttackBattleAction;
-import io.github.stuff_stuffs.tbcexcore.common.battle.action.BattleAction;
-import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamageComposition;
-import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamagePacket;
-import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamageSource;
-import io.github.stuff_stuffs.tbcexcore.common.battle.damage.BattleDamageType;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.SingleTargetParticipantActionInfo;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.ParticipantTargetType;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetStreams;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItem;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemCategory;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentSlots;
 import io.github.stuff_stuffs.tbcexequipment.common.creation.EquipmentDataCreationContext;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
 import io.github.stuff_stuffs.tbcexequipment.common.part.data.PartData;
-import io.github.stuff_stuffs.tbcexequipment.common.part.data.SwordBladePartData;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class LongSwordEquipmentData extends AbstractEquipmentData {
+    public static final Identifier POMMEL_PART = TBCExEquipment.createId("long_sword_pommel");
+    public static final Identifier HANDLE_PART = TBCExEquipment.createId("long_sword_handle");
+    public static final Identifier GUARD_PART = TBCExEquipment.createId("long_sword_guard");
+    public static final Identifier BLADE_PART = TBCExEquipment.createId("long_sword_blade");
     public static final Codec<LongSwordEquipmentData> CODEC = RecordCodecBuilder.create(instance -> instance.group(Codec.unboundedMap(Identifier.CODEC, PartInstance.CODEC).fieldOf("parts").forGetter(data -> data.parts)).apply(instance, LongSwordEquipmentData::new));
     public static final Function<EquipmentDataCreationContext, LongSwordEquipmentData> INITIALIZER = ctx -> new LongSwordEquipmentData(ctx.getParts());
 
@@ -55,46 +41,20 @@ public class LongSwordEquipmentData extends AbstractEquipmentData {
         rarity = BattleParticipantItem.Rarity.find(sum / parts.size());
     }
 
-    @Override
-    public List<ParticipantAction> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView, final BattleEquipmentSlot slot) {
-        return List.of(new ParticipantAction() {
-            @Override
-            public Text getName() {
-                return new LiteralText("Melee Attack");
-            }
+    public @Nullable PartInstance getPommel() {
+        return parts.get(POMMEL_PART);
+    }
 
-            @Override
-            public List<TooltipComponent> getTooltip() {
-                return List.of(TooltipComponent.of(new LiteralText("Basic melee attack with a base damage of " + ((SwordBladePartData) parts.get(TBCExEquipment.createId("long_sword_blade")).getData()).getBaseDamage()).asOrderedText()));
-            }
+    public PartInstance getHandle() {
+        return parts.get(HANDLE_PART);
+    }
 
-            @Override
-            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
-                return new ParticipantActionInstance(
-                        new SingleTargetParticipantActionInfo<>(
-                                new ParticipantTargetType(
-                                        (battleState1, handle1) -> {
-                                            final TargetStreams.Context context = new TargetStreams.Context(battleState1, handle1);
-                                            return () -> TargetStreams.getParticipantStream(context, false).filter(TargetStreams.team(context, false)).filter(TargetStreams.withinRange(context, 1)).iterator();
-                                        }
-                                ),
-                                (battleState12, user, target) ->
-                                        new BasicAttackBattleAction(
-                                                user,
-                                                target.getHandle(),
-                                                new BattleDamagePacket(
-                                                        BattleDamageComposition.builder().addWeight(BattleDamageType.PHYSICAL, 1).build(),
-                                                        new BattleDamageSource(Optional.of(user)),
-                                                        ((SwordBladePartData) parts.get(TBCExEquipment.createId("long_sword_blade")).getData()).getBaseDamage()
-                                                ),
-                                                1
-                                        ),
-                                sender,
-                                List.of()
-                        ), battleState, handle
-                );
-            }
-        }, BattleEquipment.createUnequipAction(participantView, slot));
+    public @Nullable PartInstance getGuard() {
+        return parts.get(GUARD_PART);
+    }
+
+    public PartInstance getBlade() {
+        return parts.get(BLADE_PART);
     }
 
     @Override
