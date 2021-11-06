@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "tbcexequipment:wood",
+    "tbcexequipment:stone",
+    "tbcexequipment:iron",
+    "tbcexequipment:copper",
+    "tbcexequipment:gold",
+    "tbcexequipment:diamond"
+  ]
+}
