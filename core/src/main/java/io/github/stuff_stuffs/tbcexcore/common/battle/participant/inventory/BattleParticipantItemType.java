@@ -6,6 +6,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
+import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.registry.Registry;
@@ -18,29 +19,7 @@ import java.util.function.Function;
 
 public final class BattleParticipantItemType {
     public static final Registry<BattleParticipantItemType> REGISTRY = FabricRegistryBuilder.createSimple(BattleParticipantItemType.class, TBCExCore.createId("items")).buildAndRegister();
-    public static final Codec<BattleParticipantItem> CODEC = new Codec<>() {
-        @Override
-        public <T> DataResult<Pair<BattleParticipantItem, T>> decode(final DynamicOps<T> ops, final T input) {
-            final MapLike<T> map = ops.getMap(input).getOrThrow(false, s -> {
-                throw new RuntimeException(s);
-            });
-            final BattleParticipantItemType type = REGISTRY.parse(ops, map.get("type")).getOrThrow(false, s -> {
-                throw new RuntimeException(s);
-            });
-            return type.codec.decode(ops, map.get("data"));
-        }
-
-        @Override
-        public <T> DataResult<T> encode(final BattleParticipantItem input, final DynamicOps<T> ops, final T prefix) {
-            return ops.mapBuilder().add(
-                    "type",
-                    REGISTRY.encodeStart(ops, input.getType())
-            ).add(
-                    "data",
-                    input.getType().codec.encodeStart(ops, input)
-            ).build(prefix);
-        }
-    };
+    public static final Codec<BattleParticipantItem> CODEC = CodecUtil.createDependentPairCodecFirst(REGISTRY, type -> type.codec, BattleParticipantItem::getType);
     private final Codec<BattleParticipantItem> codec;
     private final BiPredicate<BattleParticipantItemStack, BattleParticipantItemStack> canMerge;
     private final BinaryOperator<BattleParticipantItemStack> merger;

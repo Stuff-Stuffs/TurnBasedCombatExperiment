@@ -30,6 +30,7 @@ public class SwordBladePartData extends AbstractPartData {
     }
 
     //TODO config
+    //TODO base damage composition modifiers?
     public double getBaseDamage() {
         final double hardness = TBCExEquipment.MATERIAL_STAT_MANAGER.get(material, MaterialStats.HARDNESS);
         final double edgeRetention = TBCExEquipment.MATERIAL_STAT_MANAGER.get(material, MaterialStats.EDGE_RETENTION);

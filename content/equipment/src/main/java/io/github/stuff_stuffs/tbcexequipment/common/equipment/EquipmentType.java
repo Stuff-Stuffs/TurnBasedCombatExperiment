@@ -29,7 +29,7 @@ public final class EquipmentType<T extends EquipmentData> {
     private final Codec<EquipmentData> uncheckedCodec;
     private final Function<EquipmentDataCreationContext, T> initializer;
 
-    public EquipmentType(final Text name, final List<Text> description, final Map<Identifier, Predicate<@Nullable PartInstance>> partPredicate, final Codec<T> dataCodec, final Function<EquipmentDataCreationContext, T> initializer) {
+    private EquipmentType(final Text name, final List<Text> description, final Map<Identifier, Predicate<@Nullable PartInstance>> partPredicate, final Codec<T> dataCodec, final Function<EquipmentDataCreationContext, T> initializer) {
         this.name = name;
         this.description = description;
         partPredicates = partPredicate;

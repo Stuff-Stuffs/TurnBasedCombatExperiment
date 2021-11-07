@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexutil.common;
 
 import com.google.gson.JsonElement;
+import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -11,6 +12,8 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public final class CodecUtil {
     public static final Codec<Text> TEXT_CODEC = new Codec<>() {
@@ -112,5 +115,79 @@ public final class CodecUtil {
         })).getOrThrow(false, s -> {
             throw new RuntimeException(s);
         });
+    }
+
+    public static <L, R> Codec<Pair<L, R>> createDependentPairCodec(final Codec<L> leftCodec, final DependentEncoder<L, R> rightEncoder, final DependentDecoder<L, R> rightDecoder) {
+        return new Codec<>() {
+            @Override
+            public <T> DataResult<Pair<Pair<L, R>, T>> decode(final DynamicOps<T> ops, final T input) {
+                final MapLike<T> mapLike = ops.getMap(input).getOrThrow(false, s -> {
+                    throw new TBCExException(s);
+                });
+                final Either<L, DataResult.PartialResult<L>> leftResultOrError = leftCodec.parse(ops, mapLike.get("left")).get();
+                final Optional<DataResult.PartialResult<L>> leftError = leftResultOrError.right();
+                if (leftError.isPresent()) {
+                    return DataResult.error(leftError.get().message());
+                }
+                final Optional<L> leftResult = leftResultOrError.left();
+                if (leftResult.isEmpty()) {
+                    throw new TBCExException("Either is empty");
+                }
+                final L left = leftResult.get();
+                final Either<R, DataResult.PartialResult<R>> rightResultOrError = rightDecoder.decode(left, mapLike.get("right"), ops).get();
+                final Optional<DataResult.PartialResult<R>> rightError = rightResultOrError.right();
+                if (rightError.isPresent()) {
+                    return DataResult.error(rightError.get().message());
+                }
+                final Optional<R> rightResult = rightResultOrError.left();
+                if (rightResult.isEmpty()) {
+                    throw new TBCExException("Either is empty");
+                }
+                final R right = rightResult.get();
+                return DataResult.success(Pair.of(Pair.of(left, right), ops.empty()));
+            }
+
+            @Override
+            public <T> DataResult<T> encode(final Pair<L, R> input, final DynamicOps<T> ops, final T prefix) {
+                if (!ops.empty().equals(prefix)) {
+                    throw new TBCExException("Prefix not allowed");
+                }
+                return ops.mapBuilder().add("left", input.getFirst(), leftCodec).add("right", rightEncoder.encode(input.getFirst(), input.getSecond(), ops)).build(ops.empty());
+            }
+        };
+    }
+
+    public static <L, R> Codec<R> createDependentPairCodecFirst(final Codec<L> leftCodec, final DependentEncoder<L, R> rightEncoder, final DependentDecoder<L, R> rightDecoder, final Function<R, L> leftExtractor) {
+        return createDependentPairCodec(leftCodec, rightEncoder, rightDecoder).xmap(Pair::getSecond, v -> Pair.of(leftExtractor.apply(v), v));
+    }
+
+    public static <L, R> Codec<Pair<L, R>> createDependentPairCodec(final Codec<L> leftCodec, final Function<L, Codec<R>> rightCodecExtractor) {
+        return createDependentPairCodec(leftCodec, new DependentEncoder<>() {
+            @Override
+            public <T> DataResult<T> encode(final L coValue, final R value, final DynamicOps<T> ops) {
+                return rightCodecExtractor.apply(coValue).encodeStart(ops, value);
+            }
+        }, new DependentDecoder<>() {
+            @Override
+            public <T> DataResult<R> decode(final L coValue, final T value, final DynamicOps<T> ops) {
+                return rightCodecExtractor.apply(coValue).parse(ops, value);
+            }
+        });
+    }
+
+    public static <L, R, T> Codec<T> createDependentPairCodec(final Codec<L> leftCodec, final Function<L, Codec<R>> rightCodecExtractor, final Function<T, L> leftExtractor, final Function<T, R> rightExtractor, final BiFunction<L, R, T> combiner) {
+        return createDependentPairCodec(leftCodec, rightCodecExtractor).xmap(p -> combiner.apply(p.getFirst(), p.getSecond()), v -> Pair.of(leftExtractor.apply(v), rightExtractor.apply(v)));
+    }
+
+    public static <L, R> Codec<R> createDependentPairCodecFirst(final Codec<L> leftCodec, final Function<L, Codec<R>> rightCodecExtractor, final Function<R, L> leftExtractor) {
+        return createDependentPairCodec(leftCodec, rightCodecExtractor).xmap(Pair::getSecond, v -> Pair.of(leftExtractor.apply(v), v));
+    }
+
+    public interface DependentEncoder<L, R> {
+        <T> DataResult<T> encode(L coValue, R value, DynamicOps<T> ops);
+    }
+
+    public interface DependentDecoder<L, R> {
+        <T> DataResult<R> decode(L coValue, T value, DynamicOps<T> ops);
     }
 }
