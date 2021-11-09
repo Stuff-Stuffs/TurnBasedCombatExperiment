@@ -52,6 +52,40 @@ public final class BattleShapeCache {
         return participant.getBounds();
     }
 
+    public boolean rayCast(Vec3d start, Vec3d end, BattleParticipantHandle... exclusions) {
+        final Iterator<BattleParticipantHandle> participants = getParticipants();
+        while (participants.hasNext()) {
+            final BattleParticipantHandle next = participants.next();
+            boolean excluded = false;
+            for (final BattleParticipantHandle exclusion : exclusions) {
+                if (exclusion.equals(next)) {
+                    excluded = true;
+                    break;
+                }
+            }
+            if(!excluded) {
+                final BattleParticipantBounds shape = getShape(next);
+                final BattleParticipantBounds.RaycastResult raycast = shape.raycast(start, end);
+                if(raycast!=null) {
+                    return false;
+                }
+            }
+        }
+        final Vec3d target = end;
+        final HitResult hitResult = MathUtil.rayCast(start, target, pos -> {
+            final VoxelShape shape = getShape(pos);
+            if (shape == VoxelShapes.empty() || shape.isEmpty()) {
+                return null;
+            }
+            final BlockHitResult raycast = shape.raycast(start, target, pos);
+            if (raycast != null && raycast.getType() != HitResult.Type.MISS) {
+                return raycast;
+            }
+            return null;
+        });
+        return hitResult == null || hitResult.getType() == HitResult.Type.MISS;
+    }
+
     public boolean canSeeAny(final Vec3d eyePos, final Vec3d[] targets, final BattleParticipantHandle... exclusions) {
         final Iterator<BattleParticipantHandle> participants = getParticipants();
         final boolean[] blocked = new boolean[targets.length];

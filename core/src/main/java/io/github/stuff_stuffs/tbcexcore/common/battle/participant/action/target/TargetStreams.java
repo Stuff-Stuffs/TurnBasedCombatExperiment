@@ -5,6 +5,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
+import io.github.stuff_stuffs.tbcexutil.common.MathUtil;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -55,9 +56,9 @@ public final class TargetStreams {
         }
     }
 
-    public static BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BattleParticipantHandle>> setupParticipantContext(Function<Context, Iterable<BattleParticipantHandle>> function) {
+    public static BiFunction<BattleStateView, BattleParticipantHandle, Iterable<BattleParticipantHandle>> setupParticipantContext(final Function<Context, Iterable<BattleParticipantHandle>> function) {
         return (battleView, self) -> {
-            Context context = new Context(battleView, self);
+            final Context context = new Context(battleView, self);
             return function.apply(context);
         };
     }
@@ -82,24 +83,17 @@ public final class TargetStreams {
         return handle -> context.getState(handle).getBounds().stream().map(p -> p.box).anyMatch(box -> canViewBox(center, box, context, context.self, handle));
     }
 
-    //TODO this might be too expensive, especially in case of mcts
-    private static boolean canViewBox(final Vec3d start, final Box box, final Context context, final BattleParticipantHandle... exclusions) {
-        return context.battle.getShapeCache().canSeeAny(start, getPoints(box), exclusions);
+    public static Predicate<BattleParticipantHandle> projectileVisibleParticipant(final Context context, final Identifier eyePart, final double velocity) {
+        final BattleParticipantBounds.Part part = context.getSelfState().getBounds().getPart(eyePart);
+        final Vec3d center = part.box.getCenter();
+        return handle -> context.getState(handle).getBounds().stream().map(p -> p.box).anyMatch(box -> ProjectileUtil.getLaunchAngles(center, velocity, box).anyMatch(launchInfo -> ProjectileUtil.raycastArc(center, launchInfo, context.battle.getShapeCache(), context.self)));
     }
 
-    private static Vec3d[] getPoints(final Box box) {
-        return new Vec3d[]{
-                new Vec3d(box.minX, box.minY, box.minZ),
-                new Vec3d(box.minX, box.minY, box.maxZ),
-                new Vec3d(box.minX, box.maxY, box.minZ),
-                new Vec3d(box.minX, box.maxY, box.maxZ),
-                new Vec3d(box.maxX, box.minY, box.minZ),
-                new Vec3d(box.maxX, box.minY, box.maxZ),
-                new Vec3d(box.maxX, box.maxY, box.minZ),
-                new Vec3d(box.maxX, box.maxY, box.maxZ),
-                box.getCenter()
-        };
+    //TODO this might be too expensive, especially in case of mcts
+    private static boolean canViewBox(final Vec3d start, final Box box, final Context context, final BattleParticipantHandle... exclusions) {
+        return context.battle.getShapeCache().canSeeAny(start, MathUtil.getPoints(box), exclusions);
     }
+
 
     public static Stream<BlockPos> getFloorPositions(final Context context, final int range) {
         final BlockPos pos = context.getSelfState().getPos();
@@ -130,6 +124,15 @@ public final class TargetStreams {
         final BattleParticipantBounds.Part part = context.getSelfState().getBounds().getPart(eyePart);
         final Vec3d center = part.box.getCenter();
         return pos -> canViewBox(center, new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1), context);
+    }
+
+    public static Predicate<BlockPos> projectileVisiblePos(final Context context, final Identifier eyePart, final double velocity) {
+        final BattleParticipantBounds.Part part = context.getSelfState().getBounds().getPart(eyePart);
+        final Vec3d center = part.box.getCenter();
+        return pos -> {
+            final Box box = new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
+            return ProjectileUtil.getLaunchAngles(center, velocity, box).anyMatch(launchInfo -> ProjectileUtil.raycastArc(center, launchInfo, context.battle.getShapeCache(), context.self));
+        };
     }
 
     public static Predicate<BattleParticipantHandle> team(final Context context, final boolean same) {

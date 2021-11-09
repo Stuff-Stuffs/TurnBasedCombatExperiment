@@ -1,9 +1,12 @@
 package io.github.stuff_stuffs.tbcexutil.common;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
@@ -12,6 +15,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
+import java.util.stream.DoubleStream;
 
 public final class MathUtil {
     private MathUtil() {
@@ -118,5 +122,19 @@ public final class MathUtil {
             }
         }
         return null;
+    }
+
+    public static Vec3d[] getPoints(final Box box) {
+        return new Vec3d[]{
+                new Vec3d(box.minX, box.minY, box.minZ),
+                new Vec3d(box.minX, box.minY, box.maxZ),
+                new Vec3d(box.minX, box.maxY, box.minZ),
+                new Vec3d(box.minX, box.maxY, box.maxZ),
+                new Vec3d(box.maxX, box.minY, box.minZ),
+                new Vec3d(box.maxX, box.minY, box.maxZ),
+                new Vec3d(box.maxX, box.maxY, box.minZ),
+                new Vec3d(box.maxX, box.maxY, box.maxZ),
+                box.getCenter()
+        };
     }
 }
