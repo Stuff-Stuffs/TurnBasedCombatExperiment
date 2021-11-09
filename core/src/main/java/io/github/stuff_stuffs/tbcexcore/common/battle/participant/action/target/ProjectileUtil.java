@@ -9,6 +9,7 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public final class ProjectileUtil {
@@ -47,24 +48,32 @@ public final class ProjectileUtil {
         return list.stream();
     }
 
-    public static boolean raycastArc(final Vec3d startPos, final LaunchInfo launchInfo, final BattleShapeCache cache, final BattleParticipantHandle... exclusions) {
-        final double cosYaw = MathHelper.cos((float) launchInfo.yaw);
-        final double sinYaw = MathHelper.sin((float) launchInfo.yaw);
-        final double cosAngle = MathHelper.cos((float) launchInfo.pitch);
-        final double sinAngle = MathHelper.sin((float) launchInfo.pitch);
-        final double length = launchInfo.unNormalizedDiff.horizontalLength();
-        final double maxT = length / (launchInfo.velocity * cosAngle);
-        double i = 0;
-        while ((i + 1) < Math.abs(maxT)) {
-            final double t1 = i;
-            final double t2 = i + Math.signum(maxT) * 1;
-            final Vec3d start = new Vec3d(startPos.x + t1 * launchInfo.velocity * cosAngle * cosYaw, startPos.y + t1 * launchInfo.velocity * sinAngle, startPos.z + t1 * launchInfo.velocity * cosAngle * sinYaw);
-            final Vec3d end = new Vec3d(startPos.x + t2 * launchInfo.velocity * cosAngle * cosYaw, startPos.y + t2 * launchInfo.velocity * sinAngle, startPos.z + t2 * launchInfo.velocity * cosAngle * sinYaw);
-            final boolean rayCast = cache.rayCast(start, end, exclusions);
-            if (!rayCast) {
+    public static Function<LaunchInfo, List<Vec3d>> createArcFunction(final Vec3d startPos) {
+        return launchInfo -> {
+            final double cosYaw = MathHelper.cos((float) launchInfo.yaw);
+            final double sinYaw = MathHelper.sin((float) launchInfo.yaw);
+            final double cosAngle = MathHelper.cos((float) launchInfo.pitch);
+            final double sinAngle = MathHelper.sin((float) launchInfo.pitch);
+            final double length = launchInfo.unNormalizedDiff.horizontalLength();
+            final double maxT = length / (launchInfo.velocity * cosAngle);
+            final List<Vec3d> arc = new ArrayList<>((int) Math.ceil(Math.abs(maxT)));
+            double i = 0;
+            while (i < Math.abs(maxT)) {
+                final Vec3d point = new Vec3d(startPos.x + i * launchInfo.velocity * cosAngle * cosYaw, startPos.y + i * launchInfo.velocity * sinAngle, startPos.z + i * launchInfo.velocity * cosAngle * sinYaw);
+                arc.add(point);
+                i += 1;
+            }
+            return arc;
+        };
+    }
+
+    public static boolean raycastArc(final List<Vec3d> arc, final BattleShapeCache cache, final BattleParticipantHandle... exclusions) {
+        for (int i = 0; i < arc.size() - 1; i++) {
+            final Vec3d start = arc.get(i);
+            final Vec3d end = arc.get(i + 1);
+            if (!cache.rayCast(start, end, exclusions)) {
                 return false;
             }
-            i += 1;
         }
         return true;
     }

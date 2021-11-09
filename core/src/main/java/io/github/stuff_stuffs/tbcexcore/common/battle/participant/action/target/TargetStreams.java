@@ -86,7 +86,7 @@ public final class TargetStreams {
     public static Predicate<BattleParticipantHandle> projectileVisibleParticipant(final Context context, final Identifier eyePart, final double velocity) {
         final BattleParticipantBounds.Part part = context.getSelfState().getBounds().getPart(eyePart);
         final Vec3d center = part.box.getCenter();
-        return handle -> context.getState(handle).getBounds().stream().map(p -> p.box).anyMatch(box -> ProjectileUtil.getLaunchAngles(center, velocity, box).anyMatch(launchInfo -> ProjectileUtil.raycastArc(center, launchInfo, context.battle.getShapeCache(), context.self)));
+        return handle -> context.getState(handle).getBounds().stream().map(p -> p.box).anyMatch(box -> ProjectileUtil.getLaunchAngles(center, velocity, box).map(ProjectileUtil.createArcFunction(center)).anyMatch(l -> ProjectileUtil.raycastArc(l, context.battle.getShapeCache(), context.self)));
     }
 
     //TODO this might be too expensive, especially in case of mcts
@@ -131,7 +131,7 @@ public final class TargetStreams {
         final Vec3d center = part.box.getCenter();
         return pos -> {
             final Box box = new Box(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1);
-            return ProjectileUtil.getLaunchAngles(center, velocity, box).anyMatch(launchInfo -> ProjectileUtil.raycastArc(center, launchInfo, context.battle.getShapeCache(), context.self));
+            return ProjectileUtil.getLaunchAngles(center, velocity, box).map(ProjectileUtil.createArcFunction(center)).anyMatch(l -> ProjectileUtil.raycastArc(l, context.battle.getShapeCache(), context.self));
         };
     }
 
