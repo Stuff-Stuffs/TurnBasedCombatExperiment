@@ -5,6 +5,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Material;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Part;
+import io.github.stuff_stuffs.tbcexequipment.common.part.stats.PartStat;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -17,6 +18,8 @@ public interface PartData {
 
     default void deinitEvents() {
     }
+
+    double getOrCalculateStat(PartStat stat);
 
     Text getName();
 

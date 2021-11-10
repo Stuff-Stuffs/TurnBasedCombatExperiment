@@ -19,6 +19,7 @@ import io.github.stuff_stuffs.tbcexutil.common.Easing;
 import io.github.stuff_stuffs.tbcexutil.common.LoggerUtil;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
+import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
@@ -173,11 +174,13 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
             final Map<Identifier, SkeletonData> skeletonDatas = new Object2ReferenceOpenHashMap<>();
             for (final Identifier resourceId : skeletonDataResources) {
                 try {
-                    final SkeletonData skeletonData = SkeletonDataLoader.fromResource(manager.getResource(resourceId));
+                    final Resource resource = manager.getResource(resourceId);
+                    final SkeletonData skeletonData = SkeletonDataLoader.fromResource(resource);
                     if (skeletonData != null) {
                         final Identifier canonical = new Identifier(resourceId.getNamespace(), resourceId.getPath().substring("tbcex_models/skeleton/data".length() + 1, resourceId.getPath().lastIndexOf('.')));
                         skeletonDatas.put(canonical, skeletonData);
                     }
+                    resource.close();
                 } catch (final Exception e) {
                     LoggerUtil.LOGGER.error("Error while deserializing SkeletonData", e);
                 }
@@ -188,10 +191,12 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
             for (final Identifier resourceId : animationResources) {
                 try {
                     final Identifier canonical = new Identifier(resourceId.getNamespace(), resourceId.getPath().substring("tbcex_models/animation/keyframe".length() + 1, resourceId.getPath().lastIndexOf('.')));
-                    final Map<Identifier, KeyframeAnimationData> animations = KeyframeDataLoader.getAnimations(canonical, manager.getResource(resourceId));
+                    final Resource resource = manager.getResource(resourceId);
+                    final Map<Identifier, KeyframeAnimationData> animations = KeyframeDataLoader.getAnimations(canonical, resource);
                     if (animations != null) {
                         animationDatas.putAll(animations);
                     }
+                    resource.close();
                 } catch (final Exception e) {
                     LoggerUtil.LOGGER.error("Error while deserializing keyframe animation data", e);
                 }
@@ -201,11 +206,13 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
             final Map<Identifier, CompoundAnimationData> compoundAnimationDatas = new Object2ReferenceOpenHashMap<>();
             for (final Identifier resourceId : compoundAnimationResources) {
                 try {
-                    final CompoundAnimationData data = CompoundAnimationLoader.fromResource(manager.getResource(resourceId));
+                    final Resource resource = manager.getResource(resourceId);
+                    final CompoundAnimationData data = CompoundAnimationLoader.fromResource(resource);
                     if (data != null) {
                         final Identifier canonical = new Identifier(resourceId.getNamespace(), resourceId.getPath().substring("tbcex_models/animation/compound".length() + 1, resourceId.getPath().lastIndexOf('.')));
                         compoundAnimationDatas.put(canonical, data);
                     }
+                    resource.close();
                 } catch (final Exception e) {
                     LoggerUtil.LOGGER.error("Error while deserializing bundled parts", e);
                 }
@@ -216,10 +223,12 @@ public final class ModelManager implements SimpleResourceReloadListener<ModelMan
             for (final Identifier resourceId : bundledModelPartResources) {
                 final Identifier canonical = new Identifier(resourceId.getNamespace(), resourceId.getPath().substring("tbcex_models/model/bundle".length() + 1, resourceId.getPath().lastIndexOf('.')));
                 try {
-                    final ModelPartBundle bundle = ModelPartBundleLoader.fromResource(manager.getResource(resourceId));
+                    final Resource resource = manager.getResource(resourceId);
+                    final ModelPartBundle bundle = ModelPartBundleLoader.fromResource(resource);
                     if (bundle != null) {
                         bundledParts.put(canonical, bundle);
                     }
+                    resource.close();
                 } catch (final Exception e) {
                     LoggerUtil.LOGGER.error("Error while deserializing bundled parts", e);
                 }

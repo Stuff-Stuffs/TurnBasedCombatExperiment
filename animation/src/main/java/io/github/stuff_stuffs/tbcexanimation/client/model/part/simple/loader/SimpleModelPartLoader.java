@@ -6,6 +6,7 @@ import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleMode
 import io.github.stuff_stuffs.tbcexanimation.client.model.part.simple.SimpleModelPartMaterial;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
@@ -18,7 +19,8 @@ import java.util.Map;
 //Based on HavenKing's Myron library
 public final class SimpleModelPartLoader {
     public static SimpleModelPartFactory load(final Identifier identifier, final ResourceManager resourceManager) throws IOException {
-        final Obj obj = ObjReader.read(resourceManager.getResource(identifier).getInputStream());
+        final Resource resource = resourceManager.getResource(identifier);
+        final Obj obj = ObjReader.read(resource.getInputStream());
         final Map<String, SimpleModelPartMaterial> materials = getMaterials(resourceManager, identifier, obj);
         final SimpleModelPartFactory.Builder builder = SimpleModelPartFactory.builder();
         final SimpleModelPartFactory.Builder.FaceEmitter emitter = builder.getEmitter();
@@ -67,6 +69,7 @@ public final class SimpleModelPartLoader {
                 emitter.emit();
             }
         }
+        resource.close();
         return builder.build();
     }
 
@@ -77,7 +80,9 @@ public final class SimpleModelPartLoader {
             path = path.substring(0, path.lastIndexOf('/') + 1) + s;
             final Identifier resource = new Identifier(identifier.getNamespace(), path);
             if (resourceManager.containsResource(resource)) {
-                SimpleModelPartMaterialReader.read(new BufferedReader(new InputStreamReader(resourceManager.getResource(resource).getInputStream()))).forEach(material -> materials.put(material.getName(), material));
+                final Resource res = resourceManager.getResource(resource);
+                SimpleModelPartMaterialReader.read(new BufferedReader(new InputStreamReader(res.getInputStream()))).forEach(material -> materials.put(material.getName(), material));
+                res.close();
             }
         }
         return materials;

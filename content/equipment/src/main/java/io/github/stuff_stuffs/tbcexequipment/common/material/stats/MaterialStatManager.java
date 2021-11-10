@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
@@ -25,7 +26,7 @@ import java.util.function.Function;
 
 public final class MaterialStatManager implements SimpleSynchronousResourceReloadListener {
     public static final Identifier CHANNEL_ID = TBCExEquipment.createId("material_stat_sync");
-    private static final Identifier ID = TBCExEquipment.createId("material_stats");
+    public static final Identifier ID = TBCExEquipment.createId("material_stats");
     private static final Gson GSON = new GsonBuilder().registerTypeHierarchyAdapter(Wrapper.class, new WrapperDeserializer()).registerTypeHierarchyAdapter(UnbakedContainer.class, new UnbakedDeserializer()).create();
     private final Map<Material, Container> containers = new Reference2ObjectOpenHashMap<>();
     private final Map<Identifier, MaterialStat> stats = new Object2ReferenceOpenHashMap<>();
@@ -85,12 +86,13 @@ public final class MaterialStatManager implements SimpleSynchronousResourceReloa
     public void reload(final ResourceManager manager) {
         final Collection<Identifier> resourceIds = manager.findResources("tbcex/material/stats", s -> s.endsWith(".json"));
         final Map<Identifier, UnbakedContainer> unbakedContainers = new Object2ReferenceOpenHashMap<>();
-        for (Material material : Materials.REGISTRY) {
+        for (final Material material : Materials.REGISTRY) {
             unbakedContainers.put(Materials.REGISTRY.getId(material), new UnbakedContainer(new Object2DoubleOpenHashMap<>()));
         }
         for (final Identifier resourceId : resourceIds) {
             try {
-                final Wrapper wrapper = GSON.fromJson(new BufferedReader(new InputStreamReader(manager.getResource(resourceId).getInputStream())), Wrapper.class);
+                final Resource resource = manager.getResource(resourceId);
+                final Wrapper wrapper = GSON.fromJson(new BufferedReader(new InputStreamReader(resource.getInputStream())), Wrapper.class);
                 unbakedContainers.compute(wrapper.getMaterial(), (id, container) -> {
                     if (container == null) {
                         return wrapper.getUnbakedContainer();
@@ -98,6 +100,7 @@ public final class MaterialStatManager implements SimpleSynchronousResourceReloa
                         return container.merge(wrapper.getUnbakedContainer());
                     }
                 });
+                resource.close();
             } catch (final IOException e) {
                 LoggerUtil.LOGGER.error("Cannot access resource {}", resourceId);
             }
