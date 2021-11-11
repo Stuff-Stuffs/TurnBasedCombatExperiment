@@ -61,7 +61,7 @@ public final class ProjectileUtil {
             while (i < Math.abs(maxT)) {
                 final Vec3d point = new Vec3d(startPos.x + i * launchInfo.velocity * cosAngle * cosYaw, startPos.y + i * launchInfo.velocity * sinAngle, startPos.z + i * launchInfo.velocity * cosAngle * sinYaw);
                 arc.add(point);
-                i += 1;
+                i += Math.min(1, maxT - i);
             }
             return arc;
         };

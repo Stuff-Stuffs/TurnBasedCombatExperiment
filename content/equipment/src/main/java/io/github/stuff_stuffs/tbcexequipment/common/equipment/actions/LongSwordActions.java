@@ -13,9 +13,11 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.SingleT
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.ParticipantTargetType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetStreams;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
+import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentActions;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
-import io.github.stuff_stuffs.tbcexequipment.common.part.data.SwordBladePartData;
+import io.github.stuff_stuffs.tbcexequipment.common.part.stats.PartStatContext;
+import io.github.stuff_stuffs.tbcexequipment.common.part.stats.PartStats;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -27,7 +29,7 @@ import java.util.function.Consumer;
 public final class LongSwordActions {
     public static void init() {
         EquipmentActions.register(EquipmentTypes.LONG_SWORD_EQUIPMENT, (data, battleState, handle, slot) -> {
-            final double damage = ((SwordBladePartData) data.getBlade().getData()).getBaseDamage();
+            final double damage = TBCExEquipment.PART_STAT_MANAGER.get(data.getBlade().getData(), PartStats.LONG_SWORD_BLADE_DAMAGE, PartStatContext.of(data));
             return new ParticipantAction() {
                 @Override
                 public Text getName() {

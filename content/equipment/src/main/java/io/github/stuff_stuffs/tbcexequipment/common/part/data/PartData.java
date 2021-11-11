@@ -19,8 +19,6 @@ public interface PartData {
     default void deinitEvents() {
     }
 
-    double getOrCalculateStat(PartStat stat);
-
     Text getName();
 
     List<Text> getDescription();

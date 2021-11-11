@@ -6,8 +6,9 @@ import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 import io.github.stuff_stuffs.tbcexequipment.common.creation.PartDataCreationContext;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Material;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Materials;
-import io.github.stuff_stuffs.tbcexequipment.common.material.stats.MaterialStats;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Parts;
+import io.github.stuff_stuffs.tbcexequipment.common.part.stats.PartStatContext;
+import io.github.stuff_stuffs.tbcexequipment.common.part.stats.PartStats;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -29,15 +30,6 @@ public class SwordBladePartData extends AbstractPartData {
         super(Parts.SWORD_BLADE_PART, ctx.getMaterial(), ctx.getLevel());
     }
 
-    //TODO config
-    //TODO base damage composition modifiers?
-    public double getBaseDamage() {
-        final double hardness = TBCExEquipment.MATERIAL_STAT_MANAGER.get(material, MaterialStats.HARDNESS);
-        final double edgeRetention = TBCExEquipment.MATERIAL_STAT_MANAGER.get(material, MaterialStats.EDGE_RETENTION);
-        final double weight = TBCExEquipment.MATERIAL_STAT_MANAGER.get(material, MaterialStats.WEIGHT);
-        return Math.floor((hardness * level * 0.15 + edgeRetention * level * 0.3 + weight / 5.0) * 10.0) / 10.0;
-    }
-
     @Override
     public Text getName() {
         return material.getName().copy().append(new LiteralText(" ")).append(new LiteralText("Sword Blade")).setStyle(Style.EMPTY.withColor(getRarity().rarity().getColour()));
@@ -46,7 +38,7 @@ public class SwordBladePartData extends AbstractPartData {
     @Override
     public List<Text> getDescription() {
         final List<Text> texts = new ArrayList<>();
-        texts.add(new LiteralText("Base damage: " + getBaseDamage()));
+        texts.add(new LiteralText("Base damage: " + TBCExEquipment.PART_STAT_MANAGER.get(this, PartStats.LONG_SWORD_BLADE_DAMAGE, PartStatContext.empty())));
         return texts;
     }
 }

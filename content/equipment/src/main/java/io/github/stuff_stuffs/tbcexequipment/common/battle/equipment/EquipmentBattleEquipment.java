@@ -61,6 +61,6 @@ public class EquipmentBattleEquipment implements BattleEquipment {
 
     @Override
     public BattleEquipmentType getType() {
-        return TBCExEquipment.EQUIPMENT_BATTLE_EQUIPMENT_TYPE;
+        return BattleEquipmentTypes.EQUIPMENT_BATTLE_EQUIPMENT_TYPE;
     }
 }

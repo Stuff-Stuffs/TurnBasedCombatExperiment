@@ -7,7 +7,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.Partici
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipment;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
-import io.github.stuff_stuffs.tbcexequipment.common.TBCExEquipment;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.EquipmentBattleEquipment;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentInstance;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
@@ -37,7 +36,7 @@ public class ParticipantEquipmentInstanceItem implements BattleParticipantEquipm
 
     @Override
     public BattleParticipantItemType getType() {
-        return TBCExEquipment.EQUIPMENT_INSTANCE_ITEM_TYPE;
+        return BattleEquipmentItemTypes.EQUIPMENT_INSTANCE_ITEM_TYPE;
     }
 
     @Override

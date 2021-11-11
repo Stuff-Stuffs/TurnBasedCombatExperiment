@@ -1,14 +1,10 @@
 package io.github.stuff_stuffs.tbcexequipment.common;
 
 import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemType;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentType;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentSlots;
-import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.EquipmentBattleEquipment;
-import io.github.stuff_stuffs.tbcexequipment.common.battle.item.ParticipantEquipmentInstanceItem;
+import io.github.stuff_stuffs.tbcexequipment.common.battle.item.BattleEquipmentItemTypes;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentActions;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
-import io.github.stuff_stuffs.tbcexequipment.common.item.EquipmentInstanceItem;
 import io.github.stuff_stuffs.tbcexequipment.common.item.Items;
 import io.github.stuff_stuffs.tbcexequipment.common.material.MaterialTags;
 import io.github.stuff_stuffs.tbcexequipment.common.material.Materials;
@@ -16,30 +12,19 @@ import io.github.stuff_stuffs.tbcexequipment.common.material.stats.MaterialStatM
 import io.github.stuff_stuffs.tbcexequipment.common.material.stats.MaterialStats;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartTags;
 import io.github.stuff_stuffs.tbcexequipment.common.part.Parts;
+import io.github.stuff_stuffs.tbcexequipment.common.part.stats.PartStatManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.ItemStack;
 import net.minecraft.resource.ResourceType;
-import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-
-import java.util.List;
 
 public class TBCExEquipment implements ModInitializer {
     public static final String MOD_ID = "tbcexequipment";
-    public static final BattleParticipantItemType EQUIPMENT_INSTANCE_ITEM_TYPE = new BattleParticipantItemType(ParticipantEquipmentInstanceItem.CODEC, (i, j) -> false, (i, j) -> {
-        throw new UnsupportedOperationException();
-    }, itemStack -> {
-        final ItemStack stack = new ItemStack(Items.EQUIPMENT_INSTANCE, itemStack.getCount());
-        stack.setSubNbt(EquipmentInstanceItem.INSTANCE_KEY, ((ParticipantEquipmentInstanceItem) itemStack.getItem()).toNbt());
-        return List.of(stack);
-    });
-    public static final BattleEquipmentType EQUIPMENT_BATTLE_EQUIPMENT_TYPE = new BattleEquipmentType(new LiteralText("Equipment"), EquipmentBattleEquipment.CODEC);
     public static final MaterialStatManager MATERIAL_STAT_MANAGER = new MaterialStatManager();
+    public static final PartStatManager PART_STAT_MANAGER = new PartStatManager();
 
     @Override
     public void onInitialize() {
@@ -50,8 +35,7 @@ public class TBCExEquipment implements ModInitializer {
         PartTags.init();
         EquipmentTypes.init();
         BattleEquipmentSlots.init();
-        Registry.register(BattleEquipmentType.REGISTRY, TBCExEquipment.createId("equipment"), EQUIPMENT_BATTLE_EQUIPMENT_TYPE);
-        Registry.register(BattleParticipantItemType.REGISTRY, TBCExEquipment.createId("equipment"), EQUIPMENT_INSTANCE_ITEM_TYPE);
+        BattleEquipmentItemTypes.init();
         EquipmentActions.init();
 
         ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(MATERIAL_STAT_MANAGER);
