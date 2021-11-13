@@ -43,7 +43,7 @@ public class ToolPartsRecipe extends SpecialCraftingRecipe {
                 }));
             }
         }
-        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.fromList(partInstances)!=null).findAny();
+        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.fromList(partInstances)!=null).findFirst();
         return any.isPresent();
     }
 
@@ -62,7 +62,7 @@ public class ToolPartsRecipe extends SpecialCraftingRecipe {
                 }));
             }
         }
-        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.fromList(partInstances)!=null).findAny();
+        final Optional<EquipmentType<?>> any = EquipmentTypes.REGISTRY.stream().filter(type -> type.fromList(partInstances)!=null).findFirst();
         if (any.isEmpty()) {
             return ItemStack.EMPTY;
         }

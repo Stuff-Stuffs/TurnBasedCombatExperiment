@@ -43,12 +43,18 @@ public final class LongSwordActions {
 
                 @Override
                 public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
-                    return new ParticipantActionInstance(new SingleTargetParticipantActionInfo<>(new ParticipantTargetType(TargetStreams.setupParticipantContext(ctx -> TargetStreams.getParticipantStream(ctx, false).filter(TargetStreams.withinRange(ctx, 1.5)).toList())), new SingleTargetParticipantActionInfo.SimpleAction<ParticipantTargetType.ParticipantTargetInstance>() {
-                        @Override
-                        public BattleAction<?> apply(final BattleStateView battleState, final BattleParticipantHandle user, final ParticipantTargetType.ParticipantTargetInstance target) {
-                            return new BasicAttackBattleAction(user, target.getHandle(), new BattleDamagePacket(BattleDamageComposition.builder().addWeight(BattleDamageType.PHYSICAL, 1).build(), new BattleDamageSource(Optional.of(user)), damage), 1);
-                        }
-                    }, sender, List.of()), battleState, handle);
+                    return new ParticipantActionInstance(
+                            new SingleTargetParticipantActionInfo<>(
+                                    new ParticipantTargetType(
+                                            TargetStreams.setupParticipantContext(ctx -> TargetStreams.getParticipantStream(ctx, false).filter(TargetStreams.withinRange(ctx, 1.5)).toList())
+                                    ),
+                                    (battleState1, user, target) -> new BasicAttackBattleAction(user, target.getHandle(), new BattleDamagePacket(BattleDamageComposition.builder().addWeight(BattleDamageType.PHYSICAL, 1).build(), new BattleDamageSource(Optional.of(user)), damage), 1),
+                                    sender,
+                                    List.of()
+                            ),
+                            battleState,
+                            handle
+                    );
                 }
             };
         });
