@@ -31,6 +31,7 @@ import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialRecipeSerializer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -51,6 +52,7 @@ public class Test implements ModInitializer {
     public static final BattleParticipantItemType TEST_ITEM_TYPE = new BattleParticipantItemType(TestBattleParticipantItem.CODEC, TestBattleParticipantItem.CAN_MERGE, TestBattleParticipantItem.MERGER, TestBattleParticipantItem.TO_ITEM_STACK);
     public static final BattleParticipantItemType TEST_SWORD_ITEM_TYPE = new BattleParticipantItemType(TestSwordBattleParticipantItem.CODEC, (i, j) -> false, (i, j) -> null, i -> List.of(new ItemStack(TEST_SWORD_ITEM, i.getCount())));
     public static final BattleParticipantItemType TEST_BOW_ITEM_TYPE = new BattleParticipantItemType(TestBowBattleParticipantItem.CODEC, (i, j) -> false, (i, j) -> null, i -> List.of(new ItemStack(TEST_BOW_ITEM, i.getCount())));
+    public static final RecipeSerializer<?> TOOL_PARTS_SERIALIZER = new SpecialRecipeSerializer<>(ToolPartsRecipe::new);
 
     @Override
     public void onInitialize() {
@@ -63,7 +65,7 @@ public class Test implements ModInitializer {
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_weapon"), TEST_SWORD_ITEM_TYPE);
         Registry.register(BattleParticipantItemType.REGISTRY, new Identifier("tbcextest", "test_bow"), TEST_BOW_ITEM_TYPE);
 
-        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier("tbcextest", "parts"), new SpecialRecipeSerializer<>(ToolPartsRecipe::new));
+        Registry.register(Registry.RECIPE_SERIALIZER, new Identifier("tbcextest", "parts"), TOOL_PARTS_SERIALIZER);
 
         EntityTypes.init();
         CommandRegistrationCallback.EVENT.register(Test::register);

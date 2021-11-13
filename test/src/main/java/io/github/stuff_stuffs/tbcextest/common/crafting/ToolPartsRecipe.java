@@ -8,6 +8,7 @@ import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
 import io.github.stuff_stuffs.tbcexequipment.common.item.EquipmentInstanceItem;
 import io.github.stuff_stuffs.tbcexequipment.common.item.Items;
 import io.github.stuff_stuffs.tbcexequipment.common.part.PartInstance;
+import io.github.stuff_stuffs.tbcextest.common.Test;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
@@ -85,6 +86,6 @@ public class ToolPartsRecipe extends SpecialCraftingRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return null;
+        return Test.TOOL_PARTS_SERIALIZER;
     }
 }
