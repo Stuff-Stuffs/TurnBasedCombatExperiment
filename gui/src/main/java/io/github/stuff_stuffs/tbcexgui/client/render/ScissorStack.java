@@ -12,7 +12,7 @@ public final class ScissorStack {
     private static final Stack<Entry> STACK = new ObjectArrayList<>();
 
     public static void push(final MatrixStack matrices, final double minX, final double minY, final double maxX, final double maxY) {
-        push(matrices.peek().getModel(), minX, minY, maxX, maxY);
+        push(matrices.peek().getPositionMatrix(), minX, minY, maxX, maxY);
     }
 
     public static void push(final Matrix4f model, final double minX, final double minY, final double maxX, final double maxY) {

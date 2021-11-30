@@ -97,7 +97,12 @@ public class BattleHudHealthWidget extends AbstractWidget {
                         final Vec3d topCenter = max.box.getCenter().add(0, max.box.getYLength() / 2.0 + 0.5, 0);
                         final double health = participant.getHealth();
                         final double maxHealth = participant.getStat(BattleParticipantStat.MAX_HEALTH_STAT);
-                        final double percent = health / maxHealth;
+                        final double percent;
+                        if (maxHealth == 0) {
+                            percent = 0;
+                        } else {
+                            percent = Math.min(health / maxHealth, 1);
+                        }
                         final HsvColour colour = new HsvColour((float) MathHelper.lerp(percent, 0, 128), 1, 1);
                         final VertexConsumerProvider vertexConsumers = context.consumers();
                         final MatrixStack matrixStack = context.matrixStack();

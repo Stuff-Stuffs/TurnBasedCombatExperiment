@@ -1,7 +1,9 @@
 package io.github.stuff_stuffs.tbcexequipment.common;
 
 import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentType;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentSlots;
+import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentTypes;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.item.BattleEquipmentItemTypes;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentActions;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
@@ -35,6 +37,7 @@ public class TBCExEquipment implements ModInitializer {
         PartTags.init();
         EquipmentTypes.init();
         BattleEquipmentSlots.init();
+        BattleEquipmentTypes.init();
         BattleEquipmentItemTypes.init();
         EquipmentActions.init();
 

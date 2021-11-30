@@ -177,8 +177,8 @@ public final class ModelBoneInstance {
                 final Vec3d start = boneLine.getFirst();
                 final Vec3d end = boneLine.getSecond();
                 final Vec3d normal = end.subtract(start).normalize();
-                buffer.vertex(matrices.peek().getModel(), (float) start.x, (float) start.y, (float) start.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), (float) normal.x, (float) normal.y, (float) normal.z).next();
-                buffer.vertex(matrices.peek().getModel(), (float) end.x, (float) end.y, (float) end.z).color(255, 255, 255, 255).normal(matrices.peek().getNormal(), (float) normal.x, (float) normal.y, (float) normal.z).next();
+                buffer.vertex(matrices.peek().getPositionMatrix(), (float) start.x, (float) start.y, (float) start.z).color(255, 255, 255, 255).normal(matrices.peek().getNormalMatrix(), (float) normal.x, (float) normal.y, (float) normal.z).next();
+                buffer.vertex(matrices.peek().getPositionMatrix(), (float) end.x, (float) end.y, (float) end.z).color(255, 255, 255, 255).normal(matrices.peek().getNormalMatrix(), (float) normal.x, (float) normal.y, (float) normal.z).next();
             }
         } else {
             for (final ModelPart part : parts.values()) {

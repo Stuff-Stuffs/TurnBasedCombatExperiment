@@ -91,7 +91,7 @@ public abstract class AbstractWidget implements Widget {
     }
 
     protected void renderTooltip(final MatrixStack matrices, final List<TooltipComponent> components, final double x, final double y) {
-        TooltipRenderer.render(components, x, y, horizontalPixel, verticalPixel, pixelWidth, pixelHeight, matrices.peek().getModel());
+        TooltipRenderer.render(components, x, y, horizontalPixel, verticalPixel, pixelWidth, pixelHeight, matrices.peek().getPositionMatrix());
     }
 
     public void renderTooltipBackground(final double x, final double y, final double width, final double height, final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {
@@ -140,9 +140,9 @@ public abstract class AbstractWidget implements Widget {
         final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         if (center) {
             final float middle = textRenderer.getWidth(text) / 2.0f;
-            textRenderer.draw(text, -middle, 0, colour.pack(alpha), shadow, matrices.peek().getModel(), vertexConsumer, false, backgroundColour.pack(backgroundAlpha), light);
+            textRenderer.draw(text, -middle, 0, colour.pack(alpha), shadow, matrices.peek().getPositionMatrix(), vertexConsumer, false, backgroundColour.pack(backgroundAlpha), light);
         } else {
-            textRenderer.draw(text, 0, 0, colour.pack(alpha), shadow, matrices.peek().getModel(), vertexConsumer, false, backgroundColour.pack(backgroundAlpha), light);
+            textRenderer.draw(text, 0, 0, colour.pack(alpha), shadow, matrices.peek().getPositionMatrix(), vertexConsumer, false, backgroundColour.pack(backgroundAlpha), light);
         }
     }
 

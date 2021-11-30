@@ -11,15 +11,12 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStats;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
-import io.github.stuff_stuffs.tbcexutil.common.HorizontalDirection;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +31,7 @@ public final class ParticipantComponents {
 
     public static final Type<ParticipantPosComponent, ParticipantPosComponentView> POS_COMPONENT_TYPE = new Type<>((entity, battleStateView) -> {
         final BlockPos pos = ((Entity) entity).getBlockPos();
-        final BattleParticipantBounds bounds = entity.getBounds().withCenter(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        final BattleParticipantBounds bounds = entity.tbcex_getBounds().withCenter(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         return new ParticipantPosComponent(pos, bounds);
     }, ParticipantPosComponent.CODEC, ParticipantComponentKey.get(ParticipantPosComponent.class, ParticipantPosComponentView.class), Set.of());
 
@@ -53,7 +50,7 @@ public final class ParticipantComponents {
             ((Entity) entity).remove(Entity.RemovalReason.DISCARDED);
             return new ParticipantRestoreComponent(Optional.of(compound), ((Entity) entity).getPos());
         }
-        entity.onBattleJoin(battleParticipantStateView.getBattleState().getHandle());
+        entity.tbcex_onBattleJoin(battleParticipantStateView.getBattleState().getHandle());
         return new ParticipantRestoreComponent(Optional.empty(), ((Entity) entity).getPos());
     }, ParticipantRestoreComponent.CODEC, ParticipantComponentKey.get(ParticipantRestoreComponent.class, ParticipantRestoreComponent.class), Set.of());
 

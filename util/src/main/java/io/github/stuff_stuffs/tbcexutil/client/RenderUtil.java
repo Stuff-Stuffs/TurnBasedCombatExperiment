@@ -50,7 +50,7 @@ public final class RenderUtil {
     }
 
     public static VertexConsumer position(final VertexConsumer vertexConsumer, final double x, final double y, final double z, final MatrixStack matrices) {
-        vertexConsumer.vertex(matrices.peek().getModel(), (float) x, (float) y, (float) z);
+        vertexConsumer.vertex(matrices.peek().getPositionMatrix(), (float) x, (float) y, (float) z);
         return vertexConsumer;
     }
 
@@ -69,7 +69,7 @@ public final class RenderUtil {
     public static VertexConsumer lineNormal(final VertexConsumer vertexConsumer, final Vec3d first, final Vec3d second, final MatrixStack matrices) {
         Vec3d norm = second.subtract(first);
         norm = norm.multiply(MathHelper.fastInverseSqrt(norm.lengthSquared()));
-        vertexConsumer.normal(matrices.peek().getNormal(), (float) norm.x, (float) norm.y, (float) norm.z);
+        vertexConsumer.normal(matrices.peek().getNormalMatrix(), (float) norm.x, (float) norm.y, (float) norm.z);
         return vertexConsumer;
     }
 

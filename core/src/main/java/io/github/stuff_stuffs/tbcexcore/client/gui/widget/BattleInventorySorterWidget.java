@@ -189,7 +189,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
 
     @Override
     public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final float delta) {
-        final Matrix4f model = matrices.peek().getModel();
+        final Matrix4f model = matrices.peek().getPositionMatrix();
         final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
@@ -246,7 +246,7 @@ public class BattleInventorySorterWidget extends AbstractWidget {
     private void renderInfo(final Sort category, final VertexConsumer vertexConsumer, final MatrixStack matrices, final int index, final int hoverIndex) {
         final double offsetX = position.getX();
         final double offsetY = position.getY();
-        final Matrix4f model = matrices.peek().getModel();
+        final Matrix4f model = matrices.peek().getPositionMatrix();
         final float startX = (float) (offsetX + borderThickness + index * entryWidth + index * horizontalSpacing);
         final float endX = (float) (offsetX + borderThickness + index * entryWidth + index * horizontalSpacing + entryWidth);
         final float xLen = (endX - startX);

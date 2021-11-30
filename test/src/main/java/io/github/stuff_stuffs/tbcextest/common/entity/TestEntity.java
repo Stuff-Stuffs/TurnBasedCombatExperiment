@@ -9,6 +9,7 @@ import io.github.stuff_stuffs.tbcexanimation.client.model.bundle.ModelPartBundle
 import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
+import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import net.minecraft.entity.EntityType;
@@ -93,7 +94,7 @@ public class TestEntity extends LivingEntity implements BattleEntity {
     }
 
     @Override
-    public Team getTeam() {
+    public Team tbcex_getTeam() {
         return TEAM;
     }
 
@@ -103,8 +104,8 @@ public class TestEntity extends LivingEntity implements BattleEntity {
     }
 
     @Override
-    public double tbcex_getMaxHealth() {
-        return 20;
+    public double tbcex_getStat(BattleParticipantStat stat) {
+        return 10;
     }
 
     @Override
@@ -113,37 +114,12 @@ public class TestEntity extends LivingEntity implements BattleEntity {
     }
 
     @Override
-    public double tbcex_getStrength() {
-        return 1;
-    }
-
-    @Override
-    public double tbcex_getIntelligence() {
-        return 10;
-    }
-
-    @Override
-    public double tbcex_getVitality() {
-        return 1;
-    }
-
-    @Override
-    public double tbcex_getDexterity() {
-        return 1;
-    }
-
-    @Override
-    public double tbcex_getPerception() {
-        return 10;
-    }
-
-    @Override
     public int tbcex_getLevel() {
         return 1;
     }
 
     @Override
-    public BattleParticipantBounds getBounds() {
+    public BattleParticipantBounds tbcex_getBounds() {
         return BOUNDS;
     }
 

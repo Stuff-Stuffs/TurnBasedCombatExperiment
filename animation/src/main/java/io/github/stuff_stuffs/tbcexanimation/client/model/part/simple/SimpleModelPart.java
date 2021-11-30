@@ -69,7 +69,7 @@ public final class SimpleModelPart implements ModelPart {
 
     private static int getLight(final Vec3d pos, final Vec3d offset, final MatrixStack matrices, final World world) {
         LIGHT_VEC.set((float) pos.x, (float) pos.y, (float) pos.z, 0);
-        LIGHT_VEC.transform(matrices.peek().getModel());
+        LIGHT_VEC.transform(matrices.peek().getPositionMatrix());
         MUTABLE.set(LIGHT_VEC.getX() + offset.x, LIGHT_VEC.getY() + offset.y, LIGHT_VEC.getZ() + offset.z);
         final long l = MUTABLE.asLong();
         if (l == LAST_LIGHT_QUERY) {

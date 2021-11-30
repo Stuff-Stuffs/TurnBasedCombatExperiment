@@ -10,7 +10,6 @@ import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
-import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
 
@@ -103,14 +102,14 @@ public abstract class AbstractParticipantStatListWidget extends AbstractWidget {
     public static MutableText format(double val) {
         val = floorToNearestHundredth(val);
         final String formatted;
-        if (val > ParticipantSelfStatListWidget.MAX_DISPLAYABLE) {
+        if (val > MAX_DISPLAYABLE) {
             formatted = "\u221E";
-        } else if (-val > ParticipantSelfStatListWidget.MAX_DISPLAYABLE) {
+        } else if (-val > MAX_DISPLAYABLE) {
             formatted = "-\u221E";
         } else {
-            formatted = ParticipantSelfStatListWidget.DECIMAL_FORMAT.format(val);
+            formatted = DECIMAL_FORMAT.format(val);
         }
-        return new LiteralText(formatted).setStyle(Style.EMPTY.withColor(val == 0 ? ParticipantSelfStatListWidget.NEUTRAL_COLOUR.pack() : val < 0 ? ParticipantSelfStatListWidget.NEGATIVE_COLOUR.pack() : ParticipantSelfStatListWidget.POSITIVE_COLOUR.pack()));
+        return new LiteralText(formatted).setStyle(Style.EMPTY.withColor(val == 0 ? NEUTRAL_COLOUR.pack() : val < 0 ? NEGATIVE_COLOUR.pack() : POSITIVE_COLOUR.pack()));
     }
 
     public static double floorToNearestHundredth(double val) {

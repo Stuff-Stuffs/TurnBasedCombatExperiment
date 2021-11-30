@@ -1,103 +1,19 @@
 package io.github.stuff_stuffs.tbcexcore.mixin.impl;
 
-import com.google.common.collect.Iterables;
 import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
-import io.github.stuff_stuffs.tbcexcore.common.entity.BattleEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
-import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 @Mixin(PlayerEntity.class)
-public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEntity {
-    @Shadow
-    @Final
-    private PlayerInventory inventory;
-
-    @Shadow
-    public abstract ItemStack getEquippedStack(EquipmentSlot slot);
-
-    @Unique
-    private static final Team TEAM = new Team("test_player");
+public abstract class MixinPlayerEntity implements BattleAwareEntity {
     @Unique
     private BattleHandle currentBattle = null;
-
-    @Override
-    public Team getTeam() {
-        return TEAM;
-    }
-
-    @Override
-    public Iterable<ItemStack> tbcex_getInventory() {
-        List<ItemStack> stacks = new ArrayList<>();
-        stacks.addAll(inventory.main);
-        stacks.set(inventory.selectedSlot, ItemStack.EMPTY);
-        stacks.addAll(inventory.armor);
-        return stacks;
-    }
-
-    @Override
-    public double tbcex_getMaxHealth() {
-        return 20;
-    }
-
-    @Override
-    public double tbcex_getCurrentHealth() {
-        return 20;
-    }
-
-    @Override
-    public double tbcex_getStrength() {
-        return 1;
-    }
-
-    @Override
-    public double tbcex_getIntelligence() {
-        return 1;
-    }
-
-    @Override
-    public double tbcex_getVitality() {
-        return 1;
-    }
-
-    @Override
-    public double tbcex_getDexterity() {
-        return 1;
-    }
-
-    @Override
-    public int tbcex_getLevel() {
-        return 1;
-    }
-
-    @Override
-    public double tbcex_getPerception() {
-        return 3;
-    }
-
-    @Override
-    public BattleParticipantBounds getBounds() {
-        return BattleParticipantBounds.builder().add(TBCExCore.createId("body"), new Box(0, 0, 0, 1, 1.5, 1)).add(TBCExCore.createId("head"), new Box(0.25, 1.5, 0.25, 0.75, 2, 0.75)).build(new Vec3d(0.5, 0, 0.5));
-    }
 
     @Override
     public @Nullable BattleHandle tbcex_getCurrentBattle() {
@@ -120,23 +36,5 @@ public abstract class MixinPlayerEntity implements BattleEntity, BattleAwareEnti
                 serverPlayer.changeGameMode(GameMode.SURVIVAL);
             }
         }
-    }
-
-    @Override
-    public @Nullable ItemStack tbcex_getEquipped(final BattleEquipmentSlot slot) {
-        final Function<PlayerEntity, @Nullable ItemStack> extractor = TBCExCore.getPlayerExtractor(slot);
-        if (extractor == null) {
-            return null;
-        }
-        return extractor.apply((PlayerEntity) (Object) this);
-    }
-
-    @Override
-    public void onBattleJoin(final BattleHandle handle) {
-    }
-
-    @Override
-    public boolean tbcex_shouldSaveToTag() {
-        return false;
     }
 }

@@ -80,16 +80,18 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
         ScissorStack.pop();
     }
 
-    private void renderStatEntry(final double val, double rangeSize, final Random rangeFinder, final BattleParticipantStat stat, final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {
-        rangeSize = ParticipantSelfStatListWidget.floorToNearestHundredth(rangeSize);
+    private void renderStatEntry(final double val, final double rangeSize, final Random rangeFinder, final BattleParticipantStat stat, final MatrixStack matrices, final VertexConsumerProvider vertexConsumers) {
+        final double roundedRangeSize;
         if (stat == BattleParticipantStat.MAX_HEALTH_STAT) {
-            rangeSize = 0;
+            roundedRangeSize = 0;
+        } else {
+            roundedRangeSize = floorToNearestHundredth(rangeSize);
         }
         final double x = position.getX();
         final double y = position.getY();
-        final double rangeOffset = rangeSize * rangeFinder.nextDouble();
-        final double top = ParticipantSelfStatListWidget.floorToNearestHundredth(val + rangeOffset);
-        final double bottom = top - rangeSize;
+        final double rangeOffset = roundedRangeSize * rangeFinder.nextDouble();
+        final double top = floorToNearestHundredth(val + rangeOffset);
+        final double bottom = top - roundedRangeSize;
         final boolean same = floorToNearestHundredth(Math.abs(top - bottom)) == 0;
         MutableText text = new LiteralText("");
         if (bottom < 0) {
@@ -110,8 +112,8 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
             }
         }
 
-        renderFitText(matrices, stat.getName(), x, y, width * 0.35, entryHeight, true, ParticipantSelfStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
-        renderFitText(matrices, text, x + width * 0.4, y, width * 0.6, entryHeight, true, ParticipantSelfStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
+        renderFitText(matrices, stat.getName(), x, y, width * 0.35, entryHeight, true, NEUTRAL_COLOUR, 255, vertexConsumers);
+        renderFitText(matrices, text, x + width * 0.4, y, width * 0.6, entryHeight, true, NEUTRAL_COLOUR, 255, vertexConsumers);
     }
 
     private static double calcEffect(double perceptionDelta) {

@@ -43,7 +43,7 @@ public final class TooltipRenderer {
 
     private static void render(final TooltipData data, final VertexConsumerProvider.Immediate vertexConsumers) {
         final MatrixStack matrices = new MatrixStack();
-        matrices.method_34425(data.matrix);
+        matrices.multiplyPositionMatrix(data.matrix);
         matrices.translate(0,0,400);
         final double borderThickness = 0.5;
         final MinecraftClient client = MinecraftClient.getInstance();
@@ -74,7 +74,7 @@ public final class TooltipRenderer {
             matrices.translate(0, offset, 0);
             matrices.translate(data.x + 2 * data.horizontalPixel * borderThickness, data.y + 2 * data.verticalPixel * borderThickness, 0);
             matrices.scale((float) textScale, (float) textScale, 1);
-            tooltipComponent.drawText(textRenderer, 0, 0, matrices.peek().getModel(), vertexConsumers);
+            tooltipComponent.drawText(textRenderer, 0, 0, matrices.peek().getPositionMatrix(), vertexConsumers);
             offset += tooltipComponent.getHeight() * textScale;
             matrices.pop();
         }
@@ -85,7 +85,7 @@ public final class TooltipRenderer {
             matrices.translate(0, offset, 0);
             matrices.translate(data.x + 2 * data.horizontalPixel * borderThickness, data.y + 2 * data.verticalPixel * borderThickness, 0);
             matrices.scale((float) textScale, (float) textScale, 1);
-            tooltipComponent.drawItems(textRenderer, 0, 0, matrices, client.getItemRenderer(), 0, client.getTextureManager());
+            tooltipComponent.drawItems(textRenderer, 0, 0, matrices, client.getItemRenderer(), 0);
             offset += tooltipComponent.getHeight() * textScale;
             matrices.pop();
         }

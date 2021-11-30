@@ -14,14 +14,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 
 public final class ParticipantRestoreComponent implements ParticipantComponent {
@@ -74,7 +72,7 @@ public final class ParticipantRestoreComponent implements ParticipantComponent {
             }
         }
         if (entity instanceof BattleEntity battleEntity) {
-            battleEntity.onBattleEnd(state.getBattleState().getHandle());
+            battleEntity.tbcex_onBattleEnd(state.getBattleState().getHandle());
             if (entity instanceof BattleAwareEntity awareEntity) {
                 awareEntity.tbcex_setCurrentBattle(null);
                 if(entity instanceof ServerPlayerEntity player) {

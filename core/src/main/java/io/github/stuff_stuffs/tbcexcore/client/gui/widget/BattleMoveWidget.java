@@ -176,7 +176,7 @@ public class BattleMoveWidget extends AbstractWidget {
                     matrixStack.push();
                     matrixStack.multiply(quaternionDirection);
                     matrixStack.translate(0, 0.25, 0);
-                    final Matrix4f model = matrixStack.peek().getModel();
+                    final Matrix4f model = matrixStack.peek().getPositionMatrix();
                     bufferBuilder.vertex(model, -0.25f, 0, -0.25f).color(colour.r, colour.g, colour.b, 0.25f).next();
                     bufferBuilder.vertex(model, -0.25f, 0, 0.25f).color(colour.r, colour.g, colour.b, 0.25f).next();
                     bufferBuilder.vertex(model, 0.25f, 0, 0.25f).color(colour.r, colour.g, colour.b, 0.25f).next();
@@ -222,7 +222,7 @@ public class BattleMoveWidget extends AbstractWidget {
                 RenderSystem.enableBlend();
                 RenderSystem.enableCull();
                 RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
-                vertexBuffer.setShader(context.matrixStack().peek().getModel(), context.projectionMatrix(), GameRenderer.getPositionColorShader());
+                vertexBuffer.setShader(context.matrixStack().peek().getPositionMatrix(), context.projectionMatrix(), GameRenderer.getPositionColorShader());
                 RenderSystem.disableBlend();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.disableCull();

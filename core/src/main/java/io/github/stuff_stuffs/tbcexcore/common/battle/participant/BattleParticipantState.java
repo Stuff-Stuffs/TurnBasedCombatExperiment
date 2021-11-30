@@ -63,7 +63,7 @@ public final class BattleParticipantState implements BattleParticipantStateView 
 
     public BattleParticipantState(final BattleParticipantHandle handle, final BattleEntity entity, final BattleState battle) {
         this.handle = handle;
-        team = entity.getTeam();
+        team = entity.tbcex_getTeam();
         eventMap = new EventMap();
         valid = true;
         battleState = battle;

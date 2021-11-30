@@ -1,6 +1,9 @@
 package io.github.stuff_stuffs.tbcexutil.common.colour;
 
+import io.github.stuff_stuffs.tbcexutil.common.StringInterpolator;
+
 public final class HsvColour implements Colour {
+    private static final StringInterpolator BOUNDED = new StringInterpolator("h must be between 0 and 360 inclusive, was {}, s and v must be between 0 and 1 inclusive, were {} and {}");
     public final float h;
     public final float s;
     public final float v;
@@ -8,7 +11,7 @@ public final class HsvColour implements Colour {
 
     public HsvColour(final float h, final float s, final float v) {
         if (h < 0 || h > 360 || s < 0 || s > 1 || v < 0 || v > 255) {
-            throw new IllegalArgumentException("h must be between 0 and 360 inclusive, s and v must be between 0 and 1 inclusive");
+            BOUNDED.interpolate(h,s,v);
         }
         this.h = h;
         this.s = s;
