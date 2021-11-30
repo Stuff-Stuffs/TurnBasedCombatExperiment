@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.objects.Reference2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Reference2DoubleOpenHashMap;
 
 public final class BattleDamageResistances {
-    public static final Codec<BattleDamageResistances> CODEC = Codec.unboundedMap(BattleDamageType.REGISTRY, Codec.DOUBLE).xmap(map -> new BattleDamageResistances(new Reference2DoubleOpenHashMap<>(map)), resistances -> resistances.percents);
+    public static final Codec<BattleDamageResistances> CODEC = Codec.unboundedMap(BattleDamageType.REGISTRY.getCodec(), Codec.DOUBLE).xmap(map -> new BattleDamageResistances(new Reference2DoubleOpenHashMap<>(map)), resistances -> resistances.percents);
     private final Reference2DoubleMap<BattleDamageType> percents;
     private final Reference2DoubleMap<BattleDamageType> processed;
 

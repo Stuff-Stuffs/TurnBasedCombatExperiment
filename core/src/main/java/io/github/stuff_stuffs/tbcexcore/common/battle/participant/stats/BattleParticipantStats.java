@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.objects.Reference2DoubleOpenHashMap;
 import java.util.Map;
 
 public final class BattleParticipantStats {
-    public static final Codec<BattleParticipantStats> CODEC = Codec.unboundedMap(BattleParticipantStat.REGISTRY, Codec.DOUBLE).xmap(BattleParticipantStats::new, stats -> stats.baseStats);
+    public static final Codec<BattleParticipantStats> CODEC = Codec.unboundedMap(BattleParticipantStat.REGISTRY.getCodec(), Codec.DOUBLE).xmap(BattleParticipantStats::new, stats -> stats.baseStats);
     private final Reference2DoubleMap<BattleParticipantStat> baseStats;
     private final BattleParticipantStatModifiers modifiers;
 

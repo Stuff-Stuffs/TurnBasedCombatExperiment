@@ -22,7 +22,7 @@ import java.util.Spliterator;
 public final class BattleParticipantInventory implements Iterable<Int2ReferenceMap.Entry<BattleParticipantItemStack>> {
     public static final Codec<BattleParticipantInventory> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.unboundedMap(Codec.STRING, BattleParticipantItemStack.CODEC).fieldOf("stacks").forGetter(BattleParticipantInventory::createStackMap),
-            Codec.unboundedMap(BattleEquipmentSlot.REGISTRY, BattleParticipantItemStack.CODEC).fieldOf("equipment_stacks").forGetter(inventory -> inventory.equipment),
+            Codec.unboundedMap(BattleEquipmentSlot.REGISTRY.getCodec(), BattleParticipantItemStack.CODEC).fieldOf("equipment_stacks").forGetter(inventory -> inventory.equipment),
             BattleEquipmentState.CODEC.fieldOf("equipment").forGetter(inventory -> inventory.equipmentState)
     ).apply(instance, BattleParticipantInventory::new));
     private final Int2ReferenceMap<BattleParticipantItemStack> stacks;

@@ -10,7 +10,7 @@ import java.util.Map;
 
 public final class BattleDamagePacket {
     public static final Codec<BattleDamagePacket> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.unboundedMap(BattleDamageType.REGISTRY, Codec.DOUBLE).fieldOf("amounts").forGetter(packet -> packet.amounts),
+            Codec.unboundedMap(BattleDamageType.REGISTRY.getCodec(), Codec.DOUBLE).fieldOf("amounts").forGetter(packet -> packet.amounts),
             BattleDamageSource.CODEC.fieldOf("source").forGetter(packet -> packet.source)
     ).apply(instance, BattleDamagePacket::new));
     private final Reference2DoubleMap<BattleDamageType> amounts;

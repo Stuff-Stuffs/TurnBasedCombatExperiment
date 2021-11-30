@@ -9,7 +9,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 
 public interface ParticipantComponent {
-    Codec<Pair<ParticipantComponents.Type<?, ?>, ParticipantComponent>> CODEC = CodecUtil.createDependentPairCodec(ParticipantComponents.REGISTRY, type -> type.codec);
+    Codec<Pair<ParticipantComponents.Type<?, ?>, ParticipantComponent>> CODEC = CodecUtil.createDependentPairCodec(ParticipantComponents.REGISTRY.getCodec(), type -> type.codec);
 
     void init(BattleParticipantState state);
 

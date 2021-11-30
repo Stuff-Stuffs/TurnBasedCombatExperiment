@@ -19,7 +19,7 @@ import java.util.function.Function;
 
 public final class BattleParticipantItemType {
     public static final Registry<BattleParticipantItemType> REGISTRY = FabricRegistryBuilder.createSimple(BattleParticipantItemType.class, TBCExCore.createId("items")).buildAndRegister();
-    public static final Codec<BattleParticipantItem> CODEC = CodecUtil.createDependentPairCodecFirst(REGISTRY, type -> type.codec, BattleParticipantItem::getType);
+    public static final Codec<BattleParticipantItem> CODEC = CodecUtil.createDependentPairCodecFirst(REGISTRY.getCodec(), type -> type.codec, BattleParticipantItem::getType);
     private final Codec<BattleParticipantItem> codec;
     private final BiPredicate<BattleParticipantItemStack, BattleParticipantItemStack> canMerge;
     private final BinaryOperator<BattleParticipantItemStack> merger;

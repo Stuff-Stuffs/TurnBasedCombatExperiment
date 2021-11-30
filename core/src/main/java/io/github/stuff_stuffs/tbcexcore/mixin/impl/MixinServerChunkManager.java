@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -33,10 +34,10 @@ public abstract class MixinServerChunkManager implements BattleWorldSupplier {
     private ServerBattleWorld battleWorld;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void init(final ServerWorld world, final LevelStorage.Session session, final DataFixer dataFixer, final StructureManager structureManager, final Executor workerExecutor, final ChunkGenerator chunkGenerator, final int viewDistance, final boolean bl, final WorldGenerationProgressListener worldGenerationProgressListener, final ChunkStatusChangeListener chunkStatusChangeListener, final Supplier<PersistentStateManager> supplier, final CallbackInfo ci) {
-        final File worldDirectory = session.getWorldDirectory(world.getRegistryKey());
-        final File battleWorldDirectory = new File(worldDirectory, "tbcex_battle_world");
-        battleWorld = new ServerBattleWorld(battleWorldDirectory.toPath(), this.world);
+    private void init(ServerWorld world, LevelStorage.Session session, DataFixer dataFixer, StructureManager structureManager, Executor workerExecutor, ChunkGenerator chunkGenerator, int viewDistance, int simulationDistance, boolean dsync, WorldGenerationProgressListener worldGenerationProgressListener, ChunkStatusChangeListener chunkStatusChangeListener, Supplier persistentStateManagerFactory, CallbackInfo ci) {
+        final Path worldDirectory = session.getWorldDirectory(world.getRegistryKey());
+        final Path battleWorldDirectory = worldDirectory.resolve("tbcex_battle_world");
+        battleWorld = new ServerBattleWorld(battleWorldDirectory, this.world);
     }
 
     @Inject(method = "tick(Ljava/util/function/BooleanSupplier;)V", at = @At("HEAD"))

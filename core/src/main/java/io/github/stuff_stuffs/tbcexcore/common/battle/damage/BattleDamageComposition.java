@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Iterator;
 
 public final class BattleDamageComposition implements Iterable<BattleDamageType> {
-    public static final Codec<BattleDamageComposition> CODEC = Codec.unboundedMap(BattleDamageType.REGISTRY, Codec.DOUBLE).xmap(map -> new BattleDamageComposition(new Reference2DoubleOpenHashMap<>(map)), composition -> composition.percents);
+    public static final Codec<BattleDamageComposition> CODEC = Codec.unboundedMap(BattleDamageType.REGISTRY.getCodec(), Codec.DOUBLE).xmap(map -> new BattleDamageComposition(new Reference2DoubleOpenHashMap<>(map)), composition -> composition.percents);
     private final Reference2DoubleMap<BattleDamageType> percents;
 
     private BattleDamageComposition(final Reference2DoubleMap<BattleDamageType> raw) {

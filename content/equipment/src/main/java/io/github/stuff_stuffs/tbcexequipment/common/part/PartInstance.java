@@ -7,7 +7,7 @@ import io.github.stuff_stuffs.tbcexutil.common.StringInterpolator;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 
 public final class PartInstance {
-    public static final Codec<PartInstance> CODEC = CodecUtil.createDependentPairCodec(Parts.REGISTRY, Part::getUncheckedCodec, PartInstance::getPart, PartInstance::getData, PartInstance::new);
+    public static final Codec<PartInstance> CODEC = CodecUtil.createDependentPairCodec(Parts.REGISTRY.getCodec(), Part::getUncheckedCodec, PartInstance::getPart, PartInstance::getData, PartInstance::new);
     private static final StringInterpolator MISMATCH_PART_DATA = new StringInterpolator("Mismatched part {} and data part {}");
     private final Part<?> part;
     private final PartData data;

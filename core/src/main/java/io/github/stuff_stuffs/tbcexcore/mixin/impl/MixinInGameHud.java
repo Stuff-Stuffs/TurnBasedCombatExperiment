@@ -75,14 +75,14 @@ public abstract class MixinInGameHud implements HudSupplier {
         }
     }
 
-    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/SpectatorHud;render(Lnet/minecraft/client/util/math/MatrixStack;F)V"))
-    private void redirectSpectatorRendering(final SpectatorHud spectatorHud, final MatrixStack matrices, final float tickDelta) {
+    @Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/SpectatorHud;renderSpectatorMenu(Lnet/minecraft/client/util/math/MatrixStack;)V"))
+    private void redirectSpectatorMenuRendering(final SpectatorHud spectatorHud, final MatrixStack matrices) {
         if (hud != null) {
             final Mouse mouse = client.mouse;
             if (mouse.isCursorLocked()) {
-                hud.render(matrices, (this.client.getWindow().getWidth() / 2.0) * (double) client.getWindow().getScaledWidth() / (double) client.getWindow().getWidth(), (this.client.getWindow().getHeight() / 2.0) * (double) client.getWindow().getScaledHeight() / (double) client.getWindow().getHeight(), tickDelta);
+                hud.render(matrices, (this.client.getWindow().getWidth() / 2.0) * (double) client.getWindow().getScaledWidth() / (double) client.getWindow().getWidth(), (this.client.getWindow().getHeight() / 2.0) * (double) client.getWindow().getScaledHeight() / (double) client.getWindow().getHeight(), 0);
             } else {
-                hud.render(matrices, mouse.getX() * (double) client.getWindow().getScaledWidth() / (double) client.getWindow().getWidth(), mouse.getY() * (double) client.getWindow().getScaledHeight() / (double) client.getWindow().getHeight(), tickDelta);
+                hud.render(matrices, mouse.getX() * (double) client.getWindow().getScaledWidth() / (double) client.getWindow().getWidth(), mouse.getY() * (double) client.getWindow().getScaledHeight() / (double) client.getWindow().getHeight(), 0);
             }
         } else {
             spectatorHud.render(matrices);

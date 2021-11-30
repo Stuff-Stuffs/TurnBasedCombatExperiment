@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 public final class BattleEquipmentState {
-    public static final Codec<BattleEquipmentState> CODEC = Codec.unboundedMap(BattleEquipmentSlot.REGISTRY, BattleEquipmentType.CODEC).xmap(BattleEquipmentState::new, state -> state.map);
+    public static final Codec<BattleEquipmentState> CODEC = Codec.unboundedMap(BattleEquipmentSlot.REGISTRY.getCodec(), BattleEquipmentType.CODEC).xmap(BattleEquipmentState::new, state -> state.map);
     private final Reference2ObjectMap<BattleEquipmentSlot, BattleEquipment> map;
 
     private BattleEquipmentState(final Map<BattleEquipmentSlot, BattleEquipment> map) {

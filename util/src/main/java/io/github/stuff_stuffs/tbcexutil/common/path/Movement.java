@@ -47,7 +47,7 @@ public interface Movement {
     static <T> T serialize(final DynamicOps<T> ops, final Movement movement) {
         final RecordBuilder<T> builder = ops.mapBuilder();
         builder.add("data", movement.getType().serialize(ops, movement));
-        builder.add("type", MovementTypes.REGISTRY.encodeStart(ops, movement.getType()));
+        builder.add("type", MovementTypes.REGISTRY.getCodec().encodeStart(ops, movement.getType()));
         return builder.build(ops.empty()).getOrThrow(false, s -> {
             throw new RuntimeException(s);
         });
@@ -58,7 +58,7 @@ public interface Movement {
             throw new RuntimeException(s);
         });
         final T data = mapLike.get("data");
-        final MovementType type = MovementTypes.REGISTRY.parse(ops, mapLike.get("type")).getOrThrow(false, s -> {
+        final MovementType type = MovementTypes.REGISTRY.getCodec().parse(ops, mapLike.get("type")).getOrThrow(false, s -> {
             throw new RuntimeException(s);
         });
         return type.deserialize(ops, data);

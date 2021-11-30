@@ -18,7 +18,7 @@ import java.util.List;
 
 public class SwordBladePartData extends AbstractPartData {
     public static final Codec<SwordBladePartData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Materials.REGISTRY.fieldOf("material").forGetter(AbstractPartData::getMaterial),
+            Materials.REGISTRY.getCodec().fieldOf("material").forGetter(AbstractPartData::getMaterial),
             Codec.INT.fieldOf("level").forGetter(AbstractPartData::getLevel)
     ).apply(instance, SwordBladePartData::new));
 

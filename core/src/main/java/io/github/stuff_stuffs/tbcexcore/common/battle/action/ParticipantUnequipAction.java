@@ -15,7 +15,7 @@ public class ParticipantUnequipAction extends BattleAction<ParticipantUnequipAct
     public static final Codec<ParticipantUnequipAction> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     BattleParticipantHandle.CODEC.fieldOf("actor").forGetter(action -> action.actor),
-                    BattleEquipmentSlot.REGISTRY.fieldOf("slot").forGetter(action -> action.slot),
+                    BattleEquipmentSlot.REGISTRY.getCodec().fieldOf("slot").forGetter(action -> action.slot),
                     Codec.DOUBLE.fieldOf("cost").forGetter(action -> action.energyCost)
             ).apply(instance, ParticipantUnequipAction::new)
     );

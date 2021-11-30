@@ -4,7 +4,6 @@
   "package": "io.github.stuff_stuffs.tbcexequipment.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "MixinRequiredTagListRegistry"
   ],
   "client": [
   ],

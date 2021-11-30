@@ -8,7 +8,7 @@ import net.minecraft.util.registry.Registry;
 
 public final class BattleActionRegistry {
     public static final Registry<Type<?>> REGISTRY = FabricRegistryBuilder.createSimple((Class<Type<?>>) (Object) Type.class, TBCExCore.createId("battle_actions")).buildAndRegister();
-    public static final Codec<BattleAction<?>> CODEC = CodecUtil.createDependentPairCodecFirst(REGISTRY, type -> (Codec<BattleAction<?>>) type.codec, BattleAction::getType);
+    public static final Codec<BattleAction<?>> CODEC = CodecUtil.createDependentPairCodecFirst(REGISTRY.getCodec(), type -> (Codec<BattleAction<?>>) type.codec, BattleAction::getType);
     public static final Type<ParticipantJoinBattleAction> PARTICIPANT_JOIN_BATTLE_ACTION = new Type<>(ParticipantJoinBattleAction.CODEC);
     public static final Type<TeleportBattleAction> TELEPORT_BATTLE_ACTION = new Type<>(TeleportBattleAction.CODEC);
     public static final Type<EndTurnBattleAction> END_TURN_BATTLE_ACTION = new Type<>(EndTurnBattleAction.CODEC);

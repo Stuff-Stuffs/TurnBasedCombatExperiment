@@ -8,7 +8,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleState;
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
 
 public interface BattleComponent {
-    Codec<Pair<BattleComponents.Type<?, ?>, BattleComponent>> CODEC = CodecUtil.createDependentPairCodec(BattleComponents.REGISTRY, new CodecUtil.DependentEncoder<>() {
+    Codec<Pair<BattleComponents.Type<?, ?>, BattleComponent>> CODEC = CodecUtil.createDependentPairCodec(BattleComponents.REGISTRY.getCodec(), new CodecUtil.DependentEncoder<>() {
         @Override
         public <T> DataResult<T> encode(final BattleComponents.Type<?, ?> coValue, final BattleComponent value, final DynamicOps<T> ops) {
             return coValue.codec.encodeStart(ops, value);

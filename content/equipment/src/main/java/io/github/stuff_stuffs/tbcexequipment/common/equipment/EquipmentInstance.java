@@ -8,7 +8,7 @@ import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 
 public final class EquipmentInstance {
     private static final StringInterpolator MISMATCH = new StringInterpolator("Mismatched equipment {} and data type {}");
-    public static final Codec<EquipmentInstance> CODEC = CodecUtil.createDependentPairCodec(EquipmentTypes.REGISTRY, EquipmentType::getUncheckedCodec, EquipmentInstance::getType, EquipmentInstance::getData, EquipmentInstance::new);
+    public static final Codec<EquipmentInstance> CODEC = CodecUtil.createDependentPairCodec(EquipmentTypes.REGISTRY.getCodec(), EquipmentType::getUncheckedCodec, EquipmentInstance::getType, EquipmentInstance::getData, EquipmentInstance::new);
     private final EquipmentType<?> type;
     private final EquipmentData data;
 

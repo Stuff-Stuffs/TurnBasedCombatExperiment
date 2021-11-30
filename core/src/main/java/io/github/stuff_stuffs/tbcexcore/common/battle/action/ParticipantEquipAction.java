@@ -17,7 +17,7 @@ import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 public final class ParticipantEquipAction extends BattleAction<ParticipantEquipAction> {
     public static final Codec<ParticipantEquipAction> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BattleParticipantHandle.CODEC.fieldOf("actor").forGetter(BattleAction::getActor),
-            BattleEquipmentSlot.REGISTRY.fieldOf("slot").forGetter(action -> action.slot),
+            BattleEquipmentSlot.REGISTRY.getCodec().fieldOf("slot").forGetter(action -> action.slot),
             BattleParticipantInventoryHandle.CODEC.fieldOf("equipment").forGetter(action -> action.handle),
             Codec.DOUBLE.fieldOf("energyCost").forGetter(action -> action.energyCost)
     ).apply(instance, ParticipantEquipAction::new));

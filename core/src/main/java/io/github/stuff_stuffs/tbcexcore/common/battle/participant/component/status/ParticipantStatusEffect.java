@@ -13,7 +13,7 @@ import net.minecraft.text.Text;
 import java.util.List;
 
 public interface ParticipantStatusEffect {
-    Codec<Pair<ParticipantStatusEffects.Type, ParticipantStatusEffect>> CODEC = CodecUtil.createDependentPairCodec(ParticipantStatusEffects.REGISTRY, type -> type.codec);
+    Codec<Pair<ParticipantStatusEffects.Type, ParticipantStatusEffect>> CODEC = CodecUtil.createDependentPairCodec(ParticipantStatusEffects.REGISTRY.getCodec(), type -> type.codec);
 
     Text getName();
 

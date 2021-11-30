@@ -14,7 +14,7 @@ import java.util.List;
 
 public class HandlePartData extends AbstractPartData {
     public static final Codec<HandlePartData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Materials.REGISTRY.fieldOf("material").forGetter(HandlePartData::getMaterial),
+            Materials.REGISTRY.getCodec().fieldOf("material").forGetter(HandlePartData::getMaterial),
             Codec.INT.fieldOf("level").forGetter(HandlePartData::getLevel)
     ).apply(instance, HandlePartData::new));
 
