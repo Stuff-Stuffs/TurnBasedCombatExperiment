@@ -1,5 +1,6 @@
 package io.github.stuff_stuffs.tbcexcharacter.common;
 
+import io.github.stuff_stuffs.tbcexcharacter.common.entity.stat.StatSources;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 
@@ -8,7 +9,7 @@ public class TBCExCharacter implements ModInitializer {
 
     @Override
     public void onInitialize() {
-
+        StatSources.init();
     }
 
     public static Identifier createId(final String path) {

@@ -15,6 +15,7 @@ import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.lwjgl.glfw.GLFW;
@@ -26,7 +27,6 @@ public class PlayerStatsWidget extends AbstractWidget {
     private final WidgetPosition position;
     private final double width;
     private final double height;
-    private final double entryHeight;
     private final List<Entry> entries;
     private double scrollPos;
 
@@ -34,14 +34,13 @@ public class PlayerStatsWidget extends AbstractWidget {
         this.position = position;
         this.width = width;
         this.height = height;
-        this.entryHeight = entryHeight;
         final List<BattleParticipantStat> battleParticipantStats = BattleParticipantStat.REGISTRY.stream().toList();
         entries = new ArrayList<>(battleParticipantStats.size());
         final CharacterInfo characterInfo = ((PlayerStatContainerSupplier) entity).tbcex_getCharacterInfo();
-        for (int i = 0; i < battleParticipantStats.size(); i++) {
-            entries.add(new Entry(battleParticipantStats.get(i), characterInfo, entryHeight, i));
+        for (BattleParticipantStat battleParticipantStat : battleParticipantStats) {
+            entries.add(new Entry(battleParticipantStat, characterInfo, entryHeight));
         }
-        scrollPos = 0;
+        scroll(0);
     }
 
     @Override
@@ -51,35 +50,41 @@ public class PlayerStatsWidget extends AbstractWidget {
 
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        final double transformedMouseX = (mouseX - position.getX()) / width - scrollPos;
-        for (int i = 0; i < entries.size(); i++) {
-            if (entries.get(i).mouseClicked(transformedMouseX, mouseY - i * entryHeight, button)) {
+        final double transformedMouseX = (mouseX - position.getX()) / width;
+        double offset = -scrollPos + position.getY();
+        for (final Entry entry : entries) {
+            if (entry.mouseClicked(transformedMouseX, mouseY - offset, button)) {
                 return true;
             }
+            offset += entry.getHeight();
         }
         return false;
     }
 
     @Override
     public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        final double transformedMouseX = (mouseX - position.getX()) / width - scrollPos;
-        for (int i = 0; i < entries.size(); i++) {
-            if (entries.get(i).mouseReleased(transformedMouseX, mouseY - i * entryHeight, button)) {
+        final double transformedMouseX = (mouseX - position.getX()) / width;
+        double offset = -scrollPos + position.getY();
+        for (final Entry entry : entries) {
+            if (entry.mouseReleased(transformedMouseX, mouseY - offset, button)) {
                 return true;
             }
+            offset += entry.getHeight();
         }
         return false;
     }
 
-    private void scroll(double amount) {
+    private void scroll(final double amount) {
         scrollPos -= amount;
-        if(scrollPos<0) {
+        if (scrollPos < 0) {
             scrollPos = 0;
-        } else {
-            double max = entries.stream().mapToDouble(Entry::getHeight).sum() - height;
-            if(scrollPos>max) {
-                scrollPos = max;
-            }
+        }
+        final double max = entries.stream().mapToDouble(Entry::getHeight).sum() - height;
+        if (max < 0) {
+            scrollPos = 0;
+        }
+        if (scrollPos > max) {
+            scrollPos = max;
         }
     }
 
@@ -105,9 +110,13 @@ public class PlayerStatsWidget extends AbstractWidget {
         render(vertexConsumers -> {
             matrices.push();
             double offset = -scrollPos;
+            boolean colourSelector = false;
             for (final Entry entry : entries) {
-                entry.render(matrices, mouseX, mouseY, offset, vertexConsumers);
+                entry.render(matrices, mouseX, mouseY, offset, colourSelector ? BattleInventoryFilterWidget.FIRST_BACKGROUND_COLOUR : BattleInventoryFilterWidget.SECOND_BACKGROUND_COLOUR, !colourSelector ? BattleInventoryFilterWidget.FIRST_BACKGROUND_COLOUR : BattleInventoryFilterWidget.SECOND_BACKGROUND_COLOUR, vertexConsumers);
                 offset += entry.getHeight();
+                if (entry.shouldFlipColour()) {
+                    colourSelector = !colourSelector;
+                }
             }
             matrices.pop();
         });
@@ -119,53 +128,46 @@ public class PlayerStatsWidget extends AbstractWidget {
         private final BattleParticipantStat stat;
         private final CharacterInfo characterInfo;
         private final double height;
-        private final int index;
         private final Rect2d area;
         private boolean expanded;
 
-        private Entry(final BattleParticipantStat stat, final CharacterInfo characterInfo, final double height, final int index) {
+        private Entry(final BattleParticipantStat stat, final CharacterInfo characterInfo, final double height) {
             this.stat = stat;
             this.characterInfo = characterInfo;
             this.height = height;
-            this.index = index;
-            area = new Rect2d(0, index * height, 1, index * height + height);
+            area = new Rect2d(0, 0, 1, height);
         }
 
-        public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final double offset, final VertexConsumerProvider vertexConsumers) {
+        public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final double offset, final Colour colour, final Colour secondaryColour, final VertexConsumerProvider vertexConsumers) {
             final double x = position.getX();
             final double y = position.getY() + offset;
-            final Colour colour;
-            if ((index & 1) == 1) {
-                colour = BattleInventoryFilterWidget.SECOND_BACKGROUND_COLOUR;
-            } else {
-                colour = BattleInventoryFilterWidget.FIRST_BACKGROUND_COLOUR;
-            }
             RenderUtil.renderRectangle(matrices, x, y, width, height, colour, 255, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
             final double textStart = (width / 2) * 0.025 + x;
             final double textWidth = (width / 2) * 0.95;
             final double textHeight = height * 0.95;
             final Text name = stat.getName();
             matrices.push();
-            matrices.translate(0,0,1);
+            matrices.translate(0, 0, 1);
             renderFitText(matrices, name, textStart, y, textWidth, height, false, AbstractParticipantStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
             final double numberStart = (width / 2) * 1.025 + x;
             renderFitText(matrices, AbstractParticipantStatListWidget.format(characterInfo.getStat(stat)), numberStart, y, textWidth, textHeight, false, Colour.WHITE, 255, vertexConsumers);
             if (expanded) {
                 final double valTextStart = (width / 2) * 0.05 + x;
-                final double valNumberStart = (width / 2) * 1.05;
+                final double valNumberStart = (width / 2) * 1.05 + x;
                 final double valTextWidth = (width / 2) * 0.90;
-                final MutableInt counter = new MutableInt(0);
-                characterInfo.forEachSourcedStat(stat, sourcedStat -> {
+                final MutableInt counter = new MutableInt(1);
+                characterInfo.forEachSourcedStat(stat, (statSource, isLast) -> {
                     final double textY = y + counter.intValue() * height;
                     final Colour valColour;
-                    if (((index + counter.getAndIncrement()) & 1) == 1) {
-                        valColour = BattleInventoryFilterWidget.SECOND_BACKGROUND_COLOUR;
+                    if (((counter.getAndIncrement()) & 1) == 1) {
+                        valColour = secondaryColour;
                     } else {
-                        valColour = BattleInventoryFilterWidget.FIRST_BACKGROUND_COLOUR;
+                        valColour = colour;
                     }
                     RenderUtil.renderRectangle(matrices, x, textY, width, height, valColour, 255, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
-                    final Text text = sourcedStat.getText();
-                    final Text number = AbstractParticipantStatListWidget.format(sourcedStat.getAmount());
+                    final Text text = new LiteralText(isLast ? "└" : "├").append(statSource.getText());
+                    final Text number = AbstractParticipantStatListWidget.format(statSource.getAmount());
+                    matrices.translate(0, 0, 1);
                     renderFitText(matrices, text, valTextStart, textY, valTextWidth, textHeight, false, AbstractParticipantStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
                     renderFitText(matrices, number, valNumberStart, textY, valTextWidth, textHeight, false, Colour.WHITE, 255, vertexConsumers);
                 });
@@ -175,11 +177,13 @@ public class PlayerStatsWidget extends AbstractWidget {
 
         public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
             if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-                if (expanded && new Rect2d(0, index * height, 1, index * height + getHeight()).isIn(mouseX, mouseY)) {
+                if (expanded && new Rect2d(0, 0, 1, getHeight()).isIn(mouseX, mouseY)) {
                     expanded = false;
+                    scroll(0);
                     return true;
                 } else if (area.isIn(mouseX, mouseY)) {
                     expanded = true;
+                    scroll(0);
                     return true;
                 }
             }
@@ -187,17 +191,26 @@ public class PlayerStatsWidget extends AbstractWidget {
         }
 
         public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-            return (expanded && new Rect2d(0, index * height, 1, index * height + getHeight()).isIn(mouseX, mouseY)) || (!expanded && area.isIn(mouseX, mouseY));
+            return (expanded && new Rect2d(0, 0, 1, getHeight()).isIn(mouseX, mouseY)) || (!expanded && area.isIn(mouseX, mouseY));
         }
 
         public double getHeight() {
             if (expanded) {
                 final MutableInt counter = new MutableInt(0);
-                characterInfo.forEachSourcedStat(stat, sourcedStat -> counter.increment());
+                characterInfo.forEachSourcedStat(stat, (statSource, isLast) -> counter.increment());
                 return counter.intValue() * height + height;
             } else {
                 return height;
             }
+        }
+
+        public boolean shouldFlipColour() {
+            if (expanded) {
+                final MutableInt counter = new MutableInt(0);
+                characterInfo.forEachSourcedStat(stat, (statSource, isLast) -> counter.increment());
+                return (counter.intValue() & 1) == 0;
+            }
+            return true;
         }
     }
 

@@ -8,15 +8,15 @@ import com.mojang.serialization.MapLike;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import net.minecraft.text.Text;
 
-public final class SourcedStat<T> {
-    public static final Codec<SourcedStat<?>> CODEC = new Codec<SourcedStat<?>>() {
+public final class StatSource<T> {
+    public static final Codec<StatSource<?>> CODEC = new Codec<StatSource<?>>() {
         @Override
-        public <T> DataResult<Pair<SourcedStat<?>, T>> decode(final DynamicOps<T> ops, final T input) {
+        public <T> DataResult<Pair<StatSource<?>, T>> decode(final DynamicOps<T> ops, final T input) {
             final MapLike<T> mapLike = ops.getMap(input).getOrThrow(false, s -> {
                 //TODO
                 throw new TBCExException(s);
             });
-            final SourcedStats.Type<?> type = SourcedStats.REGISTRY.getCodec().parse(ops, mapLike.get("type")).getOrThrow(false, s -> {
+            final StatSources.Type<?> type = StatSources.REGISTRY.getCodec().parse(ops, mapLike.get("type")).getOrThrow(false, s -> {
                 //TODO
                 throw new TBCExException(s);
             });
@@ -27,34 +27,34 @@ public final class SourcedStat<T> {
         }
 
         @Override
-        public <T> DataResult<T> encode(final SourcedStat<?> input, final DynamicOps<T> ops, final T prefix) {
+        public <T> DataResult<T> encode(final StatSource<?> input, final DynamicOps<T> ops, final T prefix) {
             if (!ops.empty().equals(prefix)) {
                 throw new TBCExException("Non empty prefix");
             }
             return encode(input, ops);
         }
 
-        private <T, K> DataResult<T> encode(final SourcedStat<K> stat, final DynamicOps<T> ops) {
-            return ops.mapBuilder().add("type", SourcedStats.REGISTRY.getCodec().encodeStart(ops, stat.getType())).add("amount", Codec.DOUBLE.encodeStart(ops, stat.getAmount())).add("data", stat.getType().getDataCodec().encodeStart(ops, stat.getData())).build(ops.empty());
+        private <T, K> DataResult<T> encode(final StatSource<K> stat, final DynamicOps<T> ops) {
+            return ops.mapBuilder().add("type", StatSources.REGISTRY.getCodec().encodeStart(ops, stat.getType())).add("amount", Codec.DOUBLE.encodeStart(ops, stat.getAmount())).add("data", stat.getType().getDataCodec().encodeStart(ops, stat.getData())).build(ops.empty());
         }
 
-        private <T, K> SourcedStat<K> decode(final SourcedStats.Type<K> stat, final double amount, final T data, final DynamicOps<T> ops) {
-            return new SourcedStat<K>(stat, stat.getDataCodec().decode(ops, data).getOrThrow(false, s -> {
+        private <T, K> StatSource<K> decode(final StatSources.Type<K> stat, final double amount, final T data, final DynamicOps<T> ops) {
+            return new StatSource<K>(stat, stat.getDataCodec().decode(ops, data).getOrThrow(false, s -> {
                 throw new TBCExException(s);
             }).getFirst(), amount);
         }
     };
-    private final SourcedStats.Type<T> type;
+    private final StatSources.Type<T> type;
     private final T data;
     private final double amount;
 
-    public SourcedStat(final SourcedStats.Type<T> type, final T data, final double amount) {
+    public StatSource(final StatSources.Type<T> type, final T data, final double amount) {
         this.type = type;
         this.data = data;
         this.amount = amount;
     }
 
-    public SourcedStats.Type<T> getType() {
+    public StatSources.Type<T> getType() {
         return type;
     }
 

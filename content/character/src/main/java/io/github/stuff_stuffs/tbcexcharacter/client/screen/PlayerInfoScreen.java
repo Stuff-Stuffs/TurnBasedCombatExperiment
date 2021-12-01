@@ -12,10 +12,12 @@ import net.minecraft.text.LiteralText;
 public class PlayerInfoScreen extends TBCExScreen {
     public PlayerInfoScreen() {
         super(new LiteralText("PlayerInfo"), new RootPanelWidget());
-        ParentWidget widget = (ParentWidget) this.widget;
-        ParentWidget panel = new BasicPanelWidget(WidgetPosition.of(0.125, 0.125, 1), () -> false, () -> 1, 0.75, 0.75);
+        final ParentWidget widget = (ParentWidget) this.widget;
+        final double edgeStart = 0.015625;
+        final double width = 1 - 2 * edgeStart;
+        final ParentWidget panel = new BasicPanelWidget(WidgetPosition.of(edgeStart - 0.015, edgeStart - 0.015, 1), () -> false, () -> 2, width + 0.03, width + 0.03);
         widget.addWidget(panel);
-        PlayerStatsWidget statsWidget = new PlayerStatsWidget(WidgetPosition.of(0.125, 0.125, 1),0.375,0.375, 0.125, MinecraftClient.getInstance().player);
+        final PlayerStatsWidget statsWidget = new PlayerStatsWidget(WidgetPosition.of(edgeStart + width / 2, edgeStart + width / 2, 1), width / 2, width / 2, 0.0625, MinecraftClient.getInstance().player);
         panel.addWidget(statsWidget);
     }
 }
