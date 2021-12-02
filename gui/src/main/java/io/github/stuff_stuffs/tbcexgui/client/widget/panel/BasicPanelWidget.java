@@ -6,9 +6,9 @@ import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractParentWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.BasicWidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.fabric.api.event.client.ClientSpriteRegistryCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -65,6 +65,14 @@ public class BasicPanelWidget extends AbstractParentWidget {
         }
         render(vertexConsumers -> NinePatch.render(SPRITE_MAP, combined.getX(), combined.getY(), panelWidth, panelHeight, getHorizontalPixel(), getVerticalPixel(), borderWidth.getAsDouble(), matrices, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE))));
         super.render(matrices, mouseX, mouseY, delta);
+    }
+
+    public static Map<NinePatch.Part, Sprite> getSprites() {
+        if (RELOAD_SPRITE_MAP) {
+            reloadSpriteMap();
+            RELOAD_SPRITE_MAP = false;
+        }
+        return new Object2ReferenceOpenHashMap<>(SPRITE_MAP);
     }
 
     private static void reloadSpriteMap() {

@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexcharacter.mixin.impl;
 
 import io.github.stuff_stuffs.tbcexcharacter.common.entity.CharacterInfo;
-import io.github.stuff_stuffs.tbcexcharacter.mixin.api.PlayerStatContainerSupplier;
+import io.github.stuff_stuffs.tbcexcharacter.mixin.api.PlayerCharacterInfoSupplier;
 import io.github.stuff_stuffs.tbcexcore.common.TBCExCore;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Team;
@@ -35,7 +35,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @Mixin(PlayerEntity.class)
-public abstract class MixinPlayerEntity extends LivingEntity implements BattleEntity, PlayerStatContainerSupplier {
+public abstract class MixinPlayerEntity extends LivingEntity implements BattleEntity, PlayerCharacterInfoSupplier {
     @Unique
     private CharacterInfo characterInfo = new CharacterInfo();
 

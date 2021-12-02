@@ -42,6 +42,7 @@ public class TBCExGuiClient implements ClientModInitializer {
             for (final NinePatch.Part part : NinePatch.Part.values()) {
                 registry.register(part.append(base));
             }
+            registry.register(new Identifier("tbcexgui", "gui/transparent"));
         });
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             ScreenEvents.beforeRender(screen).register((s, matrices, mouseX, mouseY, tickDelta) -> TooltipRenderer.clear());

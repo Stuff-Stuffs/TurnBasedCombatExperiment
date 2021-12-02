@@ -1,7 +1,7 @@
 package io.github.stuff_stuffs.tbcexcharacter.client.screen.widget;
 
 import io.github.stuff_stuffs.tbcexcharacter.common.entity.CharacterInfo;
-import io.github.stuff_stuffs.tbcexcharacter.mixin.api.PlayerStatContainerSupplier;
+import io.github.stuff_stuffs.tbcexcharacter.mixin.api.PlayerCharacterInfoSupplier;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventoryFilterWidget;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.info.AbstractParticipantStatListWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
@@ -36,8 +36,8 @@ public class PlayerStatsWidget extends AbstractWidget {
         this.height = height;
         final List<BattleParticipantStat> battleParticipantStats = BattleParticipantStat.REGISTRY.stream().toList();
         entries = new ArrayList<>(battleParticipantStats.size());
-        final CharacterInfo characterInfo = ((PlayerStatContainerSupplier) entity).tbcex_getCharacterInfo();
-        for (BattleParticipantStat battleParticipantStat : battleParticipantStats) {
+        final CharacterInfo characterInfo = ((PlayerCharacterInfoSupplier) entity).tbcex_getCharacterInfo();
+        for (final BattleParticipantStat battleParticipantStat : battleParticipantStats) {
             entries.add(new Entry(battleParticipantStat, characterInfo, entryHeight));
         }
         scroll(0);
@@ -147,7 +147,7 @@ public class PlayerStatsWidget extends AbstractWidget {
             final double textHeight = height * 0.95;
             final Text name = stat.getName();
             matrices.push();
-            matrices.translate(0, 0, 1);
+            matrices.translate(0, 0, 0.001);
             renderFitText(matrices, name, textStart, y, textWidth, height, false, AbstractParticipantStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
             final double numberStart = (width / 2) * 1.025 + x;
             renderFitText(matrices, AbstractParticipantStatListWidget.format(characterInfo.getStat(stat)), numberStart, y, textWidth, textHeight, false, Colour.WHITE, 255, vertexConsumers);
@@ -167,7 +167,7 @@ public class PlayerStatsWidget extends AbstractWidget {
                     RenderUtil.renderRectangle(matrices, x, textY, width, height, valColour, 255, vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_LAYER));
                     final Text text = new LiteralText(isLast ? "└" : "├").append(statSource.getText());
                     final Text number = AbstractParticipantStatListWidget.format(statSource.getAmount());
-                    matrices.translate(0, 0, 1);
+                    matrices.translate(0, 0, 0.001);
                     renderFitText(matrices, text, valTextStart, textY, valTextWidth, textHeight, false, AbstractParticipantStatListWidget.NEUTRAL_COLOUR, 255, vertexConsumers);
                     renderFitText(matrices, number, valNumberStart, textY, valTextWidth, textHeight, false, Colour.WHITE, 255, vertexConsumers);
                 });

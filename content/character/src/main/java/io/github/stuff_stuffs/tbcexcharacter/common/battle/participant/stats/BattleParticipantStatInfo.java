@@ -8,27 +8,33 @@ import java.util.Map;
 
 public final class BattleParticipantStatInfo {
     private static final Map<BattleParticipantStat, BattleParticipantStatInfo> INFO_MAP = new Reference2ObjectOpenHashMap<>();
-    private static final BattleParticipantStatInfo DEFAULT = new BattleParticipantStatInfo(true, true, 5);
+    private static final BattleParticipantStatInfo DEFAULT = new BattleParticipantStatInfo(true, 5, 1, 1);
     private final boolean purchasable;
-    private final boolean visible;
     private final double base;
+    private final double cost;
+    private final double purchaseIncrement;
 
-    private BattleParticipantStatInfo(final boolean purchasable, boolean visible, double base) {
+    private BattleParticipantStatInfo(final boolean purchasable, final double base, final double cost, final double purchaseIncrement) {
         this.purchasable = purchasable;
-        this.visible = visible;
         this.base = base;
+        this.cost = cost;
+        this.purchaseIncrement = purchaseIncrement;
     }
 
     public boolean isPurchasable() {
         return purchasable;
     }
 
-    public boolean isVisible() {
-        return visible;
+    public double getCost() {
+        return cost;
     }
 
-    public static void register(final BattleParticipantStat stat, final boolean purchasable, boolean visible, double base) {
-        if (INFO_MAP.put(stat, new BattleParticipantStatInfo(purchasable, visible, base)) != null) {
+    public double getPurchaseIncrement() {
+        return purchaseIncrement;
+    }
+
+    public static void register(final BattleParticipantStat stat, final boolean purchasable, final double base, final double cost, final double purchaseIncrement) {
+        if (INFO_MAP.put(stat, new BattleParticipantStatInfo(purchasable, base, cost, purchaseIncrement)) != null) {
             throw new TBCExException("Tried to register stat info twice");
         }
     }

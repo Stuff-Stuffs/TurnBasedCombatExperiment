@@ -16,6 +16,7 @@ import java.util.function.Function;
 public final class StatSources {
     public static final Registry<Type<?>> REGISTRY = FabricRegistryBuilder.from(new SimpleRegistry<>(RegistryKey.<Type<?>>ofRegistry(TBCExCharacter.createId("sourced_stat")), Lifecycle.stable())).buildAndRegister();
     public static final Type<Unit> BASE_TYPE = new Type<>(Codec.unit(() -> Unit.INSTANCE), l -> new LiteralText("Base Stat"));
+    public static final Type<Unit> PURCHASED_TYPE = new Type<>(Codec.unit(() -> Unit.INSTANCE), l -> new LiteralText("Purchased Stat"));
 
     public static final class Type<T> {
         private final Codec<T> codec;
@@ -37,6 +38,7 @@ public final class StatSources {
 
     public static void init() {
         Registry.register(REGISTRY, TBCExCharacter.createId("base"), BASE_TYPE);
+        Registry.register(REGISTRY, TBCExCharacter.createId("purchased"), PURCHASED_TYPE);
     }
 
     private StatSources() {
