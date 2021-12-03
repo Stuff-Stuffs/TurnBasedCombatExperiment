@@ -20,25 +20,7 @@ public class TBCExGuiClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientSpriteRegistryCallback.event(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).register((atlasTexture, registry) -> {
-            Identifier base = new Identifier("tbcexgui", "gui/panel");
-            for (final NinePatch.Part part : NinePatch.Part.values()) {
-                registry.register(part.append(base));
-            }
-            for (final ButtonState state : ButtonState.values()) {
-                base = new Identifier("tbcexgui", "gui/button/" + state.name().toLowerCase(Locale.ROOT));
-                for (final NinePatch.Part part : NinePatch.Part.values()) {
-                    registry.register(part.append(base));
-                }
-            }
-            base = new Identifier("tbcexgui", "gui/hotbar/single");
-            for (final NinePatch.Part part : NinePatch.Part.values()) {
-                registry.register(part.append(base));
-            }
-            base = new Identifier("tbcexgui", "gui/hotbar/single/selected");
-            for (final NinePatch.Part part : NinePatch.Part.values()) {
-                registry.register(part.append(base));
-            }
-            base = new Identifier("tbcexgui", "gui/tooltip");
+            Identifier base = new Identifier("tbcexgui", "gui/tooltip");
             for (final NinePatch.Part part : NinePatch.Part.values()) {
                 registry.register(part.append(base));
             }
