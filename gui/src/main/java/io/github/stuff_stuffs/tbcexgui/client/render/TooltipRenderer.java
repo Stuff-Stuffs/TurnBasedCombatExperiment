@@ -69,10 +69,12 @@ public final class TooltipRenderer {
         AbstractWidget.renderTooltipBackground(data.x, data.y, width, height, matrices, data.horizontalPixel, data.verticalPixel, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, true)));
 
         double offset = 0;
+        final double x = data.x + 2 * data.horizontalPixel * borderThickness;
+        final double y = data.y + 2 * data.verticalPixel * borderThickness;
         for (final TooltipComponent tooltipComponent : data.components) {
             matrices.push();
             matrices.translate(0, offset, 0);
-            matrices.translate(data.x + 2 * data.horizontalPixel * borderThickness, data.y + 2 * data.verticalPixel * borderThickness, 0);
+            matrices.translate(x, y, 0);
             matrices.scale((float) textScale, (float) textScale, 1);
             tooltipComponent.drawText(textRenderer, 0, 0, matrices.peek().getPositionMatrix(), vertexConsumers);
             offset += tooltipComponent.getHeight() * textScale;
@@ -83,9 +85,9 @@ public final class TooltipRenderer {
         for (final TooltipComponent tooltipComponent : data.components) {
             matrices.push();
             matrices.translate(0, offset, 0);
-            matrices.translate(data.x + 2 * data.horizontalPixel * borderThickness, data.y + 2 * data.verticalPixel * borderThickness, 0);
+            matrices.translate(x, y, 0);
             matrices.scale((float) textScale, (float) textScale, 1);
-            tooltipComponent.drawItems(textRenderer, 0, 0, matrices, client.getItemRenderer(), 0);
+            tooltipComponent.drawItems(textRenderer, 0, 0, matrices, client.getItemRenderer(), 1);
             offset += tooltipComponent.getHeight() * textScale;
             matrices.pop();
         }

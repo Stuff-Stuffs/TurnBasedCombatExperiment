@@ -7,20 +7,18 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.widget.*;
-import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.PressableButtonWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.BasicPanelWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.HidingPanel;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
+import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Collections;
 import java.util.List;
 
 public class BattleActionRenderTargetsWidget extends AbstractWidget {
@@ -33,8 +31,8 @@ public class BattleActionRenderTargetsWidget extends AbstractWidget {
         this.actionInstance = actionInstance;
         hovered = null;
         widget = new HidingPanel();
-        final ParentWidget parentWidget = new BasicPanelWidget(new SuppliedWidgetPosition(() -> -(getScreenWidth() - 1) / 2, () -> -(getScreenHeight() - 1) / 2, () -> 1), () -> false, () -> 2, 0.15, 0.125);
-        parentWidget.addWidget(new PressableButtonWidget(new SuppliedWidgetPosition(() -> -(getScreenWidth() - 1) / 2 + 0.025, () -> -(getScreenHeight() - 1) / 2 + 0.025, () -> 1), () -> 2, () -> true, 0.1, 0.075, () -> new LiteralText("Confirm (Press enter)"), Collections::emptyList, this::activate));
+        final ParentWidget parentWidget = new BasicPanelWidget(new SuppliedWidgetPosition(() -> -(getScreenWidth() - 1) / 2, () -> -(getScreenHeight() - 1) / 2, () -> 1), 0.15, 0.125);
+        parentWidget.addWidget(new TextWidget(new SuppliedWidgetPosition(() -> -(getScreenWidth() - 1) / 2 + 0.025, () -> -(getScreenHeight() - 1) / 2 + 0.025, () -> 1), () -> new LiteralText("Confirm (Press enter)"), () -> true, Colour.WHITE, () -> 255, 0.1, 0.075));
         widget.addWidget(parentWidget);
         widget.resize(getScreenWidth(), getScreenHeight(), getPixelWidth(), getPixelHeight());
     }
@@ -85,7 +83,7 @@ public class BattleActionRenderTargetsWidget extends AbstractWidget {
         final MinecraftClient client = MinecraftClient.getInstance();
         final Battle battle = ((BattleWorldSupplier) client.world).tbcex_getBattleWorld().getBattle(((BattleAwareEntity) client.player).tbcex_getCurrentBattle());
         if (battle != null) {
-            final TargetType nextType = actionInstance.getNextType();
+            final TargetType<?> nextType = actionInstance.getNextType();
             widget.setHidden(!actionInstance.canActivate());
             widget.render(matrices, mouseX, mouseY, delta);
             if (nextType != null) {
@@ -107,7 +105,7 @@ public class BattleActionRenderTargetsWidget extends AbstractWidget {
         }
     }
 
-    private void updateTargeted(final TargetType nextType, final Battle battle, final float delta) {
+    private void updateTargeted(final TargetType<?> nextType, final Battle battle, final float delta) {
         final Vec3d startVec = MinecraftClient.getInstance().cameraEntity.getClientCameraPosVec(delta);
         final Vec3d lookVec = ClientUtil.getMouseVector();
         hovered = nextType.find(startVec, lookVec, actionInstance.getUser(), battle);

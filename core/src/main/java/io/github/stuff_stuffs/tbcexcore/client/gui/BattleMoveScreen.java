@@ -2,15 +2,14 @@ package io.github.stuff_stuffs.tbcexcore.client.gui;
 
 import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
+import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventoryFilterWidget;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleMoveWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexgui.client.screen.MouseLockableScreen;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
 import io.github.stuff_stuffs.tbcexgui.client.widget.ParentWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.SuppliedWidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
-import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.CycleButton;
-import io.github.stuff_stuffs.tbcexgui.client.widget.panel.BasicPanelWidget;
+import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.CycleSelectionWheelWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.HidingPanel;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -20,7 +19,7 @@ import net.minecraft.world.World;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen {
     private final BattleParticipantHandle handle;
@@ -28,12 +27,12 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
     private final BattleHudContext hudContext;
     private final PathContext context;
     private final HidingPanel options;
-    private final CycleButton<Boolean> fallDamageOption;
+    private final Supplier<Boolean> fallDamageOption;
 
     private boolean locked = false;
     private boolean altMode = false;
 
-    public BattleMoveScreen(final BattleParticipantHandle handle, final World world, BattleHudContext hudContext) {
+    public BattleMoveScreen(final BattleParticipantHandle handle, final World world, final BattleHudContext hudContext) {
         super(new LiteralText("Move"), new RootPanelWidget());
         this.handle = handle;
         this.world = world;
@@ -43,20 +42,18 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
 
         options = new HidingPanel();
         final ParentWidget widget = (ParentWidget) this.widget;
-        final DoubleSupplier left = () -> (Math.max(width / (double)height, 1) - 1) / -2.0;
-        final DoubleSupplier top = () -> (Math.max(height / (double)width, 1) - 1) / -2.0;
-        final SuppliedWidgetPosition optionsPanelPos = new SuppliedWidgetPosition(left, top, () -> 10);
-        final BasicPanelWidget optionsPanel = new BasicPanelWidget(optionsPanelPos, () -> false, () -> 1, 0.275, 0.25);
-        fallDamageOption = new CycleButton<>(WidgetPosition.combine(optionsPanelPos, WidgetPosition.of(0.005, 0.005, 1)), () -> 1, () -> true, 0.265, 0.075, false, b -> !b, b -> {
-            if (b) {
-                return new LiteralText("Fall damage paths enabled");
-            } else {
-                return new LiteralText("Fall damage paths disabled");
-            }
-        }, b -> List.of());
-        optionsPanel.addWidget(fallDamageOption);
         widget.addWidget(options);
-        options.addWidget(optionsPanel);
+        final WidgetPosition center = WidgetPosition.of(0.5, 0.5, 1);
+        final CycleSelectionWheelWidget.Builder builder = CycleSelectionWheelWidget.builder();
+        fallDamageOption = builder.addEntry(BattleInventoryFilterWidget.FIRST_BACKGROUND_COLOUR, 127, BattleInventoryFilterWidget.SECOND_BACKGROUND_COLOUR, 127, BattleInventoryFilterWidget.FIRST_BACKGROUND_COLOUR, 127, b -> {
+            if (b) {
+                return new LiteralText("Fall Damage Paths: Enabled");
+            } else {
+                return new LiteralText("Fall Damage Paths: Disabled");
+            }
+        }, b -> List.of(), b -> !b, b -> !b, () -> null, false);
+        final CycleSelectionWheelWidget optionWheel = builder.build(0.15, 0.3, 0.3125, center);
+        options.addWidget(optionWheel);
         widget.addWidget(new BattleMoveWidget(handle, world, context, this.hudContext));
     }
 
@@ -69,10 +66,8 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
         if ((altModeKey.getCategory() == InputUtil.Type.KEYSYM && altModeKey.getCode() == keyCode) || (altModeKey.getCategory() == InputUtil.Type.SCANCODE && altModeKey.getCode() == scanCode)) {
             altMode = !altMode;
             options.setHidden(!altMode);
-            return true;
-        }
-        if (altMode && keyCode == GLFW.GLFW_KEY_F) {
-            fallDamageOption.click();
+            passEvents = !altMode;
+            locked = !altMode;
             return true;
         }
         return false;
@@ -94,7 +89,7 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
     @Override
     public void tick() {
         super.tick();
-        context.fallDamagePaths = fallDamageOption.getCurrentState();
+        context.fallDamagePaths = fallDamageOption.get();
     }
 
     @Override

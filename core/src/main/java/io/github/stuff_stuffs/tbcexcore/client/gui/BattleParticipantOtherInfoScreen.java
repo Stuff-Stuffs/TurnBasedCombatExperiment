@@ -93,7 +93,7 @@ public class BattleParticipantOtherInfoScreen extends TBCExScreen implements Mou
     @Override
     public void render(final MatrixStack matrices, final int mouseX, final int mouseY, final float delta) {
         if (statListHandle == null && targetHandle != null) {
-            final BasicPanelWidget panel = new BasicPanelWidget(WidgetPosition.of(0.125, 0.125, 1), () -> true, () -> 1, 0.75, 0.75);
+            final BasicPanelWidget panel = new BasicPanelWidget(WidgetPosition.of(0.125, 0.125, 1), 0.75, 0.75);
             final ParticipantOtherStatListWidget statListWidget = new ParticipantOtherStatListWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0.005, 0.380, 0)), 0.365, 0.365, 0.05, handle, targetHandle, world);
             final ParticipantStatusEffectListWidget statusEffectWidget = new ParticipantStatusEffectListWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0.380, 0.380, 0)), 0.365, 0.365, 0.05, targetHandle, world);
             panel.addWidget(statListWidget);
