@@ -1,17 +1,6 @@
-repositories {
-    maven {
-        name = "TerraformersMC"
-        url = "https://maven.terraformersmc.com/"
-    }
-    maven {
-        name = "Ladysnake Libs"
-        url = "https://ladysnake.jfrog.io/artifactory/mods"
-    }
-}
-
 dependencies {
     implementation project(':core')
     implementation project(':util')
-    modImplementation "dev.emi:trinkets:${project.parent.trinkets_version}"
-    include "dev.emi:trinkets:${project.parent.trinkets_version}"
+    modImplementation "dev.emi:trinkets:${project.trinkets_version}"
+    include "dev.emi:trinkets:${project.trinkets_version}"
 }

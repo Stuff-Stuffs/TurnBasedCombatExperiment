@@ -1,9 +1,10 @@
 import net.fabricmc.loom.task.RemapJarTask
 
 import java.nio.charset.StandardCharsets
+
 plugins {
     id 'fabric-loom' version '0.10-SNAPSHOT'
-    id 'io.github.juuxel.loom-quiltflower-mini' version "1.1.0"
+    id 'io.github.juuxel.loom-quiltflower-mini' version "1.2.0"
     id 'maven-publish'
 }
 
@@ -38,7 +39,7 @@ subprojects {
 
 allprojects {
     apply plugin: "fabric-loom"
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_16
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
     version = rootProject.mod_version
 
     configurations {
@@ -46,6 +47,14 @@ allprojects {
     }
 
     repositories {
+        maven {
+            name = "TerraformersMC"
+            url = "https://maven.terraformersmc.com/"
+        }
+        maven {
+            name = "Ladysnake Libs"
+            url = "https://ladysnake.jfrog.io/artifactory/mods"
+        }
         maven { url = "https://oss.sonatype.org/content/repositories/releases/" }
     }
 
@@ -74,7 +83,7 @@ allprojects {
     // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
     tasks.withType(JavaCompile).configureEach {
         it.options.encoding = "UTF-8"
-        it.options.release = 16
+        it.options.release = 17
     }
 
     java {
@@ -109,19 +118,19 @@ repositories {
 }
 
 dependencies {
-    modRuntime "curse.maven:LazyDFU-433518:3209972"
+    modRuntimeOnly "curse.maven:LazyDFU-433518:3209972"
     testImplementation project(path: ":test", configuration: "dev")
     subprojects.each {
         String path = collectName(it)
-        if(path != "test") {
-            implementation project(path: ":${path}", configuration: "dev")
+        if (path != "test" && it.buildFile.exists()) {
+            implementation project(":$path")
             include project(":${path}")
         }
     }
 }
 
 private String collectName(it) {
-    if(it.parent !=null && it.parent.name != project.name) {
+    if (it.parent != null && it.parent.name != project.name) {
         return collectName(it.parent) + ":" + it.name
     }
     return it.name
@@ -138,7 +147,9 @@ sourceSets {
     }
 }
 
-subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
+subprojects.each {
+    remapJar.dependsOn("${it.path}:remapJar")
+}
 
 task testmodJar(type: Jar, dependsOn: testmodClasses) {
     archiveBaseName = 'TurnBasedCombatTest'
@@ -159,25 +170,3 @@ task remapTestmodJar(type: RemapJarTask, dependsOn: project.testmodJar) {
 }
 
 build.dependsOn(remapTestmodJar)
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar")) {
-                builtBy(remapJar)
-            }
-            pom.withXml {
-                def depsNode = asNode().appendNode("dependencies")
-                subprojects.each {
-                    def depNode = depsNode.appendNode("dependency")
-                    depNode.appendNode("groupId", it.group)
-                    depNode.appendNode("artifactId", it.name)
-                    depNode.appendNode("version", it.version)
-                    depNode.appendNode("scope", "compile")
-                }
-            }
-        }
-    }
-}
-tasks.publish.dependsOn build
-

@@ -4,4 +4,5 @@ dependencies {
     implementation project(':animation')
     implementation project(':util')
     implementation project(':content:equipment')
+    implementation project(':content:character')
 }
