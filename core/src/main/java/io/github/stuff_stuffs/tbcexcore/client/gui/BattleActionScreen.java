@@ -45,7 +45,7 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
     }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean shouldPause() {
         return false;
     }
 

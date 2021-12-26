@@ -1,6 +1,10 @@
 dependencies {
     implementation project(':core')
     implementation project(':util')
-    modImplementation "dev.emi:trinkets:${project.trinkets_version}"
-    include "dev.emi:trinkets:${project.trinkets_version}"
+    modImplementation("dev.emi:trinkets:${project.trinkets_version}") {
+        exclude group: 'net.fabricmc'
+    }
+    include("dev.emi:trinkets:${project.trinkets_version}") {
+        exclude group: 'net.fabricmc'
+    }
 }

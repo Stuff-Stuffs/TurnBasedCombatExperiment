@@ -51,7 +51,7 @@ public class BattleInventoryScreen extends TBCExScreen {
     }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean shouldPause() {
         return false;
     }
 

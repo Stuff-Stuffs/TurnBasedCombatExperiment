@@ -30,7 +30,7 @@ public class BattleParticipantSelfInfoScreen extends TBCExScreen {
     }
 
     @Override
-    public boolean isPauseScreen() {
+    public boolean shouldPause() {
         return false;
     }
 }
