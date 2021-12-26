@@ -14,13 +14,26 @@ public class StackWidget extends AbstractWidget {
         this.fallback = fallback;
     }
 
+    @Override
+    public void resize(double width, double height, int pixelWidth, int pixelHeight) {
+        super.resize(width, height, pixelWidth, pixelHeight);
+        fallback.resize(width, height, pixelWidth, pixelHeight);
+        if(!widgetStack.isEmpty()) {
+            widgetStack.top().resize(width, height, pixelWidth, pixelHeight);
+        }
+    }
+
     public void push(final Widget widget) {
         widgetStack.push(widget);
+        widget.resize(getScreenWidth(), getPixelHeight(), getPixelWidth(), getPixelHeight());
     }
 
     public void pop() {
         if (!widgetStack.isEmpty()) {
             widgetStack.pop();
+            if(!widgetStack.isEmpty()) {
+                widgetStack.top().resize(getScreenWidth(), getPixelHeight(), getPixelWidth(), getPixelHeight());
+            }
         }
     }
 

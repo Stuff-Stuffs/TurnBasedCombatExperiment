@@ -215,7 +215,7 @@ public class SelectionWheelWidget extends AbstractWidget {
             final List<Entry> entries = new ArrayList<>(size);
             if (size < 3) {
                 if (size == 1) {
-                    entries.add(createSingle(partialEntries.get(0), outerDiameter, hoverDiameter));
+                    entries.add(createSingle(partialEntries.get(0), innerDiameter, outerDiameter));
                 } else {
                     entries.add(createDouble(partialEntries.get(0), 0, outerDiameter, hoverDiameter));
                     entries.add(createDouble(partialEntries.get(1), 1, outerDiameter, hoverDiameter));
@@ -242,15 +242,15 @@ public class SelectionWheelWidget extends AbstractWidget {
             return new SelectionWheelWidget(position, entries);
         }
 
-        private static Entry createSingle(final PartialEntry partial, final double outerDiameter, final double hoverDiameter) {
-            final Vec2d first = new Vec2d(outerDiameter * SQRT_2, outerDiameter * SQRT_2);
-            final Vec2d second = new Vec2d(outerDiameter * SQRT_2, outerDiameter * -SQRT_2);
-            final Vec2d third = new Vec2d(outerDiameter * -SQRT_2, outerDiameter * -SQRT_2);
-            final Vec2d fourth = new Vec2d(outerDiameter * -SQRT_2, outerDiameter * SQRT_2);
-            final Vec2d firstHover = new Vec2d(hoverDiameter * SQRT_2, hoverDiameter * SQRT_2);
-            final Vec2d secondHover = new Vec2d(hoverDiameter * SQRT_2, hoverDiameter * -SQRT_2);
-            final Vec2d thirdHover = new Vec2d(hoverDiameter * -SQRT_2, hoverDiameter * -SQRT_2);
-            final Vec2d fourthHover = new Vec2d(hoverDiameter * -SQRT_2, hoverDiameter * SQRT_2);
+        private static Entry createSingle(final PartialEntry partial, final double innerDiameter, final double outerDiameter) {
+            final Vec2d first = new Vec2d(innerDiameter * SQRT_2, innerDiameter * SQRT_2);
+            final Vec2d second = new Vec2d(innerDiameter * SQRT_2, innerDiameter * -SQRT_2);
+            final Vec2d third = new Vec2d(innerDiameter * -SQRT_2, innerDiameter * -SQRT_2);
+            final Vec2d fourth = new Vec2d(innerDiameter * -SQRT_2, innerDiameter * SQRT_2);
+            final Vec2d firstHover = new Vec2d(outerDiameter * SQRT_2, outerDiameter * SQRT_2);
+            final Vec2d secondHover = new Vec2d(outerDiameter * SQRT_2, outerDiameter * -SQRT_2);
+            final Vec2d thirdHover = new Vec2d(outerDiameter * -SQRT_2, outerDiameter * -SQRT_2);
+            final Vec2d fourthHover = new Vec2d(outerDiameter * -SQRT_2, outerDiameter * SQRT_2);
             return new Entry(new Vec2d[]{first, second, third, fourth}, new Vec2d[]{firstHover, secondHover, thirdHover, fourthHover}, 0, partial.colour, partial.alpha, partial.hoveredColour, partial.hoveredAlpha, partial.name, partial.tooltip, partial.enabled, partial.action);
         }
 

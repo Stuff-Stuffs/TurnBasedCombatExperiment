@@ -1,5 +1,5 @@
 dependencies {
-    implementation project(':gui')
-    implementation project(':animation')
-    implementation project(':util')
+    api project(path: ':gui', configuration: "namedElements")
+    api project(path: ':animation', configuration: "namedElements")
+    api project(path: ':util', configuration: "namedElements")
 }

@@ -90,14 +90,24 @@ public class PlayerStatsWidget extends AbstractWidget {
 
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
-        scroll(-deltaY);
-        return true;
+        double x = position.getX();
+        double y = position.getY();
+        if(new Rect2d(x,y,x+width,y+width).isIn(mouseX,mouseY)) {
+            scroll(-deltaY);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
-        scroll(amount);
-        return true;
+        double x = position.getX();
+        double y = position.getY();
+        if(new Rect2d(x,y,x+width,y+width).isIn(mouseX,mouseY)) {
+            scroll(-amount);
+            return true;
+        }
+        return false;
     }
 
     @Override

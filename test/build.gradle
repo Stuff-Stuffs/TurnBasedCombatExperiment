@@ -1,8 +1,8 @@
 dependencies {
-    implementation project(':core')
-    implementation project(':gui')
-    implementation project(':animation')
-    implementation project(':util')
-    implementation project(':content:equipment')
-    implementation project(':content:character')
+    api project(path: ':core', configuration: "namedElements")
+    api project(path: ':gui', configuration: "namedElements")
+    api project(path: ':animation', configuration: "namedElements")
+    api project(path: ':util', configuration: "namedElements")
+    api project(path: ':content:equipment', configuration: "namedElements")
+    api project(path: ':content:character', configuration: "namedElements")
 }

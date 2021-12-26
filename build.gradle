@@ -1,16 +1,39 @@
+import net.fabricmc.loom.task.RemapJarTask
+
 plugins {
-    id 'fabric-loom' version '0.10-SNAPSHOT' apply false
+    id 'fabric-loom' version '0.10-SNAPSHOT'
     id 'io.github.juuxel.loom-quiltflower-mini' version "1.2.0" apply false
     id 'maven-publish'
 }
 version = project.mod_version
 group = project.maven_group
 
+subprojects {
+    apply plugin: 'fabric-loom'
+    apply plugin: 'maven-publish'
+
+    archivesBaseName = project.name
+    group = "${rootProject.group}"
+    version = rootProject.version
+}
+
 allprojects {
     apply plugin: "fabric-loom"
     apply plugin: "io.github.juuxel.loom-quiltflower-mini"
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+
+    tasks.withType(JavaCompile) {
+        it.options.encoding = "UTF-8"
+        it.options.release.set(17)
+    }
+
+    sourceSets {
+        testmod {
+            compileClasspath += main.compileClasspath
+            runtimeClasspath += main.runtimeClasspath
+        }
+    }
 
     repositories {
         maven {
@@ -21,14 +44,17 @@ allprojects {
             name = "Ladysnake Libs"
             url = "https://ladysnake.jfrog.io/artifactory/mods"
         }
-        maven { url = "https://oss.sonatype.org/content/repositories/releases/" }
+        maven {
+            name = "OSS"
+            url = "https://oss.sonatype.org/content/repositories/releases/"
+        }
     }
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
         mappings "net.fabricmc:yarn:${rootProject.yarn_mappings}:v2"
         modApi "net.fabricmc:fabric-loader:${rootProject.loader_version}"
-
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
         //this shouldn't need to be here
         implementation "de.javagl:obj:0.3.0"
         include "de.javagl:obj:0.3.0"
@@ -45,9 +71,11 @@ allprojects {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
     // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    tasks.withType(JavaCompile) {
-        it.options.encoding = "UTF-8"
-        it.options.release.set(17)
+
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        archiveClassifier = "sources"
+        from sourceSets.main.allSource
     }
 
     java {
@@ -57,29 +85,13 @@ allprojects {
         withSourcesJar()
     }
 
-    sourceSets {
-        testmod {
-            compileClasspath += main.compileClasspath
-            runtimeClasspath += main.runtimeClasspath
-        }
-    }
-
     loom {
         shareRemapCaches = true
     }
 }
 
-subprojects {
-    apply plugin: 'fabric-loom'
-    apply plugin: 'maven-publish'
-
-    archivesBaseName = project.name
-    group = "${rootProject.group}"
-    version = rootProject.version
-
-    dependencies {
-        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    }
+subprojects.each {
+    remapJar.dependsOn("${it.path}:remapJar")
 }
 
 repositories {
@@ -93,22 +105,11 @@ repositories {
 
 dependencies {
     testImplementation project(":test")
-    subprojects.each {
-        String path = collectName(it)
-        if (path != "test") {
-            implementation project(":$path")
-            afterEvaluate {
-                include project(":${path}")
-            }
+    afterEvaluate {
+        subprojects.each {
+            implementation project(path: ":${it.path}", configuration: "namedElements")
         }
     }
-}
-
-private String collectName(it) {
-    if (it.parent != null && it.parent.name != project.name) {
-        return collectName(it.parent) + ":" + it.name
-    }
-    return it.name
 }
 
 sourceSets {
@@ -122,6 +123,23 @@ sourceSets {
     }
 }
 
-subprojects.each {
-    remapJar.dependsOn("${it.path}:remapJar")
+task testmodJar(type: Jar, dependsOn: testmodClasses) {
+    archiveBaseName = 'TBCExTest'
+    archiveClassifier = 'dev'
+    from(sourceSets.testmod.output) {
+        include 'fabric.mod.json'
+        expand 'version': project.version
+    }
+    from(sourceSets.testmod.output) {
+        exclude 'fabric.mod.json'
+    }
 }
+
+task remapTestmodJar(type: RemapJarTask, dependsOn: project.testmodJar) {
+    archiveBaseName = 'TBCExTest'
+    archiveClassifier = 'testmod'
+    input = testmodJar.archiveFile
+    addNestedDependencies = false
+}
+
+build.dependsOn(remapTestmodJar)
