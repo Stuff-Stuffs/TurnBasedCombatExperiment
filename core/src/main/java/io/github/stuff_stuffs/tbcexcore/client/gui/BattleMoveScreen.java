@@ -8,7 +8,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexgui.client.screen.MouseLockableScreen;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
 import io.github.stuff_stuffs.tbcexgui.client.widget.ParentWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.CycleSelectionWheelWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.HidingPanel;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;

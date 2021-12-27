@@ -64,19 +64,6 @@ public final class Matrix3d {
         return new Matrix3d(a00, a01, a02, a10, a11, a12, a20, a21, a22);
     }
 
-    public Matrix3d invert() {
-        final double m00 = this.m00;
-        final double m01 = m10;
-        final double m02 = m20;
-        final double m10 = this.m01;
-        final double m11 = this.m11;
-        final double m12 = m21;
-        final double m20 = this.m02;
-        final double m21 = this.m12;
-        final double m22 = this.m22;
-        return new Matrix3d(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-    }
-
     public Vec3d[] getBasis() {
         return new Vec3d[]{new Vec3d(m00, m10, m20), new Vec3d(m01, m11, m21), new Vec3d(m02, m12, m22)};
     }
@@ -89,6 +76,14 @@ public final class Matrix3d {
         return new Vec3d(m00 * x + m01 * y + m02 * z, m10 * x + m11 * y + m12 * z, m20 * x + m21 * y + m22 * z);
     }
 
+    public double transformX(double x, double y) {
+        return transformX(x,y,1);
+    }
+
+    public double transformY(double x, double y) {
+        return transformY(x,y,1);
+    }
+
     public double transformX(final double x, final double y, final double z) {
         return m00 * x + m01 * y + m02 * z;
     }
@@ -99,5 +94,13 @@ public final class Matrix3d {
 
     public double transformZ(final double x, final double y, final double z) {
         return m20 * x + m21 * y + m22 * z;
+    }
+
+    public static Matrix3d scale(double xScale, double yScale) {
+        return new Matrix3d(xScale,0,0,0,yScale,0,0,0,1);
+    }
+
+    public static Matrix3d translate(double x, double y) {
+        return new Matrix3d(0,0, x,0,0, y,0,0,1);
     }
 }

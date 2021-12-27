@@ -3,7 +3,6 @@ package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.render.ScissorStack;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;

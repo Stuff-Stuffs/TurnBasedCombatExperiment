@@ -1,7 +1,6 @@
 package io.github.stuff_stuffs.tbcexcharacter.client.screen.widget;
 
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import net.minecraft.client.util.math.MatrixStack;
 
 public class PlayerEntityWidget extends AbstractWidget {

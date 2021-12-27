@@ -2,7 +2,6 @@ package io.github.stuff_stuffs.tbcexgui.client.widget.interaction;
 
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetPosition;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import net.fabricmc.fabric.api.util.TriState;

@@ -1,75 +1,91 @@
 package io.github.stuff_stuffs.tbcexgui.client.render;
 
-import io.github.stuff_stuffs.tbcexutil.common.CachingFunction;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import net.minecraft.client.render.*;
-import net.minecraft.text.Style;
-import net.minecraft.util.Identifier;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.RenderPhase;
+import net.minecraft.client.render.Shader;
+import net.minecraft.client.render.VertexFormats;
+import net.minecraft.resource.ResourceManager;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public final class GuiRenderLayers extends RenderLayer {
-    public static final RenderLayer POSITION_COLOUR_LAYER = RenderLayer.of("gui_position_colour", VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.QUADS, 1024, false, false, MultiPhaseParameters.builder().cull(RenderPhase.DISABLE_CULLING).shader(RenderPhase.COLOR_SHADER).transparency(RenderPhase.NO_TRANSPARENCY).target(RenderPhase.MAIN_TARGET).build(false));
-    public static final RenderLayer POSITION_COLOUR_TRANSPARENT_LAYER = RenderLayer.of("gui_position_colour_transparent", VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.QUADS, 1024, false, true, MultiPhaseParameters.builder().cull(RenderPhase.DISABLE_CULLING).shader(RenderPhase.COLOR_SHADER).transparency(RenderPhase.TRANSLUCENT_TRANSPARENCY).target(RenderPhase.TRANSLUCENT_TARGET).writeMaskState(RenderPhase.COLOR_MASK).build(false));
-    public static final CachingFunction<Identifier, RenderLayer> POSITION_COLOUR_TEXTURE_LAYER = new CachingFunction<>(id -> RenderLayer.of("gui_position_colour_texture:" + id, VertexFormats.POSITION_COLOR_TEXTURE, VertexFormat.DrawMode.QUADS, 256, false, false, MultiPhaseParameters.builder().shader(RenderPhase.POSITION_COLOR_TEXTURE_SHADER).cull(RenderPhase.DISABLE_CULLING).texture(new Texture(id, false, false)).build(false)));
-    public static final CachingFunction<Identifier, RenderLayer> POSITION_COLOUR_TEXTURE_TRANSPARENT_LAYER = new CachingFunction<>(id -> RenderLayer.of("gui_position_colour_texture_transparent:" + id, VertexFormats.POSITION_COLOR_TEXTURE, VertexFormat.DrawMode.QUADS, 256, false, true, MultiPhaseParameters.builder().shader(RenderPhase.POSITION_COLOR_TEXTURE_SHADER).cull(RenderPhase.DISABLE_CULLING).texture(new Texture(id, false, false)).transparency(RenderPhase.TRANSLUCENT_TRANSPARENCY).target(RenderPhase.TRANSLUCENT_TARGET).writeMaskState(RenderPhase.COLOR_MASK).build(false)));
-    private static final VertexConsumerProvider.Immediate immediate;
+public final class GuiRenderLayers extends RenderPhase {
+    private static final Map<String, net.minecraft.client.render.Shader> SHADERS_TEXTURE = new Object2ReferenceOpenHashMap<>();
+    private static final Map<String, net.minecraft.client.render.Shader> SHADERS_NO_TEXTURE = new Object2ReferenceOpenHashMap<>();
+    private static final Map<String, RenderPhase.Shader> SHADERS_TEXTURE_PHASE = new Object2ReferenceOpenHashMap<>();
+    private static final Map<String, RenderPhase.Shader> SHADERS_NO_TEXTURE_PHASE = new Object2ReferenceOpenHashMap<>();
+    public static final RenderPhase.DepthTest NO_DEPTH_TEST = RenderPhase.ALWAYS_DEPTH_TEST;
+    public static final RenderPhase.DepthTest DEPTH_TEST = RenderPhase.LEQUAL_DEPTH_TEST;
+    public static final RenderPhase.Texture BLOCK_ATLAS_TEXTURE = RenderPhase.BLOCK_ATLAS_TEXTURE;
+    public static final RenderPhase.Target MAIN_TARGET = RenderPhase.MAIN_TARGET;
+    public static final RenderPhase.Target TRANSLUCENT_TARGET = RenderPhase.TRANSLUCENT_TARGET;
+    public static final RenderPhase.Transparency NO_TRANSPARENCY = RenderPhase.NO_TRANSPARENCY;
+    public static final RenderPhase.Transparency TRANSLUCENT_TRANSPARENCY = RenderPhase.TRANSLUCENT_TRANSPARENCY;
+    public static final RenderPhase.WriteMaskState ALL_MASK = RenderPhase.ALL_MASK;
+    public static final RenderPhase.WriteMaskState COLOR_MASK = RenderPhase.COLOR_MASK;
+    private static ResourceManager RESOURCE_MANAGER;
 
-    public static RenderLayer getPositionColourTextureLayer(final Identifier texture) {
-        return getPositionColourTextureLayer(texture,  false);
+    private GuiRenderLayers(String name, Runnable beginAction, Runnable endAction) {
+        super(name, beginAction, endAction);
     }
 
-    public static RenderLayer getPositionColourTextureLayer(final Identifier texture, final boolean transparent) {
-        if (transparent) {
-            return POSITION_COLOUR_TEXTURE_TRANSPARENT_LAYER.apply(texture);
+    public static RenderPhase.Shader getShader(String shaderName, boolean texture) {
+        if (texture) {
+            return SHADERS_TEXTURE_PHASE.computeIfAbsent(shaderName, s -> createShaderPhase(s, true));
         } else {
-            return POSITION_COLOUR_TEXTURE_LAYER.apply(texture);
+            return SHADERS_NO_TEXTURE_PHASE.computeIfAbsent(shaderName, s -> createShaderPhase(s, false));
         }
     }
 
-    private GuiRenderLayers(final String name, final VertexFormat vertexFormat, final VertexFormat.DrawMode drawMode,
-                            final int expectedBufferSize, final boolean hasCrumbling, final boolean translucent, final Runnable startAction,
-                            final Runnable endAction) {
-        super(name, vertexFormat, drawMode, expectedBufferSize, hasCrumbling, translucent, startAction, endAction);
+    private static RenderPhase.Shader createShaderPhase(String shaderName, boolean texture) {
+        if (texture ? !SHADERS_TEXTURE.containsKey(shaderName) : !SHADERS_NO_TEXTURE.containsKey(shaderName)) {
+            createShader(shaderName, texture);
+        }
+        return new Shader(texture ? () -> SHADERS_TEXTURE.get(shaderName) : () -> SHADERS_NO_TEXTURE.get(shaderName));
     }
 
-    public static VertexConsumerProvider.Immediate getVertexConsumer() {
-        return immediate;
+    private static void createShader(String name, boolean texture) {
+        if (SHADERS_TEXTURE.containsKey(name) || SHADERS_NO_TEXTURE.containsKey(name)) {
+            throw new TBCExException("Tried to load shader in NO_TEXTURE and TEXTURE formats");
+        }
+        net.minecraft.client.render.Shader shader;
+        final GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
+        if(gameRenderer.getShader(name)!=null) {
+            shader = gameRenderer.getShader(name);
+        } else {
+            try {
+                shader = new net.minecraft.client.render.Shader(RESOURCE_MANAGER, name, texture ? VertexFormats.POSITION_COLOR_TEXTURE : VertexFormats.POSITION_COLOR);
+            } catch (IOException e) {
+                throw new TBCExException("Error while loading shader", e);
+            }
+        }
+        if (texture) {
+            SHADERS_TEXTURE.put(name, shader);
+        } else {
+            SHADERS_NO_TEXTURE.put(name, shader);
+        }
     }
 
-    static {
-        final Map<RenderLayer, BufferBuilder> guiBuffers = new Reference2ReferenceOpenHashMap<>();
-        RenderLayer renderLayer = RenderLayer.getText(Style.DEFAULT_FONT_ID);
-        BufferBuilder builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        guiBuffers.put(renderLayer, builder);
-
-        renderLayer = RenderLayer.getTextSeeThrough(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        guiBuffers.put(renderLayer, builder);
-
-        renderLayer = RenderLayer.getTextPolygonOffset(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        guiBuffers.put(renderLayer, builder);
-
-        renderLayer = RenderLayer.getTextIntensity(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        guiBuffers.put(renderLayer, builder);
-
-        renderLayer = RenderLayer.getTextIntensitySeeThrough(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        guiBuffers.put(renderLayer, builder);
-
-        renderLayer = RenderLayer.getTextIntensityPolygonOffset(Style.DEFAULT_FONT_ID);
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        guiBuffers.put(renderLayer, builder);
-
-        renderLayer = POSITION_COLOUR_LAYER;
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        guiBuffers.put(renderLayer, builder);
-
-        renderLayer = POSITION_COLOUR_TRANSPARENT_LAYER;
-        builder = new BufferBuilder(renderLayer.getExpectedBufferSize());
-        guiBuffers.put(renderLayer, builder);
-        immediate = VertexConsumerProvider.immediate(guiBuffers, new BufferBuilder(4096));
+    public static void setResourceManager(ResourceManager resourceManager) {
+        RESOURCE_MANAGER = resourceManager;
+        List<String> currentShadersTexture = new ArrayList<>(SHADERS_TEXTURE.size());
+        currentShadersTexture.addAll(SHADERS_TEXTURE.keySet());
+        List<String> currentShadersNoTexture = new ArrayList<>(SHADERS_NO_TEXTURE.size());
+        currentShadersNoTexture.addAll(SHADERS_NO_TEXTURE.keySet());
+        SHADERS_TEXTURE.forEach((name, shader) -> shader.close());
+        SHADERS_TEXTURE.clear();
+        SHADERS_NO_TEXTURE.forEach((name, shader) -> shader.close());
+        SHADERS_NO_TEXTURE.clear();
+        for (String shader : currentShadersTexture) {
+            createShader(shader, true);
+        }
+        for (String shader : currentShadersNoTexture) {
+            createShader(shader, false);
+        }
     }
 }

@@ -1,0 +1,21 @@
+package io.github.stuff_stuffs.tbcexgui.client.render;
+
+public interface GuiQuad {
+    int tag();
+
+    float posByIndex(int vertexIndex, int coordinateIndex);
+
+    float x(int vertexIndex);
+
+    float y(int vertexIndex);
+
+    float depth();
+
+    int spriteColor(int vertexIndex);
+
+    float spriteU(int vertexIndex);
+
+    float spriteV(int vertexIndex);
+
+    GuiRenderMaterial renderMaterial();
+}
