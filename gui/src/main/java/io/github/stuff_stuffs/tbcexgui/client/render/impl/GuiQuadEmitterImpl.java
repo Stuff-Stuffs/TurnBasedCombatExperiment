@@ -123,14 +123,15 @@ public class GuiQuadEmitterImpl implements GuiQuadEmitter {
         final GuiRenderMaterialImpl renderMaterial = (GuiRenderMaterialImpl) renderMaterial();
         final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(renderMaterial.getRenderLayer());
         int colourModifier = renderMaterial.translucent() ? 0 : 0xFF000000;
-        context.transformQuad(delegate);
-        for (int i = 0; i < 4; i++) {
-            vertexConsumer.vertex(x(i), y(i), depth());
-            vertexConsumer.color(spriteColor(i) | colourModifier);
-            if (!renderMaterial.ignoreTexture()) {
-                vertexConsumer.texture(spriteU(i), spriteV(i));
+        if (context.transformQuad(delegate)) {
+            for (int i = 0; i < 4; i++) {
+                vertexConsumer.vertex(x(i), y(i), depth());
+                vertexConsumer.color(spriteColor(i) | colourModifier);
+                if (!renderMaterial.ignoreTexture()) {
+                    vertexConsumer.texture(spriteU(i), spriteV(i));
+                }
+                vertexConsumer.next();
             }
-            vertexConsumer.next();
         }
         delegate.reset();
         return this;

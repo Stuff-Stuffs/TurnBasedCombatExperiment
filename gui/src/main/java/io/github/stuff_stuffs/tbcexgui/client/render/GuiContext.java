@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexgui.client.render;
 
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
+import net.minecraft.text.OrderedText;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vector4f;
@@ -95,4 +96,12 @@ public interface GuiContext {
     Vec2d transformMouseCursor(Vec2d mouseCursor);
 
     Vec2d transformMouseDelta(Vec2d mouseDelta);
+
+    void renderText(OrderedText text, TextOutline outline, int colour, int outlineColour, int underlineColour);
+
+    enum TextOutline {
+        NONE,
+        OUTLINE,
+        SHADOW
+    }
 }

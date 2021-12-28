@@ -1,10 +1,12 @@
 package io.github.stuff_stuffs.tbcexgui.client.render;
 
 import io.github.stuff_stuffs.tbcexgui.client.render.impl.GuiRenderMaterialFinderImpl;
+import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.util.Identifier;
 
 public interface GuiRenderMaterialFinder {
     static GuiRenderMaterialFinder finder() {
-        return new GuiRenderMaterialFinderImpl(false, false, false, "position_color_texture", "position_color");
+        return new GuiRenderMaterialFinderImpl(false, false, false, "position_color_tex", "position_color", SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
     }
 
     GuiRenderMaterialFinder depthTest(boolean depthTest);
@@ -14,6 +16,8 @@ public interface GuiRenderMaterialFinder {
     GuiRenderMaterialFinder ignoreTexture(boolean ignore);
 
     GuiRenderMaterialFinder shader(String textureShader, String noTextureShader);
+
+    GuiRenderMaterialFinder texture(Identifier identifier);
 
     GuiRenderMaterial find();
 }

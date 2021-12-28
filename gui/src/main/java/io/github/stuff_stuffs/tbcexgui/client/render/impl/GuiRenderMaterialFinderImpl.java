@@ -1,13 +1,14 @@
 package io.github.stuff_stuffs.tbcexgui.client.render.impl;
 
-import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterialFinder;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterial;
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterialFinder;
 import io.github.stuff_stuffs.tbcexutil.common.StringInterpolator;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.util.Identifier;
 
 import java.util.Map;
 
@@ -18,13 +19,15 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
     private final boolean ignoreTexture;
     private final String textureShader;
     private final String noTextureShader;
+    private final Identifier texture;
 
-    public GuiRenderMaterialFinderImpl(boolean depthTest, boolean translucent, boolean ignoreTexture, String textureShader, String noTextureShader) {
+    public GuiRenderMaterialFinderImpl(boolean depthTest, boolean translucent, boolean ignoreTexture, String textureShader, String noTextureShader, Identifier texture) {
         this.depthTest = depthTest;
         this.translucent = translucent;
         this.ignoreTexture = ignoreTexture;
         this.textureShader = textureShader;
         this.noTextureShader = noTextureShader;
+        this.texture = texture;
     }
 
     private static int getFactoryIndex(boolean depthTest, boolean translucent, boolean ignoreTexture) {
@@ -43,27 +46,32 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
 
     @Override
     public GuiRenderMaterialFinder depthTest(boolean depthTest) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, textureShader, noTextureShader);
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, textureShader, noTextureShader, texture);
     }
 
     @Override
     public GuiRenderMaterialFinder translucent(boolean translucent) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, textureShader, noTextureShader);
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, textureShader, noTextureShader, texture);
     }
 
     @Override
     public GuiRenderMaterialFinder ignoreTexture(boolean ignore) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, textureShader, noTextureShader);
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, textureShader, noTextureShader, texture);
     }
 
     @Override
     public GuiRenderMaterialFinder shader(String textureShader, String noTextureShader) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, textureShader, noTextureShader);
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, textureShader, noTextureShader, texture);
+    }
+
+    @Override
+    public GuiRenderMaterialFinder texture(Identifier identifier) {
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, textureShader, noTextureShader, identifier);
     }
 
     @Override
     public GuiRenderMaterial find() {
-        return FACTORIES[getFactoryIndex(depthTest, translucent, ignoreTexture)].create(ignoreTexture ? noTextureShader : textureShader);
+        return FACTORIES[getFactoryIndex(depthTest, translucent, ignoreTexture)].create(ignoreTexture ? noTextureShader : textureShader, texture);
     }
 
     static {
@@ -93,11 +101,11 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
             cache = new Object2ReferenceOpenHashMap<>(2);
         }
 
-        public GuiRenderMaterialImpl create(String shader) {
-            return new GuiRenderMaterialImpl(depthTest, translucent, ignoreTexture, shader, createRenderLayer(shader));
+        public GuiRenderMaterialImpl create(String shader, Identifier texture) {
+            return new GuiRenderMaterialImpl(depthTest, translucent, ignoreTexture, shader, texture, createRenderLayer(shader, texture));
         }
 
-        private RenderLayer createRenderLayer(String shader) {
+        private RenderLayer createRenderLayer(String shader, Identifier texture) {
             return cache.computeIfAbsent(shader, s -> RenderLayer.of(
                             RENDER_LAYER_NAME.interpolate(depthTest, translucent, ignoreTexture, s),
                             ignoreTexture ? VertexFormats.POSITION_COLOR : VertexFormats.POSITION_COLOR_TEXTURE,
@@ -108,7 +116,7 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
                             RenderLayer.MultiPhaseParameters.builder().
                                     shader(GuiRenderLayers.getShader(s, !ignoreTexture)).
                                     depthTest(depthTest ? GuiRenderLayers.DEPTH_TEST : GuiRenderLayers.NO_DEPTH_TEST).
-                                    texture(GuiRenderLayers.BLOCK_ATLAS_TEXTURE).
+                                    texture(GuiRenderLayers.getTexture(texture)).
                                     target(translucent ? GuiRenderLayers.TRANSLUCENT_TARGET : GuiRenderLayers.MAIN_TARGET).
                                     transparency(translucent ? GuiRenderLayers.TRANSLUCENT_TRANSPARENCY : GuiRenderLayers.NO_TRANSPARENCY).
                                     writeMaskState(translucent ? GuiRenderLayers.COLOR_MASK : GuiRenderLayers.ALL_MASK).

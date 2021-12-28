@@ -8,6 +8,7 @@ import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.Shader;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public final class GuiRenderLayers extends RenderPhase {
     private static final Map<String, net.minecraft.client.render.Shader> SHADERS_NO_TEXTURE = new Object2ReferenceOpenHashMap<>();
     private static final Map<String, RenderPhase.Shader> SHADERS_TEXTURE_PHASE = new Object2ReferenceOpenHashMap<>();
     private static final Map<String, RenderPhase.Shader> SHADERS_NO_TEXTURE_PHASE = new Object2ReferenceOpenHashMap<>();
+    private static final Map<Identifier, RenderPhase.Texture> TEXTURE_MAP = new Object2ReferenceOpenHashMap<>();
     public static final RenderPhase.DepthTest NO_DEPTH_TEST = RenderPhase.ALWAYS_DEPTH_TEST;
     public static final RenderPhase.DepthTest DEPTH_TEST = RenderPhase.LEQUAL_DEPTH_TEST;
     public static final RenderPhase.Texture BLOCK_ATLAS_TEXTURE = RenderPhase.BLOCK_ATLAS_TEXTURE;
@@ -40,6 +42,10 @@ public final class GuiRenderLayers extends RenderPhase {
         } else {
             return SHADERS_NO_TEXTURE_PHASE.computeIfAbsent(shaderName, s -> createShaderPhase(s, false));
         }
+    }
+
+    public static RenderPhase.Texture getTexture(Identifier id) {
+        return TEXTURE_MAP.computeIfAbsent(id, identifier -> new Texture(identifier, false, false));
     }
 
     private static RenderPhase.Shader createShaderPhase(String shaderName, boolean texture) {

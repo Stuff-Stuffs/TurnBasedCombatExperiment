@@ -38,10 +38,16 @@ public final class StringInterpolator {
         if (params.length != prefixes.length) {
             throw new IllegalArgumentException();
         }
-        final StringBuilder builder = new StringBuilder(minSize * 4);
+        String[] strings = new String[prefixes.length];
+        int sum = minSize;
+        for (int i = 0; i < prefixes.length; i++) {
+            strings[i] = params[i] == null ? "null" : params[i].toString();
+            sum += strings[i].length();
+        }
+        final StringBuilder builder = new StringBuilder(sum + 1);
         for (int i = 0; i < prefixes.length; i++) {
             builder.append(prefixes[i]);
-            builder.append(params[i] == null ? "null" : params[i].toString());
+            builder.append(strings[i]);
         }
         builder.append(postFix);
         return builder.toString();
