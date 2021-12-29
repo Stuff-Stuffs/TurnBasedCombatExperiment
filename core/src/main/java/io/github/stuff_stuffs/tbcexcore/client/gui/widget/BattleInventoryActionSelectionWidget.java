@@ -8,8 +8,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
-import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.SelectionWheelWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.util.math.MatrixStack;

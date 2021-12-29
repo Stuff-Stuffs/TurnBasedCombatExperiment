@@ -17,5 +17,7 @@ public interface GuiQuad {
 
     float spriteV(int vertexIndex);
 
+    int light(int vertexIndex);
+
     GuiRenderMaterial renderMaterial();
 }

@@ -2,11 +2,9 @@ package io.github.stuff_stuffs.tbcexgui.client.render;
 
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderPhase;
-import net.minecraft.client.render.Shader;
-import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.render.*;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
@@ -16,24 +14,36 @@ import java.util.List;
 import java.util.Map;
 
 public final class GuiRenderLayers extends RenderPhase {
-    private static final Map<String, net.minecraft.client.render.Shader> SHADERS_TEXTURE = new Object2ReferenceOpenHashMap<>();
-    private static final Map<String, net.minecraft.client.render.Shader> SHADERS_NO_TEXTURE = new Object2ReferenceOpenHashMap<>();
-    private static final Map<String, RenderPhase.Shader> SHADERS_TEXTURE_PHASE = new Object2ReferenceOpenHashMap<>();
-    private static final Map<String, RenderPhase.Shader> SHADERS_NO_TEXTURE_PHASE = new Object2ReferenceOpenHashMap<>();
-    private static final Map<Identifier, RenderPhase.Texture> TEXTURE_MAP = new Object2ReferenceOpenHashMap<>();
     public static final RenderPhase.DepthTest NO_DEPTH_TEST = RenderPhase.ALWAYS_DEPTH_TEST;
     public static final RenderPhase.DepthTest DEPTH_TEST = RenderPhase.LEQUAL_DEPTH_TEST;
-    public static final RenderPhase.Texture BLOCK_ATLAS_TEXTURE = RenderPhase.BLOCK_ATLAS_TEXTURE;
     public static final RenderPhase.Target MAIN_TARGET = RenderPhase.MAIN_TARGET;
     public static final RenderPhase.Target TRANSLUCENT_TARGET = RenderPhase.TRANSLUCENT_TARGET;
     public static final RenderPhase.Transparency NO_TRANSPARENCY = RenderPhase.NO_TRANSPARENCY;
     public static final RenderPhase.Transparency TRANSLUCENT_TRANSPARENCY = RenderPhase.TRANSLUCENT_TRANSPARENCY;
     public static final RenderPhase.WriteMaskState ALL_MASK = RenderPhase.ALL_MASK;
     public static final RenderPhase.WriteMaskState COLOR_MASK = RenderPhase.COLOR_MASK;
+    private static final Map<String, net.minecraft.client.render.Shader> SHADERS_TEXTURE = new Object2ReferenceOpenHashMap<>();
+    private static final Map<String, net.minecraft.client.render.Shader> SHADERS_NO_TEXTURE = new Object2ReferenceOpenHashMap<>();
+    private static final Map<String, RenderPhase.Shader> SHADERS_TEXTURE_PHASE = new Object2ReferenceOpenHashMap<>();
+    private static final Map<String, RenderPhase.Shader> SHADERS_NO_TEXTURE_PHASE = new Object2ReferenceOpenHashMap<>();
+    private static final Map<Identifier, RenderPhase.Texture> TEXTURE_MAP = new Object2ReferenceOpenHashMap<>();
+    private static final Map<RenderLayer, BufferBuilder> BUFFERS = new Reference2ObjectOpenHashMap<>();
+    private static final VertexConsumerProvider.Immediate VERTEX_CONSUMERS = VertexConsumerProvider.immediate(BUFFERS, new BufferBuilder(1024));
     private static ResourceManager RESOURCE_MANAGER;
 
     private GuiRenderLayers(String name, Runnable beginAction, Runnable endAction) {
         super(name, beginAction, endAction);
+    }
+
+    public static void addBuffer(RenderLayer renderLayer, int capacity) {
+        if (BUFFERS.containsKey(renderLayer)) {
+            throw new TBCExException("Duplicate render layers");
+        }
+        BUFFERS.put(renderLayer, new BufferBuilder(capacity));
+    }
+
+    public static VertexConsumerProvider.Immediate getVertexConsumers() {
+        return VERTEX_CONSUMERS;
     }
 
     public static RenderPhase.Shader getShader(String shaderName, boolean texture) {
@@ -61,7 +71,7 @@ public final class GuiRenderLayers extends RenderPhase {
         }
         net.minecraft.client.render.Shader shader;
         final GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
-        if(gameRenderer.getShader(name)!=null) {
+        if (gameRenderer.getShader(name) != null) {
             shader = gameRenderer.getShader(name);
         } else {
             try {

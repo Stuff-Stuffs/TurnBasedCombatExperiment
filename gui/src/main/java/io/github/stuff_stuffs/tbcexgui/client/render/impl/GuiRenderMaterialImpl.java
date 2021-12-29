@@ -8,14 +8,16 @@ public class GuiRenderMaterialImpl implements GuiRenderMaterial {
     private final boolean depthTest;
     private final boolean translucent;
     private final boolean ignoreTexture;
+    private final boolean ignoreLight;
     private final String shader;
     private final Identifier texture;
     private final RenderLayer renderLayer;
 
-    public GuiRenderMaterialImpl(boolean depthTest, boolean translucent, boolean ignoreTexture, String shader, Identifier texture, RenderLayer renderLayer) {
+    public GuiRenderMaterialImpl(boolean depthTest, boolean translucent, boolean ignoreTexture, boolean ignoreLight, String shader, Identifier texture, RenderLayer renderLayer) {
         this.depthTest = depthTest;
         this.translucent = translucent;
         this.ignoreTexture = ignoreTexture;
+        this.ignoreLight = ignoreLight;
         this.shader = shader;
         this.texture = texture;
         this.renderLayer = renderLayer;
@@ -37,6 +39,11 @@ public class GuiRenderMaterialImpl implements GuiRenderMaterial {
     }
 
     @Override
+    public boolean ignoreLight() {
+        return ignoreLight;
+    }
+
+    @Override
     public String shader() {
         return shader;
     }
@@ -44,6 +51,11 @@ public class GuiRenderMaterialImpl implements GuiRenderMaterial {
     @Override
     public Identifier texture() {
         return texture;
+    }
+
+    @Override
+    public void remember(Identifier id) {
+        GuiRenderMaterialFinderImpl.remember(id, this);
     }
 
     public RenderLayer getRenderLayer() {

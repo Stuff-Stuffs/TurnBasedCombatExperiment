@@ -3,11 +3,6 @@ package io.github.stuff_stuffs.tbcexcharacter.client.screen;
 import io.github.stuff_stuffs.tbcexcharacter.client.screen.widget.PlayerStatsWidget;
 import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleInventoryFilterWidget;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
-import io.github.stuff_stuffs.tbcexgui.client.widget.ParentWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.StackWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.SelectionWheelWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.panel.BasicPanelWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.LiteralText;
 

@@ -1,19 +1,23 @@
 package io.github.stuff_stuffs.tbcexgui.client.render.impl;
 
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiQuad;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterialFinder;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterial;
 import io.github.stuff_stuffs.tbcexgui.client.render.MutableGuiQuad;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.Arrays;
 
-public class MutableQuadImpl implements MutableGuiQuad {
+public class MutableGuiQuadImpl implements MutableGuiQuad {
     private static final GuiRenderMaterial DEFAULT_RENDER_MATERIAL = GuiRenderMaterialFinder.finder().find();
     private final float[] xs = new float[4];
     private final float[] ys = new float[4];
     private final float[] us = new float[4];
     private final float[] vs = new float[4];
     private final int[] spriteColours = new int[4];
+    private final int[] lights = new int[4];
     private GuiRenderMaterial renderMaterial = DEFAULT_RENDER_MATERIAL;
     private int tag;
     private float depth;
@@ -63,8 +67,19 @@ public class MutableQuadImpl implements MutableGuiQuad {
     }
 
     @Override
+    public int light(int vertexIndex) {
+        return lights[vertexIndex];
+    }
+
+    @Override
     public GuiRenderMaterial renderMaterial() {
         return renderMaterial;
+    }
+
+    @Override
+    public MutableGuiQuad light(int vertexIndex, int light) {
+        lights[vertexIndex] = light;
+        return this;
     }
 
     @Override
@@ -124,6 +139,40 @@ public class MutableQuadImpl implements MutableGuiQuad {
     public MutableGuiQuad renderMaterial(GuiRenderMaterial renderMaterial) {
         this.renderMaterial = renderMaterial;
         return this;
+    }
+
+    @Override
+    public MutableGuiQuad interpolate(int vertexIndex, GuiQuad other, double w0, double w1, double w2, double w3) {
+        sprite(vertexIndex, (float)(other.spriteU(0) * w0 + other.spriteU(1)*w1 + other.spriteU(2)*w2 + other.spriteU(3)*w3), (float)(other.spriteV(0) * w0 + other.spriteV(1)*w1 + other.spriteV(2)*w2 + other.spriteV(3)*w3));
+        spriteColor(vertexIndex, interpolateColour(other.spriteColor(0), other.spriteColor(1), other.spriteColor(2), other.spriteColor(3), w0, w1, w2, w3));
+        int blockLight = MathHelper.clamp((int) Math.round(
+                LightmapTextureManager.getBlockLightCoordinates(other.light(0)) * w0 +
+                        LightmapTextureManager.getBlockLightCoordinates(other.light(1)) * w1 +
+                        LightmapTextureManager.getBlockLightCoordinates(other.light(2)) * w2 +
+                        LightmapTextureManager.getBlockLightCoordinates(other.light(3)) * w3
+        ), 0, 15);
+        int skyLight = MathHelper.clamp((int) Math.round(
+                LightmapTextureManager.getSkyLightCoordinates(other.light(0)) * w0 +
+                        LightmapTextureManager.getSkyLightCoordinates(other.light(1)) * w1 +
+                        LightmapTextureManager.getSkyLightCoordinates(other.light(2)) * w2 +
+                        LightmapTextureManager.getSkyLightCoordinates(other.light(3)) * w3
+        ), 0, 15);
+        lights[vertexIndex] = LightmapTextureManager.pack(blockLight, skyLight);
+        return this;
+    }
+
+    private static int interpolateColour(int c0, int c1, int c2, int c3, double w0, double w1, double w2, double w3) {
+        return interpolateColourComponent(c0,c1,c2,c3,w0,w1,w2,w3,0) | interpolateColourComponent(c0,c1,c2,c3,w0,w1,w2,w3,1) | interpolateColourComponent(c0,c1,c2,c3,w0,w1,w2,w3,2) | interpolateColourComponent(c0,c1,c2,c3,w0,w1,w2,w3,3);
+    }
+
+    private static int interpolateColourComponent(int c0, int c1, int c2, int c3, double w0, double w1, double w2, double w3, int component) {
+        final int shift = component * 8;
+        int mask = 0xFF<< shift;
+        int masked0 = (c0&mask)>> shift;
+        int masked1 = (c1&mask)>> shift;
+        int masked2 = (c2&mask)>> shift;
+        int masked3 = (c3&mask)>> shift;
+        return MathHelper.clamp((int)Math.round(masked0*w0+masked1*w1+masked2*w2+masked3*w3), 0, 255)<<shift;
     }
 
     public void reset() {

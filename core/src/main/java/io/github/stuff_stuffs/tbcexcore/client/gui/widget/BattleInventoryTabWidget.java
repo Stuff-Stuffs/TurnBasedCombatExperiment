@@ -3,7 +3,6 @@ package io.github.stuff_stuffs.tbcexcore.client.gui.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexcore.client.util.ItemStackInfo;
 import io.github.stuff_stuffs.tbcexgui.client.render.ScissorStack;
-import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;

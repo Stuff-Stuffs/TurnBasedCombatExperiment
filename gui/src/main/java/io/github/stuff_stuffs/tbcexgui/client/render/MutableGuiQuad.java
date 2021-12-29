@@ -11,6 +11,8 @@ public interface MutableGuiQuad extends GuiQuad {
     int BAKE_FLIP_U = 4;
     int BAKE_FLIP_V = 8;
 
+    MutableGuiQuad light(int vertexIndex, int light);
+
     MutableGuiQuad tag(int tag);
 
     MutableGuiQuad depth(float depth);
@@ -48,4 +50,6 @@ public interface MutableGuiQuad extends GuiQuad {
     MutableGuiQuad spriteBake(Sprite sprite, int bakeFlags);
 
     MutableGuiQuad renderMaterial(GuiRenderMaterial renderMaterial);
+
+    MutableGuiQuad interpolate(int vertexIndex, GuiQuad other, double w0, double w1, double w2, double w3);
 }

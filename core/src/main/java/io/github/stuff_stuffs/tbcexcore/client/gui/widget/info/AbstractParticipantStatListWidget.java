@@ -2,7 +2,6 @@ package io.github.stuff_stuffs.tbcexcore.client.gui.widget.info;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
-import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;

@@ -15,7 +15,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattlePath;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.ParticipantPathGatherer;
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleWorld;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
-import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;

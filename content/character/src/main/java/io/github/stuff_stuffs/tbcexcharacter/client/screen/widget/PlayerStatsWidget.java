@@ -7,7 +7,6 @@ import io.github.stuff_stuffs.tbcexcore.client.gui.widget.info.AbstractParticipa
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.render.ScissorStack;
-import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;

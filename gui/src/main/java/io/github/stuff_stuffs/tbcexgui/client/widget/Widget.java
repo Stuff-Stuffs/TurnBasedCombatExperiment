@@ -3,8 +3,6 @@ package io.github.stuff_stuffs.tbcexgui.client.widget;
 import net.minecraft.client.util.math.MatrixStack;
 
 public interface Widget {
-    WidgetPosition getWidgetPosition();
-
     boolean mouseClicked(double mouseX, double mouseY, int button);
 
     boolean mouseReleased(double mouseX, double mouseY, int button);

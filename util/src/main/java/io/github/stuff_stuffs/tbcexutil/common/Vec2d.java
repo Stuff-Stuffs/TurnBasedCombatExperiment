@@ -25,4 +25,16 @@ public class Vec2d {
     public double dot(final Vec2d o) {
         return x * o.x + y * o.y;
     }
+
+    public Vec2d subtract(Vec2d o) {
+        return new Vec2d(x - o.x, y - o.y);
+    }
+
+    @Override
+    public String toString() {
+        return "Vec2d{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

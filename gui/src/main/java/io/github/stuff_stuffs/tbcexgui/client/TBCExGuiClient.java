@@ -1,11 +1,10 @@
 package io.github.stuff_stuffs.tbcexgui.client;
 
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterial;
 import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
-import io.github.stuff_stuffs.tbcexgui.client.widget.interaction.ButtonState;
-import io.github.stuff_stuffs.tbcexgui.common.TBCExGui;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -17,8 +16,6 @@ import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-
-import java.util.Locale;
 
 @Environment(EnvType.CLIENT)
 public class TBCExGuiClient implements ClientModInitializer {
@@ -49,5 +46,9 @@ public class TBCExGuiClient implements ClientModInitializer {
                 GuiRenderLayers.setResourceManager(manager);
             }
         });
+        GuiRenderMaterial.POS_COLOUR.remember(new Identifier("tbcex", "pos_colour"));
+        GuiRenderMaterial.POS_COLOUR_TRANSLUCENT.remember(new Identifier("tbcex", "pos_colour_translucent"));
+        GuiRenderMaterial.POS_COLOUR_TEXTURE.remember(new Identifier("tbcex", "pos_colour_texture"));
+        GuiRenderMaterial.POS_COLOUR_TEXTURE_TRANSLUCENT.remember(new Identifier("tbcex", "pos_colour_texture_translucent"));
     }
 }

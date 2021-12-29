@@ -7,8 +7,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleAwareEntity;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.widget.*;
-import io.github.stuff_stuffs.tbcexgui.client.widget.panel.BasicPanelWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.panel.HidingPanel;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import net.minecraft.client.MinecraftClient;

@@ -1,6 +1,8 @@
 package io.github.stuff_stuffs.tbcexgui.client.render.impl;
 
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiQuad;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.render.MutableGuiQuad;
 import io.github.stuff_stuffs.tbcexgui.mixin.LightmapTextureManagerAccessor;
 import io.github.stuff_stuffs.tbcexgui.mixin.RenderPhase$MultiPhaseParametersAccessor;
 import io.github.stuff_stuffs.tbcexgui.mixin.RenderPhase$TextureAccessor;
@@ -12,6 +14,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 
 import java.util.Map;
 import java.util.Optional;
@@ -26,11 +29,11 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
     }
 
     private static RenderLayer createTextRenderLayer(Identifier tex) {
-        return RenderLayer.of(
+        final RenderLayer.MultiPhase renderLayer = RenderLayer.of(
                 TEXT_RENDER_LAYER_NAME.interpolate(tex),
                 VertexFormats.POSITION_COLOR_TEXTURE_LIGHT,
                 VertexFormat.DrawMode.QUADS,
-                8192,
+                1024,
                 false,
                 true,
                 RenderLayer.MultiPhaseParameters.builder().
@@ -41,6 +44,8 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
                         target(GuiRenderLayers.TRANSLUCENT_TARGET).
                         build(false)
         );
+        GuiRenderLayers.addBuffer(renderLayer, 1024);
+        return renderLayer;
     }
 
     @Override
@@ -58,18 +63,10 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
         }
     }
 
-    private static final class LightMutableQuad extends MutableQuadImpl {
-        private final int[] light = new int[4];
-
-        public LightMutableQuad light(int vertexIndex, int light) {
-            this.light[vertexIndex] = light;
-            return this;
-        }
-    }
 
     private final class Adapter implements VertexConsumer {
         private final VertexConsumer vertexDelegate;
-        private final LightMutableQuad quadDelegate = new LightMutableQuad();
+        private final MutableGuiQuadImpl quadDelegate = new MutableGuiQuadImpl();
         private final int index = 0;
 
         private Adapter(VertexConsumer vertexDelegate) {
@@ -116,8 +113,8 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
             NativeImage image = ((LightmapTextureManagerAccessor) MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager()).getImage();
             if (context.transformQuad(quadDelegate)) {
                 for (int i = 0; i < 4; i++) {
-                    int blockLight = LightmapTextureManager.getBlockLightCoordinates(quadDelegate.light[i]);
-                    int skyLight = LightmapTextureManager.getSkyLightCoordinates(quadDelegate.light[i]);
+                    int blockLight = LightmapTextureManager.getBlockLightCoordinates(quadDelegate.light(i));
+                    int skyLight = LightmapTextureManager.getSkyLightCoordinates(quadDelegate.light(i));
                     IntRgbColour colour = new IntRgbColour(quadDelegate.spriteColor(i));
                     int a = quadDelegate.spriteColor(i) >>> 24;
                     int r = colour.r;

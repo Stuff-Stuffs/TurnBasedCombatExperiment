@@ -15,10 +15,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
-import io.github.stuff_stuffs.tbcexgui.client.widget.ParentWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.SuppliedWidgetPosition;
-import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetHandle;
-import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;

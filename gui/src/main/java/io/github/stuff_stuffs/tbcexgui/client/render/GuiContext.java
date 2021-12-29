@@ -1,5 +1,7 @@
 package io.github.stuff_stuffs.tbcexgui.client.render;
 
+import io.github.stuff_stuffs.tbcexgui.client.render.impl.QuadSplitter;
+import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import net.minecraft.text.OrderedText;
 import net.minecraft.util.math.Matrix4f;
@@ -17,7 +19,7 @@ public interface GuiContext {
         Vec2d scalar = new Vec2d(xScale, yScale);
         pushQuadTransform(new GuiTransform() {
             @Override
-            public boolean transform(MutableGuiQuad quad) {
+            public boolean transform(MutableGuiQuad quad, GuiTransform.Context context) {
                 for (int i = 0; i < 4; i++) {
                     quad.pos(i, (float) (quad.x(i) * yScale), (float) (quad.y(i) * yScale));
                     quad.depth((float) (quad.depth() * zScale));
@@ -29,11 +31,6 @@ public interface GuiContext {
             public Vec2d transformMouseCursor(Vec2d cursor) {
                 return cursor.multiply(scalar);
             }
-
-            @Override
-            public Vec2d transformMouseDelta(Vec2d delta) {
-                return delta.multiply(scalar);
-            }
         });
     }
 
@@ -41,7 +38,7 @@ public interface GuiContext {
         Vec2d offset = new Vec2d(x, y);
         pushQuadTransform(new GuiTransform() {
             @Override
-            public boolean transform(MutableGuiQuad quad) {
+            public boolean transform(MutableGuiQuad quad, GuiTransform.Context context) {
                 for (int i = 0; i < 4; i++) {
                     quad.pos(i, (float) (quad.x(i) + x), (float) (quad.y(i) + y));
                     quad.depth((float) (quad.depth() + z));
@@ -52,11 +49,6 @@ public interface GuiContext {
             @Override
             public Vec2d transformMouseCursor(Vec2d cursor) {
                 return cursor.add(offset);
-            }
-
-            @Override
-            public Vec2d transformMouseDelta(Vec2d delta) {
-                return delta;
             }
         });
     }
@@ -69,7 +61,7 @@ public interface GuiContext {
         Vector4f vec = new Vector4f();
         pushQuadTransform(new GuiTransform() {
             @Override
-            public boolean transform(MutableGuiQuad quad) {
+            public boolean transform(MutableGuiQuad quad, GuiTransform.Context context) {
                 for (int i = 0; i < 4; i++) {
                     vec.set(quad.x(i), quad.y(i), quad.depth(), 1);
                     vec.transform(matrix);
@@ -84,18 +76,39 @@ public interface GuiContext {
                 vec.set((float) cursor.x, (float) cursor.y, /*TODO 1?*/0, 1);
                 return new Vec2d(vec.getX(), vec.getY());
             }
+        });
+    }
+
+    default void pushScissor(float x, float y, float width, float height) {
+        Rect2d rect = new Rect2d(x, y, x + width, y + height);
+        pushQuadTransform(new GuiTransform() {
+            private static float clamp(float v, float min, float max) {
+                return Math.min(Math.max(v, min), max);
+            }
 
             @Override
-            public Vec2d transformMouseDelta(Vec2d delta) {
-                vec.set((float) delta.x, (float) delta.y, /*TODO 1?*/0, 1);
-                return new Vec2d(vec.getX(), vec.getY());
+            public boolean transform(MutableGuiQuad quad, GuiTransform.Context context) {
+                boolean allInside = true;
+                for (int i = 0; i < 4; i++) {
+                    if (!rect.isIn(quad.x(i), quad.y(i))) {
+                        allInside = false;
+                    }
+                }
+                if(allInside) {
+                    return true;
+                }
+                QuadSplitter.scissor(quad, x, y, x + width, y + height, context.emitter());
+                return true;
+            }
+
+            @Override
+            public Vec2d transformMouseCursor(Vec2d cursor) {
+                return cursor;
             }
         });
     }
 
     Vec2d transformMouseCursor(Vec2d mouseCursor);
-
-    Vec2d transformMouseDelta(Vec2d mouseDelta);
 
     void renderText(OrderedText text, TextOutline outline, int colour, int outlineColour, int underlineColour);
 

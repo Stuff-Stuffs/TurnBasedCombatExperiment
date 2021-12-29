@@ -21,18 +21,24 @@ public class GuiContextImpl implements GuiContext {
     private final List<GuiTransform> transforms;
     private final VertexConsumerProvider vertexConsumers;
     private final GuiVcpTextAdapter textAdapter;
+    private final GuiQuadEmitterImpl emitter;
+    private final GuiTransform.Context context;
 
     public GuiContextImpl(MatrixStack stack, VertexConsumerProvider vertexConsumers) {
         this.vertexConsumers = vertexConsumers;
         this.transforms = new ArrayList<>();
         pushMatrixMultiply(stack.peek().getPositionMatrix());
         textAdapter = new GuiVcpTextAdapter(this);
+        emitter = new GuiQuadEmitterImpl(vertexConsumers, this, new MutableGuiQuadImpl());
+        context = () -> emitter;
     }
 
     public GuiContextImpl(List<GuiTransform> transforms, VertexConsumerProvider vertexConsumers) {
         this.transforms = transforms;
         this.vertexConsumers = vertexConsumers;
         textAdapter = new GuiVcpTextAdapter(this);
+        emitter = new GuiQuadEmitterImpl(vertexConsumers, this, new MutableGuiQuadImpl());
+        context = () -> emitter;
     }
 
     @Override
@@ -59,14 +65,6 @@ public class GuiContextImpl implements GuiContext {
     }
 
     @Override
-    public Vec2d transformMouseDelta(Vec2d mouseDelta) {
-        for (int i = transforms.size() - 1; i >= 0; i--) {
-            mouseDelta = transforms.get(i).transformMouseCursor(mouseDelta);
-        }
-        return mouseDelta;
-    }
-
-    @Override
     public void renderText(OrderedText text, TextOutline outline, int colour, int outlineColour, int underlineColour) {
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         Matrix4f identity = Matrix4f.translate(0, 0, 0);
@@ -79,10 +77,12 @@ public class GuiContextImpl implements GuiContext {
 
     public boolean transformQuad(MutableGuiQuad quad) {
         for (int i = transforms.size() - 1; i >= 0; i--) {
-            if (!transforms.get(i).transform(quad)) {
+            emitter.reset();
+            if (!transforms.get(i).transform(quad, context)) {
                 return false;
             }
         }
+        emitter.reset();
         return true;
     }
 
