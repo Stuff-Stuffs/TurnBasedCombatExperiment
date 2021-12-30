@@ -1,8 +1,8 @@
-package io.github.stuff_stuffs.tbcexgui.client.render.impl;
+package io.github.stuff_stuffs.tbcexgui.client.impl.render;
 
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterial;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterialFinder;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
-import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterial;
-import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterialFinder;
 import io.github.stuff_stuffs.tbcexutil.common.StringInterpolator;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.render.RenderLayer;
@@ -24,7 +24,7 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
     private final String noTextureShader;
     private final Identifier texture;
 
-    public GuiRenderMaterialFinderImpl(boolean depthTest, boolean translucent, boolean ignoreTexture, boolean ignoreLight, String textureShader, String noTextureShader, Identifier texture) {
+    public GuiRenderMaterialFinderImpl(final boolean depthTest, final boolean translucent, final boolean ignoreTexture, final boolean ignoreLight, final String textureShader, final String noTextureShader, final Identifier texture) {
         this.depthTest = depthTest;
         this.translucent = translucent;
         this.ignoreTexture = ignoreTexture;
@@ -34,17 +34,57 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
         this.texture = texture;
     }
 
-    public static void remember(Identifier id, GuiRenderMaterialImpl material) {
-        if(NAMED_MATERIALS.putIfAbsent(id, material)==null) {
+    @Override
+    public GuiRenderMaterialFinder depthTest(final boolean depthTest) {
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
+    }
+
+    @Override
+    public GuiRenderMaterialFinder translucent(final boolean translucent) {
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
+    }
+
+    @Override
+    public GuiRenderMaterialFinder ignoreTexture(final boolean ignoreTexture) {
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
+    }
+
+    @Override
+    public GuiRenderMaterialFinder shader(final String textureShader, final String noTextureShader) {
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
+    }
+
+    @Override
+    public GuiRenderMaterialFinder texture(final Identifier texture) {
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
+    }
+
+    @Override
+    public GuiRenderMaterialFinder ignoreLight(final boolean ignoreLight) {
+        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
+    }
+
+    @Override
+    public GuiRenderMaterial find() {
+        return FACTORIES[getFactoryIndex(depthTest, translucent, ignoreTexture, ignoreLight)].create(ignoreTexture ? noTextureShader : textureShader, texture);
+    }
+
+    @Override
+    public @Nullable GuiRenderMaterial find(final Identifier id) {
+        return retrieve(id);
+    }
+
+    public static void remember(final Identifier id, final GuiRenderMaterialImpl material) {
+        if (NAMED_MATERIALS.putIfAbsent(id, material) == null) {
             GuiRenderLayers.addBuffer(material.getRenderLayer(), 1024);
         }
     }
 
-    public static @Nullable GuiRenderMaterialImpl retrieve(Identifier id) {
+    public static @Nullable GuiRenderMaterialImpl retrieve(final Identifier id) {
         return NAMED_MATERIALS.get(id);
     }
 
-    private static int getFactoryIndex(boolean depthTest, boolean translucent, boolean ignoreTexture, boolean ignoreLight) {
+    private static int getFactoryIndex(final boolean depthTest, final boolean translucent, final boolean ignoreTexture, final boolean ignoreLight) {
         int key = 0;
         if (depthTest) {
             key |= 1;
@@ -61,66 +101,6 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
         return key;
     }
 
-    @Override
-    public GuiRenderMaterialFinder depthTest(boolean depthTest) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
-    }
-
-    @Override
-    public GuiRenderMaterialFinder translucent(boolean translucent) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
-    }
-
-    @Override
-    public GuiRenderMaterialFinder ignoreTexture(boolean ignore) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
-    }
-
-    @Override
-    public GuiRenderMaterialFinder shader(String textureShader, String noTextureShader) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
-    }
-
-    @Override
-    public GuiRenderMaterialFinder texture(Identifier texture) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
-    }
-
-    @Override
-    public GuiRenderMaterialFinder ignoreLight(boolean ignoreLight) {
-        return new GuiRenderMaterialFinderImpl(depthTest, translucent, ignoreTexture, ignoreLight, textureShader, noTextureShader, texture);
-    }
-
-    @Override
-    public GuiRenderMaterial find() {
-        return FACTORIES[getFactoryIndex(depthTest, translucent, ignoreTexture, ignoreLight)].create(ignoreTexture ? noTextureShader : textureShader, texture);
-    }
-
-    @Override
-    public @Nullable GuiRenderMaterial find(Identifier id) {
-        return retrieve(id);
-    }
-
-    static {
-        FACTORIES = new MaterialFactory[16];
-        FACTORIES[getFactoryIndex(false, false, false, false)] = new MaterialFactory(false, false, false, false);
-        FACTORIES[getFactoryIndex(false, false, true, false)] = new MaterialFactory(false, false, true, false);
-        FACTORIES[getFactoryIndex(false, true, false, false)] = new MaterialFactory(false, true, false, false);
-        FACTORIES[getFactoryIndex(false, true, true, false)] = new MaterialFactory(false, true, true, false);
-        FACTORIES[getFactoryIndex(true, false, false, false)] = new MaterialFactory(true, false, false, false);
-        FACTORIES[getFactoryIndex(true, false, true, false)] = new MaterialFactory(true, false, true, false);
-        FACTORIES[getFactoryIndex(true, true, false, false)] = new MaterialFactory(true, true, false, false);
-        FACTORIES[getFactoryIndex(true, true, true, false)] = new MaterialFactory(true, true, true, false);
-        FACTORIES[getFactoryIndex(false, false, false, true)] = new MaterialFactory(false, false, false, true);
-        FACTORIES[getFactoryIndex(false, false, true, true)] = new MaterialFactory(false, false, true, true);
-        FACTORIES[getFactoryIndex(false, true, false, true)] = new MaterialFactory(false, true, false, true);
-        FACTORIES[getFactoryIndex(false, true, true, true)] = new MaterialFactory(false, true, true, true);
-        FACTORIES[getFactoryIndex(true, false, false, true)] = new MaterialFactory(true, false, false, true);
-        FACTORIES[getFactoryIndex(true, false, true, true)] = new MaterialFactory(true, false, true, true);
-        FACTORIES[getFactoryIndex(true, true, false, true)] = new MaterialFactory(true, true, false, true);
-        FACTORIES[getFactoryIndex(true, true, true, true)] = new MaterialFactory(true, true, true, true);
-    }
-
     private static class MaterialFactory {
         private static final StringInterpolator RENDER_LAYER_NAME = new StringInterpolator("gui{DepthTest={},Translucent={},IgnoreTexture={},Shader={}}");
         private final boolean depthTest;
@@ -129,7 +109,7 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
         private final boolean ignoreLight;
         private final Map<String, RenderLayer> cache;
 
-        private MaterialFactory(boolean depthTest, boolean translucent, boolean ignoreTexture, boolean ignoreLight) {
+        private MaterialFactory(final boolean depthTest, final boolean translucent, final boolean ignoreTexture, final boolean ignoreLight) {
             this.depthTest = depthTest;
             this.translucent = translucent;
             this.ignoreTexture = ignoreTexture;
@@ -137,11 +117,11 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
             cache = new Object2ReferenceOpenHashMap<>(2);
         }
 
-        public GuiRenderMaterialImpl create(String shader, Identifier texture) {
+        public GuiRenderMaterialImpl create(final String shader, final Identifier texture) {
             return new GuiRenderMaterialImpl(depthTest, translucent, ignoreTexture, ignoreLight, shader, texture, createRenderLayer(shader, texture));
         }
 
-        private RenderLayer createRenderLayer(String shader, Identifier texture) {
+        private RenderLayer createRenderLayer(final String shader, final Identifier texture) {
             return cache.computeIfAbsent(shader, s -> RenderLayer.of(
                             RENDER_LAYER_NAME.interpolate(depthTest, translucent, ignoreTexture, s),
                             getVertexFormat(),
@@ -168,5 +148,25 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
                 return ignoreLight ? VertexFormats.POSITION_COLOR_TEXTURE : VertexFormats.POSITION_COLOR_TEXTURE_LIGHT;
             }
         }
+    }
+
+    static {
+        FACTORIES = new MaterialFactory[16];
+        FACTORIES[getFactoryIndex(false, false, false, false)] = new MaterialFactory(false, false, false, false);
+        FACTORIES[getFactoryIndex(false, false, true, false)] = new MaterialFactory(false, false, true, false);
+        FACTORIES[getFactoryIndex(false, true, false, false)] = new MaterialFactory(false, true, false, false);
+        FACTORIES[getFactoryIndex(false, true, true, false)] = new MaterialFactory(false, true, true, false);
+        FACTORIES[getFactoryIndex(true, false, false, false)] = new MaterialFactory(true, false, false, false);
+        FACTORIES[getFactoryIndex(true, false, true, false)] = new MaterialFactory(true, false, true, false);
+        FACTORIES[getFactoryIndex(true, true, false, false)] = new MaterialFactory(true, true, false, false);
+        FACTORIES[getFactoryIndex(true, true, true, false)] = new MaterialFactory(true, true, true, false);
+        FACTORIES[getFactoryIndex(false, false, false, true)] = new MaterialFactory(false, false, false, true);
+        FACTORIES[getFactoryIndex(false, false, true, true)] = new MaterialFactory(false, false, true, true);
+        FACTORIES[getFactoryIndex(false, true, false, true)] = new MaterialFactory(false, true, false, true);
+        FACTORIES[getFactoryIndex(false, true, true, true)] = new MaterialFactory(false, true, true, true);
+        FACTORIES[getFactoryIndex(true, false, false, true)] = new MaterialFactory(true, false, false, true);
+        FACTORIES[getFactoryIndex(true, false, true, true)] = new MaterialFactory(true, false, true, true);
+        FACTORIES[getFactoryIndex(true, true, false, true)] = new MaterialFactory(true, true, false, true);
+        FACTORIES[getFactoryIndex(true, true, true, true)] = new MaterialFactory(true, true, true, true);
     }
 }

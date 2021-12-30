@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexgui.client.render;
+package io.github.stuff_stuffs.tbcexgui.client.api;
 
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Vec2f;
@@ -19,13 +19,13 @@ public interface MutableGuiQuad extends GuiQuad {
 
     MutableGuiQuad pos(int vertexIndex, float x, float y);
 
-    default MutableGuiQuad pos(int vertexIndex, Vec2f vec) {
+    default MutableGuiQuad pos(final int vertexIndex, final Vec2f vec) {
         return pos(vertexIndex, vec.x, vec.y);
     }
 
     MutableGuiQuad spriteColor(int vertexIndex, int color);
 
-    default MutableGuiQuad spriteColor(int c0, int c1, int c2, int c3) {
+    default MutableGuiQuad spriteColor(final int c0, final int c1, final int c2, final int c3) {
         spriteColor(0, c0);
         spriteColor(1, c1);
         spriteColor(2, c2);
@@ -43,7 +43,7 @@ public interface MutableGuiQuad extends GuiQuad {
         return this;
     }
 
-    default MutableGuiQuad sprite(int vertexIndex, Vec2f uv) {
+    default MutableGuiQuad sprite(final int vertexIndex, final Vec2f uv) {
         return sprite(vertexIndex, uv.x, uv.y);
     }
 

@@ -1,29 +1,17 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget.hud;
 
-import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
-import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
-import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
-import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
-import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
-import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.boss.BossBar;
-import net.minecraft.util.Identifier;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
+import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import net.minecraft.world.World;
 
 public class BattleHudCurrentTurnWidget extends AbstractWidget {
-    private final WidgetPosition position;
     private final double width;
     private final double height;
     private final BattleHandle handle;
     private final World world;
 
-    public BattleHudCurrentTurnWidget(final WidgetPosition position, final double width, final double height, final BattleHandle handle, final World world) {
-        this.position = position;
+    public BattleHudCurrentTurnWidget(final double width, final double height, final BattleHandle handle, final World world) {
         this.width = width;
         this.height = height;
         this.handle = handle;
@@ -31,33 +19,8 @@ public class BattleHudCurrentTurnWidget extends AbstractWidget {
     }
 
     @Override
-    public WidgetPosition getWidgetPosition() {
-        return position;
-    }
-
-    @Override
-    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
-        return false;
-    }
-
-    @Override
-    public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final float delta) {
-        final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle);
+    public void render(final GuiContext context) {
+        /* fixme final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle);
         if (battle == null) {
             return;
         }
@@ -87,11 +50,6 @@ public class BattleHudCurrentTurnWidget extends AbstractWidget {
             RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x + width * percent, y, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0 * percent, 5 / 256.0).next();
             RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x + width * percent, y + height / 3.0, z, matrices), IntRgbColour.WHITE, 255), 182 / 256.0 * percent, (color.ordinal() * 5 + 5) / 256.0).next();
             RenderUtil.uv(RenderUtil.colour(RenderUtil.position(vertexConsumer, x, y + height / 3.0, z, matrices), IntRgbColour.WHITE, 255), 0, (color.ordinal() * 5 + 5) / 256.0).next();
-        });
-    }
-
-    @Override
-    public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
-        return false;
+        });*/
     }
 }

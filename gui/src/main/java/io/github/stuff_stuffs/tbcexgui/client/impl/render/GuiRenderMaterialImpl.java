@@ -1,6 +1,6 @@
-package io.github.stuff_stuffs.tbcexgui.client.render.impl;
+package io.github.stuff_stuffs.tbcexgui.client.impl.render;
 
-import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterial;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterial;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
 
@@ -13,7 +13,7 @@ public class GuiRenderMaterialImpl implements GuiRenderMaterial {
     private final Identifier texture;
     private final RenderLayer renderLayer;
 
-    public GuiRenderMaterialImpl(boolean depthTest, boolean translucent, boolean ignoreTexture, boolean ignoreLight, String shader, Identifier texture, RenderLayer renderLayer) {
+    public GuiRenderMaterialImpl(final boolean depthTest, final boolean translucent, final boolean ignoreTexture, final boolean ignoreLight, final String shader, final Identifier texture, final RenderLayer renderLayer) {
         this.depthTest = depthTest;
         this.translucent = translucent;
         this.ignoreTexture = ignoreTexture;
@@ -54,8 +54,9 @@ public class GuiRenderMaterialImpl implements GuiRenderMaterial {
     }
 
     @Override
-    public void remember(Identifier id) {
+    public GuiRenderMaterial remember(final Identifier id) {
         GuiRenderMaterialFinderImpl.remember(id, this);
+        return this;
     }
 
     public RenderLayer getRenderLayer() {

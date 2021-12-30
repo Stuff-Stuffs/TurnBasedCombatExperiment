@@ -1,21 +1,11 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget;
 
-import net.minecraft.client.util.math.MatrixStack;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
 
 public interface Widget {
-    boolean mouseClicked(double mouseX, double mouseY, int button);
-
-    boolean mouseReleased(double mouseX, double mouseY, int button);
-
-    boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY);
-
-    boolean mouseScrolled(double mouseX, double mouseY, double amount);
-
     void resize(double width, double height, int pixelWidth, int pixelHeight);
 
-    void render(MatrixStack matrices, double mouseX, double mouseY, float delta);
-
-    boolean keyPress(int keyCode, int scanCode, int modifiers);
+    void render(GuiContext context);
 
     default void setFocused(final boolean focused) {
     }

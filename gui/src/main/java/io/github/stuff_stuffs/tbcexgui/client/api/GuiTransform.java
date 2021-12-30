@@ -1,4 +1,4 @@
-package io.github.stuff_stuffs.tbcexgui.client.render;
+package io.github.stuff_stuffs.tbcexgui.client.api;
 
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 

@@ -1,7 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client;
 
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
-import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderMaterial;
 import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
@@ -23,7 +22,7 @@ public class TBCExGuiClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ClientSpriteRegistryCallback.event(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).register((atlasTexture, registry) -> {
-            Identifier base = new Identifier("tbcexgui", "gui/tooltip");
+            final Identifier base = new Identifier("tbcexgui", "gui/tooltip");
             for (final NinePatch.Part part : NinePatch.Part.values()) {
                 registry.register(part.append(base));
             }
@@ -42,13 +41,9 @@ public class TBCExGuiClient implements ClientModInitializer {
             }
 
             @Override
-            public void reload(ResourceManager manager) {
+            public void reload(final ResourceManager manager) {
                 GuiRenderLayers.setResourceManager(manager);
             }
         });
-        GuiRenderMaterial.POS_COLOUR.remember(new Identifier("tbcex", "pos_colour"));
-        GuiRenderMaterial.POS_COLOUR_TRANSLUCENT.remember(new Identifier("tbcex", "pos_colour_translucent"));
-        GuiRenderMaterial.POS_COLOUR_TEXTURE.remember(new Identifier("tbcex", "pos_colour_texture"));
-        GuiRenderMaterial.POS_COLOUR_TEXTURE_TRANSLUCENT.remember(new Identifier("tbcex", "pos_colour_texture_translucent"));
     }
 }

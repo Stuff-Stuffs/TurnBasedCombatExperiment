@@ -1,28 +1,24 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget.hud;
 
 import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
-import io.github.stuff_stuffs.tbcexcore.client.gui.widget.info.AbstractParticipantStatListWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
-import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.HsvColour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
@@ -34,7 +30,6 @@ import java.util.Iterator;
 
 public class BattleHudHealthWidget extends AbstractWidget {
     private static final Quaternion FLIP_Z_AXIS = Vec3f.NEGATIVE_Z.getDegreesQuaternion(180);
-    private static final WidgetPosition ROOT = WidgetPosition.of(0, 0, 0);
     private static final Identifier BOSS_BAR_TEXTURE = new Identifier("minecraft", "textures/gui/bars.png");
     private final BattleHandle handle;
     private final World world;
@@ -45,37 +40,12 @@ public class BattleHudHealthWidget extends AbstractWidget {
     }
 
     @Override
-    public WidgetPosition getWidgetPosition() {
-        return ROOT;
-    }
-
-    @Override
-    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
-        return false;
-    }
-
-    @Override
-    public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final float delta) {
+    public void render(final GuiContext context) {
         final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle);
         if (battle == null) {
             return;
         }
-        TBCExCoreClient.addRenderPrimitive(context -> {
+        TBCExCoreClient.addRenderPrimitive(ctx -> {
                     final Iterator<BattleParticipantHandle> iterator = battle.getState().getParticipants();
                     while (iterator.hasNext()) {
                         final BattleParticipantHandle next = iterator.next();
@@ -102,9 +72,9 @@ public class BattleHudHealthWidget extends AbstractWidget {
                             percent = Math.min(health / maxHealth, 1);
                         }
                         final HsvColour colour = new HsvColour((float) MathHelper.lerp(percent, 0, 128), 1, 1);
-                        final VertexConsumerProvider vertexConsumers = context.consumers();
-                        final MatrixStack matrixStack = context.matrixStack();
-                        final Camera camera = context.camera();
+                        final VertexConsumerProvider vertexConsumers = ctx.consumers();
+                        final MatrixStack matrixStack = ctx.matrixStack();
+                        final Camera camera = ctx.camera();
                         matrixStack.push();
                         matrixStack.translate(topCenter.x, topCenter.y, topCenter.z);
                         matrixStack.multiply(camera.getRotation());
@@ -135,9 +105,9 @@ public class BattleHudHealthWidget extends AbstractWidget {
                         RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, 0, height, 0, matrixStack), colour, 255), 0, (6 * 10 + 10) / 256.0).next();
                         matrixStack.translate(width / 2.0, height, -0.001);
                         matrixStack.multiply(FLIP_Z_AXIS);
+                        /*fixme
                         final Text text = AbstractParticipantStatListWidget.format(health).setStyle(Style.EMPTY).append(new LiteralText("/")).append(AbstractParticipantStatListWidget.format(maxHealth).setStyle(Style.EMPTY));
                         renderFitText(matrixStack, text, -width / 2.0, 0, width, height, true, IntRgbColour.WHITE, 255, vertexConsumers);
-
                         final Colour teamColour = participant.getTeam().getColour();
                         MutableText name = participant.getName().copy();
                         name = name.append(new LiteralText("("));
@@ -148,15 +118,10 @@ public class BattleHudHealthWidget extends AbstractWidget {
                         teamText = teamText.append(new LiteralText(participant.getTeam().teamId()).setStyle(Style.EMPTY.withColor(teamColour.pack())));
                         teamText = teamText.append(")");
                         renderFitText(matrixStack, teamText, -width / 2.0, -height, width, height, false, teamColour, 255, vertexConsumers);
-
+                        */
                         matrixStack.pop();
                     }
                 }
         );
-    }
-
-    @Override
-    public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
-        return false;
     }
 }

@@ -2,14 +2,13 @@ package io.github.stuff_stuffs.tbcexcore.client.gui.widget.info;
 
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
-import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.world.World;
-import org.lwjgl.glfw.GLFW;
 
 import java.text.DecimalFormat;
 
@@ -20,7 +19,6 @@ public abstract class AbstractParticipantStatListWidget extends AbstractWidget {
     public static final Colour NEUTRAL_COLOUR = new IntRgbColour(200, 200, 200);
     public static final Colour NEGATIVE_COLOUR = new IntRgbColour(255, 0, 0);
 
-    protected final WidgetPosition position;
     protected final double width;
     protected final double height;
     protected final double entryHeight;
@@ -29,8 +27,7 @@ public abstract class AbstractParticipantStatListWidget extends AbstractWidget {
     protected final World world;
     private double scrollPos;
 
-    public AbstractParticipantStatListWidget(final WidgetPosition position, final double width, final double height, final double entryHeight, final BattleParticipantHandle handle, final BattleParticipantHandle target, final World world) {
-        this.position = position;
+    public AbstractParticipantStatListWidget(final double width, final double height, final double entryHeight, final BattleParticipantHandle handle, final BattleParticipantHandle target, final World world) {
         this.width = width;
         this.height = height;
         this.entryHeight = entryHeight;
@@ -43,59 +40,44 @@ public abstract class AbstractParticipantStatListWidget extends AbstractWidget {
         return Math.max(BattleParticipantStat.REGISTRY.getIds().size() * entryHeight - height + entryHeight, 0);
     }
 
-    public void setScrollPos(final double scrollPos) {
-        this.scrollPos = Math.min(Math.max(scrollPos, 0), getScrollBarMax());
-    }
-
     public double getScrollPos() {
         return scrollPos;
     }
 
-    @Override
-    public WidgetPosition getWidgetPosition() {
-        return position;
+    public void setScrollPos(final double scrollPos) {
+        this.scrollPos = Math.min(Math.max(scrollPos, 0), getScrollBarMax());
     }
 
-    @Override
-    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        return false;
-    }
+    //@Override
+    //public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
+    //    if (new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height).isIn(mouseX, mouseY)) {
+    //        setScrollPos(scrollPos + deltaY);
+    //        return true;
+    //    }
+    //    return false;
+    //}
 
-    @Override
-    public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        return false;
-    }
+    //@Override
+    //public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
+    //    if (new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height).isIn(mouseX, mouseY)) {
+    //        setScrollPos(scrollPos + amount);
+    //        return true;
+    //    }
+    //    return false;
+    //}
 
-    @Override
-    public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
-        if (new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height).isIn(mouseX, mouseY)) {
-            setScrollPos(scrollPos + deltaY);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
-        if (new Rect2d(position.getX(), position.getY(), position.getX() + width, position.getY() + height).isIn(mouseX, mouseY)) {
-            setScrollPos(scrollPos + amount);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
-        if (keyCode == GLFW.GLFW_KEY_UP) {
-            setScrollPos(scrollPos - entryHeight);
-            return true;
-        }
-        if (keyCode == GLFW.GLFW_KEY_DOWN) {
-            setScrollPos(scrollPos + entryHeight);
-            return true;
-        }
-        return false;
-    }
+    //@Override
+    //public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
+    //    if (keyCode == GLFW.GLFW_KEY_UP) {
+    //        setScrollPos(scrollPos - entryHeight);
+    //        return true;
+    //    }
+    //    if (keyCode == GLFW.GLFW_KEY_DOWN) {
+    //        setScrollPos(scrollPos + entryHeight);
+    //        return true;
+    //    }
+    //    return false;
+    //}
 
     public static MutableText format(double val) {
         val = floorToNearestHundredth(val);

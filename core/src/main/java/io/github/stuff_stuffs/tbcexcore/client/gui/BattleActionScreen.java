@@ -1,12 +1,12 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
-import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleActionRenderTargetsWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.screen.MouseLockableScreen;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
+import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.LiteralText;
@@ -24,9 +24,8 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
         this.actionInstance = actionInstance;
         prevScreen = MinecraftClient.getInstance().currentScreen;
         passEvents = true;
-        final ParentWidget root = (ParentWidget) widget;
-        root.addWidget(new BattleActionRenderTargetsWidget(actionInstance));
-
+        //final ParentWidget root = (ParentWidget) widget;
+        //root.addWidget(new BattleActionRenderTargetsWidget(actionInstance));
     }
 
     @Override
@@ -43,8 +42,11 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
     }
 
     @Override
-    public boolean shouldPause() {
-        return false;
+    public void onClose() {
+        MinecraftClient.getInstance().setScreen(prevScreen);
+        if (prevScreen != null) {
+            prevScreen.tick();
+        }
     }
 
     @Override
@@ -56,11 +58,8 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
     }
 
     @Override
-    public void onClose() {
-        MinecraftClient.getInstance().setScreen(prevScreen);
-        if (prevScreen != null) {
-            prevScreen.tick();
-        }
+    public boolean shouldPause() {
+        return false;
     }
 
     @Override

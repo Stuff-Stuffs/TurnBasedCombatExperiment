@@ -10,6 +10,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.hud.TBCExHud;
+import io.github.stuff_stuffs.tbcexgui.client.widget.PositionedWidget;
+import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 
@@ -23,9 +25,9 @@ public final class BattleHud extends TBCExHud {
         this.handle = handle;
         this.entity = entity;
         context = new ContextImpl();
-        root.addWidget(new BattleHudCurrentTurnWidget(WidgetPosition.of(0.25, 0.05, 1), 0.5, 0.05, handle, entity.world));
-        root.addWidget(new BattleHudEnergyWidget(WidgetPosition.of(0.25, 0.975, 1), 0.5, 0.025, context, new BattleParticipantHandle(handle, entity.getUuid()), entity.world));
-        root.addWidget(new BattleHudHealthWidget(handle, entity.world));
+        ((RootPanelWidget) root).addChild(PositionedWidget.of(new BattleHudCurrentTurnWidget(0.5, 0.05, handle, entity.world), () -> 0.25, () -> 0.05));
+        ((RootPanelWidget) root).addChild(PositionedWidget.of(new BattleHudEnergyWidget(0.5, 0.025, context, new BattleParticipantHandle(handle, entity.getUuid()), entity.world), () -> 0.25, () -> 0.975));
+        ((RootPanelWidget) root).addChild(PositionedWidget.of(new BattleHudHealthWidget(handle, entity.world), () -> 0, () -> 0));
     }
 
     public boolean matches(final BattleHandle handle) {
@@ -37,7 +39,7 @@ public final class BattleHud extends TBCExHud {
     }
 
     @Override
-    public void render(MatrixStack matrices, double mouseX, double mouseY, float tickDelta) {
+    public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final float tickDelta) {
         super.render(matrices, mouseX, mouseY, tickDelta);
         context.setPotentialActionCost(0);
     }
@@ -57,12 +59,12 @@ public final class BattleHud extends TBCExHud {
 
         @Override
         public double getEnergy() {
-            Battle battle = ((BattleWorldSupplier)entity.world).tbcex_getBattleWorld().getBattle(handle);
-            if(battle==null) {
+            final Battle battle = ((BattleWorldSupplier) entity.world).tbcex_getBattleWorld().getBattle(handle);
+            if (battle == null) {
                 return 0;
             }
-            BattleParticipantStateView participant = battle.getState().getParticipant(new BattleParticipantHandle(handle, entity.getUuid()));
-            if(participant==null) {
+            final BattleParticipantStateView participant = battle.getState().getParticipant(new BattleParticipantHandle(handle, entity.getUuid()));
+            if (participant == null) {
                 return 0;
             }
             return participant.getEnergy();
@@ -70,12 +72,12 @@ public final class BattleHud extends TBCExHud {
 
         @Override
         public double getMaxEnergy() {
-            Battle battle = ((BattleWorldSupplier)entity.world).tbcex_getBattleWorld().getBattle(handle);
-            if(battle==null) {
+            final Battle battle = ((BattleWorldSupplier) entity.world).tbcex_getBattleWorld().getBattle(handle);
+            if (battle == null) {
                 return 0;
             }
-            BattleParticipantStateView participant = battle.getState().getParticipant(new BattleParticipantHandle(handle, entity.getUuid()));
-            if(participant==null) {
+            final BattleParticipantStateView participant = battle.getState().getParticipant(new BattleParticipantHandle(handle, entity.getUuid()));
+            if (participant == null) {
                 return 0;
             }
             return participant.getStat(BattleParticipantStat.ENERGY_PER_TURN_STAT);

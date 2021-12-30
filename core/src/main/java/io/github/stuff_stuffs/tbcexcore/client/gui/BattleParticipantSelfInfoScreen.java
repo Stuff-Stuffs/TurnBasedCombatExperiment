@@ -1,10 +1,8 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
-import io.github.stuff_stuffs.tbcexcore.client.gui.widget.info.ParticipantSelfStatListWidget;
-import io.github.stuff_stuffs.tbcexcore.client.gui.widget.info.ParticipantStatusEffectListWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
-import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
+import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.text.LiteralText;
 import net.minecraft.world.World;
 
@@ -16,6 +14,7 @@ public class BattleParticipantSelfInfoScreen extends TBCExScreen {
         super(new LiteralText("Participant Info"), new RootPanelWidget());
         this.world = world;
         this.participantHandle = participantHandle;
+        /*fixme
         final ParentWidget root = (ParentWidget) widget;
         final ParentWidget panel = new BasicPanelWidget(WidgetPosition.of(0.125, 0.125, 1), 0.75, 0.75);
         final Widget statList = new ParticipantSelfStatListWidget(WidgetPosition.combine(panel::getWidgetPosition, WidgetPosition.of(0.005, 0.380, 0)), 0.365, 0.365, 0.05, participantHandle, participantHandle, world);
@@ -23,6 +22,7 @@ public class BattleParticipantSelfInfoScreen extends TBCExScreen {
         panel.addWidget(statList);
         panel.addWidget(statusEffectWidget);
         root.addWidget(panel);
+        */
     }
 
     @Override

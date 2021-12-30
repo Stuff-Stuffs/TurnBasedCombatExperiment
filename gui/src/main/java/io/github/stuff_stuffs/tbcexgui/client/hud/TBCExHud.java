@@ -1,25 +1,31 @@
 package io.github.stuff_stuffs.tbcexgui.client.hud;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
+import io.github.stuff_stuffs.tbcexgui.client.impl.GuiContextImpl;
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;
 
-public abstract class TBCExHud {
-    protected final ParentWidget root;
-    private int width=-1;
-    private int height=-1;
+import java.util.ArrayList;
 
-    protected TBCExHud(ParentWidget root) {
+public abstract class TBCExHud {
+    protected final Widget root;
+    private int width = -1;
+    private int height = -1;
+
+    protected TBCExHud(final Widget root) {
         this.root = root;
     }
 
     private void resize() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        int width = client.getWindow().getFramebufferWidth();
-        int height = client.getWindow().getFramebufferHeight();
-        if(width!=this.width||height!=this.height) {
+        final MinecraftClient client = MinecraftClient.getInstance();
+        final int width = client.getWindow().getFramebufferWidth();
+        final int height = client.getWindow().getFramebufferHeight();
+        if (width != this.width || height != this.height) {
             this.width = width;
             this.height = height;
             if (width > height) {
@@ -30,31 +36,9 @@ public abstract class TBCExHud {
         }
     }
 
-    private double transformMouseX(final double mouseX) {
-        Window window = MinecraftClient.getInstance().getWindow();
-        int width = window.getScaledWidth();
-        int height = window.getScaledHeight();
-        if (width > height) {
-            final double v = mouseX - (width / 2.0) + (height / 2.0);
-            return v / height;
-        }
-        return mouseX / (double) width;
-    }
-
-    private double transformMouseY(final double mouseY) {
-        Window window = MinecraftClient.getInstance().getWindow();
-        int width = window.getScaledWidth();
-        int height = window.getScaledHeight();
-        if (width < height) {
-            final double v = mouseY - (height / 2.0) + (width / 2.0);
-            return v / width;
-        }
-        return mouseY / (double) height;
-    }
-
-    public void render(MatrixStack matrices, double mouseX, double mouseY, float tickDelta) {
+    public void render(final MatrixStack matrices, final double mouseX, final double mouseY, final float tickDelta) {
         resize();
-        Window window = MinecraftClient.getInstance().getWindow();
+        final Window window = MinecraftClient.getInstance().getWindow();
         final Matrix4f prevProjection = RenderSystem.getProjectionMatrix();
         final Matrix4f matrix4f = Matrix4f.projectionMatrix(0.0F, window.getFramebufferWidth(), 0.0F, window.getFramebufferHeight(), 1000.0F, 3000.0F);
         RenderSystem.setProjectionMatrix(matrix4f);
@@ -66,13 +50,39 @@ public abstract class TBCExHud {
         } else if (width < height) {
             matrices.scale(1, width / (float) height, 1);
             matrices.translate(0, (height / (double) width - 1) / 2d, 0);
+        } else {
+            matrices.translate(0.5, 0.5, 0);
         }
-        root.render(matrices, transformMouseX(mouseX), transformMouseY(mouseY), tickDelta);
+        final GuiContext context = new GuiContextImpl(matrices, GuiRenderLayers.getVertexConsumers(), 0.5, 0.5, /*copy?*/new ArrayList<>(), tickDelta);
+        root.render(context);
+        GuiRenderLayers.getVertexConsumers().draw();
         matrices.pop();
         RenderSystem.setProjectionMatrix(prevProjection);
     }
 
     public void tick() {
 
+    }
+
+    private static double transformMouseX(final double mouseX) {
+        final Window window = MinecraftClient.getInstance().getWindow();
+        final int width = window.getScaledWidth();
+        final int height = window.getScaledHeight();
+        if (width > height) {
+            final double v = mouseX - (width / 2.0) + (height / 2.0);
+            return v / height;
+        }
+        return mouseX / (double) width;
+    }
+
+    private static double transformMouseY(final double mouseY) {
+        final Window window = MinecraftClient.getInstance().getWindow();
+        final int width = window.getScaledWidth();
+        final int height = window.getScaledHeight();
+        if (width < height) {
+            final double v = mouseY - (height / 2.0) + (width / 2.0);
+            return v / width;
+        }
+        return mouseY / (double) height;
     }
 }
