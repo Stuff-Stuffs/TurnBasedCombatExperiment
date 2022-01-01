@@ -2,16 +2,13 @@ package io.github.stuff_stuffs.tbcexgui.client.impl.render;
 
 import io.github.stuff_stuffs.tbcexgui.client.impl.GuiContextImpl;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
-import io.github.stuff_stuffs.tbcexgui.mixin.LightmapTextureManagerAccessor;
 import io.github.stuff_stuffs.tbcexgui.mixin.RenderPhase$MultiPhaseParametersAccessor;
 import io.github.stuff_stuffs.tbcexgui.mixin.RenderPhase$TextureAccessor;
 import io.github.stuff_stuffs.tbcexutil.common.StringInterpolator;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
-import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.Identifier;
 
 import java.util.Map;
@@ -28,7 +25,7 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
 
     @Override
     public VertexConsumer getBuffer(final RenderLayer layer) {
-        if (layer.getVertexFormat() != VertexFormats.POSITION_COLOR_TEXTURE_LIGHT && layer instanceof RenderLayer.MultiPhase multiPhase) {
+        if (layer.getVertexFormat() == VertexFormats.POSITION_COLOR_TEXTURE_LIGHT && layer instanceof RenderLayer.MultiPhase multiPhase) {
             final RenderLayer.MultiPhaseParameters phases = multiPhase.getPhases();
             final RenderPhase.TextureBase texture = ((RenderPhase$MultiPhaseParametersAccessor) (Object) phases).getTexture();
             if (!(texture instanceof RenderPhase.Texture tex)) {
@@ -46,7 +43,7 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
                 TEXT_RENDER_LAYER_NAME.interpolate(tex),
                 VertexFormats.POSITION_COLOR_TEXTURE_LIGHT,
                 VertexFormat.DrawMode.QUADS,
-                1024,
+                256,
                 false,
                 true,
                 RenderLayer.MultiPhaseParameters.builder().
@@ -57,14 +54,14 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
                         target(GuiRenderLayers.TRANSLUCENT_TARGET).
                         build(false)
         );
-        GuiRenderLayers.addBuffer(renderLayer, 1024);
+        GuiRenderLayers.addBuffer(renderLayer, 256);
         return renderLayer;
     }
 
     private final class Adapter implements VertexConsumer {
         private final VertexConsumer vertexDelegate;
         private final MutableGuiQuadImpl quadDelegate = new MutableGuiQuadImpl();
-        private final int index = 0;
+        private int index = 0;
 
         private Adapter(final VertexConsumer vertexDelegate) {
             this.vertexDelegate = vertexDelegate;
@@ -79,14 +76,14 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
 
         @Override
         public VertexConsumer color(final int red, final int green, final int blue, final int alpha) {
-            quadDelegate.spriteColor(index, new IntRgbColour(red, green, blue).pack(alpha));
+            quadDelegate.colour(index, new IntRgbColour(red, green, blue).pack(alpha));
             return this;
         }
 
         @Override
         public VertexConsumer texture(final float u, final float v) {
             quadDelegate.sprite(index, u, v);
-            return null;
+            return this;
         }
 
         @Override
@@ -107,26 +104,20 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
 
         @Override
         public void next() {
-            final NativeImage image = ((LightmapTextureManagerAccessor) MinecraftClient.getInstance().gameRenderer.getLightmapTextureManager()).getImage();
-            if (context.transformQuad(quadDelegate)) {
-                for (int i = 0; i < 4; i++) {
-                    final int blockLight = LightmapTextureManager.getBlockLightCoordinates(quadDelegate.light(i));
-                    final int skyLight = LightmapTextureManager.getSkyLightCoordinates(quadDelegate.light(i));
-                    final IntRgbColour colour = new IntRgbColour(quadDelegate.spriteColor(i));
-                    final int a = quadDelegate.spriteColor(i) >>> 24;
-                    final int r = colour.r;
-                    final int g = colour.g;
-                    final int b = colour.b;
-                    final int rLight = image.getRed(blockLight, skyLight);
-                    final int gLight = image.getGreen(blockLight, skyLight);
-                    final int bLight = image.getBlue(blockLight, skyLight);
-                    vertexDelegate.vertex(quadDelegate.x(i), quadDelegate.y(i), quadDelegate.depth());
-                    vertexDelegate.color(new IntRgbColour((r * rLight) / 255, (g * gLight) / 255, (b * bLight) / 255).pack(a));
-                    vertexDelegate.texture(quadDelegate.spriteU(i), quadDelegate.spriteV(i));
-                    vertexDelegate.next();
+            index++;
+            if (index == 4) {
+                if (context.transformQuad(quadDelegate)) {
+                    for (int i = 0; i < 4; i++) {
+                        vertexDelegate.vertex(quadDelegate.x(i), quadDelegate.y(i), quadDelegate.depth());
+                        vertexDelegate.color(quadDelegate.colour(i));
+                        vertexDelegate.texture(quadDelegate.spriteU(i), quadDelegate.spriteV(i));
+                        vertexDelegate.light(quadDelegate.light(i));
+                        vertexDelegate.next();
+                    }
                 }
+                index = 0;
+                quadDelegate.reset();
             }
-            quadDelegate.reset();
         }
 
         @Override

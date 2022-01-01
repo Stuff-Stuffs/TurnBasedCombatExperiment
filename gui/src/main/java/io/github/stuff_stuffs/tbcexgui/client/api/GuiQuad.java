@@ -11,7 +11,7 @@ public interface GuiQuad {
 
     float depth();
 
-    int spriteColor(int vertexIndex);
+    int colour(int vertexIndex);
 
     float spriteU(int vertexIndex);
 

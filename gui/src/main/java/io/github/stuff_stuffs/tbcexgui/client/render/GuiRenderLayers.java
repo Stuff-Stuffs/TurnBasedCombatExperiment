@@ -24,6 +24,8 @@ public final class GuiRenderLayers extends RenderPhase {
     public static final RenderPhase.Transparency TRANSLUCENT_TRANSPARENCY = RenderPhase.TRANSLUCENT_TRANSPARENCY;
     public static final RenderPhase.WriteMaskState ALL_MASK = RenderPhase.ALL_MASK;
     public static final RenderPhase.WriteMaskState COLOR_MASK = RenderPhase.COLOR_MASK;
+    private static final RenderPhase.WriteMaskState NONE_MASK = new WriteMaskState(false, false);
+    public static final RenderLayer STENCIL_LAYER = RenderLayer.of("tbcex_gui_stencil", VertexFormats.POSITION, VertexFormat.DrawMode.QUADS, 1024, false, false, RenderLayer.MultiPhaseParameters.builder().depthTest(NO_DEPTH_TEST).shader(RenderPhase.POSITION_SHADER).writeMaskState(NONE_MASK).build(false));
     private static final Map<String, net.minecraft.client.render.Shader> SHADERS_TEXTURE = new Object2ReferenceOpenHashMap<>();
     private static final Map<String, net.minecraft.client.render.Shader> SHADERS_NO_TEXTURE = new Object2ReferenceOpenHashMap<>();
     private static final Map<String, RenderPhase.Shader> SHADERS_TEXTURE_PHASE = new Object2ReferenceOpenHashMap<>();

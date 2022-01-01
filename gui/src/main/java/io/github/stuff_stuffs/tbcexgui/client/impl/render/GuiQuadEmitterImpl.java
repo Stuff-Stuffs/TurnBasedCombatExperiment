@@ -4,18 +4,14 @@ import io.github.stuff_stuffs.tbcexgui.client.api.GuiQuad;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiQuadEmitter;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterial;
 import io.github.stuff_stuffs.tbcexgui.client.impl.GuiContextImpl;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.util.math.Vec2f;
 
 public class GuiQuadEmitterImpl implements GuiQuadEmitter {
-    private final VertexConsumerProvider vertexConsumers;
     private final GuiContextImpl context;
     private final MutableGuiQuadImpl delegate;
 
-    public GuiQuadEmitterImpl(final VertexConsumerProvider vertexConsumers, final GuiContextImpl context, final MutableGuiQuadImpl delegate) {
-        this.vertexConsumers = vertexConsumers;
+    public GuiQuadEmitterImpl(final GuiContextImpl context, final MutableGuiQuadImpl delegate) {
         this.context = context;
         this.delegate = delegate;
     }
@@ -46,8 +42,8 @@ public class GuiQuadEmitterImpl implements GuiQuadEmitter {
     }
 
     @Override
-    public int spriteColor(final int vertexIndex) {
-        return delegate.spriteColor(vertexIndex);
+    public int colour(final int vertexIndex) {
+        return delegate.colour(vertexIndex);
     }
 
     @Override
@@ -101,14 +97,14 @@ public class GuiQuadEmitterImpl implements GuiQuadEmitter {
     }
 
     @Override
-    public GuiQuadEmitter spriteColor(final int vertexIndex, final int color) {
-        delegate.spriteColor(vertexIndex, color);
+    public GuiQuadEmitter colour(final int vertexIndex, final int color) {
+        delegate.colour(vertexIndex, color);
         return this;
     }
 
     @Override
-    public GuiQuadEmitterImpl spriteColor(final int c0, final int c1, final int c2, final int c3) {
-        delegate.spriteColor(c0, c1, c2, c3);
+    public GuiQuadEmitterImpl colour(final int c0, final int c1, final int c2, final int c3) {
+        delegate.colour(c0, c1, c2, c3);
         return this;
     }
 
@@ -150,21 +146,8 @@ public class GuiQuadEmitterImpl implements GuiQuadEmitter {
 
     @Override
     public GuiQuadEmitter emit() {
-        final GuiRenderMaterialImpl renderMaterial = (GuiRenderMaterialImpl) renderMaterial();
-        final VertexConsumer vertexConsumer = vertexConsumers.getBuffer(renderMaterial.getRenderLayer());
-        final int colourModifier = renderMaterial.translucent() ? 0 : 0xFF000000;
         if (context.transformQuad(delegate)) {
-            for (int i = 0; i < 4; i++) {
-                vertexConsumer.vertex(x(i), y(i), depth());
-                vertexConsumer.color(spriteColor(i) | colourModifier);
-                if (!renderMaterial.ignoreTexture()) {
-                    vertexConsumer.texture(spriteU(i), spriteV(i));
-                }
-                if (!renderMaterial.ignoreLight()) {
-                    vertexConsumer.light(light(i));
-                }
-                vertexConsumer.next();
-            }
+            context.acquireDeferred().copy(delegate);
         }
         delegate.reset();
         return this;

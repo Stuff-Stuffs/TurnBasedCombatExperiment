@@ -9,8 +9,7 @@ public interface LayoutAlgorithm<T extends Widget> {
         for (int i = 0; i < widgets.size(); i++) {
             PositionedWidget widget = widgets.get(i);
             context.pushTranslate(widget.getX(), widget.getY(), (i + 1) / (double) (widgets.size()));
-            final GuiContext childContext = context.createChild();
-            widget.render(childContext);
+            widget.render(context);
             context.popQuadTransform();
         }
     };

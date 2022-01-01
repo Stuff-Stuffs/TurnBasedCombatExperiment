@@ -103,6 +103,7 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
 
     private static class MaterialFactory {
         private static final StringInterpolator RENDER_LAYER_NAME = new StringInterpolator("gui{DepthTest={},Translucent={},IgnoreTexture={},Shader={}}");
+        private static final StringInterpolator RENDER_LAYER_SCISSORED_NAME = new StringInterpolator("gui_scissored{DepthTest={},Translucent={},IgnoreTexture={},Shader={}}");
         private final boolean depthTest;
         private final boolean translucent;
         private final boolean ignoreTexture;

@@ -80,7 +80,7 @@ public class BattleHudHealthWidget extends AbstractWidget {
                         matrixStack.multiply(camera.getRotation());
 
                         double dist = camera.getPos().squaredDistanceTo(topCenter);
-                        dist *= MathHelper.fastInverseSqrt(dist);
+                        dist = 1 / MathHelper.fastInverseSqrt(dist);
                         dist = Math.min(Math.max(dist / 4, 1), 4);
 
                         final double width = dist;

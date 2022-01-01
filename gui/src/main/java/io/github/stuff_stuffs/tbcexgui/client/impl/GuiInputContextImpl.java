@@ -3,17 +3,17 @@ package io.github.stuff_stuffs.tbcexgui.client.impl;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiInputContext;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GuiInputContextImpl implements GuiInputContext {
-    private final double mouseX, mouseY;
-    private final List<ReservableInputEvent> events;
+    private double mouseX, mouseY;
+    private List<ReservableInputEvent> events = new ArrayList<>();
 
-    public GuiInputContextImpl(final double mouseX, final double mouseY, final List<InputEvent> events) {
+    public void setup(final double mouseX, final double mouseY, final List<InputEvent> events) {
         this.mouseX = mouseX;
         this.mouseY = mouseY;
-        this.events = events.stream().map(ReservableInputEvent::new).collect(Collectors.toList());
+        this.events = events.stream().map(ReservableInputEvent::new).toList();
     }
 
     @Override

@@ -23,13 +23,13 @@ public interface MutableGuiQuad extends GuiQuad {
         return pos(vertexIndex, vec.x, vec.y);
     }
 
-    MutableGuiQuad spriteColor(int vertexIndex, int color);
+    MutableGuiQuad colour(int vertexIndex, int color);
 
-    default MutableGuiQuad spriteColor(final int c0, final int c1, final int c2, final int c3) {
-        spriteColor(0, c0);
-        spriteColor(1, c1);
-        spriteColor(2, c2);
-        spriteColor(3, c3);
+    default MutableGuiQuad colour(final int c0, final int c1, final int c2, final int c3) {
+        colour(0, c0);
+        colour(1, c1);
+        colour(2, c2);
+        colour(3, c3);
         return this;
     }
 

@@ -1,7 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiInputContext;
 import io.github.stuff_stuffs.tbcexgui.client.impl.GuiContextImpl;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
@@ -23,6 +22,7 @@ import java.util.List;
 public abstract class HandledTBCExScreen<T extends ScreenHandler> extends HandledScreen<T> implements RawCharTypeScreen {
     protected final Widget widget;
     private final List<GuiInputContext.InputEvent> inputEvents = new ArrayList<>(8);
+    private final GuiContextImpl context = new GuiContextImpl(GuiRenderLayers.getVertexConsumers());
 
     public HandledTBCExScreen(final T handler, final PlayerInventory inventory, final Text title, final Widget widget) {
         super(handler, inventory, title);
@@ -32,14 +32,14 @@ public abstract class HandledTBCExScreen<T extends ScreenHandler> extends Handle
     @Override
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
         //TODO sensitivity
-        inputEvents.add(new GuiInputContext.MouseScroll(transformMouseX(mouseX), transformMouseY(mouseY), amount / height));
+        inputEvents.add(new GuiInputContext.MouseScroll(mouseX, mouseY, amount / height));
         return true;
     }
 
     @Override
     public void mouseMoved(final double mouseX, final double mouseY) {
         //TODO
-        inputEvents.add(new GuiInputContext.MouseMove(transformMouseX(mouseX), transformMouseY(mouseY)));
+        inputEvents.add(new GuiInputContext.MouseMove(mouseX, mouseY));
     }
 
     @Override
@@ -71,14 +71,13 @@ public abstract class HandledTBCExScreen<T extends ScreenHandler> extends Handle
             matrices.translate(0, (height / (double) width - 1) / 2d, 0);
         }
         final Mouse mouse = MinecraftClient.getInstance().mouse;
-        final GuiContext context;
         if (mouse.isCursorLocked()) {
-            context = new GuiContextImpl(matrices, GuiRenderLayers.getVertexConsumers(), 0.5, 0.5, inputEvents, delta);
+            context.setup(matrices, delta, 0, 0, inputEvents);
         } else {
-            context = new GuiContextImpl(matrices, GuiRenderLayers.getVertexConsumers(), transformMouseX(mouseX), transformMouseY(mouseY), inputEvents, delta);
+            context.setup(matrices, delta, mouseX, mouseY, inputEvents);
         }
         widget.render(context);
-        GuiRenderLayers.getVertexConsumers().draw();
+        context.draw();
         matrices.pop();
         RenderSystem.setProjectionMatrix(prevProjection);
         inputEvents.clear();
@@ -86,20 +85,20 @@ public abstract class HandledTBCExScreen<T extends ScreenHandler> extends Handle
 
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        inputEvents.add(new GuiInputContext.MouseClick(transformMouseX(mouseX), transformMouseY(mouseY), button));
+        inputEvents.add(new GuiInputContext.MouseClick(mouseX, mouseY, button));
         return true;
     }
 
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
         //TODO sensitivity
-        inputEvents.add(new GuiInputContext.MouseDrag(transformMouseX(mouseX), transformMouseY(mouseY), deltaX / width, deltaY / height, button));
+        inputEvents.add(new GuiInputContext.MouseDrag(mouseX, mouseY, deltaX / width, deltaY / height, button));
         return true;
     }
 
     @Override
     public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        inputEvents.add(new GuiInputContext.MouseReleased(transformMouseX(mouseX), transformMouseY(mouseY), button));
+        inputEvents.add(new GuiInputContext.MouseReleased(mouseX, mouseY, button));
         return true;
     }
 
@@ -116,27 +115,5 @@ public abstract class HandledTBCExScreen<T extends ScreenHandler> extends Handle
     @Override
     public void onCharTyped(final int codePoint, final int modifiers) {
         inputEvents.add(new GuiInputContext.KeyModsPress(codePoint, (modifiers & GLFW.GLFW_MOD_SHIFT) != 0, (modifiers & GLFW.GLFW_MOD_ALT) != 0, (modifiers & GLFW.GLFW_MOD_CONTROL) != 0, (modifiers & GLFW.GLFW_MOD_CAPS_LOCK) != 0, (modifiers & GLFW.GLFW_MOD_NUM_LOCK) != 0));
-    }
-
-    private static double transformMouseX(final double mouseX) {
-        final Window window = MinecraftClient.getInstance().getWindow();
-        final int width = window.getScaledWidth();
-        final int height = window.getScaledHeight();
-        if (width > height) {
-            final double v = mouseX - (width / 2.0) + (height / 2.0);
-            return v / height;
-        }
-        return mouseX / (double) width;
-    }
-
-    private static double transformMouseY(final double mouseY) {
-        final Window window = MinecraftClient.getInstance().getWindow();
-        final int width = window.getScaledWidth();
-        final int height = window.getScaledHeight();
-        if (width < height) {
-            final double v = mouseY - (height / 2.0) + (width / 2.0);
-            return v / width;
-        }
-        return mouseY / (double) height;
     }
 }

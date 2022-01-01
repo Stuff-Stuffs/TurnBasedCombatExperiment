@@ -20,10 +20,10 @@ public interface GuiQuadEmitter extends MutableGuiQuad {
     GuiQuadEmitter pos(int vertexIndex, Vec2f vec);
 
     @Override
-    GuiQuadEmitter spriteColor(int vertexIndex, int color);
+    GuiQuadEmitter colour(int vertexIndex, int color);
 
     @Override
-    GuiQuadEmitter spriteColor(int c0, int c1, int c2, int c3);
+    GuiQuadEmitter colour(int c0, int c1, int c2, int c3);
 
     @Override
     GuiQuadEmitter sprite(int vertexIndex, float u, float v);

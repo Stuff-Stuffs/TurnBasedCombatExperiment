@@ -1,7 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client.hud;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
 import io.github.stuff_stuffs.tbcexgui.client.impl.GuiContextImpl;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
@@ -14,6 +13,7 @@ import java.util.ArrayList;
 
 public abstract class TBCExHud {
     protected final Widget root;
+    private final GuiContextImpl context = new GuiContextImpl(GuiRenderLayers.getVertexConsumers());
     private int width = -1;
     private int height = -1;
 
@@ -53,9 +53,9 @@ public abstract class TBCExHud {
         } else {
             matrices.translate(0.5, 0.5, 0);
         }
-        final GuiContext context = new GuiContextImpl(matrices, GuiRenderLayers.getVertexConsumers(), 0.5, 0.5, /*copy?*/new ArrayList<>(), tickDelta);
+        context.setup(matrices, tickDelta, 0, 0, new ArrayList<>());
         root.render(context);
-        GuiRenderLayers.getVertexConsumers().draw();
+        context.draw();
         matrices.pop();
         RenderSystem.setProjectionMatrix(prevProjection);
     }

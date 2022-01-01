@@ -20,7 +20,7 @@ public class MutableGuiQuadImpl implements MutableGuiQuad {
     private final float[] ys = new float[4];
     private final float[] us = new float[4];
     private final float[] vs = new float[4];
-    private final int[] spriteColours = new int[4];
+    private final int[] colours = new int[4];
     private final int[] lights = new int[4];
     private GuiRenderMaterial renderMaterial = DEFAULT_RENDER_MATERIAL;
     private int tag;
@@ -56,8 +56,8 @@ public class MutableGuiQuadImpl implements MutableGuiQuad {
     }
 
     @Override
-    public int spriteColor(final int vertexIndex) {
-        return spriteColours[vertexIndex];
+    public int colour(final int vertexIndex) {
+        return colours[vertexIndex];
     }
 
     @Override
@@ -106,8 +106,8 @@ public class MutableGuiQuadImpl implements MutableGuiQuad {
     }
 
     @Override
-    public MutableGuiQuad spriteColor(final int vertexIndex, final int color) {
-        spriteColours[vertexIndex] = color;
+    public MutableGuiQuad colour(final int vertexIndex, final int color) {
+        colours[vertexIndex] = color;
         return this;
     }
 
@@ -148,7 +148,7 @@ public class MutableGuiQuadImpl implements MutableGuiQuad {
     @Override
     public MutableGuiQuad interpolate(final int vertexIndex, final GuiQuad other, final double w0, final double w1, final double w2, final double w3) {
         sprite(vertexIndex, (float) (other.spriteU(0) * w0 + other.spriteU(1) * w1 + other.spriteU(2) * w2 + other.spriteU(3) * w3), (float) (other.spriteV(0) * w0 + other.spriteV(1) * w1 + other.spriteV(2) * w2 + other.spriteV(3) * w3));
-        spriteColor(vertexIndex, interpolateColour(other.spriteColor(0), other.spriteColor(1), other.spriteColor(2), other.spriteColor(3), w0, w1, w2, w3));
+        colour(vertexIndex, interpolateColour(other.colour(0), other.colour(1), other.colour(2), other.colour(3), w0, w1, w2, w3));
         final int blockLight = MathHelper.clamp((int) Math.round(
                 LightmapTextureManager.getBlockLightCoordinates(other.light(0)) * w0 +
                         LightmapTextureManager.getBlockLightCoordinates(other.light(1)) * w1 +
@@ -170,7 +170,7 @@ public class MutableGuiQuadImpl implements MutableGuiQuad {
         Arrays.fill(ys, 0);
         Arrays.fill(us, 0);
         Arrays.fill(vs, 0);
-        Arrays.fill(spriteColours, 0);
+        Arrays.fill(colours, 0);
         renderMaterial = DEFAULT_RENDER_MATERIAL;
         tag = 0;
         depth = 0;

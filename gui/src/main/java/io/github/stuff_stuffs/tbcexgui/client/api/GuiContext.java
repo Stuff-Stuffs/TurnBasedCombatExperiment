@@ -1,7 +1,6 @@
 package io.github.stuff_stuffs.tbcexgui.client.api;
 
-import io.github.stuff_stuffs.tbcexgui.client.impl.render.QuadSplitter;
-import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import io.github.stuff_stuffs.tbcexgui.client.impl.render.ScissorData;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import net.minecraft.text.OrderedText;
 import net.minecraft.util.math.Matrix4f;
@@ -9,17 +8,15 @@ import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vector4f;
 
 public interface GuiContext {
-    GuiContext createChild();
-
     void pushQuadTransform(GuiTransform transform);
 
     void popQuadTransform();
 
     default void pushScale(final double xScale, final double yScale, final double zScale) {
-        final Vec2d scalar = new Vec2d(xScale, yScale);
+        final Vec2d scalar = new Vec2d(1 / xScale, 1 / yScale);
         pushQuadTransform(new GuiTransform() {
             @Override
-            public boolean transform(final MutableGuiQuad quad, final GuiTransform.Context context) {
+            public boolean transform(final MutableGuiQuad quad) {
                 for (int i = 0; i < 4; i++) {
                     quad.pos(i, (float) (quad.x(i) * yScale), (float) (quad.y(i) * yScale));
                     quad.depth((float) (quad.depth() * zScale));
@@ -35,10 +32,10 @@ public interface GuiContext {
     }
 
     default void pushTranslate(final double x, final double y, final double z) {
-        final Vec2d offset = new Vec2d(x, y);
+        final Vec2d offset = new Vec2d(-x, -y);
         pushQuadTransform(new GuiTransform() {
             @Override
-            public boolean transform(final MutableGuiQuad quad, final GuiTransform.Context context) {
+            public boolean transform(final MutableGuiQuad quad) {
                 for (int i = 0; i < 4; i++) {
                     quad.pos(i, (float) (quad.x(i) + x), (float) (quad.y(i) + y));
                     quad.depth((float) (quad.depth() + z));
@@ -59,9 +56,11 @@ public interface GuiContext {
 
     default void pushMatrixMultiply(final Matrix4f matrix) {
         final Vector4f vec = new Vector4f();
+        final Matrix4f inverse = matrix.copy();
+        inverse.invert();
         pushQuadTransform(new GuiTransform() {
             @Override
-            public boolean transform(final MutableGuiQuad quad, final GuiTransform.Context context) {
+            public boolean transform(final MutableGuiQuad quad) {
                 for (int i = 0; i < 4; i++) {
                     vec.set(quad.x(i), quad.y(i), quad.depth(), 1);
                     vec.transform(matrix);
@@ -74,34 +73,14 @@ public interface GuiContext {
             @Override
             public Vec2d transformMouseCursor(final Vec2d cursor) {
                 vec.set((float) cursor.x, (float) cursor.y, /*TODO 1?*/0, 1);
+                vec.transform(inverse);
                 return new Vec2d(vec.getX(), vec.getY());
             }
         });
     }
 
     default void pushScissor(final float x, final float y, final float width, final float height) {
-        final Rect2d rect = new Rect2d(x, y, x + width, y + height);
-        pushQuadTransform(new GuiTransform() {
-            @Override
-            public boolean transform(final MutableGuiQuad quad, final GuiTransform.Context context) {
-                boolean allInside = true;
-                for (int i = 0; i < 4; i++) {
-                    if (!rect.isIn(quad.x(i), quad.y(i))) {
-                        allInside = false;
-                    }
-                }
-                if (allInside) {
-                    return true;
-                }
-                QuadSplitter.scissor(quad, x, y, x + width, y + height, context.emitter());
-                return true;
-            }
-
-            @Override
-            public Vec2d transformMouseCursor(final Vec2d cursor) {
-                return cursor;
-            }
-        });
+        pushQuadTransform(new ScissorData(x, y, width, height));
     }
 
     Vec2d transformMouseCursor(Vec2d mouseCursor);
