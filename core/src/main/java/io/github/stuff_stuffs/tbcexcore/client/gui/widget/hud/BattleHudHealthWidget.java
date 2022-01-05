@@ -8,7 +8,6 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
-import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
@@ -85,13 +84,13 @@ public class BattleHudHealthWidget extends AbstractWidget {
 
                         final double width = dist;
                         final double height = dist / 8.0;
-                        final VertexConsumer posColour = vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_TRANSPARENT_LAYER);
+                        final VertexConsumer posColour = vertexConsumers.getBuffer(null);
                         RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
                         RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
                         RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
                         RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
 
-                        final VertexConsumer posColourTex = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(BOSS_BAR_TEXTURE, false));
+                        final VertexConsumer posColourTex = vertexConsumers.getBuffer(null);
                         matrixStack.translate(-width / 2.0, 0, 0);
                         //background
                         RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, 0, 0, 0, matrixStack), colour, 255), 0, (6 * 10) / 256.0).next();

@@ -1,25 +1,19 @@
 package io.github.stuff_stuffs.tbcexgui.client.impl;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
-import io.github.stuff_stuffs.tbcexgui.client.api.GuiInputContext;
-import io.github.stuff_stuffs.tbcexgui.client.api.GuiTransform;
-import io.github.stuff_stuffs.tbcexgui.client.api.MutableGuiQuad;
+import io.github.stuff_stuffs.tbcexgui.client.api.*;
 import io.github.stuff_stuffs.tbcexgui.client.impl.render.*;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import it.unimi.dsi.fastutil.Stack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
-import net.minecraft.util.math.Matrix4f;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
@@ -29,11 +23,14 @@ public class GuiContextImpl implements GuiContext {
     private final List<GuiTransform> transforms;
     private final Queue<DeferredEmittedQuad> quadStorage = new ArrayDeque<>();
     private final SortedMap<StencilState, List<DeferredEmittedQuad>> inUse = new Object2ObjectRBTreeMap<>(StencilState.COMPARATOR);
+    private final List<DeferredEmittedQuad> tooltipQuads = new ArrayList<>();
     private final Stack<StencilState> stencilStack = new ReferenceArrayList<>();
     private final VertexConsumerProvider.Immediate vertexConsumers;
     private final GuiVcpTextAdapter textAdapter;
     private final GuiQuadEmitterImpl emitter;
     private final GuiInputContextImpl inputContext;
+    private final GuiTextRendererImpl textRenderer;
+    private boolean tooltipMode = false;
     private float tickDelta;
     private int deferredCounter;
 
@@ -41,8 +38,9 @@ public class GuiContextImpl implements GuiContext {
         this.vertexConsumers = vertexConsumers;
         transforms = new ArrayList<>();
         textAdapter = new GuiVcpTextAdapter(this);
-        emitter = new GuiQuadEmitterImpl(this, new MutableGuiQuadImpl());
+        emitter = new GuiQuadEmitterImpl(this);
         inputContext = new GuiInputContextImpl();
+        textRenderer = new GuiTextRendererImpl(MinecraftClient.getInstance().textRenderer, this);
     }
 
     public void setup(final MatrixStack stack, final float tickDelta, final double mouseX, final double mouseY, final List<GuiInputContext.InputEvent> events) {
@@ -56,7 +54,7 @@ public class GuiContextImpl implements GuiContext {
     }
 
     @Override
-    public void pushQuadTransform(final GuiTransform transform) {
+    public void pushGuiTransform(final GuiTransform transform) {
         transforms.add(transform);
         if (transform instanceof ScissorData data) {
             final MutableGuiQuadImpl quad = new MutableGuiQuadImpl();
@@ -70,7 +68,7 @@ public class GuiContextImpl implements GuiContext {
     }
 
     @Override
-    public void popQuadTransform() {
+    public void popGuiTransform() {
         if (transforms.remove(transforms.size() - 1) instanceof ScissorData) {
             stencilStack.pop();
         }
@@ -79,20 +77,9 @@ public class GuiContextImpl implements GuiContext {
     @Override
     public Vec2d transformMouseCursor(Vec2d mouseCursor) {
         for (final GuiTransform transform : transforms) {
-            mouseCursor = transform.transformMouseCursor(mouseCursor);
+            mouseCursor = transform.transformMouseCursorToGui(mouseCursor);
         }
         return mouseCursor;
-    }
-
-    @Override
-    public void renderText(final OrderedText text, final TextOutline outline, final int colour, final int outlineColour, final int underlineColour) {
-        final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        final Matrix4f identity = Matrix4f.translate(0, 0, 0);
-        switch (outline) {
-            case NONE -> textRenderer.draw(text, 0, 0, colour, false, identity, textAdapter, true, underlineColour, LightmapTextureManager.MAX_LIGHT_COORDINATE);
-            case OUTLINE -> textRenderer.drawWithOutline(text, 0, 0, colour, outlineColour, identity, textAdapter, LightmapTextureManager.MAX_LIGHT_COORDINATE);
-            case SHADOW -> textRenderer.draw(text, 0, 0, colour, true, identity, textAdapter, true, underlineColour, LightmapTextureManager.MAX_LIGHT_COORDINATE);
-        }
     }
 
     @Override
@@ -110,6 +97,18 @@ public class GuiContextImpl implements GuiContext {
         return emitter;
     }
 
+    @Override
+    public GuiTextRenderer getTextRenderer() {
+        return textRenderer;
+    }
+
+    @Override
+    public void addTooltip(final List<OrderedText> components) {
+        tooltipMode = true;
+        TooltipRenderer.render(components, inputContext.getMouseCursorX(), inputContext.getMouseCursorY(), this);
+        tooltipMode = false;
+    }
+
     public boolean transformQuad(final MutableGuiQuad quad) {
         return transformQuad(quad, false);
     }
@@ -123,10 +122,6 @@ public class GuiContextImpl implements GuiContext {
         return true;
     }
 
-    public VertexConsumer getVertexConsumerForLayer(final RenderLayer layer) {
-        return vertexConsumers.getBuffer(layer);
-    }
-
     public DeferredEmittedQuad acquireDeferred() {
         final DeferredEmittedQuad quad;
         if (quadStorage.isEmpty()) {
@@ -134,7 +129,11 @@ public class GuiContextImpl implements GuiContext {
         } else {
             quad = quadStorage.poll();
         }
-        inUse.computeIfAbsent(stencilStack.isEmpty() ? null : stencilStack.top(), state -> new ArrayList<>()).add(quad);
+        if (tooltipMode) {
+            tooltipQuads.add(quad);
+        } else {
+            inUse.computeIfAbsent(stencilStack.isEmpty() ? null : stencilStack.top(), state -> new ArrayList<>()).add(quad);
+        }
         return quad;
     }
 
@@ -147,7 +146,7 @@ public class GuiContextImpl implements GuiContext {
                 RenderSystem.stencilMask(0xFF);
                 RenderSystem.clearStencil(0);
                 RenderSystem.clear(GL11.GL_STENCIL_BUFFER_BIT, MinecraftClient.IS_SYSTEM_MAC);
-                RenderSystem.stencilOp(GL11.GL_INCR, GL11.GL_INCR, GL11.GL_INCR);
+                RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_INCR, GL11.GL_INCR);
                 RenderSystem.stencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
                 StencilState stencilState = state;
                 final VertexConsumer consumer = vertexConsumers.getBuffer(GuiRenderLayers.STENCIL_LAYER);
@@ -172,6 +171,14 @@ public class GuiContextImpl implements GuiContext {
         }
         inUse.clear();
         GL11.glDisable(GL11.GL_STENCIL_TEST);
+        tooltipQuads.forEach(quad -> quad.emit(vertexConsumers));
+        quadStorage.addAll(tooltipQuads);
+        tooltipQuads.clear();
+        vertexConsumers.draw();
+    }
+
+    public GuiVcpTextAdapter getTextAdapter() {
+        return textAdapter;
     }
 
     private static final class StencilState {

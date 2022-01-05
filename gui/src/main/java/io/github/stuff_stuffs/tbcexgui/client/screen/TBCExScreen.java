@@ -30,34 +30,34 @@ public abstract class TBCExScreen extends Screen implements RawCharTypeScreen {
 
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        inputEvents.add(new GuiInputContext.MouseClick(mouseX, mouseY, button));
+        inputEvents.add(new GuiInputContext.MouseClick(transformMouseX(mouseX), transformMouseY(mouseY), button));
         return true;
     }
 
     @Override
     public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-        inputEvents.add(new GuiInputContext.MouseReleased(mouseX, mouseY, button));
+        inputEvents.add(new GuiInputContext.MouseReleased(transformMouseX(mouseX), transformMouseY(mouseY), button));
         return true;
     }
 
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
         //TODO sensitivity
-        inputEvents.add(new GuiInputContext.MouseDrag(mouseX, mouseY, deltaX / width, deltaY / height, button));
+        inputEvents.add(new GuiInputContext.MouseDrag(transformMouseX(mouseX), transformMouseY(mouseY), deltaX, deltaY, button));
         return true;
     }
 
     @Override
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
         //TODO sensitivity
-        inputEvents.add(new GuiInputContext.MouseScroll(mouseX, mouseY, amount));
+        inputEvents.add(new GuiInputContext.MouseScroll(transformMouseX(mouseX), transformMouseY(mouseY), amount));
         return true;
     }
 
     @Override
     public void mouseMoved(final double mouseX, final double mouseY) {
         //TODO
-        inputEvents.add(new GuiInputContext.MouseMove(mouseX, mouseY));
+        inputEvents.add(new GuiInputContext.MouseMove(transformMouseX(mouseX) * 2, transformMouseY(mouseY) * 2));
     }
 
     @Override
@@ -81,7 +81,7 @@ public abstract class TBCExScreen extends Screen implements RawCharTypeScreen {
         if (mouse.isCursorLocked()) {
             context.setup(matrices, delta, 0, 0, inputEvents);
         } else {
-            context.setup(matrices, delta, mouseX, mouseY, inputEvents);
+            context.setup(matrices, delta, transformMouseX(mouseX), transformMouseY(mouseY), inputEvents);
         }
         widget.render(context);
         context.draw();
@@ -116,5 +116,13 @@ public abstract class TBCExScreen extends Screen implements RawCharTypeScreen {
     @Override
     public void onCharTyped(final int codePoint, final int modifiers) {
         inputEvents.add(new GuiInputContext.KeyModsPress(codePoint, (modifiers & GLFW.GLFW_MOD_SHIFT) != 0, (modifiers & GLFW.GLFW_MOD_ALT) != 0, (modifiers & GLFW.GLFW_MOD_CONTROL) != 0, (modifiers & GLFW.GLFW_MOD_CAPS_LOCK) != 0, (modifiers & GLFW.GLFW_MOD_NUM_LOCK) != 0));
+    }
+
+    private static double transformMouseX(final double x) {
+        return x * MinecraftClient.getInstance().getWindow().getScaleFactor();
+    }
+
+    private static double transformMouseY(final double y) {
+        return y * MinecraftClient.getInstance().getWindow().getScaleFactor();
     }
 }

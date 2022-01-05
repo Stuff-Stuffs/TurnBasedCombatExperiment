@@ -1,113 +1,74 @@
 package io.github.stuff_stuffs.tbcexgui.client.render;
 
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.util.math.Matrix4f;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterial;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterialFinder;
+import io.github.stuff_stuffs.tbcexgui.client.api.text.TextDrawer;
+import io.github.stuff_stuffs.tbcexgui.client.api.text.TextDrawers;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteAtlasTexture;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.text.OrderedText;
+import net.minecraft.util.Identifier;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 public final class TooltipRenderer {
-    private static final List<TooltipData> TOOLTIP_DATAS = new ReferenceArrayList<>(4);
+    private static final Map<NinePatch.Part, Sprite> TOOLTIP_SPRITE_MAP = new EnumMap<>(NinePatch.Part.class);
+    private static final TextDrawer TOOLTIP_TEXT_DRAWER = TextDrawers.oneShot(TextDrawers.HorizontalJustification.LEFT, TextDrawers.VerticalJustification.BOTTOM, -1, 0, false);
+    private static boolean RELOAD_SPRITE_MAP = true;
 
     private TooltipRenderer() {
     }
 
-    public static void render(final List<TooltipComponent> components, final double x, final double y, final double horizontalPixel, final double verticalPixel, final int pixelWidth, final int pixelHeight, final Matrix4f matrix) {
-        if (!components.isEmpty()) {
-            TOOLTIP_DATAS.add(new TooltipData(components, x, y, horizontalPixel, verticalPixel, pixelWidth, pixelHeight, matrix.copy()));
+    public static void render(final List<OrderedText> components, final double x, final double y, final GuiContext context) {
+        if (RELOAD_SPRITE_MAP) {
+            reloadSpriteMap();
+        }
+        double maxWidth = 0;
+        double height = 0;
+        final MinecraftClient client = MinecraftClient.getInstance();
+        for (final OrderedText component : components) {
+            maxWidth = Math.max(maxWidth, context.getTextRenderer().getWidth(component));
+            height += context.getTextRenderer().getHeight();
+        }
+        final double actualWidth = maxWidth / (double) client.getWindow().getScaledWidth() + 0.01;
+        final double actualHeight = height / (double) client.getWindow().getScaledWidth() + 0.01;
+        final GuiRenderMaterial material = GuiRenderMaterialFinder.finder().ignoreLight(true).ignoreTexture(false).texture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).translucent(true).depthTest(false).find();
+        NinePatch.render(TOOLTIP_SPRITE_MAP, x - 0.005, y - 0.005, actualWidth, actualHeight, 0.005, 0.005, 1 / 64.0, context, material);
+        final int size = components.size();
+        for (int i = 0; i < size; i++) {
+            context.pushTranslate(0, (i * actualHeight) / (double) size, 0);
+            TOOLTIP_TEXT_DRAWER.draw(actualWidth, actualHeight / size, components.get(i), context);
+            context.popGuiTransform();
         }
     }
 
-    public static void renderAll() {
-        //final Matrix4f backup = RenderSystem.getProjectionMatrix();
-        //final Window window = MinecraftClient.getInstance().getWindow();
-        //final Matrix4f proj = Matrix4f.projectionMatrix(0, window.getFramebufferWidth(), 0, window.getFramebufferHeight(), 1000, 3000);
-        //RenderSystem.setProjectionMatrix(proj);
-        //final VertexConsumerProvider.Immediate immediate = GuiRenderLayers.getVertexConsumer();
-        //for (final TooltipData data : TOOLTIP_DATAS) {
-        //    render(data, immediate);
-        //}
-        //immediate.draw();
-        //RenderSystem.setProjectionMatrix(backup);
-        //TOOLTIP_DATAS.clear();
-    }
-
-    public static void clear() {
-        TOOLTIP_DATAS.clear();
-    }
-
-    private static void render(final TooltipData data, final VertexConsumerProvider.Immediate vertexConsumers) {
-        //final MatrixStack matrices = new MatrixStack();
-        //matrices.multiplyPositionMatrix(data.matrix);
-        //matrices.translate(0,0,400);
-        //final double borderThickness = 0.5;
-        //final MinecraftClient client = MinecraftClient.getInstance();
-        //final TextRenderer textRenderer = client.textRenderer;
-        //double textScale = Double.MAX_VALUE;
-        //double width = 0;
-        //double height = 0;
-        //for (final TooltipComponent component : data.components) {
-        //    final int componentHeight = component.getHeight();
-        //    final int componentWidth = component.getWidth(textRenderer);
-        //    height += componentHeight;
-        //    final double scale = AbstractWidget.getTextScale(componentWidth, 100, 1 / 48.0, data.pixelWidth, data.pixelHeight, data.horizontalPixel, data.verticalPixel);
-        //    if (scale < textScale) {
-        //        textScale = scale;
-        //    }
-        //    if (componentWidth * textScale > width) {
-        //        width = componentWidth * textScale;
-        //    }
-        //}
-        //width += 4 * data.verticalPixel * borderThickness;
-        //height *= textScale;
-        //height += 4 * data.verticalPixel * borderThickness;
-        //AbstractWidget.renderTooltipBackground(data.x, data.y, width, height, matrices, data.horizontalPixel, data.verticalPixel, vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE, true)));
-//
-        //double offset = 0;
-        //final double x = data.x + 2 * data.horizontalPixel * borderThickness;
-        //final double y = data.y + 2 * data.verticalPixel * borderThickness;
-        //for (final TooltipComponent tooltipComponent : data.components) {
-        //    matrices.push();
-        //    matrices.translate(0, offset, 0);
-        //    matrices.translate(x, y, 0);
-        //    matrices.scale((float) textScale, (float) textScale, 1);
-        //    tooltipComponent.drawText(textRenderer, 0, 0, matrices.peek().getPositionMatrix(), vertexConsumers);
-        //    offset += tooltipComponent.getHeight() * textScale;
-        //    matrices.pop();
-        //}
-//
-        //offset = 0;
-        //for (final TooltipComponent tooltipComponent : data.components) {
-        //    matrices.push();
-        //    matrices.translate(0, offset, 0);
-        //    matrices.translate(x, y, 0);
-        //    matrices.scale((float) textScale, (float) textScale, 1);
-        //    tooltipComponent.drawItems(textRenderer, 0, 0, matrices, client.getItemRenderer(), 1);
-        //    offset += tooltipComponent.getHeight() * textScale;
-        //    matrices.pop();
-        //}
-    }
-
-    private static class TooltipData {
-        private final List<TooltipComponent> components;
-        private final double x;
-        private final double y;
-        private final double horizontalPixel;
-        private final double verticalPixel;
-        private final int pixelHeight;
-        private final int pixelWidth;
-        private final Matrix4f matrix;
-
-        private TooltipData(final List<TooltipComponent> components, final double x, final double y, final double horizontalPixel, final double verticalPixel, final int pixelWidth, final int pixelHeight, final Matrix4f matrix) {
-            this.components = components;
-            this.x = x;
-            this.y = y;
-            this.horizontalPixel = horizontalPixel;
-            this.verticalPixel = verticalPixel;
-            this.pixelHeight = pixelHeight;
-            this.pixelWidth = pixelWidth;
-            this.matrix = matrix;
+    private static void reloadSpriteMap() {
+        RELOAD_SPRITE_MAP = false;
+        final Identifier base = new Identifier("tbcexgui", "gui/tooltip");
+        for (final NinePatch.Part part : NinePatch.Part.values()) {
+            TOOLTIP_SPRITE_MAP.put(part, MinecraftClient.getInstance().getSpriteAtlas(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).apply(part.append(base)));
         }
+    }
+
+    static {
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
+            @Override
+            public Identifier getFabricId() {
+                return new Identifier("tbcexgui", "tooltip_sprite_callback");
+            }
+
+            @Override
+            public void reload(final ResourceManager manager) {
+                RELOAD_SPRITE_MAP = true;
+            }
+        });
     }
 }

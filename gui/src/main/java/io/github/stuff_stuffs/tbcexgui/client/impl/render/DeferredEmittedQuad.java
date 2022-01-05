@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexgui.client.impl.render;
 
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiQuad;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 
@@ -33,7 +34,8 @@ public class DeferredEmittedQuad {
                 vertexConsumer.texture(delegate.spriteU(i), delegate.spriteV(i));
             }
             if (!renderMaterial.ignoreLight()) {
-                vertexConsumer.light(delegate.light(i));
+                final int packedLight = delegate.light(i);
+                vertexConsumer.light(LightmapTextureManager.getBlockLightCoordinates(packedLight), LightmapTextureManager.getSkyLightCoordinates(packedLight));
             }
             vertexConsumer.next();
         }

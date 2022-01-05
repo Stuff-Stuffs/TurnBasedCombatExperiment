@@ -10,7 +10,7 @@ public interface LayoutAlgorithm<T extends Widget> {
             PositionedWidget widget = widgets.get(i);
             context.pushTranslate(widget.getX(), widget.getY(), (i + 1) / (double) (widgets.size()));
             widget.render(context);
-            context.popQuadTransform();
+            context.popGuiTransform();
         }
     };
 

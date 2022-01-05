@@ -10,7 +10,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.hud.TBCExHud;
-import io.github.stuff_stuffs.tbcexgui.client.widget.PositionedWidget;
+import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetModifiers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,9 +25,9 @@ public final class BattleHud extends TBCExHud {
         this.handle = handle;
         this.entity = entity;
         context = new ContextImpl();
-        ((RootPanelWidget) root).addChild(PositionedWidget.of(new BattleHudCurrentTurnWidget(0.5, 0.05, handle, entity.world), () -> 0.25, () -> 0.05));
-        ((RootPanelWidget) root).addChild(PositionedWidget.of(new BattleHudEnergyWidget(0.5, 0.025, context, new BattleParticipantHandle(handle, entity.getUuid()), entity.world), () -> 0.25, () -> 0.975));
-        ((RootPanelWidget) root).addChild(PositionedWidget.of(new BattleHudHealthWidget(handle, entity.world), () -> 0, () -> 0));
+        ((RootPanelWidget) root).addChild(WidgetModifiers.positioned(new BattleHudCurrentTurnWidget(0.5, 0.05, handle, entity.world), () -> 0.25, () -> 0.05));
+        ((RootPanelWidget) root).addChild(WidgetModifiers.positioned(new BattleHudEnergyWidget(0.5, 0.025, context, new BattleParticipantHandle(handle, entity.getUuid()), entity.world), () -> 0.25, () -> 0.975));
+        ((RootPanelWidget) root).addChild(WidgetModifiers.positioned(new BattleHudHealthWidget(handle, entity.world), () -> 0, () -> 0));
     }
 
     public boolean matches(final BattleHandle handle) {

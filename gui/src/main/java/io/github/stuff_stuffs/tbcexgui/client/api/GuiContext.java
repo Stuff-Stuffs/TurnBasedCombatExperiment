@@ -7,33 +7,42 @@ import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vector4f;
 
-public interface GuiContext {
-    void pushQuadTransform(GuiTransform transform);
+import java.util.List;
 
-    void popQuadTransform();
+public interface GuiContext {
+    void pushGuiTransform(GuiTransform transform);
+
+    void popGuiTransform();
 
     default void pushScale(final double xScale, final double yScale, final double zScale) {
-        final Vec2d scalar = new Vec2d(1 / xScale, 1 / yScale);
-        pushQuadTransform(new GuiTransform() {
+        final Vec2d guiScalar = new Vec2d(1 / xScale, 1 / yScale);
+        final Vec2d screenScalar = new Vec2d(xScale, yScale);
+        pushGuiTransform(new GuiTransform() {
             @Override
             public boolean transform(final MutableGuiQuad quad) {
                 for (int i = 0; i < 4; i++) {
-                    quad.pos(i, (float) (quad.x(i) * yScale), (float) (quad.y(i) * yScale));
+                    quad.pos(i, (float) (quad.x(i) * xScale), (float) (quad.y(i) * yScale));
                     quad.depth((float) (quad.depth() * zScale));
                 }
                 return true;
             }
 
             @Override
-            public Vec2d transformMouseCursor(final Vec2d cursor) {
-                return cursor.multiply(scalar);
+            public Vec2d transformMouseCursorToGui(final Vec2d cursor) {
+                return cursor.multiply(guiScalar);
+            }
+
+            @Override
+            public Vec2d transformMouseCursorToScreen(final Vec2d cursor) {
+                return cursor.multiply(screenScalar);
             }
         });
     }
 
     default void pushTranslate(final double x, final double y, final double z) {
         final Vec2d offset = new Vec2d(-x, -y);
-        pushQuadTransform(new GuiTransform() {
+        final Vec2d screen = new Vec2d(x, y);
+        pushGuiTransform(new GuiTransform() {
             @Override
             public boolean transform(final MutableGuiQuad quad) {
                 for (int i = 0; i < 4; i++) {
@@ -44,8 +53,13 @@ public interface GuiContext {
             }
 
             @Override
-            public Vec2d transformMouseCursor(final Vec2d cursor) {
+            public Vec2d transformMouseCursorToGui(final Vec2d cursor) {
                 return cursor.add(offset);
+            }
+
+            @Override
+            public Vec2d transformMouseCursorToScreen(final Vec2d cursor) {
+                return cursor.add(screen);
             }
         });
     }
@@ -57,8 +71,9 @@ public interface GuiContext {
     default void pushMatrixMultiply(final Matrix4f matrix) {
         final Vector4f vec = new Vector4f();
         final Matrix4f inverse = matrix.copy();
-        inverse.invert();
-        pushQuadTransform(new GuiTransform() {
+        final float determinate = inverse.determinantAndAdjugate();
+        inverse.multiply(1 / determinate);
+        pushGuiTransform(new GuiTransform() {
             @Override
             public boolean transform(final MutableGuiQuad quad) {
                 for (int i = 0; i < 4; i++) {
@@ -71,27 +86,41 @@ public interface GuiContext {
             }
 
             @Override
-            public Vec2d transformMouseCursor(final Vec2d cursor) {
-                vec.set((float) cursor.x, (float) cursor.y, /*TODO 1?*/0, 1);
+            public Vec2d transformMouseCursorToGui(final Vec2d cursor) {
+                vec.set((float) cursor.x, (float) cursor.y, 0, 1);
                 vec.transform(inverse);
+                return new Vec2d(vec.getX(), vec.getY());
+            }
+
+            @Override
+            public Vec2d transformMouseCursorToScreen(final Vec2d cursor) {
+                vec.set((float) cursor.x, (float) cursor.y, 0, 1);
+                vec.transform(matrix);
                 return new Vec2d(vec.getX(), vec.getY());
             }
         });
     }
 
     default void pushScissor(final float x, final float y, final float width, final float height) {
-        pushQuadTransform(new ScissorData(x, y, width, height));
+        pushGuiTransform(new ScissorData(x, y, width, height));
     }
 
     Vec2d transformMouseCursor(Vec2d mouseCursor);
 
-    void renderText(OrderedText text, TextOutline outline, int colour, int outlineColour, int underlineColour);
+    default Vec2d transformMouseCursor() {
+        final GuiInputContext inputContext = getInputContext();
+        return transformMouseCursor(new Vec2d(inputContext.getMouseCursorX(), inputContext.getMouseCursorY()));
+    }
 
     float getTickDelta();
 
     GuiInputContext getInputContext();
 
     GuiQuadEmitter getEmitter();
+
+    GuiTextRenderer getTextRenderer();
+
+    void addTooltip(List<OrderedText> components);
 
     enum TextOutline {
         NONE,

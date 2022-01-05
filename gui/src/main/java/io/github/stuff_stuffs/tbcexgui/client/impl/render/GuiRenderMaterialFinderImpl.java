@@ -102,8 +102,7 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
     }
 
     private static class MaterialFactory {
-        private static final StringInterpolator RENDER_LAYER_NAME = new StringInterpolator("gui{DepthTest={},Translucent={},IgnoreTexture={},Shader={}}");
-        private static final StringInterpolator RENDER_LAYER_SCISSORED_NAME = new StringInterpolator("gui_scissored{DepthTest={},Translucent={},IgnoreTexture={},Shader={}}");
+        private static final StringInterpolator RENDER_LAYER_NAME = new StringInterpolator("gui{DepthTest={},Translucent={},IgnoreTexture={},IgnoreLight={},Shader={}}");
         private final boolean depthTest;
         private final boolean translucent;
         private final boolean ignoreTexture;
@@ -123,15 +122,18 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
         }
 
         private RenderLayer createRenderLayer(final String shader, final Identifier texture) {
+            final VertexFormat vertexFormat = getVertexFormat();
             return cache.computeIfAbsent(shader, s -> RenderLayer.of(
-                            RENDER_LAYER_NAME.interpolate(depthTest, translucent, ignoreTexture, s),
-                            getVertexFormat(),
+                            RENDER_LAYER_NAME.interpolate(depthTest, translucent, ignoreTexture, ignoreLight, s),
+                            vertexFormat,
                             VertexFormat.DrawMode.QUADS,
                             1024,
                             false,
                             translucent,
                             RenderLayer.MultiPhaseParameters.builder().
-                                    shader(GuiRenderLayers.getShader(s, !ignoreTexture)).
+                                    cull(GuiRenderLayers.NO_CULL).
+                                    shader(GuiRenderLayers.getShader(s, vertexFormat)).
+                                    lightmap(ignoreLight ? GuiRenderLayers.DISABLE_LIGHTMAP : GuiRenderLayers.ENABLE_LIGHTMAP).
                                     depthTest(depthTest ? GuiRenderLayers.DEPTH_TEST : GuiRenderLayers.NO_DEPTH_TEST).
                                     texture(GuiRenderLayers.getTexture(texture)).
                                     target(translucent ? GuiRenderLayers.TRANSLUCENT_TARGET : GuiRenderLayers.MAIN_TARGET).

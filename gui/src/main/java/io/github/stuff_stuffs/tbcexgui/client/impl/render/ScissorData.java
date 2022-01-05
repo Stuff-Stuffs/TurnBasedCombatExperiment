@@ -20,7 +20,12 @@ public class ScissorData implements GuiTransform {
     }
 
     @Override
-    public Vec2d transformMouseCursor(final Vec2d cursor) {
+    public Vec2d transformMouseCursorToGui(final Vec2d cursor) {
+        return cursor;
+    }
+
+    @Override
+    public Vec2d transformMouseCursorToScreen(final Vec2d cursor) {
         return cursor;
     }
 }

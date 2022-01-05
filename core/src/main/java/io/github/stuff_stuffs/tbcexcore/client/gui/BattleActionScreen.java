@@ -1,11 +1,13 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui;
 
+import io.github.stuff_stuffs.tbcexcore.client.gui.widget.BattleActionRenderTargetsWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.screen.MouseLockableScreen;
 import io.github.stuff_stuffs.tbcexgui.client.screen.TBCExScreen;
+import io.github.stuff_stuffs.tbcexgui.client.widget.WidgetModifiers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.panel.RootPanelWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -24,8 +26,8 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
         this.actionInstance = actionInstance;
         prevScreen = MinecraftClient.getInstance().currentScreen;
         passEvents = true;
-        //final ParentWidget root = (ParentWidget) widget;
-        //root.addWidget(new BattleActionRenderTargetsWidget(actionInstance));
+        final RootPanelWidget root = (RootPanelWidget) widget;
+        root.addChild(WidgetModifiers.positioned(new BattleActionRenderTargetsWidget(actionInstance), () -> 0, () -> 0));
     }
 
     @Override

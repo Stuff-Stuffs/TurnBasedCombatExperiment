@@ -11,9 +11,9 @@ public class GuiQuadEmitterImpl implements GuiQuadEmitter {
     private final GuiContextImpl context;
     private final MutableGuiQuadImpl delegate;
 
-    public GuiQuadEmitterImpl(final GuiContextImpl context, final MutableGuiQuadImpl delegate) {
+    public GuiQuadEmitterImpl(final GuiContextImpl context) {
         this.context = context;
-        this.delegate = delegate;
+        delegate = new MutableGuiQuadImpl();
     }
 
     @Override
