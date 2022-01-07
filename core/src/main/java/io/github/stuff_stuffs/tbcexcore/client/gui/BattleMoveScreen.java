@@ -33,7 +33,7 @@ public class BattleMoveScreen extends TBCExScreen implements MouseLockableScreen
     private boolean altMode = false;
 
     public BattleMoveScreen(final BattleParticipantHandle handle, final World world, final BattleHudContext hudContext) {
-        super(new LiteralText("Move"), new RootPanelWidget());
+        super(new LiteralText("Move"), new RootPanelWidget(false));
         this.handle = handle;
         this.world = world;
         this.hudContext = hudContext;

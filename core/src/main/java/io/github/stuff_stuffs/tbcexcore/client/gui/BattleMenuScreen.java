@@ -25,7 +25,7 @@ public class BattleMenuScreen extends TBCExScreen {
     private final BattleHudContext context;
 
     public BattleMenuScreen(final BattleParticipantHandle handle, final World world, final BattleHudContext context) {
-        super(new LiteralText("battle_menu_screen"), new RootPanelWidget());
+        super(new LiteralText("battle_menu_screen"), new RootPanelWidget(false));
         this.handle = handle;
         this.world = world;
         this.context = context;

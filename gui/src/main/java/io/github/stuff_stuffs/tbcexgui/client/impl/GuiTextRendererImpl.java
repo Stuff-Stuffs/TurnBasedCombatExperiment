@@ -7,7 +7,7 @@ import net.minecraft.text.OrderedText;
 import net.minecraft.util.math.Matrix4f;
 
 public class GuiTextRendererImpl implements GuiTextRenderer {
-    private static final Matrix4f SCALE = Matrix4f.scale(1.5f, 1.5f, 1.5f);
+    private static final Matrix4f SCALE = Matrix4f.scale(1, 1, 1);
     private final TextRenderer delegate;
     private final GuiContextImpl context;
 
@@ -17,13 +17,13 @@ public class GuiTextRendererImpl implements GuiTextRenderer {
     }
 
     @Override
-    public double getHeight() {
-        return delegate.fontHeight * 1.5;
+    public int getHeight() {
+        return delegate.fontHeight;
     }
 
     @Override
-    public double getWidth(final OrderedText text) {
-        return delegate.getWidth(text) * 1.5;
+    public int getWidth(final OrderedText text) {
+        return delegate.getWidth(text);
     }
 
     @Override

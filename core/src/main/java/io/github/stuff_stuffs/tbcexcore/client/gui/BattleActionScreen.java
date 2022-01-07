@@ -21,7 +21,7 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
     private boolean locked = false;
 
     public BattleActionScreen(final BattleParticipantHandle handle, final ParticipantActionInstance actionInstance) {
-        super(new LiteralText("Battle Action"), new RootPanelWidget());
+        super(new LiteralText("Battle Action"), new RootPanelWidget(false));
         this.handle = handle;
         this.actionInstance = actionInstance;
         prevScreen = MinecraftClient.getInstance().currentScreen;

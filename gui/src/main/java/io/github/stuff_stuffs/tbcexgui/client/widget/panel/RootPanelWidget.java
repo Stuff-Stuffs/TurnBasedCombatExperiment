@@ -13,6 +13,11 @@ import java.util.Map;
 public class RootPanelWidget extends AbstractWidget {
     private static final GuiRenderMaterial MATERIAL = GuiRenderMaterial.POS_COLOUR_TRANSLUCENT;
     private final Map<Handle, PositionedWidget> widgets = new Reference2ObjectOpenHashMap<>();
+    private final boolean shaded;
+
+    public RootPanelWidget(final boolean shaded) {
+        this.shaded = shaded;
+    }
 
     public Handle addChild(final PositionedWidget widget) {
         final Handle handle = new Handle();
@@ -34,17 +39,20 @@ public class RootPanelWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
-        final float offsetX = ((float) getScreenWidth() - 1) / 2.0f;
-        final float offsetY = ((float) getScreenHeight() - 1) / 2.0f;
-        final GuiQuadEmitter emitter = context.getEmitter();
-        emitter.renderMaterial(MATERIAL);
-        emitter.pos(0, -offsetX, -offsetY);
-        emitter.pos(1, -offsetX, 1 + offsetY);
-        emitter.pos(2, 1 + offsetX, 1 + offsetY);
-        emitter.pos(3, 1 + offsetX, -offsetY);
-        final int colour = 0x77_00_00_00;
-        emitter.colour(colour, colour, colour, colour);
-        emitter.emit();
+        if (shaded) {
+            final float offsetX = ((float) getScreenWidth() - 1) / 2.0f;
+            final float offsetY = ((float) getScreenHeight() - 1) / 2.0f;
+            final GuiQuadEmitter emitter = context.getEmitter();
+            emitter.renderMaterial(MATERIAL);
+            emitter.pos(0, -offsetX, -offsetY);
+            emitter.pos(1, -offsetX, 1 + offsetY);
+            emitter.pos(2, 1 + offsetX, 1 + offsetY);
+            emitter.pos(3, 1 + offsetX, -offsetY);
+            final int colour = 0x77_00_00_00;
+            emitter.colour(colour, colour, colour, colour);
+            emitter.depth(1);
+            emitter.emit();
+        }
         LayoutAlgorithm.BASIC.layout(widgets.values(), context);
     }
 

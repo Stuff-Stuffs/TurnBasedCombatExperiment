@@ -192,8 +192,9 @@ public class BattleInventorySorterWidget extends AbstractWidget implements Posit
                 final Vec2d delta = guiContext.transformMouseCursor(new Vec2d(drag.mouseX + drag.deltaX, drag.mouseY + drag.deltaY)).subtract(mouse);
                 return mouseDragged(mouse.x, mouse.y, drag.button, delta.x, delta.y);
             } else if (event instanceof GuiInputContext.MouseScroll scroll) {
-                final Vec2d mouseCursor = guiContext.transformMouseCursor(new Vec2d(scroll.mouseX, scroll.mouseY));
-                return mouseScrolled(mouseCursor.x, mouseCursor.y, scroll.amount);
+                final Vec2d mouse = guiContext.transformMouseCursor(new Vec2d(scroll.mouseX, scroll.mouseY));
+                final Vec2d delta = guiContext.transformMouseCursor(new Vec2d(scroll.mouseX, scroll.mouseY + scroll.amount)).subtract(mouse);
+                return mouseScrolled(mouse.x, mouse.y, delta.y);
             } else if (event instanceof GuiInputContext.KeyPress keyPress) {
                 return keyPress(keyPress.keyCode);
             }
@@ -240,8 +241,10 @@ public class BattleInventorySorterWidget extends AbstractWidget implements Posit
         final double scale = Math.max(offset - dist, 0) / offset;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
         final TextDrawer textDrawer = shadow ? TEXT_DRAWER_SHADOWED : TEXT_DRAWER;
-        context.pushTranslate(startX, y, 0);
-        textDrawer.draw((endX - startX) * scale, (height.getAsDouble() - 2 * borderThickness) * scale, sort.getName().asOrderedText(), context);
+        final double width = (endX - startX) * scale;
+        final double height = (this.height.getAsDouble() - 2 * borderThickness) * scale;
+        context.pushTranslate(startX + width / 2.0, y + height / 2.0, 0);
+        textDrawer.draw(width, height, sort.getName().asOrderedText(), context);
         context.popGuiTransform();
     }
 

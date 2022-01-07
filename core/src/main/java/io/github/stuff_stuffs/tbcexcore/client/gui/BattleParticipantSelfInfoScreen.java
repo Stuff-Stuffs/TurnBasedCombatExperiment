@@ -11,7 +11,7 @@ public class BattleParticipantSelfInfoScreen extends TBCExScreen {
     private final BattleParticipantHandle participantHandle;
 
     public BattleParticipantSelfInfoScreen(final World world, final BattleParticipantHandle participantHandle) {
-        super(new LiteralText("Participant Info"), new RootPanelWidget());
+        super(new LiteralText("Participant Info"), new RootPanelWidget(true));
         this.world = world;
         this.participantHandle = participantHandle;
         /*fixme

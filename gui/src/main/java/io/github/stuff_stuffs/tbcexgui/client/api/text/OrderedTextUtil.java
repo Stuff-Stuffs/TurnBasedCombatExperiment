@@ -73,14 +73,16 @@ public final class OrderedTextUtil {
         final OrderedTextAccumulator accumulator = new OrderedTextAccumulator();
         text.accept((index, style, codePoint) -> {
             heuristic.accept(codePoint, style);
+            accumulator.accept(style, codePoint);
             if (heuristic.shouldSplit()) {
                 result.add(accumulator.accumulate());
                 accumulator.reset();
-            } else {
-                accumulator.accept(style, codePoint);
             }
             return true;
         });
+        if (!accumulator.isEmpty()) {
+            result.add(accumulator.accumulate());
+        }
         return result;
     }
 
@@ -191,8 +193,14 @@ public final class OrderedTextUtil {
             lengthAccumulator++;
         }
 
+        public boolean isEmpty() {
+            return accumulator.isEmpty() && currentList.isEmpty();
+        }
+
         public OrderedText accumulate() {
-            return OrderedText.concat(accumulator);
+            final List<OrderedText> texts = new ArrayList<>(accumulator);
+            texts.add(of(currentList.toIntArray(), currentStyle, lengthAccumulator));
+            return OrderedText.concat(texts);
         }
     }
 }

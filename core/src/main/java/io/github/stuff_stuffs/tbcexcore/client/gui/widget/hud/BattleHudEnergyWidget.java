@@ -52,6 +52,7 @@ public class BattleHudEnergyWidget extends AbstractWidget {
                 final double tweaker = (MathHelper.sin((float) time) + 1) / 2.0;
                 final int tweakedAlpha = (int) Math.round(tweaker * 255);
                 final int tweakedAlphaInv = 255 - tweakedAlpha;
+                c = colourPartial.pack(tweakedAlphaInv);
                 emitter.rectangle(0, 0, width, height, c, c, c, c);
                 emitter.sprite(0, 0, (6 * 10) / 256.0F);
                 emitter.sprite(1, 182 / 256.0F, (6 * 10) / 256.0F);
@@ -59,8 +60,6 @@ public class BattleHudEnergyWidget extends AbstractWidget {
                 emitter.sprite(3, 0, (6 * 10 + 5) / 256.0F);
                 emitter.renderMaterial(material);
                 emitter.emit();
-
-                c = colourPartial.pack(tweakedAlphaInv);
 
                 emitter.rectangle(0, 0, width, height, c, c, c, c);
                 emitter.sprite(0, 0, (6 * 10) / 256.0F);
@@ -78,8 +77,8 @@ public class BattleHudEnergyWidget extends AbstractWidget {
                 emitter.sprite(2, 182 / 256.0F * (float) percent, (6 * 10 + 5) / 256.0F);
                 emitter.sprite(3, 0, (6 * 10 + 5) / 256.0F);
                 emitter.renderMaterial(material);
+                emitter.depth(-0.01F);
                 emitter.emit();
-
 
                 emitter.rectangle(0, 0, width * percent, height, c, c, c, c);
                 emitter.sprite(0, 0, (6 * 10) / 256.0F);
@@ -87,6 +86,7 @@ public class BattleHudEnergyWidget extends AbstractWidget {
                 emitter.sprite(2, 182 / 256.0F * (float) percent, (6 * 10 + 5) / 256.0F);
                 emitter.sprite(3, 0, (6 * 10 + 5) / 256.0F);
                 emitter.renderMaterial(material);
+                emitter.depth(-0.01F);
                 emitter.emit();
             } else {
                 emitter.rectangle(0, 0, width, height, c, c, c, c);

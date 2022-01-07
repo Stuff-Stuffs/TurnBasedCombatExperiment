@@ -6,7 +6,7 @@ import net.minecraft.text.LiteralText;
 
 public class PlayerInfoScreen extends TBCExScreen {
     public PlayerInfoScreen() {
-        super(new LiteralText("PlayerInfo"), new RootPanelWidget());
+        super(new LiteralText("PlayerInfo"), new RootPanelWidget(true));
         //final ParentWidget widget = (ParentWidget) this.widget;
         //final WidgetPosition panelPos = WidgetPosition.of(0.5, 0.5, 1);
         //final StackWidget stackWidget = new StackWidget();

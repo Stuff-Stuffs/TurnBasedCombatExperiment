@@ -38,7 +38,8 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
                 return mouseDragged(mouse.x, mouse.y, delta.y);
             } else if (event instanceof GuiInputContext.MouseScroll scroll) {
                 final Vec2d mouse = context.transformMouseCursor(new Vec2d(scroll.mouseX, scroll.mouseY));
-                return mouseScrolled(mouse.x, mouse.y, scroll.amount);
+                final Vec2d delta = context.transformMouseCursor(new Vec2d(scroll.mouseX, scroll.mouseY + scroll.amount)).subtract(mouse);
+                return mouseScrolled(mouse.x, mouse.y, delta.y);
             } else if (event instanceof GuiInputContext.KeyPress keyPress) {
                 return keyPress(keyPress.keyCode);
             }

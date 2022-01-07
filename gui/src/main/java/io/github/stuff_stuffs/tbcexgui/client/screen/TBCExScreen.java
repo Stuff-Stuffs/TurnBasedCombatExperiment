@@ -43,21 +43,21 @@ public abstract class TBCExScreen extends Screen implements RawCharTypeScreen {
     @Override
     public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
         //TODO sensitivity
-        inputEvents.add(new GuiInputContext.MouseDrag(transformMouseX(mouseX), transformMouseY(mouseY), deltaX, deltaY, button));
+        inputEvents.add(new GuiInputContext.MouseDrag(transformMouseX(mouseX), transformMouseY(mouseY), deltaX * 2, deltaY * 2, button));
         return true;
     }
 
     @Override
     public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
         //TODO sensitivity
-        inputEvents.add(new GuiInputContext.MouseScroll(transformMouseX(mouseX), transformMouseY(mouseY), amount));
+        inputEvents.add(new GuiInputContext.MouseScroll(transformMouseX(mouseX), transformMouseY(mouseY), amount * 2));
         return true;
     }
 
     @Override
     public void mouseMoved(final double mouseX, final double mouseY) {
         //TODO
-        inputEvents.add(new GuiInputContext.MouseMove(transformMouseX(mouseX) * 2, transformMouseY(mouseY) * 2));
+        inputEvents.add(new GuiInputContext.MouseMove(transformMouseX(mouseX), transformMouseY(mouseY)));
     }
 
     @Override

@@ -37,7 +37,7 @@ public class BattleParticipantOtherInfoScreen extends TBCExScreen implements Mou
     private boolean locked = true;
 
     public BattleParticipantOtherInfoScreen(final World world, final BattleParticipantHandle participantHandle) {
-        super(new LiteralText("Participant Info"), new RootPanelWidget());
+        super(new LiteralText("Participant Info"), new RootPanelWidget(true));
         this.world = world;
         handle = participantHandle;
     }

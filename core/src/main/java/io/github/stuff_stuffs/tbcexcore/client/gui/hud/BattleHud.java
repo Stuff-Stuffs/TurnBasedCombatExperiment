@@ -21,7 +21,7 @@ public final class BattleHud extends TBCExHud {
     private final BattleHudContext context;
 
     public BattleHud(final BattleHandle handle, final PlayerEntity entity) {
-        super(new RootPanelWidget());
+        super(new RootPanelWidget(false));
         this.handle = handle;
         this.entity = entity;
         context = new ContextImpl();

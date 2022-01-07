@@ -142,7 +142,7 @@ public class BattleInventoryPreviewWidget extends AbstractWidget implements Posi
     private void renderInfo(final GuiContext context, final double width, final double height, @Nullable final ItemStackInfo stackInfo) {
         if (stackInfo != null) {
             final double y = height - (height * infoFraction);
-            context.pushTranslate(0, 0, 1);
+            context.pushTranslate(width / 2.0, height * infoFraction / 2.0, 1);
             TITLE_DRAWER.draw(width, height * infoFraction * 0.25, stackInfo.stack.getItem().getName().asOrderedText(), context);
             context.popGuiTransform();
             context.renderTooltipBackground(0.0, y, width, height * infoFraction * 0.25);

@@ -204,7 +204,8 @@ public class BattleInventoryFilterWidget extends AbstractWidget implements Posit
                 return mouseClicked(mouse.x, mouse.y, click.button);
             } else if (event instanceof GuiInputContext.MouseScroll scroll) {
                 final Vec2d mouse = context.transformMouseCursor(new Vec2d(scroll.mouseX, scroll.mouseY));
-                return mouseScrolled(mouse.x, mouse.y, scroll.amount);
+                final Vec2d delta = context.transformMouseCursor(new Vec2d(scroll.mouseX, scroll.mouseY + scroll.amount)).subtract(mouse);
+                return mouseScrolled(mouse.x, mouse.y, delta.y);
             } else if (event instanceof GuiInputContext.MouseDrag drag) {
                 final Vec2d mouse = context.transformMouseCursor(new Vec2d(drag.mouseX, drag.mouseY));
                 final Vec2d delta = context.transformMouseCursor(new Vec2d(drag.mouseX + drag.deltaX, drag.mouseY + drag.deltaY)).subtract(mouse);
@@ -253,7 +254,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget implements Posit
         final double offset = height.getAsDouble() / 4;
         final double scale = Math.max(offset - dist, 0) / offset;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
-        context.pushTranslate(offsetX + borderThickness, y, 0);
+        context.pushTranslate(offsetX + borderThickness + (maxWidth * scale) / 2.0, y + (entryHeight * scale) / 2.0, 0);
         context.pushGuiTransform(new GuiTransform() {
             @Override
             public boolean transform(final MutableGuiQuad quad) {
@@ -279,6 +280,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget implements Posit
             }
         });
         (shadow ? TEXT_DRAWER_SHADOWED : TEXT_DRAWER).draw(maxWidth * scale, entryHeight * scale, category.getName().asOrderedText(), context);
+        context.popGuiTransform();
         context.popGuiTransform();
     }
 
@@ -312,6 +314,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget implements Posit
         final int c = backgroundColour.pack(alpha);
         emitter.colour(c, c, c, c);
         emitter.renderMaterial(GuiRenderMaterial.POS_COLOUR_TRANSLUCENT);
+        emitter.emit();
     }
 
     private double getListHeight() {

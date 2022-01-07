@@ -115,7 +115,7 @@ public class BattleInventoryTabWidget extends AbstractWidget implements Position
                 final Vec2d delta = context.transformMouseCursor(new Vec2d(scroll.mouseX, scroll.mouseY + scroll.amount)).subtract(mouse);
                 return mouseScrolled(mouse.x, mouse.y, delta.y);
             } else if (event instanceof GuiInputContext.KeyPress keyPress) {
-                keyPress(keyPress.keyCode);
+                return keyPress(keyPress.keyCode);
             }
             return false;
         });
@@ -163,14 +163,15 @@ public class BattleInventoryTabWidget extends AbstractWidget implements Position
         final double y = borderThickness + index * entryHeight + index * verticalSpacing;
         final boolean shadow = index == hoverIndex || selectedIndex == index;
         final Text name = info.stack.getItem().getName();
-        context.pushTranslate(borderThickness, y, 0);
+        context.pushTranslate(borderThickness + maxWidth / 2.0, y + entryHeight / 2.0, 1);
         (shadow ? TEXT_DRAWER_SHADOWED : TEXT_DRAWER).draw(maxWidth, entryHeight, name.asOrderedText(), context);
         context.popGuiTransform();
-        context.pushTranslate(borderThickness + maxWidth, y, 0);
+        context.pushTranslate(borderThickness + maxWidth / 2.0, y + entryHeight / 2.0, 1);
         (shadow ? TEXT_DRAWER_SHADOWED : TEXT_DRAWER).draw(maxWidth, entryHeight, new LiteralText("" + info.stack.getCount()).asOrderedText(), context);
         context.popGuiTransform();
-        context.pushTranslate(borderThickness + maxWidth + maxWidth, y, 0);
+        context.pushTranslate(borderThickness + maxWidth / 2.0, y + entryHeight / 2.0, 1);
         TextDrawers.oneShot(TextDrawers.HorizontalJustification.CENTER, TextDrawers.VerticalJustification.CENTER, new IntRgbColour(info.stack.getItem().getRarity().getRarity().getColour()).pack(255), 0, true).draw(maxWidth, entryHeight, info.stack.getItem().getRarity().getAsText().asOrderedText(), context);
+        context.popGuiTransform();
     }
 
     private void renderInfo(final ItemStackInfo info, final GuiContext context, final int index, final int hoverIndex) {
@@ -192,18 +193,14 @@ public class BattleInventoryTabWidget extends AbstractWidget implements Position
         info.location.ifLeft(loc -> {
             final int c = backgroundColour.pack(alpha);
             emitter.colour(c, c, c, c);
-            emitter.pos(0, endX, startY);
-            emitter.pos(1, startX, startY);
-            emitter.pos(2, startX, endY);
-            emitter.pos(3, endX, endY);
         }).ifRight(loc -> {
             final int c = EQUIPED_COLOR.pack();
             emitter.colour(c, c, c, c);
-            emitter.pos(0, endX, startY);
-            emitter.pos(1, startX, startY);
-            emitter.pos(2, startX, endY);
-            emitter.pos(3, endX, endY);
         });
+        emitter.pos(0, endX, startY);
+        emitter.pos(1, startX, startY);
+        emitter.pos(2, startX, endY);
+        emitter.pos(3, endX, endY);
         emitter.emit();
     }
 

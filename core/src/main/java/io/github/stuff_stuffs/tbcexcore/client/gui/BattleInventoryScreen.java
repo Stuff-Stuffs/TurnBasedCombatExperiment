@@ -40,7 +40,7 @@ public class BattleInventoryScreen extends TBCExScreen {
     private BattleInventoryActionSelectionWidget selectionWidget;
 
     public BattleInventoryScreen(final BattleParticipantHandle handle, final BattleHudContext hudContext, final World world) {
-        super(new LiteralText("Battle Inventory"), new RootPanelWidget());
+        super(new LiteralText("Battle Inventory"), new RootPanelWidget(true));
         this.handle = handle;
         this.hudContext = hudContext;
         this.world = world;
