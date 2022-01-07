@@ -14,9 +14,10 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.*;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcextest.common.Test;
 import io.github.stuff_stuffs.tbcexutil.common.CodecUtil;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.BaseText;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 import java.util.*;
@@ -67,15 +68,15 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
             }
 
             @Override
-            public List<TooltipComponent> getTooltip() {
-                return Stream.of(new LiteralText("dasd"), new LiteralText("sda"), new LiteralText("asdkjashfkjasdhfksdhfgkjdsfghkjdfghk asfsdgf"), new LiteralText("asdasdadsf dfg")).map(t -> TooltipComponent.of(t.asOrderedText())).collect(Collectors.toList());
+            public List<OrderedText> getTooltip() {
+                return Stream.of(new LiteralText("dasd"), new LiteralText("sda"), new LiteralText("asdkjashfkjasdhfksdhfgkjdsfghkjdfghk asfsdgf"), new LiteralText("asdasdadsf dfg")).map(BaseText::asOrderedText).collect(Collectors.toList());
             }
 
             @Override
             public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
                 return new ParticipantActionInstance(new SingleTargetParticipantActionInfo<>(new ParticipantTargetType((state, user) -> Set.of(user)), (battleStateView, user, target) -> {
 
-                }, List.of(TooltipComponent.of(new LiteralText("equip lol").asOrderedText()))), battleState, handle);
+                }, List.of(new LiteralText("equip lol").asOrderedText())), battleState, handle);
             }
         };
         final ParticipantAction action2 = new ParticipantAction() {
@@ -85,14 +86,14 @@ public class TestBattleParticipantItem implements BattleParticipantItem {
             }
 
             @Override
-            public List<TooltipComponent> getTooltip() {
-                return Stream.of(new LiteralText("dasd"), new LiteralText("sda"), new LiteralText("asdkjashfkjasdhfksdhfgkjdsfghkjdfghk asfsdgf"), new LiteralText("asdasdadsf dfg")).map(t -> TooltipComponent.of(t.asOrderedText())).collect(Collectors.toList());
+            public List<OrderedText> getTooltip() {
+                return Stream.of(new LiteralText("dasd"), new LiteralText("sda"), new LiteralText("asdkjashfkjasdhfksdhfgkjdsfghkjdfghk asfsdgf"), new LiteralText("asdasdadsf dfg")).map(BaseText::asOrderedText).collect(Collectors.toList());
             }
 
             @Override
             public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle handle, final Consumer<BattleAction<?>> sender) {
                 return new ParticipantActionInstance(new SingleTargetParticipantActionInfo<>(new BlockPosTargetType((state, user) -> Set.of(state.getParticipant(user).getPos())), (battleStateView, user, target) -> {
-                }, List.of(TooltipComponent.of(new LiteralText("use it").asOrderedText()))), battleState, handle);
+                }, List.of(new LiteralText("use it").asOrderedText())), battleState, handle);
             }
         };
         return List.of(action1, action2);

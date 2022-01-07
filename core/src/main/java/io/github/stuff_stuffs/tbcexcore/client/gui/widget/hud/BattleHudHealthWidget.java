@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexcore.client.gui.widget.hud;
 
 import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
+import io.github.stuff_stuffs.tbcexcore.client.gui.widget.info.AbstractParticipantStatListWidget;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.BattleHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
@@ -8,16 +9,24 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.stats.BattleParticipantStat;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
+import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
 import io.github.stuff_stuffs.tbcexutil.common.BattleParticipantBounds;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
+import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.HsvColour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Quaternion;
@@ -84,13 +93,13 @@ public class BattleHudHealthWidget extends AbstractWidget {
 
                         final double width = dist;
                         final double height = dist / 8.0;
-                        final VertexConsumer posColour = vertexConsumers.getBuffer(null);
+                        final VertexConsumer posColour = vertexConsumers.getBuffer(GuiRenderLayers.POSITION_COLOUR_TRANSPARENT_LAYER);
                         RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
                         RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, 0, 0, matrixStack), IntRgbColour.BLACK, 127).next();
                         RenderUtil.colour(RenderUtil.position(posColour, -width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
                         RenderUtil.colour(RenderUtil.position(posColour, width * 1.05 / 2.0, height * 3, 0, matrixStack), IntRgbColour.BLACK, 127).next();
 
-                        final VertexConsumer posColourTex = vertexConsumers.getBuffer(null);
+                        final VertexConsumer posColourTex = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(BOSS_BAR_TEXTURE));
                         matrixStack.translate(-width / 2.0, 0, 0);
                         //background
                         RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, 0, 0, 0, matrixStack), colour, 255), 0, (6 * 10) / 256.0).next();
@@ -104,7 +113,6 @@ public class BattleHudHealthWidget extends AbstractWidget {
                         RenderUtil.uv(RenderUtil.colour(RenderUtil.position(posColourTex, 0, height, 0, matrixStack), colour, 255), 0, (6 * 10 + 10) / 256.0).next();
                         matrixStack.translate(width / 2.0, height, -0.001);
                         matrixStack.multiply(FLIP_Z_AXIS);
-                        /*fixme
                         final Text text = AbstractParticipantStatListWidget.format(health).setStyle(Style.EMPTY).append(new LiteralText("/")).append(AbstractParticipantStatListWidget.format(maxHealth).setStyle(Style.EMPTY));
                         renderFitText(matrixStack, text, -width / 2.0, 0, width, height, true, IntRgbColour.WHITE, 255, vertexConsumers);
                         final Colour teamColour = participant.getTeam().getColour();
@@ -117,10 +125,26 @@ public class BattleHudHealthWidget extends AbstractWidget {
                         teamText = teamText.append(new LiteralText(participant.getTeam().teamId()).setStyle(Style.EMPTY.withColor(teamColour.pack())));
                         teamText = teamText.append(")");
                         renderFitText(matrixStack, teamText, -width / 2.0, -height, width, height, false, teamColour, 255, vertexConsumers);
-                        */
                         matrixStack.pop();
                     }
                 }
         );
+    }
+
+    private void renderFitText(final MatrixStack matrixStack, final Text text, final double x, final double y, final double width, final double height, final boolean shadow, final Colour colour, final int alpha, final VertexConsumerProvider vertexConsumers) {
+        final TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        final double yFactor = textRenderer.fontHeight / height;
+        final int textWidth = textRenderer.getWidth(text);
+        final double xFactor = textWidth / width;
+        final double factor = Math.max(xFactor, yFactor);
+        matrixStack.push();
+        matrixStack.scale(1 / (float) factor, 1 / (float) factor, 1);
+        final double center = (x + width / 2.0) * factor;
+        if (shadow) {
+            textRenderer.drawWithShadow(matrixStack, text, (float) (center - textWidth / 2.0), (float) (y * factor), colour.pack(alpha));
+        } else {
+            textRenderer.draw(matrixStack, text, (float) (center - textWidth / 2.0), (float) (y * factor), colour.pack(alpha));
+        }
+        matrixStack.pop();
     }
 }

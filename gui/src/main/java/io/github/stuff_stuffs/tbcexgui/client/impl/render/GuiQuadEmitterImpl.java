@@ -1,6 +1,5 @@
 package io.github.stuff_stuffs.tbcexgui.client.impl.render;
 
-import io.github.stuff_stuffs.tbcexgui.client.api.GuiQuad;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiQuadEmitter;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterial;
 import io.github.stuff_stuffs.tbcexgui.client.impl.GuiContextImpl;
@@ -135,12 +134,6 @@ public class GuiQuadEmitterImpl implements GuiQuadEmitter {
     @Override
     public GuiQuadEmitter renderMaterial(final GuiRenderMaterial renderMaterial) {
         delegate.renderMaterial(renderMaterial);
-        return this;
-    }
-
-    @Override
-    public GuiQuadEmitter interpolate(final int vertexIndex, final GuiQuad other, final double w0, final double w1, final double w2, final double w3) {
-        delegate.interpolate(vertexIndex, other, w0, w1, w2, w3);
         return this;
     }
 

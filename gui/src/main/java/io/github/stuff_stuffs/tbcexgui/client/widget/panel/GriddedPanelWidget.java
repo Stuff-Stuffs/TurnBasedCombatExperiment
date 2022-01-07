@@ -2,12 +2,11 @@ package io.github.stuff_stuffs.tbcexgui.client.widget.panel;
 
 import com.google.common.base.Preconditions;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
-import io.github.stuff_stuffs.tbcexgui.client.widget.PositionedWidget;
 import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 
 import java.util.function.IntSupplier;
 
-public class GriddedPanelWidget extends AbstractPanelWidget<PositionedWidget> {
+public class GriddedPanelWidget extends AbstractPanelWidget {
     private final Widget[] cells;
     private final int horizontalCells;
     private final int verticalCells;
@@ -29,7 +28,7 @@ public class GriddedPanelWidget extends AbstractPanelWidget<PositionedWidget> {
         Preconditions.checkArgument(0 <= x && x < horizontalCells);
         Preconditions.checkArgument(0 <= y && y < verticalCells);
         cells[getIndex(x, y)] = widget;
-        widget.resize(getWidth(), getHeight(), getPixelWidth(), getPixelHeight());
+        widget.resize(getScreenWidth(), getScreenHeight(), getPixelWidth(), getPixelHeight());
     }
 
     private int getIndex(final int x, final int y) {

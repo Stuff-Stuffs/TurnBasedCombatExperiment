@@ -5,7 +5,15 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiQuadEmitter;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterial;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterialFinder;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
+import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
+import io.github.stuff_stuffs.tbcexutil.common.colour.HsvColour;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
 public class BattleHudEnergyWidget extends AbstractWidget {
@@ -29,53 +37,75 @@ public class BattleHudEnergyWidget extends AbstractWidget {
         if (battle == null) {
             return;
         }
-        /*fixme if (handle.equals(battle.getState().getCurrentTurn())) {
+        if (handle.equals(battle.getState().getCurrentTurn())) {
             final double percent = Math.min(context.getEnergy() / context.getMaxEnergy(), 1);
             final double percentPartial = Math.min(Math.max(context.getEnergy() - context.getPotentialActionCost(), 0) / context.getMaxEnergy(), 1);
             final Colour colour = new HsvColour((float) MathHelper.lerp(percent, 0, 244), 1, 1);
+            int c = colour.pack(255);
 
             final Colour colourPartial = new HsvColour((float) MathHelper.lerp(percentPartial, 0, 244), 1, 1);
-            final double x = 0;
-            final double y = 0;
-            final double z = 0;
-            final VertexConsumer opaque = vertexConsumers.getBuffer(GuiRenderLayers.getPositionColourTextureLayer(new Identifier("minecraft", "textures/gui/bars.png"), true));
+            final GuiRenderMaterial material = GuiRenderMaterialFinder.finder().depthTest(true).translucent(true).ignoreLight(true).ignoreTexture(false).texture(new Identifier("minecraft", "textures/gui/bars.png")).find();
 
+            final GuiQuadEmitter emitter = guiContext.getEmitter();
             if (percent != percentPartial) {
-                final double time = (MinecraftClient.getInstance().world.getTime() + delta) / 10.0;
+                final double time = (MinecraftClient.getInstance().world.getTime() + guiContext.getTickDelta()) / 10.0;
                 final double tweaker = (MathHelper.sin((float) time) + 1) / 2.0;
                 final int tweakedAlpha = (int) Math.round(tweaker * 255);
                 final int tweakedAlphaInv = 255 - tweakedAlpha;
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colour, 255), 0, (6 * 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y, z, matrices), colour, 255), 182 / 256.0, (6 * 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y + height, z, matrices), colour, 255), 182 / 256.0, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
+                emitter.rectangle(0, 0, width, height, c, c, c, c);
+                emitter.sprite(0, 0, (6 * 10) / 256.0F);
+                emitter.sprite(1, 182 / 256.0F, (6 * 10) / 256.0F);
+                emitter.sprite(2, 182 / 256.0F, (6 * 10 + 5) / 256.0F);
+                emitter.sprite(3, 0, (6 * 10 + 5) / 256.0F);
+                emitter.renderMaterial(material);
+                emitter.emit();
 
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colourPartial, tweakedAlphaInv), 0, (6 * 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y, z, matrices), colourPartial, tweakedAlphaInv), 182 / 256.0, (6 * 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y + height, z, matrices), colourPartial, tweakedAlphaInv), 182 / 256.0, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colourPartial, tweakedAlphaInv), 0, (6 * 10 + 5) / 256.0).next();
+                c = colourPartial.pack(tweakedAlphaInv);
 
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colour, tweakedAlpha), 0, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y, z, matrices), colour, tweakedAlpha), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y + height, z, matrices), colour, tweakedAlpha), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colour, tweakedAlpha), 0, (6 * 10 + 10) / 256.0).next();
+                emitter.rectangle(0, 0, width, height, c, c, c, c);
+                emitter.sprite(0, 0, (6 * 10) / 256.0F);
+                emitter.sprite(1, 182 / 256.0F, (6 * 10) / 256.0F);
+                emitter.sprite(2, 182 / 256.0F, (6 * 10 + 5) / 256.0F);
+                emitter.sprite(3, 0, (6 * 10 + 5) / 256.0F);
+                emitter.renderMaterial(material);
+                emitter.emit();
+
+                c = colour.pack(tweakedAlpha);
+
+                emitter.rectangle(0, 0, width * percent, height, c, c, c, c);
+                emitter.sprite(0, 0, (6 * 10) / 256.0F);
+                emitter.sprite(1, 182 / 256.0F * (float) percent, (6 * 10) / 256.0F);
+                emitter.sprite(2, 182 / 256.0F * (float) percent, (6 * 10 + 5) / 256.0F);
+                emitter.sprite(3, 0, (6 * 10 + 5) / 256.0F);
+                emitter.renderMaterial(material);
+                emitter.emit();
 
 
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colourPartial, tweakedAlphaInv), 0, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percentPartial, y, z, matrices), colourPartial, tweakedAlphaInv), 182 / 256.0 * percentPartial, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percentPartial, y + height, z, matrices), colourPartial, tweakedAlphaInv), 182 / 256.0 * percentPartial, (6 * 10 + 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colourPartial, tweakedAlphaInv), 0, (6 * 10 + 10) / 256.0).next();
+                emitter.rectangle(0, 0, width * percent, height, c, c, c, c);
+                emitter.sprite(0, 0, (6 * 10) / 256.0F);
+                emitter.sprite(1, 182 / 256.0F * (float) percent, (6 * 10) / 256.0F);
+                emitter.sprite(2, 182 / 256.0F * (float) percent, (6 * 10 + 5) / 256.0F);
+                emitter.sprite(3, 0, (6 * 10 + 5) / 256.0F);
+                emitter.renderMaterial(material);
+                emitter.emit();
             } else {
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colour, 255), 0, (6 * 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y, z, matrices), colour, 255), 182 / 256.0, (6 * 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width, y + height, z, matrices), colour, 255), 182 / 256.0, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
+                emitter.rectangle(0, 0, width, height, c, c, c, c);
+                emitter.sprite(0, 0, (6 * 10) / 256.0F);
+                emitter.sprite(1, 182 / 256.0F, (6 * 10) / 256.0F);
+                emitter.sprite(2, 182 / 256.0F, (6 * 10 + 5) / 256.0F);
+                emitter.sprite(3, 0, (6 * 10 + 5) / 256.0F);
+                emitter.renderMaterial(material);
+                emitter.emit();
 
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y, z, matrices), colour, 255), 0, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y, z, matrices), colour, 255), 182 / 256.0 * percent, (6 * 10 + 5) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x + width * percent, y + height, z, matrices), colour, 255), 182 / 256.0 * percent, (6 * 10 + 10) / 256.0).next();
-                RenderUtil.uv(RenderUtil.colour(RenderUtil.position(opaque, x, y + height, z, matrices), colour, 255), 0, (6 * 10 + 10) / 256.0).next();
+                emitter.rectangle(0, 0, width * percent, height, c, c, c, c);
+                emitter.sprite(0, 0, (6 * 10 + 5) / 256.0F);
+                emitter.sprite(1, 182 / 256.0F * (float) percent, (6 * 10 + 5) / 256.0F);
+                emitter.sprite(2, 182 / 256.0F * (float) percent, (6 * 10 + 10) / 256.0F);
+                emitter.sprite(3, 0, (6 * 10 + 10) / 256.0F);
+                emitter.renderMaterial(material);
+                emitter.depth(-0.01F);
+                emitter.emit();
             }
-        }*/
+        }
     }
 }

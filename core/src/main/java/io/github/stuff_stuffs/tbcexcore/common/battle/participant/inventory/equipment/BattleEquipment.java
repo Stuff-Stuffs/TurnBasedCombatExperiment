@@ -9,8 +9,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.NonTarg
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.ParticipantActionInstance;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 import java.util.Collections;
@@ -42,8 +42,8 @@ public interface BattleEquipment {
             }
 
             @Override
-            public List<TooltipComponent> getTooltip() {
-                return List.of(TooltipComponent.of(new LiteralText("Unequip this item").asOrderedText()));
+            public List<OrderedText> getTooltip() {
+                return List.of(new LiteralText("Unequip this item").asOrderedText());
             }
 
             @Override

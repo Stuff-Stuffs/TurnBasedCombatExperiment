@@ -5,7 +5,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetInstance;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.text.OrderedText;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -14,15 +14,15 @@ import java.util.function.Consumer;
 public class SingleTargetParticipantActionInfo<T extends TargetInstance> implements ParticipantActionInfo {
     private final TargetType<T> type;
     private final Action<? super T> action;
-    private final List<TooltipComponent> description;
+    private final List<OrderedText> description;
 
-    public SingleTargetParticipantActionInfo(final TargetType<T> type, final Action<? super T> action, final List<TooltipComponent> description) {
+    public SingleTargetParticipantActionInfo(final TargetType<T> type, final Action<? super T> action, final List<OrderedText> description) {
         this.type = type;
         this.action = action;
         this.description = description;
     }
 
-    public SingleTargetParticipantActionInfo(final TargetType<T> type, final SimpleAction<? super T> action, final Consumer<BattleAction<?>> sender, final List<TooltipComponent> description) {
+    public SingleTargetParticipantActionInfo(final TargetType<T> type, final SimpleAction<? super T> action, final Consumer<BattleAction<?>> sender, final List<OrderedText> description) {
         this.type = type;
         this.action = (battleState, user, target) -> sender.accept(action.apply(battleState, user, target));
         this.description = description;
@@ -47,7 +47,7 @@ public class SingleTargetParticipantActionInfo<T extends TargetInstance> impleme
     }
 
     @Override
-    public @Nullable List<TooltipComponent> getDescription(final BattleStateView battleState, final BattleParticipantHandle user, final List<TargetInstance> list) {
+    public @Nullable List<OrderedText> getDescription(final BattleStateView battleState, final BattleParticipantHandle user, final List<TargetInstance> list) {
         return description;
     }
 

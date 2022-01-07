@@ -40,8 +40,15 @@ public interface GuiQuadEmitter extends MutableGuiQuad {
     @Override
     GuiQuadEmitter renderMaterial(GuiRenderMaterial renderMaterial);
 
-    @Override
-    GuiQuadEmitter interpolate(int vertexIndex, GuiQuad other, double w0, double w1, double w2, double w3);
+    default GuiQuadEmitter rectangle(final double x, final double y, final double width, final double height, final int c0, final int c1, final int c2, final int c3) {
+        pos(0, (float) x, (float) y);
+        pos(1, (float) x, (float) (y + height));
+        pos(2, (float) (x + width), (float) (y + height));
+        pos(3, (float) (x + width), (float) y);
+        renderMaterial(GuiRenderMaterial.POS_COLOUR_TRANSLUCENT);
+        colour(c0, c1, c2, c3);
+        return this;
+    }
 
     GuiQuadEmitter emit();
 }

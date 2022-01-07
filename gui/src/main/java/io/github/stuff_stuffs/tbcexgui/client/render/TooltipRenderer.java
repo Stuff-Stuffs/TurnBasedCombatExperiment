@@ -50,6 +50,13 @@ public final class TooltipRenderer {
         }
     }
 
+    public static Map<NinePatch.Part, Sprite> getTooltipSpriteMap() {
+        if (RELOAD_SPRITE_MAP) {
+            reloadSpriteMap();
+        }
+        return TOOLTIP_SPRITE_MAP;
+    }
+
     private static void reloadSpriteMap() {
         RELOAD_SPRITE_MAP = false;
         final Identifier base = new Identifier("tbcexgui", "gui/tooltip");

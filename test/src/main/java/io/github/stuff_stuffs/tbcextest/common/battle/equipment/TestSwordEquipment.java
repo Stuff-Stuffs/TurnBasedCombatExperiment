@@ -21,8 +21,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equi
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentSlots;
 import io.github.stuff_stuffs.tbcextest.common.Test;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -35,16 +35,6 @@ public class TestSwordEquipment implements BattleEquipment {
     public static final Codec<BattleEquipment> CODEC = Codec.unit(TestSwordEquipment::new).xmap(Function.identity(), o -> (TestSwordEquipment) o);
 
     @Override
-    public boolean validSlot(final BattleEquipmentSlot slot) {
-        return slot == BattleEquipmentSlots.MAIN_HAND_SLOT;
-    }
-
-    @Override
-    public Set<BattleEquipmentSlot> getBlockedSlots() {
-        return Set.of(BattleEquipmentSlots.OFF_HAND_SLOT);
-    }
-
-    @Override
     public List<ParticipantAction> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView, final BattleEquipmentSlot slot) {
         return List.of(new ParticipantAction() {
             @Override
@@ -53,8 +43,8 @@ public class TestSwordEquipment implements BattleEquipment {
             }
 
             @Override
-            public List<TooltipComponent> getTooltip() {
-                return List.of(TooltipComponent.of(new LiteralText("Basic melee attack").asOrderedText()));
+            public List<OrderedText> getTooltip() {
+                return List.of(new LiteralText("Basic melee attack").asOrderedText());
             }
 
             @Override
@@ -84,6 +74,16 @@ public class TestSwordEquipment implements BattleEquipment {
                 );
             }
         }, BattleEquipment.createUnequipAction(participantView, slot));
+    }
+
+    @Override
+    public boolean validSlot(final BattleEquipmentSlot slot) {
+        return slot == BattleEquipmentSlots.MAIN_HAND_SLOT;
+    }
+
+    @Override
+    public Set<BattleEquipmentSlot> getBlockedSlots() {
+        return Set.of(BattleEquipmentSlots.OFF_HAND_SLOT);
     }
 
     @Override

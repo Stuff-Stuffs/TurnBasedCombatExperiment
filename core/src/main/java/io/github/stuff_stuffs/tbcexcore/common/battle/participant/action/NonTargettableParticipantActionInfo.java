@@ -1,10 +1,10 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action;
 
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetInstance;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetType;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
+import net.minecraft.text.OrderedText;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -33,7 +33,7 @@ public final class NonTargettableParticipantActionInfo implements ParticipantAct
     }
 
     @Override
-    public @Nullable List<TooltipComponent> getDescription(final BattleStateView battleState, final BattleParticipantHandle user, final List<TargetInstance> list) {
+    public @Nullable List<OrderedText> getDescription(final BattleStateView battleState, final BattleParticipantHandle user, final List<TargetInstance> list) {
         return null;
     }
 }

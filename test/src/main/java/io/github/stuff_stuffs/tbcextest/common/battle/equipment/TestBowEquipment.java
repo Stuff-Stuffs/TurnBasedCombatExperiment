@@ -22,8 +22,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equi
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexequipment.common.battle.equipment.BattleEquipmentSlots;
 import io.github.stuff_stuffs.tbcextest.common.Test;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -41,31 +41,6 @@ public class TestBowEquipment implements BattleEquipment {
     private static final Identifier EYE_PART = TBCExCore.createId("head");
 
     @Override
-    public boolean validSlot(final BattleEquipmentSlot slot) {
-        return slot == BattleEquipmentSlots.MAIN_HAND_SLOT;
-    }
-
-    @Override
-    public Set<BattleEquipmentSlot> getBlockedSlots() {
-        return Set.of(BattleEquipmentSlots.OFF_HAND_SLOT);
-    }
-
-    @Override
-    public void initEvents(final BattleParticipantState state, final BattleEquipmentSlot slot) {
-
-    }
-
-    @Override
-    public void deinitEvents() {
-
-    }
-
-    @Override
-    public BattleEquipmentType getType() {
-        return Test.TEST_BOW_EQUIPMENT_TYPE;
-    }
-
-    @Override
     public List<ParticipantAction> getActions(final BattleStateView stateView, final BattleParticipantStateView participantView, final BattleEquipmentSlot slot) {
         return List.of(new ParticipantAction() {
             @Override
@@ -74,7 +49,7 @@ public class TestBowEquipment implements BattleEquipment {
             }
 
             @Override
-            public List<TooltipComponent> getTooltip() {
+            public List<OrderedText> getTooltip() {
                 return List.of();
             }
 
@@ -100,5 +75,30 @@ public class TestBowEquipment implements BattleEquipment {
                 );
             }
         }, BattleEquipment.createUnequipAction(participantView, slot));
+    }
+
+    @Override
+    public boolean validSlot(final BattleEquipmentSlot slot) {
+        return slot == BattleEquipmentSlots.MAIN_HAND_SLOT;
+    }
+
+    @Override
+    public Set<BattleEquipmentSlot> getBlockedSlots() {
+        return Set.of(BattleEquipmentSlots.OFF_HAND_SLOT);
+    }
+
+    @Override
+    public void initEvents(final BattleParticipantState state, final BattleEquipmentSlot slot) {
+
+    }
+
+    @Override
+    public void deinitEvents() {
+
+    }
+
+    @Override
+    public BattleEquipmentType getType() {
+        return Test.TEST_BOW_EQUIPMENT_TYPE;
     }
 }

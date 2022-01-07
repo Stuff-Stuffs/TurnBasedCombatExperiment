@@ -32,15 +32,12 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
 
     @Override
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) {
-            return true;
-        }
         if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             locked = !locked;
             passEvents = locked;
             return true;
         }
-        return false;
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -53,6 +50,7 @@ public class BattleActionScreen extends TBCExScreen implements MouseLockableScre
 
     @Override
     public void tick() {
+        super.tick();
         final Battle battle = ((BattleWorldSupplier) MinecraftClient.getInstance().world).tbcex_getBattleWorld().getBattle(handle.battleId());
         if (battle == null || !handle.equals(battle.getState().getCurrentTurn())) {
             MinecraftClient.getInstance().setScreen(null);

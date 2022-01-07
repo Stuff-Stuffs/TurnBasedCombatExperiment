@@ -1,12 +1,9 @@
 package io.github.stuff_stuffs.tbcexgui.client.impl.render;
 
-import io.github.stuff_stuffs.tbcexgui.client.api.GuiQuad;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterial;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterialFinder;
 import io.github.stuff_stuffs.tbcexgui.client.api.MutableGuiQuad;
-import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.Sprite;
-import net.minecraft.util.math.MathHelper;
 
 import java.util.Arrays;
 
@@ -145,26 +142,6 @@ public class MutableGuiQuadImpl implements MutableGuiQuad {
         return this;
     }
 
-    @Override
-    public MutableGuiQuad interpolate(final int vertexIndex, final GuiQuad other, final double w0, final double w1, final double w2, final double w3) {
-        sprite(vertexIndex, (float) (other.spriteU(0) * w0 + other.spriteU(1) * w1 + other.spriteU(2) * w2 + other.spriteU(3) * w3), (float) (other.spriteV(0) * w0 + other.spriteV(1) * w1 + other.spriteV(2) * w2 + other.spriteV(3) * w3));
-        colour(vertexIndex, interpolateColour(other.colour(0), other.colour(1), other.colour(2), other.colour(3), w0, w1, w2, w3));
-        final int blockLight = MathHelper.clamp((int) Math.round(
-                LightmapTextureManager.getBlockLightCoordinates(other.light(0)) * w0 +
-                        LightmapTextureManager.getBlockLightCoordinates(other.light(1)) * w1 +
-                        LightmapTextureManager.getBlockLightCoordinates(other.light(2)) * w2 +
-                        LightmapTextureManager.getBlockLightCoordinates(other.light(3)) * w3
-        ), 0, 15);
-        final int skyLight = MathHelper.clamp((int) Math.round(
-                LightmapTextureManager.getSkyLightCoordinates(other.light(0)) * w0 +
-                        LightmapTextureManager.getSkyLightCoordinates(other.light(1)) * w1 +
-                        LightmapTextureManager.getSkyLightCoordinates(other.light(2)) * w2 +
-                        LightmapTextureManager.getSkyLightCoordinates(other.light(3)) * w3
-        ), 0, 15);
-        lights[vertexIndex] = LightmapTextureManager.pack(blockLight, skyLight);
-        return this;
-    }
-
     public void reset() {
         Arrays.fill(xs, 0);
         Arrays.fill(ys, 0);
@@ -174,20 +151,6 @@ public class MutableGuiQuadImpl implements MutableGuiQuad {
         renderMaterial = DEFAULT_RENDER_MATERIAL;
         tag = 0;
         depth = 0;
-    }
-
-    private static int interpolateColour(final int c0, final int c1, final int c2, final int c3, final double w0, final double w1, final double w2, final double w3) {
-        return interpolateColourComponent(c0, c1, c2, c3, w0, w1, w2, w3, 0) | interpolateColourComponent(c0, c1, c2, c3, w0, w1, w2, w3, 1) | interpolateColourComponent(c0, c1, c2, c3, w0, w1, w2, w3, 2) | interpolateColourComponent(c0, c1, c2, c3, w0, w1, w2, w3, 3);
-    }
-
-    private static int interpolateColourComponent(final int c0, final int c1, final int c2, final int c3, final double w0, final double w1, final double w2, final double w3, final int component) {
-        final int shift = component * 8;
-        final int mask = 0xFF << shift;
-        final int masked0 = (c0 & mask) >> shift;
-        final int masked1 = (c1 & mask) >> shift;
-        final int masked2 = (c2 & mask) >> shift;
-        final int masked3 = (c3 & mask) >> shift;
-        return MathHelper.clamp((int) Math.round(masked0 * w0 + masked1 * w1 + masked2 * w2 + masked3 * w3), 0, 255) << shift;
     }
 
     private static void interpolate(final MutableGuiQuad q, final Sprite sprite) {

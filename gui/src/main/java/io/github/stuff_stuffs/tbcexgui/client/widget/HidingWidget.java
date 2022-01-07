@@ -19,4 +19,10 @@ public class HidingWidget extends AbstractWidget {
             delegate.render(context);
         }
     }
+
+    @Override
+    public void resize(final double width, final double height, final int pixelWidth, final int pixelHeight) {
+        super.resize(width, height, pixelWidth, pixelHeight);
+        delegate.resize(width, height, pixelWidth, pixelHeight);
+    }
 }

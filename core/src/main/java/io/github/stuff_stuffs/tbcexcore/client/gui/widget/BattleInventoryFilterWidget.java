@@ -9,17 +9,20 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.Batt
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantItemStack;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
-import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
+import io.github.stuff_stuffs.tbcexgui.client.api.*;
+import io.github.stuff_stuffs.tbcexgui.client.api.text.TextDrawer;
+import io.github.stuff_stuffs.tbcexgui.client.api.text.TextDrawers;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
+import io.github.stuff_stuffs.tbcexgui.client.widget.PositionedWidget;
+import io.github.stuff_stuffs.tbcexutil.common.Rect2d;
+import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.IntRgbColour;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.world.World;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,7 +31,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.IntConsumer;
 
 //fixme
-public class BattleInventoryFilterWidget extends AbstractWidget {
+public class BattleInventoryFilterWidget extends AbstractWidget implements PositionedWidget {
     public static final Colour FIRST_BACKGROUND_COLOUR = new IntRgbColour(0x00111111);
     public static final Colour SECOND_BACKGROUND_COLOUR = new IntRgbColour(0x00222222);
 
@@ -98,6 +101,10 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
             });
         }
     });
+    private static final TextDrawer TEXT_DRAWER = TextDrawers.oneShot(TextDrawers.HorizontalJustification.CENTER, TextDrawers.VerticalJustification.CENTER, -1, 0, false);
+    private static final TextDrawer TEXT_DRAWER_SHADOWED = TextDrawers.oneShot(TextDrawers.HorizontalJustification.CENTER, TextDrawers.VerticalJustification.CENTER, -1, 0, true);
+    private final DoubleSupplier x;
+    private final DoubleSupplier y;
     private final DoubleSupplier width;
     private final DoubleSupplier height;
     private final double borderThickness;
@@ -107,10 +114,12 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
     private final BattleParticipantHandle handle;
     private final List<Category> categories;
     private final IntConsumer onSelect;
-    private final double pos = 0;
+    private double pos = 0;
     private int selectedIndex = 0;
 
-    public BattleInventoryFilterWidget(final DoubleSupplier width, final DoubleSupplier height, final double borderThickness, final double entryHeight, final double verticalSpacing, final World world, final BattleParticipantHandle handle, final List<Category> categories, final IntConsumer onSelect) {
+    public BattleInventoryFilterWidget(final DoubleSupplier x, final DoubleSupplier y, final DoubleSupplier width, final DoubleSupplier height, final double borderThickness, final double entryHeight, final double verticalSpacing, final World world, final BattleParticipantHandle handle, final List<Category> categories, final IntConsumer onSelect) {
+        this.x = x;
+        this.y = y;
         this.width = width;
         this.height = height;
         this.borderThickness = borderThickness;
@@ -160,123 +169,149 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         }
     }
 
-    //@Override
-    //public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-    //    if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height.getAsDouble()).isIn(mouseX, mouseY)) {
-    //        final int index = findHoverIndex(mouseX, mouseY + pos);
-    //        setSelectedIndex(index);
-    //        return true;
-    //    }
-    //    return false;
-    //}
+    private boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
+        if (new Rect2d(0, 0, width.getAsDouble(), height.getAsDouble()).isIn(mouseX, mouseY)) {
+            final int index = findHoverIndex(mouseX, mouseY + pos);
+            setSelectedIndex(index);
+            return true;
+        }
+        return false;
+    }
 
-    //@Override
-    //public boolean mouseReleased(final double mouseX, final double mouseY, final int button) {
-    //    return new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height.getAsDouble()).isIn(mouseX, mouseY);
-    //}
+    private boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
+        final double height = this.height.getAsDouble();
+        if (new Rect2d(0, 0, width.getAsDouble(), height).isIn(mouseX, mouseY)) {
+            pos = Math.min(Math.max(pos - deltaY, -(height - 2 * borderThickness) / 2), getListHeight() - (height - 2 * borderThickness) / 2);
+            return true;
+        }
+        return false;
+    }
 
-    //@Override
-    //public boolean mouseDragged(final double mouseX, final double mouseY, final int button, final double deltaX, final double deltaY) {
-    //    final double height = this.height.getAsDouble();
-    //    if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height).isIn(mouseX, mouseY)) {
-    //        pos = Math.min(Math.max(pos - deltaY, -(height - 2 * borderThickness) / 2), getListHeight() - (height - 2 * borderThickness) / 2);
-    //        return true;
-    //    }
-    //    return false;
-    //}
-
-    //@Override
-    //public boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
-    //    final double height = this.height.getAsDouble();
-    //    if (new Rect2d(position.getX(), position.getY(), position.getX() + width.getAsDouble(), position.getY() + height).isIn(mouseX, mouseY)) {
-    //        pos = Math.min(Math.max(pos - amount, -(height - 2 * borderThickness) / 2), getListHeight() - (height - 2 * borderThickness) / 2);
-    //        return true;
-    //    }
-    //    return false;
-    //}
+    private boolean mouseScrolled(final double mouseX, final double mouseY, final double amount) {
+        final double height = this.height.getAsDouble();
+        if (new Rect2d(0, 0, width.getAsDouble(), height).isIn(mouseX, mouseY)) {
+            pos = Math.min(Math.max(pos - amount, -(height - 2 * borderThickness) / 2), getListHeight() - (height - 2 * borderThickness) / 2);
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public void render(final GuiContext context) {
-        //final Matrix4f model = matrices.peek().getPositionMatrix();
-        //final BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-        //RenderSystem.enableBlend();
-        //RenderSystem.disableTexture();
-        //RenderSystem.defaultBlendFunc();
-        //RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        //buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        //final double offsetX = position.getX();
-        //final double offsetY = position.getY();
-        //final double width = this.width.getAsDouble();
-        //final double height = this.height.getAsDouble();
-        //buffer.vertex(model, (float) (offsetX + width), (float) offsetY, 0).color(0, 0, 0, 127).next();
-        //buffer.vertex(model, (float) offsetX, (float) offsetY, 0).color(0, 0, 0, 127).next();
-        //buffer.vertex(model, (float) offsetX, (float) (offsetY + height), 0).color(0, 0, 0, 127).next();
-        //buffer.vertex(model, (float) (offsetX + width), (float) (offsetY + height), 0).color(0, 0, 0, 127).next();
-        //buffer.end();
-        //BufferRenderer.draw(buffer);
+        processEvents(context, event -> {
+            if (event instanceof GuiInputContext.MouseClick click) {
+                final Vec2d mouse = context.transformMouseCursor(new Vec2d(click.mouseX, click.mouseY));
+                return mouseClicked(mouse.x, mouse.y, click.button);
+            } else if (event instanceof GuiInputContext.MouseScroll scroll) {
+                final Vec2d mouse = context.transformMouseCursor(new Vec2d(scroll.mouseX, scroll.mouseY));
+                return mouseScrolled(mouse.x, mouse.y, scroll.amount);
+            } else if (event instanceof GuiInputContext.MouseDrag drag) {
+                final Vec2d mouse = context.transformMouseCursor(new Vec2d(drag.mouseX, drag.mouseY));
+                final Vec2d delta = context.transformMouseCursor(new Vec2d(drag.mouseX + drag.deltaX, drag.mouseY + drag.deltaY)).subtract(mouse);
+                return mouseDragged(mouse.x, mouse.y, drag.button, delta.x, delta.y);
+            } else if (event instanceof GuiInputContext.KeyPress keyPress) {
+                return keyPress(keyPress.keyCode);
+            }
+            return false;
+        });
 
-        //matrices.push();
-        //matrices.translate(0, -pos, 0);
+        final double offsetX = 0;
+        final double offsetY = 0;
+        final double width = this.width.getAsDouble();
+        final double height = this.height.getAsDouble();
+        final GuiQuadEmitter emitter = context.getEmitter();
+        emitter.renderMaterial(GuiRenderMaterial.POS_COLOUR_TRANSLUCENT);
+        emitter.pos(0, (float) (offsetX + width), (float) offsetY);
+        emitter.pos(1, (float) offsetX, (float) offsetY);
+        emitter.pos(2, (float) offsetX, (float) (offsetY + height));
+        emitter.pos(3, (float) (offsetX + width), (float) (offsetY + height));
+        final int colour = IntRgbColour.BLACK.pack(127);
+        emitter.colour(colour, colour, colour, colour);
+        emitter.emit();
 
-        //RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        //buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-        //final int hoverIndex = findHoverIndex(mouseX, mouseY + pos);
-        //for (int i = 0; i < categories.size(); i++) {
-        //    renderInfo(categories.get(i), buffer, matrices, i, hoverIndex);
-        //}
-        //buffer.end();
-        //BufferRenderer.draw(buffer);
+        context.pushTranslate(0, -pos, 0);
+        final Vec2d mouse = context.transformMouseCursor();
+        final int hoverIndex = findHoverIndex(mouse.x, mouse.y);
+        for (int i = 0; i < categories.size(); i++) {
+            renderInfo(categories.get(i), context, i, hoverIndex);
+        }
 
-        //render(vertexConsumers -> {
-        //    for (int i = 0; i < categories.size(); i++) {
-        //        renderDecorations(categories.get(i), matrices, i, hoverIndex, vertexConsumers);
-        //    }
-        //});
-
-        //matrices.pop();
+        for (int i = 0; i < categories.size(); i++) {
+            renderDecorations(categories.get(i), context, i, hoverIndex);
+        }
+        context.popGuiTransform();
     }
 
-    private void renderDecorations(final Category category, final MatrixStack matrices, final int index, final int hoverIndex, final VertexConsumerProvider vertexConsumers) {
-        //final float offsetX = (float) position.getX();
-        //final float offsetY = (float) position.getY();
-        //final double maxWidth = width.getAsDouble() - 2 * borderThickness;
-        //final double y = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
-        //final double centerY = y + entryHeight / 2.0;
-        //double dist = Math.abs(centerY - (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
-        //dist *= dist * dist;
-        //final double offset = height.getAsDouble() / 4;
-        //final double scale = Math.max(offset - dist, 0) / offset;
-        //final boolean shadow = index == hoverIndex || selectedIndex == index;
-        //renderFitText(matrices, category.getName(), offsetX + borderThickness, y, maxWidth * scale, entryHeight * scale, shadow, IntRgbColour.WHITE, (int) Math.round(255 * scale), vertexConsumers);
+    private void renderDecorations(final Category category, final GuiContext context, final int index, final int hoverIndex) {
+        final float offsetX = 0;
+        final float offsetY = 0;
+        final double maxWidth = width.getAsDouble() - 2 * borderThickness;
+        final double y = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
+        final double centerY = y + entryHeight / 2.0;
+        double dist = Math.abs(centerY - (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
+        dist *= dist * dist;
+        final double offset = height.getAsDouble() / 4;
+        final double scale = Math.max(offset - dist, 0) / offset;
+        final boolean shadow = index == hoverIndex || selectedIndex == index;
+        context.pushTranslate(offsetX + borderThickness, y, 0);
+        context.pushGuiTransform(new GuiTransform() {
+            @Override
+            public boolean transform(final MutableGuiQuad quad) {
+                for (int i = 0; i < 4; i++) {
+                    int colour = quad.colour(i);
+                    final int alpha = (colour >> 24) & 255;
+                    final int newAlpha = (int) Math.round(alpha * scale);
+                    colour &= 0xFF_FF_FF;
+                    colour |= newAlpha << 24;
+                    quad.colour(i, colour);
+                }
+                return true;
+            }
+
+            @Override
+            public Vec2d transformMouseCursorToGui(final Vec2d cursor) {
+                return cursor;
+            }
+
+            @Override
+            public Vec2d transformMouseCursorToScreen(final Vec2d cursor) {
+                return cursor;
+            }
+        });
+        (shadow ? TEXT_DRAWER_SHADOWED : TEXT_DRAWER).draw(maxWidth * scale, entryHeight * scale, category.getName().asOrderedText(), context);
+        context.popGuiTransform();
     }
 
-    private void renderInfo(final Category category, final VertexConsumer vertexConsumer, final MatrixStack matrices, final int index, final int hoverIndex) {
-        //final double offsetX = position.getX();
-        //final double offsetY = position.getY();
-        //final Matrix4f model = matrices.peek().getPositionMatrix();
-        //final float startX = (float) (offsetX + borderThickness);
-        //final float endX = (float) (offsetX + width.getAsDouble() - borderThickness);
-        //final float xLen = (endX - startX);
-        //final float startY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing);
-        //final float endY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
-        //final float centerY = (startY + endY) / 2f;
-        //final float yLen = (endY - startY);
-        //float dist = Math.abs(centerY - (float) (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
-        //dist *= dist * dist;
-        //final float offset = ((float) height.getAsDouble()) / 4f;
-        //final float scale = Math.max(offset - dist, 0) / offset;
-        //final Colour backgroundColour = getBackgroundColour(index);
-        //int alpha;
-        //if (hoverIndex == index || selectedIndex == index) {
-        //    alpha = 0xFF;
-        //} else {
-        //    alpha = 0x77;
-        //}
-        //alpha = Math.round(alpha * scale);
-        //RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY, 0), backgroundColour, alpha).next();
-        //RenderUtil.colour(vertexConsumer.vertex(model, startX, startY, 0), backgroundColour, alpha).next();
-        //RenderUtil.colour(vertexConsumer.vertex(model, startX, startY + yLen * scale, 0), backgroundColour, alpha).next();
-        //RenderUtil.colour(vertexConsumer.vertex(model, startX + xLen * scale, startY + yLen * scale, 0), backgroundColour, alpha).next();
+    private void renderInfo(final Category category, final GuiContext context, final int index, final int hoverIndex) {
+        final double offsetX = 0;
+        final double offsetY = 0;
+        final float startX = (float) (offsetX + borderThickness);
+        final float endX = (float) (offsetX + width.getAsDouble() - borderThickness);
+        final float xLen = (endX - startX);
+        final float startY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing);
+        final float endY = (float) (offsetY + borderThickness + index * entryHeight + index * verticalSpacing + entryHeight);
+        final float centerY = (startY + endY) / 2f;
+        final float yLen = (endY - startY);
+        float dist = Math.abs(centerY - (float) (pos + (height.getAsDouble() - 2 * borderThickness) / 2));
+        dist *= dist * dist;
+        final float offset = ((float) height.getAsDouble()) / 4f;
+        final float scale = Math.max(offset - dist, 0) / offset;
+        final Colour backgroundColour = getBackgroundColour(index);
+        int alpha;
+        if (hoverIndex == index || selectedIndex == index) {
+            alpha = 0xFF;
+        } else {
+            alpha = 0x77;
+        }
+        alpha = Math.round(alpha * scale);
+        final GuiQuadEmitter emitter = context.getEmitter();
+        emitter.pos(0, startX + xLen * scale, startY);
+        emitter.pos(1, startX, startY);
+        emitter.pos(2, startX, startY + yLen * scale);
+        emitter.pos(3, startX + xLen * scale, startY + yLen * scale);
+        final int c = backgroundColour.pack(alpha);
+        emitter.colour(c, c, c, c);
+        emitter.renderMaterial(GuiRenderMaterial.POS_COLOUR_TRANSLUCENT);
     }
 
     private double getListHeight() {
@@ -284,33 +319,42 @@ public class BattleInventoryFilterWidget extends AbstractWidget {
         return size * entryHeight + (size > 0 ? size - 1 : 0) * verticalSpacing;
     }
 
-    //@Override
-    //public boolean keyPress(final int keyCode, final int scanCode, final int modifiers) {
-    //    if (keyCode == GLFW.GLFW_KEY_DOWN) {
-    //        setSelectedIndex(selectedIndex + 1);
-    //        return true;
-    //    } else if (keyCode == GLFW.GLFW_KEY_UP) {
-    //        setSelectedIndex(selectedIndex - 1);
-    //        return true;
-    //    }
-    //    return false;
-    //}
+    private boolean keyPress(final int keyCode) {
+        if (keyCode == GLFW.GLFW_KEY_DOWN) {
+            setSelectedIndex(selectedIndex + 1);
+            return true;
+        } else if (keyCode == GLFW.GLFW_KEY_UP) {
+            setSelectedIndex(selectedIndex - 1);
+            return true;
+        }
+        return false;
+    }
 
-    //private int findHoverIndex(final double mouseX, final double mouseY) {
-    //    final double offsetX = position.getX();
-    //    final double offsetY = position.getY();
-    //    final double width = this.width.getAsDouble();
-    //    for (int index = 0; index < categories.size(); index++) {
-    //        final double startX = offsetX + borderThickness;
-    //        final double endX = offsetX + width - borderThickness;
-    //        final double startY = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
-    //        final double endY = startY + entryHeight;
-    //        if (new Rect2d(startX, startY, endX, endY).isIn(mouseX, mouseY)) {
-    //            return index;
-    //        }
-    //    }
-    //    return -1;
-    //}
+    private int findHoverIndex(final double mouseX, final double mouseY) {
+        final double offsetX = 0;
+        final double offsetY = 0;
+        final double width = this.width.getAsDouble();
+        for (int index = 0; index < categories.size(); index++) {
+            final double startX = offsetX + borderThickness;
+            final double endX = offsetX + width - borderThickness;
+            final double startY = offsetY + borderThickness + index * entryHeight + index * verticalSpacing;
+            final double endY = startY + entryHeight;
+            if (new Rect2d(startX, startY, endX, endY).isIn(mouseX, mouseY)) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    public double getX() {
+        return x.getAsDouble();
+    }
+
+    @Override
+    public double getY() {
+        return y.getAsDouble();
+    }
 
     private static Colour getBackgroundColour(final int index) {
         return (index & 1) == 0 ? FIRST_BACKGROUND_COLOUR : SECOND_BACKGROUND_COLOUR;

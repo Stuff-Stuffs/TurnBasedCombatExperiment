@@ -5,7 +5,7 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticip
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetInstance;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetType;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.text.OrderedText;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -15,11 +15,11 @@ import java.util.function.Consumer;
 public class BiTargetParticipantActionInfo<T1 extends TargetInstance, T2 extends TargetInstance> implements ParticipantActionInfo {
     private final TargetType<T1> firstTargetType;
     private final TargetType<T2> secondTargetType;
-    private final BiFunction<BattleStateView, BattleParticipantHandle, List<TooltipComponent>> firstTooltip;
-    private final BiFunction<BattleStateView, BattleParticipantHandle, List<TooltipComponent>> secondTooltip;
+    private final BiFunction<BattleStateView, BattleParticipantHandle, List<OrderedText>> firstTooltip;
+    private final BiFunction<BattleStateView, BattleParticipantHandle, List<OrderedText>> secondTooltip;
     private final Action<? super T1, ? super T2> action;
 
-    public BiTargetParticipantActionInfo(final TargetType<T1> firstTargetType, final TargetType<T2> secondTargetType, final BiFunction<BattleStateView, BattleParticipantHandle, List<TooltipComponent>> firstTooltip, final BiFunction<BattleStateView, BattleParticipantHandle, List<TooltipComponent>> secondTooltip, final Action<? super T1, ? super T2> action) {
+    public BiTargetParticipantActionInfo(final TargetType<T1> firstTargetType, final TargetType<T2> secondTargetType, final BiFunction<BattleStateView, BattleParticipantHandle, List<OrderedText>> firstTooltip, final BiFunction<BattleStateView, BattleParticipantHandle, List<OrderedText>> secondTooltip, final Action<? super T1, ? super T2> action) {
         this.firstTargetType = firstTargetType;
         this.secondTargetType = secondTargetType;
         this.firstTooltip = firstTooltip;
@@ -27,7 +27,7 @@ public class BiTargetParticipantActionInfo<T1 extends TargetInstance, T2 extends
         this.action = action;
     }
 
-    public BiTargetParticipantActionInfo(final TargetType<T1> firstTargetType, final TargetType<T2> secondTargetType, final BiFunction<BattleStateView, BattleParticipantHandle, List<TooltipComponent>> firstTooltip, final BiFunction<BattleStateView, BattleParticipantHandle, List<TooltipComponent>> secondTooltip, final Consumer<BattleAction<?>> sender, final SimpleAction<? super T1, ? super T2> action) {
+    public BiTargetParticipantActionInfo(final TargetType<T1> firstTargetType, final TargetType<T2> secondTargetType, final BiFunction<BattleStateView, BattleParticipantHandle, List<OrderedText>> firstTooltip, final BiFunction<BattleStateView, BattleParticipantHandle, List<OrderedText>> secondTooltip, final Consumer<BattleAction<?>> sender, final SimpleAction<? super T1, ? super T2> action) {
         this.firstTargetType = firstTargetType;
         this.secondTargetType = secondTargetType;
         this.firstTooltip = firstTooltip;
@@ -55,7 +55,7 @@ public class BiTargetParticipantActionInfo<T1 extends TargetInstance, T2 extends
     }
 
     @Override
-    public @Nullable List<TooltipComponent> getDescription(final BattleStateView battleState, final BattleParticipantHandle user, final List<TargetInstance> list) {
+    public @Nullable List<OrderedText> getDescription(final BattleStateView battleState, final BattleParticipantHandle user, final List<TargetInstance> list) {
         return switch (list.size()) {
             case 0 -> firstTooltip.apply(battleState, user);
             case 1 -> secondTooltip.apply(battleState, user);

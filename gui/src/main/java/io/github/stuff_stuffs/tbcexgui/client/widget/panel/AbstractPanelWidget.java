@@ -4,11 +4,10 @@ import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiQuadEmitter;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiRenderMaterial;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
-import io.github.stuff_stuffs.tbcexgui.client.widget.Widget;
 
 import java.util.function.IntSupplier;
 
-public abstract class AbstractPanelWidget<T extends Widget> extends AbstractWidget {
+public abstract class AbstractPanelWidget extends AbstractWidget {
     private static final GuiRenderMaterial MATERIAL = GuiRenderMaterial.POS_COLOUR_TRANSLUCENT;
     protected final float width;
     protected final float height;

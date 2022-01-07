@@ -1,12 +1,12 @@
 package io.github.stuff_stuffs.tbcexcore.common.battle.participant.action;
 
-import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetInstance;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.TargetType;
+import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
 import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.text.OrderedText;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public final class ParticipantActionInstance {
         }
     }
 
-    public List<TooltipComponent> getTargetDescription() {
+    public List<OrderedText> getTargetDescription() {
         return info.getDescription(battleState, user, list);
     }
 

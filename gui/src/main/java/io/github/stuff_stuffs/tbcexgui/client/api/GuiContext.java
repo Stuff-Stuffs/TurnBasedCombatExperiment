@@ -122,6 +122,8 @@ public interface GuiContext {
 
     void addTooltip(List<OrderedText> components);
 
+    void renderTooltipBackground(double x, double y, double width, double height);
+
     enum TextOutline {
         NONE,
         OUTLINE,

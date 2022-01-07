@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexgui.client.api.*;
 import io.github.stuff_stuffs.tbcexgui.client.impl.render.*;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
+import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import it.unimi.dsi.fastutil.Stack;
@@ -12,6 +13,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import org.jetbrains.annotations.Nullable;
@@ -107,6 +109,12 @@ public class GuiContextImpl implements GuiContext {
         tooltipMode = true;
         TooltipRenderer.render(components, inputContext.getMouseCursorX(), inputContext.getMouseCursorY(), this);
         tooltipMode = false;
+    }
+
+    @Override
+    public void renderTooltipBackground(final double x, final double y, final double width, final double height) {
+        final GuiRenderMaterial material = GuiRenderMaterialFinder.finder().ignoreLight(true).ignoreTexture(false).texture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).translucent(true).depthTest(false).find();
+        NinePatch.render(TooltipRenderer.getTooltipSpriteMap(), x, y, width, height, 0.005, 0.005, 1 / 64.0, this, material);
     }
 
     public boolean transformQuad(final MutableGuiQuad quad) {

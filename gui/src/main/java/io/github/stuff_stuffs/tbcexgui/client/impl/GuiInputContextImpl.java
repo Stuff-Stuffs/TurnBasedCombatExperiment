@@ -1,6 +1,7 @@
 package io.github.stuff_stuffs.tbcexgui.client.impl;
 
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiInputContext;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -41,11 +42,17 @@ public class GuiInputContextImpl implements GuiInputContext {
                 return null;
             }
             findNext();
+            if (done) {
+                return null;
+            }
             return cur.event;
         }
 
         @Override
         public void consume() {
+            if (cur.removed) {
+                throw new TBCExException("Consumed an input element twice");
+            }
             cur.removed = true;
         }
 
@@ -65,7 +72,7 @@ public class GuiInputContextImpl implements GuiInputContext {
                 idx = 0;
             } else {
                 cur.reserved = false;
-                idx = events.indexOf(cur);
+                idx = events.indexOf(cur) + 1;
             }
             while (idx < events.size()) {
                 final ReservableInputEvent event = events.get(idx);

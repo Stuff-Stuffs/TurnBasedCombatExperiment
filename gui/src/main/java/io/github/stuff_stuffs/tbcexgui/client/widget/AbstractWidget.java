@@ -1,5 +1,11 @@
 package io.github.stuff_stuffs.tbcexgui.client.widget;
 
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiInputContext;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
+
+import java.util.function.Predicate;
+
 public abstract class AbstractWidget implements Widget {
     private double width, height;
     private int pixelWidth, pixelHeight;
@@ -12,11 +18,11 @@ public abstract class AbstractWidget implements Widget {
         this.pixelHeight = pixelHeight;
     }
 
-    public double getWidth() {
+    public double getScreenWidth() {
         return width;
     }
 
-    public double getHeight() {
+    public double getScreenHeight() {
         return height;
     }
 
@@ -26,5 +32,18 @@ public abstract class AbstractWidget implements Widget {
 
     public int getPixelHeight() {
         return pixelHeight;
+    }
+
+    protected void processEvents(final GuiContext context, final Predicate<GuiInputContext.InputEvent> eventConsumer) {
+        try (final GuiInputContext.EventIterator events = context.getInputContext().getEvents()) {
+            GuiInputContext.InputEvent event;
+            while ((event = events.next()) != null) {
+                if (eventConsumer.test(event)) {
+                    events.consume();
+                }
+            }
+        } catch (final Exception e) {
+            throw new TBCExException("Exception while processing gui events", e);
+        }
     }
 }

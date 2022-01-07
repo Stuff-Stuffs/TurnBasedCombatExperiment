@@ -5,8 +5,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.stuff_stuffs.tbcexcore.client.TBCExCoreClient;
 import io.github.stuff_stuffs.tbcexcore.client.gui.BattleMoveScreen;
 import io.github.stuff_stuffs.tbcexcore.client.gui.hud.BattleHudContext;
+import io.github.stuff_stuffs.tbcexcore.client.network.BattleActionSender;
 import io.github.stuff_stuffs.tbcexcore.client.render.BoxInfo;
 import io.github.stuff_stuffs.tbcexcore.common.battle.Battle;
+import io.github.stuff_stuffs.tbcexcore.common.battle.action.ParticipantMoveBattleAction;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattleParticipantStateView;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.BattlePath;
@@ -14,9 +16,11 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.ParticipantPat
 import io.github.stuff_stuffs.tbcexcore.common.battle.world.BattleWorld;
 import io.github.stuff_stuffs.tbcexcore.mixin.api.BattleWorldSupplier;
 import io.github.stuff_stuffs.tbcexgui.client.api.GuiContext;
+import io.github.stuff_stuffs.tbcexgui.client.api.GuiInputContext;
 import io.github.stuff_stuffs.tbcexgui.client.widget.AbstractWidget;
 import io.github.stuff_stuffs.tbcexutil.client.ClientUtil;
 import io.github.stuff_stuffs.tbcexutil.client.RenderUtil;
+import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import io.github.stuff_stuffs.tbcexutil.common.colour.Colour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.FloatRgbColour;
 import io.github.stuff_stuffs.tbcexutil.common.colour.HsvColour;
@@ -32,12 +36,12 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-//fixme
 public class BattleMoveWidget extends AbstractWidget {
     public static final Colour PATH_COLOUR = new IntRgbColour(0, 255, 0);
     private static final Quaternion[] QUATERNION_DIRECTIONS = Util.make(new Quaternion[6], arr -> {
@@ -66,45 +70,44 @@ public class BattleMoveWidget extends AbstractWidget {
         vertexBuffer = new VertexBuffer();
     }
 
-    //@Override
-    //public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
-    //    if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-    //        final BattleWorld world = ((BattleWorldSupplier) this.world).tbcex_getBattleWorld();
-    //        if (world == null) {
-    //            throw new RuntimeException();
-    //        }
-    //        final Battle battle = world.getBattle(handle.battleId());
-    //        if (battle == null) {
-    //            throw new RuntimeException();
-    //        }
-    //        final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
-    //        if (participant != null && foundPaths) {
-    //            final Vec3d mouseVector = ClientUtil.getMouseVector();
-    //            final Vec3d eyePos = MinecraftClient.getInstance().cameraEntity.getClientCameraPosVec(1);
-    //            final Vec3d endPos = eyePos.add(mouseVector.multiply(64));
-    //            double closestDist = Double.POSITIVE_INFINITY;
-    //            EndPoint closest = null;
-    //            BattlePath closestPath = null;
-    //            for (int i = 0; i < endPoints.size(); i++) {
-    //                final EndPoint endPoint = endPoints.get(i);
-    //                final Optional<Vec3d> raycast = endPoint.box.raycast(eyePos, endPos);
-    //                if (raycast.isPresent()) {
-    //                    final double sq = raycast.get().squaredDistanceTo(eyePos);
-    //                    final BattlePath path = paths.get(i);
-    //                    if (sq < closestDist && path.getCost() <= participant.getEnergy()) {
-    //                        closest = endPoint;
-    //                        closestDist = sq;
-    //                        closestPath = paths.get(i);
-    //                    }
-    //                }
-    //            }
-    //            if (closest != null) {
-    //                BattleActionSender.send(handle.battleId(), new ParticipantMoveBattleAction(handle, closestPath));
-    //            }
-    //        }
-    //    }
-    //    return false;
-    //}
+    public boolean mouseClicked(final double mouseX, final double mouseY, final int button) {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+            final BattleWorld world = ((BattleWorldSupplier) this.world).tbcex_getBattleWorld();
+            if (world == null) {
+                throw new RuntimeException();
+            }
+            final Battle battle = world.getBattle(handle.battleId());
+            if (battle == null) {
+                throw new RuntimeException();
+            }
+            final BattleParticipantStateView participant = battle.getState().getParticipant(handle);
+            if (participant != null && foundPaths) {
+                final Vec3d mouseVector = ClientUtil.getMouseVector();
+                final Vec3d eyePos = MinecraftClient.getInstance().cameraEntity.getClientCameraPosVec(1);
+                final Vec3d endPos = eyePos.add(mouseVector.multiply(64));
+                double closestDist = Double.POSITIVE_INFINITY;
+                EndPoint closest = null;
+                BattlePath closestPath = null;
+                for (int i = 0; i < endPoints.size(); i++) {
+                    final EndPoint endPoint = endPoints.get(i);
+                    final Optional<Vec3d> raycast = endPoint.box.raycast(eyePos, endPos);
+                    if (raycast.isPresent()) {
+                        final double sq = raycast.get().squaredDistanceTo(eyePos);
+                        final BattlePath path = paths.get(i);
+                        if (sq < closestDist && path.getCost() <= participant.getEnergy()) {
+                            closest = endPoint;
+                            closestDist = sq;
+                            closestPath = paths.get(i);
+                        }
+                    }
+                }
+                if (closest != null) {
+                    BattleActionSender.send(handle.battleId(), new ParticipantMoveBattleAction(handle, closestPath));
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
     public void render(final GuiContext guiContext) {
@@ -121,6 +124,13 @@ public class BattleMoveWidget extends AbstractWidget {
         if (participant == null) {
             return;
         }
+        processEvents(guiContext, event -> {
+            if (event instanceof GuiInputContext.MouseClick click) {
+                final Vec2d mouse = guiContext.transformMouseCursor(new Vec2d(click.mouseX, click.mouseY));
+                return mouseClicked(mouse.x, mouse.y, click.button);
+            }
+            return false;
+        });
         if (!foundPaths) {
             lastPos = participant.getPos();
             foundPaths = true;

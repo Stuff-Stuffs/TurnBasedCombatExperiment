@@ -18,8 +18,8 @@ import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentActions;
 import io.github.stuff_stuffs.tbcexequipment.common.equipment.EquipmentTypes;
 import io.github.stuff_stuffs.tbcexequipment.common.part.stats.PartStatContext;
 import io.github.stuff_stuffs.tbcexequipment.common.part.stats.PartStats;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -27,6 +27,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public final class LongSwordActions {
+    private LongSwordActions() {
+    }
+
     public static void init() {
         EquipmentActions.register(EquipmentTypes.LONG_SWORD_EQUIPMENT, (data, battleState, handle, slot) -> {
             final double damage = TBCExEquipment.PART_STAT_MANAGER.get(data.getBlade().getData(), PartStats.LONG_SWORD_BLADE_DAMAGE, PartStatContext.of(data));
@@ -37,8 +40,8 @@ public final class LongSwordActions {
                 }
 
                 @Override
-                public List<TooltipComponent> getTooltip() {
-                    return List.of(TooltipComponent.of(new LiteralText("Attack with a base damage of " + damage).asOrderedText()));
+                public List<OrderedText> getTooltip() {
+                    return List.of(new LiteralText("Attack with a base damage of " + damage).asOrderedText());
                 }
 
                 @Override
@@ -58,8 +61,5 @@ public final class LongSwordActions {
                 }
             };
         });
-    }
-
-    private LongSwordActions() {
     }
 }

@@ -50,6 +50,4 @@ public interface MutableGuiQuad extends GuiQuad {
     MutableGuiQuad spriteBake(Sprite sprite, int bakeFlags);
 
     MutableGuiQuad renderMaterial(GuiRenderMaterial renderMaterial);
-
-    MutableGuiQuad interpolate(int vertexIndex, GuiQuad other, double w0, double w1, double w2, double w3);
 }

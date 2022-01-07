@@ -9,8 +9,8 @@ import io.github.stuff_stuffs.tbcexcore.common.battle.participant.action.target.
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.BattleParticipantInventoryHandle;
 import io.github.stuff_stuffs.tbcexcore.common.battle.participant.inventory.equipment.BattleEquipmentSlot;
 import io.github.stuff_stuffs.tbcexcore.common.battle.state.BattleStateView;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +18,32 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public final class ParticipantEquipActionUtil {
+    private ParticipantEquipActionUtil() {
+    }
+
+    public static ParticipantActionInstance create(final BattleStateView battleState, final BattleParticipantInventoryHandle handle, final BattleEquipmentSlot slot, final Consumer<BattleAction<?>> sender) {
+        return new ParticipantActionInstance(new EquipActionInfo(handle, slot, sender), battleState, handle.handle());
+    }
+
+    public static List<ParticipantAction> getActions(final BattleParticipantStateView participantState, final BattleParticipantInventoryHandle handle) {
+        return BattleEquipmentSlot.REGISTRY.stream().filter(slot -> participantState.canEquip(handle, slot)).<ParticipantAction>map(slot -> new ParticipantAction() {
+            @Override
+            public Text getName() {
+                return new LiteralText("Equip: ").append(slot.name());
+            }
+
+            @Override
+            public List<OrderedText> getTooltip() {
+                return List.of();
+            }
+
+            @Override
+            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle participantHandle, final Consumer<BattleAction<?>> sender) {
+                return ParticipantEquipActionUtil.create(battleState, handle, slot, sender);
+            }
+        }).toList();
+    }
+
     public static final class EquipActionInfo implements ParticipantActionInfo {
         private final BattleParticipantInventoryHandle handle;
         private final BattleEquipmentSlot slot;
@@ -45,34 +71,8 @@ public final class ParticipantEquipActionUtil {
         }
 
         @Override
-        public @Nullable List<TooltipComponent> getDescription(final BattleStateView battleState, final BattleParticipantHandle user, final List<TargetInstance> list) {
+        public @Nullable List<OrderedText> getDescription(final BattleStateView battleState, final BattleParticipantHandle user, final List<TargetInstance> list) {
             return null;
         }
-    }
-
-    public static ParticipantActionInstance create(final BattleStateView battleState, final BattleParticipantInventoryHandle handle, final BattleEquipmentSlot slot, Consumer<BattleAction<?>> sender) {
-        return new ParticipantActionInstance(new EquipActionInfo(handle, slot, sender), battleState, handle.handle());
-    }
-
-    public static List<ParticipantAction> getActions(final BattleParticipantStateView participantState, final BattleParticipantInventoryHandle handle) {
-        return BattleEquipmentSlot.REGISTRY.stream().filter(slot -> participantState.canEquip(handle, slot)).<ParticipantAction>map(slot -> new ParticipantAction() {
-            @Override
-            public Text getName() {
-                return new LiteralText("Equip: ").append(slot.name());
-            }
-
-            @Override
-            public List<TooltipComponent> getTooltip() {
-                return List.of();
-            }
-
-            @Override
-            public ParticipantActionInstance createInstance(final BattleStateView battleState, final BattleParticipantHandle participantHandle, Consumer<BattleAction<?>> sender) {
-                return ParticipantEquipActionUtil.create(battleState, handle, slot, sender);
-            }
-        }).toList();
-    }
-
-    private ParticipantEquipActionUtil() {
     }
 }

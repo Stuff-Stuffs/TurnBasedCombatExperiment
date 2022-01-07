@@ -102,7 +102,7 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
     }
 
     private static class MaterialFactory {
-        private static final StringInterpolator RENDER_LAYER_NAME = new StringInterpolator("gui{DepthTest={},Translucent={},IgnoreTexture={},IgnoreLight={},Shader={}}");
+        private static final StringInterpolator RENDER_LAYER_NAME = new StringInterpolator("gui_depthtest{}_translucent{}_ignoretexture{}_ignorelight{}_shader{}");
         private final boolean depthTest;
         private final boolean translucent;
         private final boolean ignoreTexture;
@@ -123,8 +123,8 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
 
         private RenderLayer createRenderLayer(final String shader, final Identifier texture) {
             final VertexFormat vertexFormat = getVertexFormat();
-            return cache.computeIfAbsent(shader, s -> RenderLayer.of(
-                            RENDER_LAYER_NAME.interpolate(depthTest, translucent, ignoreTexture, ignoreLight, s),
+            return cache.computeIfAbsent(shader + ":" + texture.toString(), s -> RenderLayer.of(
+                            RENDER_LAYER_NAME.interpolate(depthTest, translucent, ignoreTexture, ignoreLight, shader),
                             vertexFormat,
                             VertexFormat.DrawMode.QUADS,
                             1024,
@@ -132,7 +132,7 @@ public class GuiRenderMaterialFinderImpl implements GuiRenderMaterialFinder {
                             translucent,
                             RenderLayer.MultiPhaseParameters.builder().
                                     cull(GuiRenderLayers.NO_CULL).
-                                    shader(GuiRenderLayers.getShader(s, vertexFormat)).
+                                    shader(GuiRenderLayers.getShader(shader, vertexFormat)).
                                     lightmap(ignoreLight ? GuiRenderLayers.DISABLE_LIGHTMAP : GuiRenderLayers.ENABLE_LIGHTMAP).
                                     depthTest(depthTest ? GuiRenderLayers.DEPTH_TEST : GuiRenderLayers.NO_DEPTH_TEST).
                                     texture(GuiRenderLayers.getTexture(texture)).
