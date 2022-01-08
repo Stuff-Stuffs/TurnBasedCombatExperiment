@@ -38,13 +38,13 @@ public final class TooltipRenderer {
             maxWidth = Math.max(maxWidth, context.getTextRenderer().getWidth(component));
             height += context.getTextRenderer().getHeight();
         }
-        final double actualWidth = maxWidth / (double) client.getWindow().getScaledWidth() + 0.01;
-        final double actualHeight = height / (double) client.getWindow().getScaledWidth() + 0.01;
+        final double actualWidth = (maxWidth / (double) client.getWindow().getScaledWidth());
+        final double actualHeight = (height / (double) client.getWindow().getScaledWidth());
         final GuiRenderMaterial material = GuiRenderMaterialFinder.finder().ignoreLight(true).ignoreTexture(false).texture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).translucent(true).depthTest(false).find();
-        NinePatch.render(TOOLTIP_SPRITE_MAP, x - 0.005, y - 0.005, actualWidth, actualHeight, 0.005, 0.005, 1 / 64.0, context, material);
+        NinePatch.render(TOOLTIP_SPRITE_MAP, x - 0.025, y - 0.025, actualWidth + 0.05, actualHeight + 0.05, 0.025, 0.025, 1, context, material);
         final int size = components.size();
         for (int i = 0; i < size; i++) {
-            context.pushTranslate(0, (i * actualHeight) / (double) size, 0);
+            context.pushTranslate(x, y + (i * actualHeight) / (double) (size), 0);
             TOOLTIP_TEXT_DRAWER.draw(actualWidth, actualHeight / size, components.get(i), context);
             context.popGuiTransform();
         }

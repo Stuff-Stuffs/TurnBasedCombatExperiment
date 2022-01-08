@@ -119,14 +119,15 @@ public class GuiContextImpl implements GuiContext {
     @Override
     public void addTooltip(final List<OrderedText> components) {
         tooltipMode = true;
-        TooltipRenderer.render(components, inputContext.getMouseCursorX(), inputContext.getMouseCursorY(), this);
+        final Vec2d mouse = transformMouseCursor();
+        TooltipRenderer.render(components, mouse.x, mouse.y, this);
         tooltipMode = false;
     }
 
     @Override
     public void renderTooltipBackground(final double x, final double y, final double width, final double height) {
         final GuiRenderMaterial material = GuiRenderMaterialFinder.finder().ignoreLight(true).ignoreTexture(false).texture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).translucent(true).depthTest(false).find();
-        NinePatch.render(TooltipRenderer.getTooltipSpriteMap(), x, y, width, height, 0.005, 0.005, 1 / 64.0, this, material);
+        NinePatch.render(TooltipRenderer.getTooltipSpriteMap(), x, y, width, height, 0.025, 0.025, 1, this, material);
     }
 
     @Override
