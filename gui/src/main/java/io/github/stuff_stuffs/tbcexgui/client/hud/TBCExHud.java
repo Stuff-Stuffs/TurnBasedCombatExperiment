@@ -13,12 +13,13 @@ import java.util.ArrayList;
 
 public abstract class TBCExHud {
     protected final Widget root;
-    private final GuiContextImpl context = new GuiContextImpl(GuiRenderLayers.getVertexConsumers());
+    private final GuiContextImpl context;
     private int width = -1;
     private int height = -1;
 
-    protected TBCExHud(final Widget root) {
+    protected TBCExHud(final Widget root, final String name) {
         this.root = root;
+        context = new GuiContextImpl(GuiRenderLayers.getVertexConsumers(), name);
     }
 
     private void resize() {
@@ -62,27 +63,5 @@ public abstract class TBCExHud {
 
     public void tick() {
 
-    }
-
-    private static double transformMouseX(final double mouseX) {
-        final Window window = MinecraftClient.getInstance().getWindow();
-        final int width = window.getScaledWidth();
-        final int height = window.getScaledHeight();
-        if (width > height) {
-            final double v = mouseX - (width / 2.0) + (height / 2.0);
-            return v / height;
-        }
-        return mouseX / (double) width;
-    }
-
-    private static double transformMouseY(final double mouseY) {
-        final Window window = MinecraftClient.getInstance().getWindow();
-        final int width = window.getScaledWidth();
-        final int height = window.getScaledHeight();
-        if (width < height) {
-            final double v = mouseY - (height / 2.0) + (width / 2.0);
-            return v / width;
-        }
-        return mouseY / (double) height;
     }
 }

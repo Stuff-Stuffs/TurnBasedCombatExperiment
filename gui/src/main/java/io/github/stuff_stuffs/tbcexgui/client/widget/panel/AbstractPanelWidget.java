@@ -36,6 +36,7 @@ public abstract class AbstractPanelWidget extends AbstractWidget {
         final int colour = this.colour.getAsInt();
         emitter.colour(colour, colour, colour, colour);
         emitter.emit();
+        renderChildren(context);
     }
 
     protected abstract void renderChildren(GuiContext context);

@@ -31,6 +31,7 @@ public class BattleHudCurrentTurnWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle);
         if (battle == null) {
             return;
@@ -43,7 +44,7 @@ public class BattleHudCurrentTurnWidget extends AbstractWidget {
         if (currentTurnState == null) {
             throw new RuntimeException();
         }
-        context.pushTranslate(0, height * 2 / 3.0, 1);
+        context.pushTranslate(0, height * 2 / 3.0, 0);
         TextDrawers.oneShot(TextDrawers.HorizontalJustification.CENTER, TextDrawers.VerticalJustification.CENTER, currentTurnState.getTeam().getColour().pack(255), 0, false).draw(width, height / 3.0, currentTurnState.getName().asOrderedText(), context);
         context.popGuiTransform();
 
@@ -68,5 +69,12 @@ public class BattleHudCurrentTurnWidget extends AbstractWidget {
         emitter.sprite(3, 0, (color.ordinal() * 5 + 5) / 256.0F);
         emitter.renderMaterial(material);
         emitter.emit();
+
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleHuiCurrentTurnWidget";
     }
 }

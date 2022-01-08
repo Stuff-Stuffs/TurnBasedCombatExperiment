@@ -60,6 +60,7 @@ public class BattleActionRenderTargetsWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         processEvents(context, event -> {
             if (event instanceof GuiInputContext.MouseClick click) {
                 return mouseClicked(click.button);
@@ -82,6 +83,12 @@ public class BattleActionRenderTargetsWidget extends AbstractWidget {
                 renderInfo(context);
             }
         }
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleActionRenderTargetsWidget";
     }
 
     private void renderInfo(final GuiContext context) {

@@ -33,6 +33,7 @@ public class BattleHudEnergyWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext guiContext) {
+        guiContext.enterSection(getDebugName());
         final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle.battleId());
         if (battle == null) {
             return;
@@ -107,5 +108,11 @@ public class BattleHudEnergyWidget extends AbstractWidget {
                 emitter.emit();
             }
         }
+        guiContext.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleHudEnergyWidget";
     }
 }

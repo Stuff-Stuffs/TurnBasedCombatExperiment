@@ -37,19 +37,24 @@ public class GriddedPanelWidget extends AbstractPanelWidget {
 
     @Override
     protected void renderChildren(final GuiContext context) {
+        context.enterSection(getDebugName());
         for (int i = 0; i < verticalCells; i++) {
             for (int j = 0; j < horizontalCells; j++) {
-                context.pushTranslate(j * cellWidth, i * cellHeight, 1);
-                if (scissor) {
-                    context.pushScissor(0, 0, (float) cellWidth, (float) cellHeight);
-                }
-                cells[getIndex(j, i)].render(context);
-                if (scissor) {
+                final int index = getIndex(j, i);
+                if (cells[index] != null) {
+                    context.pushTranslate(j * cellWidth, i * cellHeight, 1);
+                    if (scissor) {
+                        context.pushScissor(0, 0, (float) cellWidth, (float) cellHeight);
+                    }
+                    cells[getIndex(j, i)].render(context);
+                    if (scissor) {
+                        context.popGuiTransform();
+                    }
                     context.popGuiTransform();
                 }
-                context.popGuiTransform();
             }
         }
+        context.exitSection();
     }
 
     @Override
@@ -59,5 +64,10 @@ public class GriddedPanelWidget extends AbstractPanelWidget {
                 cell.resize(width, height, pixelWidth, pixelHeight);
             }
         }
+    }
+
+    @Override
+    public String getDebugName() {
+        return "GriddedPanelWidget";
     }
 }

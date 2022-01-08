@@ -49,6 +49,7 @@ public class BattleHudHealthWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         final Battle battle = ((BattleWorldSupplier) world).tbcex_getBattleWorld().getBattle(handle);
         if (battle == null) {
             return;
@@ -129,6 +130,12 @@ public class BattleHudHealthWidget extends AbstractWidget {
                     }
                 }
         );
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleHudHealthWidget";
     }
 
     private void renderFitText(final MatrixStack matrixStack, final Text text, final double x, final double y, final double width, final double height, final boolean shadow, final Colour colour, final int alpha, final VertexConsumerProvider vertexConsumers) {

@@ -69,6 +69,7 @@ public class ParticipantStatusEffectListWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         processEvents(context, event -> {
             if (event instanceof GuiInputContext.MouseDrag drag) {
                 final Vec2d mouse = context.transformMouseCursor(new Vec2d(drag.mouseX, drag.mouseY));
@@ -93,8 +94,6 @@ public class ParticipantStatusEffectListWidget extends AbstractWidget {
         if (component == null) {
             return;
         }
-        final double x = 0;
-        final double y = 0;
         final Vec2d mouse = context.transformMouseCursor();
         context.pushScissor(0, 0, (float) width, (float) height);
         double h = -scrollPos;
@@ -120,14 +119,16 @@ public class ParticipantStatusEffectListWidget extends AbstractWidget {
             }
         }
         context.popGuiTransform();
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "ParticipantStatusEffectListWidget";
     }
 
     private void renderStatus(final ParticipantStatusEffect effect, final boolean hovered, final GuiContext context) {
-        final double x = 0;
-        final double y = 0;
-        context.pushTranslate(0, 0, 1);
         TEXT_DRAWER.draw(width, entryHeight, effect.getName().asOrderedText(), context);
-        context.popGuiTransform();
         if (hovered) {
             context.addTooltip(effect.getDescription());
         }

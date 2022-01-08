@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+//TODO fix guis in fabulous graphics mode
 public final class GuiRenderLayers extends RenderPhase {
     public static final RenderPhase.Cull NO_CULL = RenderPhase.DISABLE_CULLING;
     public static final RenderPhase.Lightmap ENABLE_LIGHTMAP = RenderPhase.ENABLE_LIGHTMAP;
@@ -29,6 +30,7 @@ public final class GuiRenderLayers extends RenderPhase {
     public static final RenderPhase.WriteMaskState COLOR_MASK = RenderPhase.COLOR_MASK;
     private static final RenderPhase.WriteMaskState NONE_MASK = new WriteMaskState(false, false);
     public static final RenderLayer STENCIL_LAYER = RenderLayer.of("tbcex_gui_stencil", VertexFormats.POSITION, VertexFormat.DrawMode.QUADS, 1024, false, false, RenderLayer.MultiPhaseParameters.builder().depthTest(NO_DEPTH_TEST).shader(RenderPhase.POSITION_SHADER).writeMaskState(NONE_MASK).build(false));
+    public static final RenderLayer STENCIL_LAYER_TRANSLUCENT = RenderLayer.of("tbcex_gui_stencil_translucent", VertexFormats.POSITION, VertexFormat.DrawMode.QUADS, 1024, false, false, RenderLayer.MultiPhaseParameters.builder().depthTest(NO_DEPTH_TEST).shader(RenderPhase.POSITION_SHADER).target(TRANSLUCENT_TARGET).writeMaskState(NONE_MASK).build(false));
     private static final Map<String, ShaderInfo> SHADERS = new Object2ReferenceOpenHashMap<>();
     private static final Map<String, RenderPhase.Shader> SHADERS_PHASE = new Object2ReferenceOpenHashMap<>();
     private static final Map<Identifier, RenderPhase.Texture> TEXTURE_MAP = new Object2ReferenceOpenHashMap<>();

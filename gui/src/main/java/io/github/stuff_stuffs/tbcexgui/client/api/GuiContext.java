@@ -47,8 +47,8 @@ public interface GuiContext {
             public boolean transform(final MutableGuiQuad quad) {
                 for (int i = 0; i < 4; i++) {
                     quad.pos(i, (float) (quad.x(i) + x), (float) (quad.y(i) + y));
-                    quad.depth((float) (quad.depth() + z));
                 }
+                quad.depth((float) (quad.depth() + z));
                 return true;
             }
 
@@ -76,12 +76,14 @@ public interface GuiContext {
         pushGuiTransform(new GuiTransform() {
             @Override
             public boolean transform(final MutableGuiQuad quad) {
+                float avg = 0;
                 for (int i = 0; i < 4; i++) {
                     vec.set(quad.x(i), quad.y(i), quad.depth(), 1);
                     vec.transform(matrix);
                     quad.pos(i, vec.getX(), vec.getY());
-                    quad.depth(vec.getZ());
+                    avg += vec.getZ();
                 }
+                quad.depth(avg * 0.25F);
                 return true;
             }
 
@@ -123,6 +125,10 @@ public interface GuiContext {
     void addTooltip(List<OrderedText> components);
 
     void renderTooltipBackground(double x, double y, double width, double height);
+
+    void enterSection(String widget);
+
+    void exitSection();
 
     enum TextOutline {
         NONE,

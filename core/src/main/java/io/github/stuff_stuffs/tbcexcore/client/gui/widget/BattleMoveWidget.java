@@ -111,6 +111,7 @@ public class BattleMoveWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext guiContext) {
+        guiContext.enterSection(getDebugName());
         check();
         final BattleWorld world = ((BattleWorldSupplier) this.world).tbcex_getBattleWorld();
         if (world == null) {
@@ -218,6 +219,12 @@ public class BattleMoveWidget extends AbstractWidget {
                 }
             });
         }
+        guiContext.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleMoveWidget";
     }
 
     private void check() {

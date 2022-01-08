@@ -38,7 +38,7 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
     }
 
     private static GuiRenderMaterial createTextRenderLayer(final Identifier tex) {
-        return GuiRenderMaterialFinder.finder().ignoreTexture(false).depthTest(true).ignoreLight(false).translucent(true).texture(tex).shader("rendertype_text", "rendertype_text").find().remember(new Identifier("tbcexgui", "text_" + tex.getNamespace() + "_" + tex.getPath()));
+        return GuiRenderMaterialFinder.finder().ignoreTexture(false).depthTest(true).ignoreLight(false).translucent(false).texture(tex).shader("rendertype_text", "rendertype_text").find().remember(new Identifier("tbcexgui", "text_" + tex.getNamespace() + "_" + tex.getPath()));
     }
 
     private final class Adapter implements VertexConsumer {
@@ -91,6 +91,7 @@ public class GuiVcpTextAdapter implements VertexConsumerProvider {
             if (index == 4) {
                 quadDelegate.renderMaterial(renderMaterial);
                 if (context.transformQuad(quadDelegate)) {
+                    quadDelegate.depth(quadDelegate.depth() - 0.001F);
                     context.acquireDeferred().copy(quadDelegate);
                 }
                 index = 0;

@@ -183,6 +183,7 @@ public class BattleInventorySorterWidget extends AbstractWidget implements Posit
 
     @Override
     public void render(final GuiContext guiContext) {
+        guiContext.enterSection(getDebugName());
         processEvents(guiContext, event -> {
             if (event instanceof GuiInputContext.MouseClick click) {
                 final Vec2d mouseCursor = guiContext.transformMouseCursor(new Vec2d(click.mouseX, click.mouseY));
@@ -226,6 +227,12 @@ public class BattleInventorySorterWidget extends AbstractWidget implements Posit
         }
 
         guiContext.popGuiTransform();
+        guiContext.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleInventorySorterWidget";
     }
 
     private void renderDecorations(final Sort sort, final GuiContext context, final int index, final int hoverIndex) {

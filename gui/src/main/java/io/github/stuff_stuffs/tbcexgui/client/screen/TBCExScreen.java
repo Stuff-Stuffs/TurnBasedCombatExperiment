@@ -24,7 +24,7 @@ public abstract class TBCExScreen extends Screen implements RawCharTypeScreen {
 
     protected TBCExScreen(final Text title, final Widget widget) {
         super(title);
-        context = new GuiContextImpl(GuiRenderLayers.getVertexConsumers());
+        context = new GuiContextImpl(GuiRenderLayers.getVertexConsumers(), title.asString());
         this.widget = widget;
     }
 

@@ -32,6 +32,7 @@ public class SelectionWheelWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         for (final Entry entry : entries) {
             entry.render(context);
         }
@@ -53,6 +54,12 @@ public class SelectionWheelWidget extends AbstractWidget {
         } catch (final Exception e) {
             throw new TBCExException("Error while processing gui events", e);
         }
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "SelectionWheelWidget";
     }
 
     private static boolean isIn(final double mouseX, final double mouseY, final Vec2d[] corners) {

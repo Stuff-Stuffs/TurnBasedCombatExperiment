@@ -39,6 +39,7 @@ public class RootPanelWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         if (shaded) {
             final float offsetX = ((float) getScreenWidth() - 1) / 2.0f;
             final float offsetY = ((float) getScreenHeight() - 1) / 2.0f;
@@ -54,6 +55,12 @@ public class RootPanelWidget extends AbstractWidget {
             emitter.emit();
         }
         LayoutAlgorithm.BASIC.layout(widgets.values(), context);
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "RootPanelWidget";
     }
 
     public static final class Handle {

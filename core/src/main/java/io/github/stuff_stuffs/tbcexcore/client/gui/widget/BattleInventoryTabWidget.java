@@ -102,6 +102,7 @@ public class BattleInventoryTabWidget extends AbstractWidget implements Position
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         processEvents(context, event -> {
             if (event instanceof GuiInputContext.MouseClick click) {
                 final Vec2d mouse = context.transformMouseCursor(new Vec2d(click.mouseX, click.mouseY));
@@ -156,6 +157,12 @@ public class BattleInventoryTabWidget extends AbstractWidget implements Position
         }
         context.popGuiTransform();
         context.popGuiTransform();
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleInventoryTabWidget";
     }
 
     private void renderDecorations(final ItemStackInfo info, final GuiContext context, final int index, final int hoverIndex) {

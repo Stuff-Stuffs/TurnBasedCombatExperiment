@@ -65,7 +65,14 @@ public class BattleInventoryActionSelectionWidget extends AbstractWidget impleme
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         actionWheel.render(context);
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleInventoryActionSelectionWidget";
     }
 
     private void send(final BattleAction<?> battleAction) {

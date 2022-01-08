@@ -31,6 +31,7 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         processEvents(context, event -> {
             if (event instanceof GuiInputContext.MouseDrag drag) {
                 final Vec2d mouse = context.transformMouseCursor(new Vec2d(drag.mouseX, drag.mouseY));
@@ -66,7 +67,6 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
 
         final double x = 0;
         final double y = 0;
-        context.pushTranslate(0, 0, 2);
         TITLE_DRAWER.draw(width * 0.35, entryHeight, new LiteralText("Stat").asOrderedText(), context);
         context.pushTranslate(x + width * 0.4, y, 0);
         TITLE_DRAWER.draw(width * 0.6, entryHeight, new LiteralText("Possible Range(lo-hi)").asOrderedText(), context);
@@ -104,6 +104,12 @@ public class ParticipantOtherStatListWidget extends AbstractParticipantStatListW
             odd = !odd;
         }
         context.popGuiTransform();
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "ParticipantOtherStatListWidget";
     }
 
     private void renderStatEntry(final double val, final double rangeSize, final Random rangeFinder, final BattleParticipantStat stat, final GuiContext context) {

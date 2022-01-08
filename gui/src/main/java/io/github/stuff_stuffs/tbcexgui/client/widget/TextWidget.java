@@ -27,6 +27,13 @@ public class TextWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         (shadow.getAsBoolean() ? textDrawerShadowed : textDrawer).draw(width, height, text.get().asOrderedText(), context);
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "TextWidget";
     }
 }

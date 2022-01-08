@@ -22,10 +22,11 @@ import java.util.List;
 public abstract class HandledTBCExScreen<T extends ScreenHandler> extends HandledScreen<T> implements RawCharTypeScreen {
     protected final Widget widget;
     private final List<GuiInputContext.InputEvent> inputEvents = new ArrayList<>(8);
-    private final GuiContextImpl context = new GuiContextImpl(GuiRenderLayers.getVertexConsumers());
+    private final GuiContextImpl context;
 
     public HandledTBCExScreen(final T handler, final PlayerInventory inventory, final Text title, final Widget widget) {
         super(handler, inventory, title);
+        context = new GuiContextImpl(GuiRenderLayers.getVertexConsumers(), title.asString());
         this.widget = widget;
     }
 

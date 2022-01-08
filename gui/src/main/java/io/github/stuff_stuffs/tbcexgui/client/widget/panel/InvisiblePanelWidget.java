@@ -22,7 +22,9 @@ public class InvisiblePanelWidget<C extends Collection<T>, T extends Widget> ext
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         renderChildren(context);
+        context.exitSection();
     }
 
     @Override
@@ -35,5 +37,10 @@ public class InvisiblePanelWidget<C extends Collection<T>, T extends Widget> ext
         for (final T child : children) {
             child.resize(width, height, pixelWidth, pixelHeight);
         }
+    }
+
+    @Override
+    public String getDebugName() {
+        return "InvisiblePanelWidget";
     }
 }

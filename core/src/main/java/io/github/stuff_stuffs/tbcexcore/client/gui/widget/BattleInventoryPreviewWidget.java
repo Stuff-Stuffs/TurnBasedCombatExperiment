@@ -86,6 +86,7 @@ public class BattleInventoryPreviewWidget extends AbstractWidget implements Posi
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         processEvents(context, event -> {
             if (event instanceof GuiInputContext.MouseClick click) {
                 final Vec2d mouse = context.transformMouseCursor(new Vec2d(click.mouseX, click.mouseY));
@@ -115,6 +116,13 @@ public class BattleInventoryPreviewWidget extends AbstractWidget implements Posi
         }
 
         renderInfo(context, width, height, info);
+
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleInventoryPreviewWidget";
     }
 
     private void renderItem(final GuiContext context, final float delta, @Nullable final ItemStackInfo stackInfo) {

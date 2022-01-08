@@ -6,11 +6,15 @@ import io.github.stuff_stuffs.tbcexgui.client.impl.render.*;
 import io.github.stuff_stuffs.tbcexgui.client.render.GuiRenderLayers;
 import io.github.stuff_stuffs.tbcexgui.client.render.NinePatch;
 import io.github.stuff_stuffs.tbcexgui.client.render.TooltipRenderer;
+import io.github.stuff_stuffs.tbcexgui.common.TBCExGui;
+import io.github.stuff_stuffs.tbcexutil.common.LoggerUtil;
+import io.github.stuff_stuffs.tbcexutil.common.TBCExException;
 import io.github.stuff_stuffs.tbcexutil.common.Vec2d;
 import it.unimi.dsi.fastutil.Stack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.GraphicsMode;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.texture.SpriteAtlasTexture;
@@ -22,6 +26,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.*;
 
 public class GuiContextImpl implements GuiContext {
+    private final String guiName;
     private final List<GuiTransform> transforms;
     private final Queue<DeferredEmittedQuad> quadStorage = new ArrayDeque<>();
     private final SortedMap<StencilState, List<DeferredEmittedQuad>> inUse = new Object2ObjectRBTreeMap<>(StencilState.COMPARATOR);
@@ -32,11 +37,13 @@ public class GuiContextImpl implements GuiContext {
     private final GuiQuadEmitterImpl emitter;
     private final GuiInputContextImpl inputContext;
     private final GuiTextRendererImpl textRenderer;
+    private final List<DebugState> debugStates = new ArrayList<>();
     private boolean tooltipMode = false;
     private float tickDelta;
     private int deferredCounter;
 
-    public GuiContextImpl(final VertexConsumerProvider.Immediate vertexConsumers) {
+    public GuiContextImpl(final VertexConsumerProvider.Immediate vertexConsumers, final String guiName) {
+        this.guiName = guiName;
         this.vertexConsumers = vertexConsumers;
         transforms = new ArrayList<>();
         textAdapter = new GuiVcpTextAdapter(this);
@@ -52,7 +59,12 @@ public class GuiContextImpl implements GuiContext {
             stencilStack.pop();
         }
         pushMatrixMultiply(stack.peek().getPositionMatrix());
+        pushTranslate(0, 0, -100);
         inputContext.setup(mouseX, mouseY, events);
+        if (!debugStates.isEmpty()) {
+            LoggerUtil.LOGGER.error("Unbalanced debug states in gui {}", guiName);
+            debugStates.clear();
+        }
     }
 
     @Override
@@ -117,6 +129,34 @@ public class GuiContextImpl implements GuiContext {
         NinePatch.render(TooltipRenderer.getTooltipSpriteMap(), x, y, width, height, 0.005, 0.005, 1 / 64.0, this, material);
     }
 
+    @Override
+    public void enterSection(final String widget) {
+        if (TBCExGui.DEBUG) {
+            debugStates.add(new DebugState(widget, transforms.size()));
+        }
+    }
+
+    @Override
+    public void exitSection() {
+        if (TBCExGui.DEBUG) {
+            if (debugStates.isEmpty()) {
+                throw new TBCExException("Called exitSection too many times!");
+            }
+            final DebugState state = debugStates.remove(debugStates.size() - 1);
+            if (state.transformStackSize != transforms.size()) {
+                final StringBuilder builder = new StringBuilder(256);
+                for (final DebugState debugState : debugStates) {
+                    builder.append(debugState.widgetName);
+                    builder.append('{');
+                    builder.append(debugState.transformStackSize);
+                    builder.append("}:");
+                }
+                builder.append(state.widgetName);
+                LoggerUtil.LOGGER.error("Unbalanced transform stack in section {} started with {} transforms ended with {}", builder.toString(), state.transformStackSize, transforms.size());
+            }
+        }
+    }
+
     public boolean transformQuad(final MutableGuiQuad quad) {
         return transformQuad(quad, false);
     }
@@ -157,13 +197,24 @@ public class GuiContextImpl implements GuiContext {
                 RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_INCR, GL11.GL_INCR);
                 RenderSystem.stencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
                 StencilState stencilState = state;
-                final VertexConsumer consumer = vertexConsumers.getBuffer(GuiRenderLayers.STENCIL_LAYER);
+                VertexConsumer consumer = vertexConsumers.getBuffer(GuiRenderLayers.STENCIL_LAYER);
                 while (stencilState != null) {
                     for (int i = 0; i < 4; i++) {
                         consumer.vertex(stencilState.quad.x(i), stencilState.quad.y(i), stencilState.quad.depth());
                         consumer.next();
                     }
                     stencilState = stencilState.parent;
+                }
+                if (MinecraftClient.getInstance().options.graphicsMode == GraphicsMode.FABULOUS) {
+                    stencilState = state;
+                    consumer = vertexConsumers.getBuffer(GuiRenderLayers.STENCIL_LAYER_TRANSLUCENT);
+                    while (stencilState != null) {
+                        for (int i = 0; i < 4; i++) {
+                            consumer.vertex(stencilState.quad.x(i), stencilState.quad.y(i), stencilState.quad.depth());
+                            consumer.next();
+                        }
+                        stencilState = stencilState.parent;
+                    }
                 }
                 vertexConsumers.draw();
                 RenderSystem.stencilMask(0x00);
@@ -205,6 +256,16 @@ public class GuiContextImpl implements GuiContext {
             } else {
                 depth = parent.depth + 1;
             }
+        }
+    }
+
+    private static final class DebugState {
+        private final String widgetName;
+        private final int transformStackSize;
+
+        private DebugState(final String widgetName, final int transformStackSize) {
+            this.widgetName = widgetName;
+            this.transformStackSize = transformStackSize;
         }
     }
 }

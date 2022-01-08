@@ -6,4 +6,6 @@ public interface Widget {
     void resize(double width, double height, int pixelWidth, int pixelHeight);
 
     void render(GuiContext context);
+
+    String getDebugName();
 }

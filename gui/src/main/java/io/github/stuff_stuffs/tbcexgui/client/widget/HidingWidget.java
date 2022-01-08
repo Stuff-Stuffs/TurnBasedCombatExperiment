@@ -15,9 +15,16 @@ public class HidingWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         if (enabled.getAsBoolean()) {
             delegate.render(context);
         }
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "HidingWidget";
     }
 
     @Override

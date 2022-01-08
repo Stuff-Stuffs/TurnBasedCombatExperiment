@@ -198,6 +198,7 @@ public class BattleInventoryFilterWidget extends AbstractWidget implements Posit
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         processEvents(context, event -> {
             if (event instanceof GuiInputContext.MouseClick click) {
                 final Vec2d mouse = context.transformMouseCursor(new Vec2d(click.mouseX, click.mouseY));
@@ -241,6 +242,13 @@ public class BattleInventoryFilterWidget extends AbstractWidget implements Posit
             renderDecorations(categories.get(i), context, i, hoverIndex);
         }
         context.popGuiTransform();
+
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "BattleInventoryFilterWidget";
     }
 
     private void renderDecorations(final Category category, final GuiContext context, final int index, final int hoverIndex) {

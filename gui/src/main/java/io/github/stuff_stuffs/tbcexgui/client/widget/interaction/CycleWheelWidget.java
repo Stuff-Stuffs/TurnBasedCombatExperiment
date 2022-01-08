@@ -35,6 +35,7 @@ public class CycleWheelWidget extends AbstractWidget {
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         for (final Entry<?> entry : entries) {
             entry.render(context);
         }
@@ -56,6 +57,12 @@ public class CycleWheelWidget extends AbstractWidget {
         } catch (final Exception e) {
             throw new TBCExException("Error while processing gui events", e);
         }
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "CycleWheelWidget";
     }
 
     private static boolean isIn(final double mouseX, final double mouseY, final Vec2d[] corners) {

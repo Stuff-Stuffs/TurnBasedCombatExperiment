@@ -33,6 +33,7 @@ public class ParticipantSelfStatListWidget extends AbstractParticipantStatListWi
 
     @Override
     public void render(final GuiContext context) {
+        context.enterSection(getDebugName());
         processEvents(context, event -> {
             if (event instanceof GuiInputContext.MouseDrag drag) {
                 final Vec2d mouse = context.transformMouseCursor(new Vec2d(drag.mouseX, drag.mouseY));
@@ -59,11 +60,9 @@ public class ParticipantSelfStatListWidget extends AbstractParticipantStatListWi
         if (component == null) {
             return;
         }
-        context.pushTranslate(0, 0, 2);
         TEXT_DRAWER.draw(width * 0.45, entryHeight, new LiteralText("Stat").asOrderedText(), context);
         context.pushTranslate(0.5, 0, 0);
         TEXT_DRAWER.draw(width * 0.45, entryHeight, new LiteralText("Value(Base+Bonus)").asOrderedText(), context);
-        context.popGuiTransform();
         context.popGuiTransform();
         final GuiQuadEmitter emitter = context.getEmitter();
         emitter.renderMaterial(GuiRenderMaterial.POS_COLOUR);
@@ -91,10 +90,17 @@ public class ParticipantSelfStatListWidget extends AbstractParticipantStatListWi
             emitter.emit();
             renderStatEntry(component.getRawStat(stat), component.getStat(stat), stat, context);
             h += entryHeight;
-            context.popGuiTransform();
             odd = !odd;
+
+            context.popGuiTransform();
         }
         context.popGuiTransform();
+        context.exitSection();
+    }
+
+    @Override
+    public String getDebugName() {
+        return "ParticipantSelfStatListWidget";
     }
 
     private void renderStatEntry(double val, double raw, final BattleParticipantStat stat, final GuiContext context) {
@@ -113,11 +119,9 @@ public class ParticipantSelfStatListWidget extends AbstractParticipantStatListWi
         }
         text = text.append(diffText);
         text = text.append(")");
-        context.pushTranslate(0, 0, 1);
         TEXT_DRAWER.draw(width * 0.45, entryHeight, stat.getName().asOrderedText(), context);
         context.pushTranslate(0, 0.5, 0);
         TEXT_DRAWER.draw(width * 0.5, entryHeight, text.asOrderedText(), context);
-        context.popGuiTransform();
         context.popGuiTransform();
     }
 }

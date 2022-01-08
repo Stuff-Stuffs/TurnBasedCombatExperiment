@@ -29,6 +29,11 @@ public final class WidgetModifiers {
             public void render(final GuiContext context) {
                 widget.render(context);
             }
+
+            @Override
+            public String getDebugName() {
+                return "Positioned{" + widget.getDebugName() + "}";
+            }
         };
     }
 }
